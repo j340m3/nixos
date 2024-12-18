@@ -14,6 +14,7 @@
     #procps
     lynis
     git
+    chkrootkit
   ];
 
   networking.hostName = "nixos-gb";
