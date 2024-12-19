@@ -103,4 +103,6 @@
   };
 
   security.sudo.wheelNeedsPassword = true;
+  services.vaultwarden.enable = true;
+  
 }
