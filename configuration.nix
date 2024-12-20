@@ -115,7 +115,7 @@ services.nginx = {
   virtualHosts.localhost = {
     #onlySSL = true;
     listen = [{
-    addr = localhost;
+    addr = "127.0.0.1";
     port = 443;
     ssl = true;
     }];
