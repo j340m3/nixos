@@ -39,6 +39,9 @@
   #services.icingaweb2.enable = true;
   users.mutableUsers = false;
   users.users.root.openssh.authorizedKeys.keys = [''ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKv3fhY8KfwN4GFxXpbWLCfNl4ZP+v+C59CIxXhj0SyB jerome@DESKTOP-B7K2FBB'' ];
+  users.users.root.packages = with pkgs; [
+    openssl
+  ];
   users.users.donquezz = {
     isNormalUser  = true;
     home  = "/home/donquezz";
