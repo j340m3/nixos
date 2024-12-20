@@ -2,7 +2,7 @@
   imports = [
     ./hardware-configuration.nix
     ./hardening.nix
-    ./vaultwarden.nix
+    #./vaultwarden.nix
   ];
   swapDevices = [ { device = "/swapfile"; size = 1024; } ];
   boot.tmp.cleanOnBoot = true;
