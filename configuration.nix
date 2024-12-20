@@ -113,7 +113,7 @@
 services.nginx = {
   enable = true;
   virtualHosts.localhost = {
-    addSSL = true;
+    #addSSL = true;
     locations."/" = {
       return = "200 '<html><body>It works</body></html>'";
       extraConfig = ''
@@ -130,7 +130,7 @@ services.nginx = {
 	  {
 	    host = "localhost";
 	    name = "ssh";
-	    port = "22";
+	    port = "42069";
 	    service = "ssh";
 	  }
 	  {
