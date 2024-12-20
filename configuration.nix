@@ -107,7 +107,19 @@
 
   programs.mosh.enable = true;
   
-  services.nginx.enable = true;
+services.nginx = {
+  enable = true;
+  addSSL = true;
+  virtualHosts.localhost = {
+    locations."/" = {
+      return = "200 '<html><body>It works</body></html>'";
+      extraConfig = ''
+        default_type text/html;
+      '';
+    };
+  };
+};
+  
   services.sslh.enable = true;
   #services.sslh.settings.transparent = true;
   services.sslh.method = "select";
