@@ -113,6 +113,7 @@
 services.nginx = {
   enable = true;
   virtualHosts.localhost = {
+    forceSSL = true;
     #onlySSL = true;
     #listen = [{
     #addr = "localhost";
