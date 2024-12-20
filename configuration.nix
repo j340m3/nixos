@@ -114,11 +114,11 @@ services.nginx = {
   enable = true;
   virtualHosts.localhost = {
     #onlySSL = true;
-    listen = [{
-    addr = "localhost";
-    port = 443;
-    ssl = true;
-    }];
+    #listen = [{
+    #addr = "localhost";
+    #port = 443;
+    #ssl = true;
+    #}];
     locations."/" = {
       return = "200 '<html><body>It works</body></html>'";
       extraConfig = ''
