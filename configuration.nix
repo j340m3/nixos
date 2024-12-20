@@ -110,6 +110,7 @@
   services.nginx.enable = true;
   services.sslh.enable = true;
   services.sslh.settings.transparent = true;
+  services.sslh.method = "select";
   services.sslh.settings.protocols = [
 	  {
 	    host = "localhost";
