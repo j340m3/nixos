@@ -109,8 +109,8 @@
   
 services.nginx = {
   enable = true;
-  addSSL = true;
   virtualHosts.localhost = {
+    addSSL = true;
     locations."/" = {
       return = "200 '<html><body>It works</body></html>'";
       extraConfig = ''
