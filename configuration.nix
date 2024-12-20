@@ -112,7 +112,7 @@
   
 services.nginx = {
   enable = true;
-  virtualHosts.localhost = {
+  virtualHosts."194.164.125.154" = {
     onlySSL = true;
     locations."/" = {
       return = "200 '<html><body>It works</body></html>'";
