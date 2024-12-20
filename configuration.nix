@@ -104,5 +104,27 @@
   };
 
   security.sudo.wheelNeedsPassword = true;
+
+  services.nginx.enable = true;
+  services.sslh.enable = true;
+  services.sslh.settings.transparent = true;
+  services.sslh.settings.protocols = [
+	  {
+	    host = "localhost";
+	    name = "ssh";
+	    port = "22";
+	    service = "ssh";
+	  }
+	  {
+	    host = "localhost";
+	    name = "http";
+	    port = "80";
+	  }
+	  {
+	    host = "localhost";
+	    name = "tls";
+	    port = "443";
+	  }
+  ];
   
 }
