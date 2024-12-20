@@ -105,6 +105,8 @@
 
   security.sudo.wheelNeedsPassword = true;
 
+  programs.mosh.enable = true;
+  
   services.nginx.enable = true;
   services.sslh.enable = true;
   services.sslh.settings.transparent = true;
