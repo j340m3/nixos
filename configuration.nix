@@ -22,7 +22,7 @@
   networking.domain = "";
   services.fail2ban.enable = true;
   services.openssh = {
-    ports = [22 80];
+    ports = [42069];
     enable = true;
     settings.PasswordAuthentication = false;
     settings.KbdInteractiveAuthentication = false;
