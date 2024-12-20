@@ -109,7 +109,7 @@
   security.sudo.wheelNeedsPassword = true;
 
   programs.mosh.enable = true;
-  
+  networking.firewall.allowedTCPPorts = [ 443 ];
 services.nginx = {
   enable = true;
   virtualHosts."194.164.125.154" = {
