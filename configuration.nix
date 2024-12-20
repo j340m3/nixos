@@ -113,13 +113,15 @@
 services.nginx = {
   enable = true;
   virtualHosts.localhost = {
-    #addSSL = true;
+    onlySSL = true;
     locations."/" = {
       return = "200 '<html><body>It works</body></html>'";
       extraConfig = ''
         default_type text/html;
       '';
     };
+    sslCertificate = "/etc/nixos-selfsigned.crt";
+    sslCertificateKey = "/etc/nixos-selfsigned.key";
   };
 };
   
