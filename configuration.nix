@@ -126,5 +126,6 @@
 	    port = "443";
 	  }
   ];
+  services.logrotate.checkConfig = false;
   
 }
