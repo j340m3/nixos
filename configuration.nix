@@ -51,6 +51,7 @@
     openssh.authorizedKeys.keys = [
 	''ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKv3fhY8KfwN4GFxXpbWLCfNl4ZP+v+C59CIxXhj0SyB jerome@DESKTOP-B7K2FBB'' 
         ''ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICBx/L/AY2505t1Sj1yyugnK6Cf2QuIECx8kXxyoks3f jeromeb@nixos''
+        ''ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHVNoVYUWvAghff/jL6lHW80p73L/eGWDMUDeJ4TpZeO jerome@DESKTOP-4SBFVCM''
     ];
   };
   #users.users.monitoring = {
