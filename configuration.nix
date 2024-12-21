@@ -119,6 +119,7 @@ services.nginx = {
   enable = true;
   virtualHosts.localhost = {
     forceSSL = true;
+    listen = [{port = 442;  addr="0.0.0.0"; ssl=true;}];
     #onlySSL = true;
     #listen = [{
     #addr = "localhost";
@@ -154,7 +155,7 @@ services.nginx = {
 	  {
 	    host = "localhost";
 	    name = "tls";
-	    port = "443";
+	    port = "442";
 	  }
   ];
   services.logrotate.checkConfig = false;
