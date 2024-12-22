@@ -88,8 +88,8 @@
 
   nix.gc = {
     automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 30d";
+    dates = "hourly";
+    #options = "--delete-older-than 30d";
   };
 
   systemd.services.monitoring = {
