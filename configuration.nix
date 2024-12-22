@@ -18,6 +18,7 @@
     lynis
     git
     chkrootkit
+    nix-tree
   ];
 
   networking.hostName = "nixos-gb";
