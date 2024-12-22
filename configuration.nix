@@ -2,6 +2,8 @@
   imports = [
     ./hardware-configuration.nix
     ./hardening.nix
+    <nixpkgs/nixos/modules/profiles/headless.nix>
+    <nixpkgs/nixos/modules/profiles/minimal.nix>
     #./vaultwarden.nix
   ];
   swapDevices = [ { device = "/swapfile"; size = 1024; } ];
