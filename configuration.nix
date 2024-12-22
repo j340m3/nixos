@@ -144,7 +144,7 @@ services.nginx = {
 	  {
 	    host = "localhost";
 	    name = "ssh";
-	    port = "42069";
+	    port = "22";
 	    service = "ssh";
 	  }
 	  {
