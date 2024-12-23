@@ -141,7 +141,7 @@ services.nginx = {
 };
   
   services.sslh.enable = true;
-  #services.sslh.settings.transparent = true;
+  services.sslh.settings.transparent = true;
   services.sslh.method = "fork";
   services.sslh.settings.protocols = [
 	  {
