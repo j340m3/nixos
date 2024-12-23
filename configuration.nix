@@ -162,5 +162,19 @@ services.nginx = {
 	  }
   ];
   services.logrotate.checkConfig = false;
-  
+
+  # Please do upgrades in Background
+  nix = {
+    daemonIOSchedClass = lib.mkDefault "idle";
+    daemonCPUSchedPolicy = lib.mkDefault "idle";
+    buildCores = 1;
+    maxJobs = 1;
+  };
+  systemd.services.nix-daemon.serviceConfig.Slice = "-.slice";
+  # always use the daemon, even executed  with root
+  environment.variables.NIX_REMOTE = "daemon";
+  systemd.services.nix-daemon.serviceConfig = {
+    MemoryHigh = "800M";
+    MemoryMax = "1G";
+  };
 }
