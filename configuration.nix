@@ -82,7 +82,7 @@
     #flake = "/etc/nixos#nixos-gb";
     flake = "github:j340m3/nixos#nixos-gb";
     flags = [ 
-      "--update-input" "nixpkgs" 
+    #  "--update-input" "nixpkgs" 
       "--no-write-lock-file"
     ];
     allowReboot  = true;
