@@ -134,8 +134,6 @@ with lib;
     num_logs = 99
     max_log_file = 50
     max_log_file_action = ROTATE
-    admin_space_left = 512
-    admin_space_left_action = suspend
   '';
   #############################
   # Lynis
