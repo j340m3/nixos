@@ -130,7 +130,9 @@ with lib;
   security.audit.rules = [
     "-a exit,always -F arch=b64 -S execve"
   ];
-
+  environment.etc."audit/auditd.conf".text = ''
+    num_logs = 5
+  '';
   #############################
   # Lynis
   #############################
