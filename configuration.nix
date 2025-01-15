@@ -1,4 +1,4 @@
-{ modulesPath, config, pkgs, lib, self, ... }: {
+{ modulesPath, config, pkgs, lib, self, home-manager, ... }: {
   imports = [
      ./hardware-configuration.nix
      (modulesPath + "/profiles/minimal.nix")
