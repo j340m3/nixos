@@ -1,4 +1,4 @@
-{ modulesPath, config, pkgs, lib, ... }: {
+{ modulesPath, config, pkgs, lib, self, ... }: {
   imports = [
      ./hardware-configuration.nix
      (modulesPath + "/profiles/minimal.nix")
@@ -80,7 +80,8 @@
   system.autoUpgrade = {
     enable = true;
     #flake = "/etc/nixos#nixos-gb";
-    flake = "github:j340m3/nixos#nixos-gb";
+    #flake = "github:j340m3/nixos#nixos-gb";
+	flake = self;
     flags = [ 
     #  "--update-input" "nixpkgs" 
       "--no-write-lock-file"
