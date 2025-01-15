@@ -163,7 +163,7 @@ services.nginx = {
 	  }
   ];
   services.logrotate.enable = true;
-  #services.logrotate.checkConfig = false;
+  services.logrotate.checkConfig = false;
 
   # Please do upgrades in Background
   nix = {
