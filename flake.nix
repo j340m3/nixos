@@ -10,8 +10,13 @@
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
     
   };
-  outputs = inputs@{ self, nixpkgs, sops-nix, ... }: {
+  outputs = { self, nixpkgs, sops-nix, home-manager, ... } @ inputs : 
+  let
+    inherit (self) outputs;
+  in
+  {
     nixosConfigurations.nixos-gb = nixpkgs.lib.nixosSystem {
+      specialArgs = {inherit inputs outputs;};
       system = "x86_64-linux";
       modules = [ 
         ./configuration.nix
