@@ -80,8 +80,8 @@
   system.autoUpgrade = {
     enable = true;
     #flake = "/etc/nixos#nixos-gb";
-    #flake = "github:j340m3/nixos#nixos-gb";
-	flake = self;
+    flake = "github:j340m3/nixos#nixos-gb";
+    #flake = self;
     flags = [ 
     #  "--update-input" "nixpkgs" 
       "--no-write-lock-file"
