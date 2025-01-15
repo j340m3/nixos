@@ -19,7 +19,7 @@
       specialArgs = {inherit inputs outputs;};
       system = "x86_64-linux";
       modules = [ 
-        ./nixos/configuration.nix
+        ./configuration.nix
         # sops-nix.nixosModules.sops
       ];
     };
