@@ -3,6 +3,7 @@
      ./hardware-configuration.nix
      (modulesPath + "/profiles/minimal.nix")
      (modulesPath + "/profiles/headless.nix")
+     (modulesPath + "/profiles/perlless.nix")
     ./hardening.nix
     #./vaultwarden.nix
   ];
