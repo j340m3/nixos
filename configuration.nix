@@ -183,5 +183,5 @@ services.nginx = {
     MemoryMax = "1G";
   };
   
-  };
+  
 }
