@@ -131,7 +131,11 @@ with lib;
     "-a exit,always -F arch=b64 -S execve"
   ];
   environment.etc."audit/auditd.conf".text = ''
-    num_logs = 5
+    num_logs = 99
+    max_log_file = 50
+    max_log_file_action = ROTATE
+    admin_space_left = 512
+    admin_space_left_action = suspend
   '';
   #############################
   # Lynis
