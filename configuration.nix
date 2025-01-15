@@ -169,11 +169,11 @@ services.nginx = {
   nix = {
     package = pkgs.nix;
     settings.experimental-features = [ "nix-command" "flakes" ];
-	settings.auto-optimise-store = true;
+    settings.auto-optimise-store = true;
+    settings.max-jobs = 1;
+    settings.cores = 1;
     daemonIOSchedClass = lib.mkDefault "idle";
     daemonCPUSchedPolicy = lib.mkDefault "idle";
-    buildCores = 1;
-    maxJobs = 1;
   };
   systemd.services.nix-daemon.serviceConfig.Slice = "-.slice";
   # always use the daemon, even executed  with root
