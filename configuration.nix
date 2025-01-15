@@ -162,7 +162,8 @@ services.nginx = {
 	    port = "442";
 	  }
   ];
-  services.logrotate.checkConfig = false;
+  services.logrotate.enable = true;
+  #services.logrotate.checkConfig = false;
 
   # Please do upgrades in Background
   nix = {
@@ -180,5 +181,7 @@ services.nginx = {
   systemd.services.nix-daemon.serviceConfig = {
     MemoryHigh = "800M";
     MemoryMax = "1G";
+  };
+  
   };
 }
