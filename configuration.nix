@@ -165,10 +165,10 @@ services.nginx = {
 
   # Please do upgrades in Background
   nix = {
-    package = pkgs.nixFlakes;
-    extraOptions = ''
-        experimental-features = nix-command flakes
-    '';
+    #package = pkgs.nixFlakes;
+    #extraOptions = ''
+    #    experimental-features = nix-command flakes
+    #'';
     daemonIOSchedClass = lib.mkDefault "idle";
     daemonCPUSchedPolicy = lib.mkDefault "idle";
     buildCores = 1;
