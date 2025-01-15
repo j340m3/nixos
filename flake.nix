@@ -19,9 +19,18 @@
       specialArgs = {inherit inputs outputs;};
       system = "x86_64-linux";
       modules = [ 
-        ./configuration.nix
-        sops-nix.nixosModules.sops
+        ./nixos/configuration.nix
+        # sops-nix.nixosModules.sops
       ];
+    };
+    homeConfigurations = {
+      # FIXME replace with your username@hostname
+      "donquezz@nixos-gb" = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+        extraSpecialArgs = {inherit inputs outputs;};
+        # > Our main home-manager configuration file <
+        modules = [./home-manager/home.nix];
+      };
     };
   };
 }
