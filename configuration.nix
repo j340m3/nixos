@@ -72,7 +72,7 @@
   
   system.stateVersion = "23.11";
 
-  nix.settings.auto-optimise-store = true;
+  #nix.settings.auto-optimise-store = true;
   #system.autoUpgrade.enable  = true;
   #system.autoUpgrade.allowReboot  = true;
   #system.autoUpgrade.dates = "daily";  
@@ -167,6 +167,7 @@ services.nginx = {
   nix = {
     package = pkgs.nix;
     settings.experimental-features = [ "nix-command" "flakes" ];
+	settings.auto-optimise-store = true;
     daemonIOSchedClass = lib.mkDefault "idle";
     daemonCPUSchedPolicy = lib.mkDefault "idle";
     buildCores = 1;
