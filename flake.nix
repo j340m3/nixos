@@ -15,17 +15,25 @@
     inherit (self) outputs;
   in
   {
-    nixosConfigurations.nixos-gb = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.pricklepants = nixpkgs.lib.nixosSystem {
       specialArgs = {inherit inputs outputs;};
       system = "x86_64-linux";
       modules = [ 
-        ./configuration.nix
+        ./hosts/pricklepants/configuration.nix
+        # sops-nix.nixosModules.sops
+      ];
+    };
+    nixosConfigurations.rex = nixpkgs.lib.nixosSystem {
+      specialArgs = {inherit inputs outputs;};
+      system = "x86_64-linux";
+      modules = [ 
+        ./hosts/rex/configuration.nix
         # sops-nix.nixosModules.sops
       ];
     };
     homeConfigurations = {
       # FIXME replace with your username@hostname
-      "donquezz@nixos-gb" = home-manager.lib.homeManagerConfiguration {
+      "donquezz@pricklepants" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
         extraSpecialArgs = {inherit inputs outputs;};
         # > Our main home-manager configuration file <
