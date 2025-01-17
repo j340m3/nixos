@@ -21,7 +21,7 @@
     nix-tree
   ];
 
-  networking.hostName = "nixos-gb";
+  networking.hostName = "pricklepants";
   networking.domain = "";
   services.fail2ban.enable = true;
   services.openssh = {
@@ -48,7 +48,7 @@
   users.users.donquezz = {
     isNormalUser  = true;
     home  = "/home/donquezz";
-    description  = "Jerome Bergmann";
+    description  = "Jerome";
     extraGroups  = [ "wheel" "networkmanager" ];
     hashedPassword = "$y$j9T$xI3Gvnwn4Q900uL0HQZHp/$fl5oFfnZWZWBz.6gPxvciND13komHHAXDqq6Yfpjn17";
     openssh.authorizedKeys.keys = [
@@ -80,8 +80,8 @@
 
   system.autoUpgrade = {
     enable = true;
-    #flake = "/etc/nixos#nixos-gb";
-    #flake = "github:j340m3/nixos#nixos-gb";
+    #flake = "/etc/nixos#pricklepants";
+    #flake = "github:j340m3/nixos#pricklepants";
     flake = inputs.self.outPath;
     flags = [ 
     #  "--update-input" "nixpkgs" 
