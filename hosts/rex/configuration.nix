@@ -110,7 +110,7 @@ let
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.j340m3 = {
+  users.users.jeromeb = {
     isNormalUser = true;
     description = "Jerome";
     extraGroups = [ "networkmanager" "wheel" ];
