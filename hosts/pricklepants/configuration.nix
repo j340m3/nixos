@@ -3,7 +3,7 @@
      ./hardware-configuration.nix
      (modulesPath + "/profiles/minimal.nix")
      (modulesPath + "/profiles/headless.nix")
-    ./hardening.nix
+    ./../../modules/hardening.nix
     #./vaultwarden.nix
   ];
   swapDevices = [ { device = "/swapfile"; size = 1024; } ];
