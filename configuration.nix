@@ -82,7 +82,7 @@
     enable = true;
     #flake = "/etc/nixos#nixos-gb";
     #flake = "github:j340m3/nixos#nixos-gb";
-    flake = self;
+    flake = inputs.self.outPath;
     flags = [ 
     #  "--update-input" "nixpkgs" 
       "--no-write-lock-file"
