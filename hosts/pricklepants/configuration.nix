@@ -1,9 +1,10 @@
 { modulesPath, config, pkgs, lib, self, home-manager, inputs, ... }: {
   imports = [
-     ./hardware-configuration.nix
-     (modulesPath + "/profiles/minimal.nix")
-     (modulesPath + "/profiles/headless.nix")
-    ./../../modules/hardening.nix
+    ./hardware-configuration.nix
+    (modulesPath + "/profiles/minimal.nix")
+    (modulesPath + "/profiles/headless.nix")
+    ../../modules/hardening.nix
+    ../common.nix
     #./vaultwarden.nix
   ];
   swapDevices = [ { device = "/swapfile"; size = 1024; } ];
@@ -182,6 +183,15 @@ services.nginx = {
   systemd.services.nix-daemon.serviceConfig = {
     MemoryHigh = "800M";
     MemoryMax = "1G";
+  };
+
+  environment.systemPackages = with pkgs; [ nebula ];
+  services.nebula.networks.mesh = {
+    enable = true;
+    isLighthouse = true;
+    cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
+    key = "/etc/nebula/pricklepants.key";
+    ca = "/etc/nebula/ca.crt";
   };
   
   
