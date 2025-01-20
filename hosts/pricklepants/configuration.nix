@@ -186,11 +186,7 @@ services.nginx = {
     MemoryMax = "1G";
   };
 
-<<<<<<< HEAD
-  environment.systemPackages = with pkgs; [ nebula ];
-=======
   # environment.systemPackages = with pkgs; [ nebula ];
->>>>>>> f651110 (added nebula)
   services.nebula.networks.mesh = {
     enable = true;
     isLighthouse = true;
