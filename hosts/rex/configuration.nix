@@ -350,8 +350,8 @@ let
     settings = {
         cipher= "aes";
         };
-    cert = "/etc/nebula/host.crt";
-    key = "/etc/nebula/host.key";
+    cert = "/etc/nebula/rex.crt";
+    key = "/etc/nebula/rex.key";
     ca = "/etc/nebula/ca.crt";
     staticHostMap = {
         "10.0.0.1" = [
