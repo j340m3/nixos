@@ -80,7 +80,7 @@
   #system.autoUpgrade.allowReboot  = true;
   #system.autoUpgrade.dates = "daily";  
 
-  system.autoUpgrade = {
+  /* system.autoUpgrade = {
     enable = true;
     #flake = "/etc/nixos#pricklepants";
     #flake = "github:j340m3/nixos#pricklepants";
@@ -97,7 +97,7 @@
     automatic = true;
     dates = "hourly";
     options = "--delete-older-than 1d";
-  };
+  }; */
 
   systemd.services.monitoring = {
     path = with pkgs; [
@@ -187,13 +187,13 @@ services.nginx = {
   # };
 
   # environment.systemPackages = with pkgs; [ nebula ];
-#  services.nebula.networks.mesh = {
-#    enable = true;
-#    isLighthouse = true;
-#    cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
-#    key = "/etc/nebula/pricklepants.key";
-#    ca = "/etc/nebula/ca.crt";
-#  };
+ services.nebula.networks.mesh = {
+   enable = true;
+   isLighthouse = true;
+   cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
+   key = "/etc/nebula/pricklepants.key";
+   ca = "/etc/nebula/ca.crt";
+ };
   
   
 }
