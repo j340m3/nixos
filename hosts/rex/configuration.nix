@@ -342,11 +342,11 @@ let
     enable = true;
     server = "localhost";
   };
-  
+
   services.nebula.networks.mesh = {
     enable = true;
     isLighthouse = false;
-    lighthouses = [ "192.168.100.1" ];
+    lighthouses = [ "10.0.0.1" ];
     settings = {
         cipher= "aes";
         };
@@ -354,7 +354,7 @@ let
     key = "/etc/nebula/host.key";
     ca = "/etc/nebula/ca.crt";
     staticHostMap = {
-        "192.168.100.1" = [
+        "10.0.0.1" = [
                 "194.164.125.154:4242"
                 ];
         };
