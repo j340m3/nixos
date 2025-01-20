@@ -264,6 +264,7 @@ let
     powerline
     powerline-fonts
     powerline-symbols
+    nebula
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -341,4 +342,37 @@ let
     enable = true;
     server = "localhost";
   };
+  
+  services.nebula.networks.mesh = {
+    enable = true;
+    isLighthouse = false;
+    lighthouses = [ "192.168.100.1" ];
+    settings = {
+        cipher= "aes";
+        };
+    cert = "/etc/nebula/host.crt";
+    key = "/etc/nebula/host.key";
+    ca = "/etc/nebula/ca.crt";
+    staticHostMap = {
+        "192.168.100.1" = [
+                "194.164.125.154:4242"
+                ];
+        };
+    firewall.outbound = [
+  {
+    host = "any";
+    port = "any";
+    proto = "any";
+  }
+];
+    firewall.inbound = [
+  {
+    host = "any";
+    port = "any";
+    proto = "any";
+  }
+];
+  };
+
+
 }
