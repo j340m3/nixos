@@ -350,6 +350,7 @@ let
     lighthouses = [ "10.0.0.1" ];
     settings = {
         cipher= "aes";
+        punchy.punch=true;
         };
     cert = "/etc/nebula/rex.crt";
     key = "/etc/nebula/rex.key";
