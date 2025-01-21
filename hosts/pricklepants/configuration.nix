@@ -119,7 +119,6 @@
 
   programs.mosh.enable = true;
   networking.firewall.allowedTCPPorts = [ 443 ];
-  networking.firewall.allowedUDPPorts = [ 4242 ];
   networking.firewall.allowedUDPPortRanges = [
     { from = 60000; to = 61000; }
 
@@ -196,6 +195,7 @@ services.nginx = {
     cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
     key = "/etc/nebula/pricklepants.key";
     ca = "/etc/nebula/ca.crt";
+    serve_dns = true;
     firewall.outbound = [
       {
       host = "any";
@@ -206,8 +206,18 @@ services.nginx = {
     firewall.inbound = [
     {
       host = "any";
+      port = "22";
+      proto = "tcp";
+    }
+    {
+      host = "any";
       port = "any";
-      proto = "any";
+      proto = "icmp";
+    }
+    {
+      host = "any";
+      port = "53";
+      proto = "udp";
     }
     ];
   };
