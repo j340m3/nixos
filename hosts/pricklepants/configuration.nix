@@ -189,14 +189,28 @@ services.nginx = {
   # };
 
   # environment.systemPackages = with pkgs; [ nebula ];
- services.nebula.networks.mesh = {
-   enable = true;
-   isLighthouse = true;
-   isRelay = true;
-   cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
-   key = "/etc/nebula/pricklepants.key";
-   ca = "/etc/nebula/ca.crt";
- };
+  services.nebula.networks.mesh = {
+    enable = true;
+    isLighthouse = true;
+    isRelay = true;
+    cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
+    key = "/etc/nebula/pricklepants.key";
+    ca = "/etc/nebula/ca.crt";
+    firewall.outbound = [
+      {
+      host = "any";
+      port = "any";
+      proto = "any";
+      }
+    ];
+    firewall.inbound = [
+    {
+      host = "any";
+      port = "any";
+      proto = "any";
+    }
+    ];
+  };
   
   
 }
