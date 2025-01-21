@@ -119,8 +119,10 @@
 
   programs.mosh.enable = true;
   networking.firewall.allowedTCPPorts = [ 443 ];
+  networking.firewall.allowedUDPPorts = [ 4242 ];
   networking.firewall.allowedUDPPortRanges = [
     { from = 60000; to = 61000; }
+
   ];
 services.nginx = {
   enable = true;
