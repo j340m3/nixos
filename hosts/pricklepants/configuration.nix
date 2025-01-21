@@ -195,7 +195,13 @@ services.nginx = {
     cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
     key = "/etc/nebula/pricklepants.key";
     ca = "/etc/nebula/ca.crt";
-    serve_dns = true;
+    settings.lighthouse = {
+      serve_dns = true;
+      dns = {
+        host = "[::]";
+        port = 53;
+      };
+    };
     firewall.outbound = [
       {
       host = "any";
