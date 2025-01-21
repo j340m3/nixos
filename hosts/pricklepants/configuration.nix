@@ -228,5 +228,15 @@ services.nginx = {
     ];
   };
   
-  
+  systemd.services."nebula@mesh".serviceConfig = {
+        CapabilityBoundingSet = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+        AmbientCapabilities = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+  };
+  # allow nebula to claim port 53 from systemd-resolved
+  services.resolved.extraConfig = ''
+    DNSStubListener=no
+  '';
+  # open the systems firewall for DNS only on the nebula interface
+  networking.firewall.interfaces.mesh.allowedUDPPorts = [ 53 ];
 }
+
