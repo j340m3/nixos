@@ -228,7 +228,7 @@ services.nginx = {
     {
       host = "any";
       port = "10050";
-      proto = "any"
+      proto = "any";
     }
     ];
   };
