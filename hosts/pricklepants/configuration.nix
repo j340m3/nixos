@@ -238,5 +238,10 @@ services.nginx = {
   '';
   # open the systems firewall for DNS only on the nebula interface
   networking.firewall.interfaces.mesh.allowedUDPPorts = [ 53 ];
+
+  services.zabbixAgent = {
+    enable = true;
+    server = "10.0.0.2";
+  };
 }
 
