@@ -225,6 +225,11 @@ services.nginx = {
       port = "53";
       proto = "udp";
     }
+    {
+      host = "any";
+      port = "10050";
+      proto = "any"
+    }
     ];
   };
   
@@ -242,6 +247,9 @@ services.nginx = {
   services.zabbixAgent = {
     enable = true;
     server = "10.0.0.2";
+    settings = {
+      Hostname = "pricklepants"
+    };
   };
 }
 
