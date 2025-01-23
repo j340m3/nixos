@@ -248,7 +248,7 @@ services.nginx = {
   services.zabbixAgent = {
     enable = true;
     openFirewall = true;
-    server = "10.0.0.3";
+    server = "10.0.0.0/24";
     settings = {
       Hostname = "pricklepants";
     };
