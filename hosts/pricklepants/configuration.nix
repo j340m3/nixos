@@ -251,7 +251,6 @@ services.nginx = {
     server = "10.0.0.2";
     settings = {
       Hostname = "pricklepants";
-      hostname = "pricklepants";
     };
   };
 }
