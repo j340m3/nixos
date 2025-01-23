@@ -330,7 +330,7 @@ let
   #    inherit pkgs;
   #  };
   #};
-  services.zabbixServer.enable = true;
+  /* services.zabbixServer.enable = true;
   services.zabbixWeb = {
     enable = true;
     virtualHost = {
@@ -342,6 +342,15 @@ let
   services.zabbixAgent = {
     enable = true;
     server = "localhost";
+  }; */
+
+  services.zabbixAgent = {
+    enable = true;
+    openFirewall = true;
+    server = "10.0.0.3";
+    settings = {
+      Hostname = "rex";
+    };
   };
 
   services.nebula.networks.mesh = {
