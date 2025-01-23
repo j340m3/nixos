@@ -28,7 +28,7 @@
       system = "x86_64-linux";
       modules = [ 
         ./hosts/rex/configuration.nix
-        # sops-nix.nixosModules.sops
+        sops-nix.nixosModules.sops
       ];
     };
     homeConfigurations = {
