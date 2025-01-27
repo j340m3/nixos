@@ -116,7 +116,7 @@ let
     extraGroups = [ "networkmanager" "wheel" ];
     shell = pkgs.zsh;
     packages = with pkgs; [
-        gparted
+      # gparted
        nmap
        webex
        signal-desktop
@@ -124,7 +124,7 @@ let
        telegram-desktop
        (makeAutostartItem { name = "telegram.desktop"; package = telegram-desktop; srcPrefix = "org.";})
        #telegram-desktop
-       jetbrains.pycharm-professional
+       #jetbrains.pycharm-professional
        elmPackages.elm
        python3Full
        vulnix
@@ -145,14 +145,14 @@ let
        (makeAutostartItem { name = "spotify"; package = spotify; })
        mosh
     #  thunderbird
-       libreoffice-qt
+       #libreoffice-qt
        hunspell
        hunspellDicts.de_DE
        hunspellDicts.en_US
        remmina
-       traceroute
-       statix
-       alejandra
+       #traceroute
+       #statix
+       #alejandra
     ];
   };
 
