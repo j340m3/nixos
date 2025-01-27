@@ -1,5 +1,13 @@
 { config, pkgs, inputs, lib,  ... }:
 
+options = {
+  allowReboot = mkOption {
+    type = types.bool;
+    default = true;
+    description = "Allow random reboots.";
+  };
+};
+
 {
   system.autoUpgrade = {
     enable = true;
@@ -10,7 +18,7 @@
       "--update-input" "nixpkgs" 
     #  "--no-write-lock-file"
     ];
-    allowReboot  = true;
+    allowReboot = options.allowReboot;
     dates = "hourly";
   };
 
