@@ -304,8 +304,8 @@ let
 
   nix.gc = {
     automatic = true;
-    dates = "daily";
-    options = "--delete-older-than 7d";
+    dates = "hourly";
+    options = "--delete-older-than 1d";
   };
 
   services.ollama = {
