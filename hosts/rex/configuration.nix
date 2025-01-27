@@ -151,6 +151,8 @@ let
        hunspellDicts.en_US
        remmina
        traceroute
+       statix
+       alejandra
     ];
   };
 
