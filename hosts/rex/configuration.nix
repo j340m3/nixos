@@ -311,7 +311,7 @@ let
 
   services.ollama = {
     enable = true;
-    acceleration = false;daily
+    acceleration = false;
   };
   
   programs.thefuck.enable = true;
