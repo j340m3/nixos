@@ -1,14 +1,14 @@
 { config, pkgs, inputs, lib,  ... }:
 
-options = {
-  allowReboot = mkOption {
-    type = types.bool;
-    default = true;
-    description = "Allow random reboots.";
-  };
-};
-
 {
+  options = {
+    allowReboot = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Allow random reboots.";
+    };
+  };
+  
   system.autoUpgrade = {
     enable = true;
     #flake = "/etc/nixos#nixos-gb";
