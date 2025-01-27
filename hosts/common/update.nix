@@ -2,8 +2,8 @@
 
 {
   options = {
-    allowReboot = mkOption {
-      type = types.bool;
+    allowReboot = lib.mkOption {
+      type = lib.types.bool;
       default = true;
       description = "Allow random reboots.";
     };
