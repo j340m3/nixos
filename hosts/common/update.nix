@@ -18,7 +18,7 @@ options = {
       "--update-input" "nixpkgs" 
     #  "--no-write-lock-file"
     ];
-    allowReboot = options.allowReboot;
+    allowReboot = config.allowReboot;
     dates = "hourly";
   };
 
