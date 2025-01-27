@@ -301,7 +301,6 @@ let
   system.stateVersion = "24.11"; # Did you read the comment?
 
   system.autoUpgrade.enable = true;
-  system.autoUpgrade.allowReboot = true;
 
   nix.settings.auto-optimise-store = true;
 
