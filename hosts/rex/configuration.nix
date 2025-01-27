@@ -116,24 +116,24 @@ let
     extraGroups = [ "networkmanager" "wheel" ];
     shell = pkgs.zsh;
     packages = with pkgs; [
-      # gparted
-       #nmap
-       #webex
+       gparted
+       nmap
+       webex
        signal-desktop
        (makeAutostartItem { name = "signal-desktop"; package = signal-desktop; })
        telegram-desktop
        (makeAutostartItem { name = "telegram.desktop"; package = telegram-desktop; srcPrefix = "org.";})
-       #telegram-desktop
-       #jetbrains.pycharm-professional
-       #elmPackages.elm
-       #python3Full
-       #vulnix
+       telegram-desktop
+       jetbrains.pycharm-professional
+       elmPackages.elm
+       python3Full
+       vulnix
        git
-       #zip
-       #lynis
-       #zabbix.agent
-       #spotify
-       #nur.repos.rycee.firefox-addons.bitwarden
+       zip
+       lynis
+       zabbix.agent
+       spotify
+       nur.repos.rycee.firefox-addons.bitwarden
        (vscode-with-extensions.override {
          # When the extension is already available in the default extensions set.
          vscodeExtensions = with vscode-extensions; [
@@ -143,19 +143,16 @@ let
        })
        (makeAutostartItem { name = "firefox"; package = firefox; })
        (makeAutostartItem { name = "spotify"; package = spotify; })
-       #mosh
+       mosh
     #  thunderbird
-       #libreoffice-qt
-       #hunspell
-       #hunspellDicts.de_DE
-       #hunspellDicts.en_US
+       libreoffice-qt
+       hunspell
+       hunspellDicts.de_DE
+       hunspellDicts.en_US
        remmina
-       #traceroute
-       #statix
-       #alejandra
-       #traceroute
-       #statix
-       #alejandra
+       traceroute
+       statix
+       alejandra
     ];
   };
 
