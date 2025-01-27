@@ -1,12 +1,12 @@
 { config, pkgs, inputs, lib,  ... }:
 
 {
-  options = {
+  
     allowReboot = lib.mkOption {
       type = lib.types.bool;
       default = true;
       description = "Allow random reboots.";
-    };
+    
   };
   
   system.autoUpgrade = {
