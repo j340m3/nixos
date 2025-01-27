@@ -11,7 +11,7 @@
     #  "--no-write-lock-file"
     ];
     allowReboot  = true;
-    dates = "4hours";
+    dates = "hourly";
   };
 
   nix.gc = {
