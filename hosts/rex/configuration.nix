@@ -25,6 +25,7 @@ let
       ./hardware-configuration.nix
       #./mate.nix
       ./hardened.nix
+      ../common.nix
     ];
 
   # Bootloader.
@@ -310,7 +311,7 @@ let
 
   services.ollama = {
     enable = true;
-    acceleration = false;
+    acceleration = false;daily
   };
   
   programs.thefuck.enable = true;
