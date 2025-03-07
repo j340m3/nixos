@@ -84,3 +84,4 @@ in {
     allowedTCPPorts = [80 443 8448];
     allowedUDPPorts = [80 443 8448];
   };
+}
