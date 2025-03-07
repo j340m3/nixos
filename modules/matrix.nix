@@ -14,7 +14,7 @@ in {
     enable = true;
     #package = pkgs.conduwuit_git;
     settings.global = {
-      allow_registration = false;
+      allow_registration = true;
       database_backend = "rocksdb";
       inherit server_name;
       new_user_displayname_suffix = "";
