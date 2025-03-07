@@ -4,6 +4,7 @@
     (modulesPath + "/profiles/minimal.nix")
     (modulesPath + "/profiles/headless.nix")
     ../../modules/hardening.nix
+    ../../modules/matrix.nix
     ../common.nix
     #./vaultwarden.nix
   ];
