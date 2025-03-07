@@ -146,27 +146,27 @@ services.nginx = {
   };
 };
   
-  services.sslh.enable = true;
-  services.sslh.settings.transparent = true;
-  services.sslh.method = "fork";
-  services.sslh.settings.protocols = [
-	  {
-	    host = "localhost";
-	    name = "ssh";
-	    port = "22";
-	    service = "ssh";
-	  }
-	  {
-	    host = "localhost";
-	    name = "http";
-	    port = "80";
-	  }
-	  {
-	    host = "localhost";
-	    name = "tls";
-	    port = "442";
-	  }
-  ];
+  #services.sslh.enable = true;
+  #services.sslh.settings.transparent = true;
+  #services.sslh.method = "fork";
+  #services.sslh.settings.protocols = [
+#	  {
+#	    host = "localhost";
+#	    name = "ssh";
+#	    port = "22";
+#	    service = "ssh";
+#	  }
+#	  {
+#	    host = "localhost";
+#	    name = "http";
+#	    port = "80";
+#	  }
+#	  {
+#	    host = "localhost";
+#	    name = "tls";
+#	    port = "442";
+#	  }
+#  ];
   services.logrotate.enable = true;
   services.logrotate.checkConfig = false;
 
