@@ -78,8 +78,6 @@ in {
     };
   };
 
-  environment.systemPackages = with pkgs; [signal-cli];
-
   networking.firewall = {
     allowedTCPPorts = [80 443 8448];
     allowedUDPPorts = [80 443 8448];
