@@ -47,6 +47,7 @@ in
       allow_encryption = true;
       allow_federation = true;
       allow_registration = true;
+      database_backend = "rocksdb";
     };
     settings.tls = {
       certs = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
