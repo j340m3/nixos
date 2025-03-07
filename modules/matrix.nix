@@ -12,7 +12,7 @@ let
 in {
   services.matrix-conduit = {
     enable = true;
-    package = pkgs.conduwuit_git;
+    #package = pkgs.conduwuit_git;
     settings.global = {
       allow_registration = false;
       database_backend = "rocksdb";
@@ -22,7 +22,7 @@ in {
   };
 
   # Fix for new binary name in 0.5.0
-  systemd.services.conduit.serviceConfig.ExecStart = lib.mkForce "${pkgs.conduwuit_git}/bin/conduwuit";
+  #systemd.services.conduit.serviceConfig.ExecStart = lib.mkForce "${pkgs.conduwuit_git}/bin/conduwuit";
 
   services.nginx = {
     virtualHosts = {
