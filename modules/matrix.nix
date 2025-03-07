@@ -67,7 +67,7 @@ in {
           '';
         };
         locations."/" = {
-          return = "200 '<html><head><style>p.penis {font-size: 100px;}</style></head><body><p class="penis">PENIS</p></body></html>'";
+          return = "200 '<html><head><style>p.penis {font-size: 100px;}</style></head><body><p class=\"penis\">PENIS</p></body></html>'";
           extraConfig = ''
             default_type text/html;
           '';
