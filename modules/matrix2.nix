@@ -1,5 +1,5 @@
 { self, inputs, config, lib, pkgs,
-  host, repo, user, network, machine,conduwuit
+  host, repo, user, network, machine, conduwuit,
   ...
 }:
 let
