@@ -15,6 +15,7 @@ in {
     #package = pkgs.conduwuit_git;
     settings.global = {
       allow_registration = true;
+      allow_federation = true;
       database_backend = "rocksdb";
       inherit server_name;
       new_user_displayname_suffix = "";
