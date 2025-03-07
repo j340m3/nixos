@@ -20,6 +20,10 @@ in {
       inherit server_name;
       new_user_displayname_suffix = "";
     };
+    settings.tls = {
+      certs = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
+      key = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+    };
   };
 
   # Fix for new binary name in 0.5.0
