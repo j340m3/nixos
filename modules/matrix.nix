@@ -76,6 +76,7 @@ in {
         };
       };
     };
+    package = pkgs.nginxQuic;
   };
 
   networking.firewall = {
