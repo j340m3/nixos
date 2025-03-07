@@ -48,6 +48,10 @@ in
       allow_federation = true;
       allow_registration = true;
     };
+    settings.tls = {
+      certs = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
+      key = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+    };
   };
 
   # Configure automated TLS acquisition/renewal
