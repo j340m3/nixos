@@ -27,6 +27,8 @@ in {
   services.nginx = {
     virtualHosts = {
       "${matrix_hostname}" = {
+        sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer"
+        sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key"
         extraConfig = ''
           merge_slashes off;
         '';
