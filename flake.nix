@@ -15,7 +15,7 @@
     };
     
   };
-  outputs = { self, nixpkgs, sops-nix, home-manager, ... } @ inputs : 
+  outputs = { self, nixpkgs, sops-nix, home-manager, conduwuit, ... } @ inputs : 
   let
     inherit (self) outputs;
   in
