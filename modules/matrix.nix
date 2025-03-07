@@ -66,6 +66,12 @@ in {
             proxy_buffering off;
           '';
         };
+        locations."/" = {
+          return = "200 '<html><head><style>p.penis {font-size: 100px;}</style></head><body><p class="penis">PENIS</p></body></html>'";
+          extraConfig = ''
+            default_type text/html;
+          '';
+        };
         quic = true;
         #useACMEHost = "kauderwels.ch";
       };
