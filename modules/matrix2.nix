@@ -1,5 +1,5 @@
 { self, inputs, config, lib, pkgs,
-  host, repo, user, network, machine, conduwuit,
+  host, repo, user, network, machine,
   ...
 }:
 let
@@ -48,7 +48,7 @@ in
       allow_federation = true;
       allow_registration = true;
       database_backend = "rocksdb";
-      package = conduwuit;
+      package = inputs.conduwuit;
     };
     settings.tls = {
       certs = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
