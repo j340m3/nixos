@@ -304,12 +304,6 @@ let
 
   nix.settings.auto-optimise-store = true;
 
-  nix.gc = {
-    automatic = true;
-    dates = "hourly";
-    options = "--delete-older-than 1d";
-  };
-
   services.ollama = {
     enable = true;
     acceleration = false;
