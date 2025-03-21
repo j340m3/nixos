@@ -21,6 +21,10 @@
       ];
       allowReboot = config.allowReboot;
       dates = "hourly";
+      rebootWindow = {
+        lower = "22:00";
+        upper = "08:00";
+      };
     };
 
     nix.gc = {
