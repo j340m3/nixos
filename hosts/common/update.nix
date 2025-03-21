@@ -17,8 +17,8 @@
       flake = inputs.self.outPath;
       flags = [ 
       # "--update-input" "nixpkgs"
-        "--update-all-inputs"
-      #  "--no-write-lock-file"
+      # "--update-all-inputs"
+        "--no-write-lock-file"
       ];
       allowReboot = config.allowReboot;
       dates = "hourly";
