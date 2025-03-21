@@ -16,7 +16,8 @@
       #flake = "github:j340m3/nixos#nixos-gb";
       flake = inputs.self.outPath;
       flags = [ 
-        "--update-input" "nixpkgs" 
+      # "--update-input" "nixpkgs"
+        "--update-all-inputs"
       #  "--no-write-lock-file"
       ];
       allowReboot = config.allowReboot;
