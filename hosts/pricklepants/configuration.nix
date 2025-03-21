@@ -11,6 +11,7 @@
   swapDevices = [ { device = "/swapfile"; size = 1024; } ];
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
+  bla
   
   environment.systemPackages = with pkgs; [
     #bc
