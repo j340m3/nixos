@@ -3,10 +3,12 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, lib, inputs, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 {
   imports =
     [ # Include the results of the hardware scan.
+      #inputs.nixos-hardware.lenovo-thinkpad-x230
       #<nixos-hardware/lenovo/thinkpad/x230>
       ./hardware-configuration.nix
     ];
