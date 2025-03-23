@@ -30,7 +30,7 @@
 
     nix.gc = {
       automatic = true;
-      dates = "hourly";
+      dates = lib.mkDefault "hourly";
       options = lib.mkDefault "--delete-older-than 7d";
     };
     

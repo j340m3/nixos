@@ -1,3 +1,4 @@
+{
 { self, inputs, config, lib, pkgs,
   host, repo, user, network, machine,
   ...
@@ -32,121 +33,128 @@ let
     }
   '';
 in
-
-{
-  # Configure Conduit itself
-  services.matrix-conduit = {
-    enable = true;
-
-    # This causes NixOS to use the flake defined in this repository instead of
-    # the build of Conduit built into nixpkgs.
-    # package = inputs.conduit.packages.${pkgs.system}.default;
-
-    settings.global = {
-      inherit server_name;
-      allow_encryption = true;
-      allow_federation = true;
-      allow_registration = true;
-      database_backend = "rocksdb";
-      package = inputs.conduwuit;
+inputs = {
+  conduwuit = {
+      url = "github:girlbossceo/conduwuit";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
-    settings.tls = {
-      certs = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
-      key = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
-    };
-  };
+};
+outputs {conduwuit, ...} @ inputs :
+  {
+    # Configure Conduit itself
+    services.matrix-conduit = {
+      enable = true;
 
-  # Configure automated TLS acquisition/renewal
-  #security.acme = {
-  #  acceptTerms = true;
-  #  defaults = {
-  #    email = admin_email;
-  #  };
-  #};
+      # This causes NixOS to use the flake defined in this repository instead of
+      # the build of Conduit built into nixpkgs.
+      # package = inputs.conduit.packages.${pkgs.system}.default;
 
-  # ACME data must be readable by the NGINX user
-  #users.users.nginx.extraGroups = [
-  #  "acme"
-  #];
-
-  # Configure NGINX as a reverse proxy
-  services.nginx = {
-    enable = true;
-    recommendedProxySettings = true;
-
-    virtualHosts = {
-      "${matrix_hostname}" = {
-        forceSSL = true;
-        sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
-        sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
-        #enableACME = true;
-
-        listen = [
-          {
-            addr = "0.0.0.0";
-            port = 443;
-            ssl = true;
-          }
-          {
-            addr = "0.0.0.0";
-            port = 8448;
-            ssl = true;
-          }
-        ];
-
-        locations."/_matrix/" = {
-          proxyPass = "http://backend_conduit$request_uri";
-          proxyWebsockets = true;
-          extraConfig = ''
-            proxy_set_header Host $host;
-            proxy_buffering off;
-          '';
-        };
-
-        extraConfig = ''
-          merge_slashes off;
-        '';
+      settings.global = {
+        inherit server_name;
+        allow_encryption = true;
+        allow_federation = true;
+        allow_registration = true;
+        database_backend = "rocksdb";
+        package = inputs.conduwuit;
       };
-
-      "${server_name}" = {
-        forceSSL = true;
-        sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
-        sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
-        #enableACME = true;
-
-        locations."=/.well-known/matrix/server" = {
-          # Use the contents of the derivation built previously
-          alias = "${well_known_server}";
-
-          extraConfig = ''
-            # Set the header since by default NGINX thinks it's just bytes
-            default_type application/json;
-          '';
-        };
-
-        locations."=/.well-known/matrix/client" = {
-          # Use the contents of the derivation built previously
-          alias = "${well_known_client}";
-
-          extraConfig = ''
-            # Set the header since by default NGINX thinks it's just bytes
-            default_type application/json;
-
-            # https://matrix.org/docs/spec/client_server/r0.4.0#web-browser-clients
-            add_header Access-Control-Allow-Origin "*";
-          '';
-        };
+      settings.tls = {
+        certs = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
+        key = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
       };
     };
 
-    upstreams = {
-      "backend_conduit" = {
-        servers."localhost:${toString config.services.matrix-conduit.settings.global.port}" = { };
+    # Configure automated TLS acquisition/renewal
+    #security.acme = {
+    #  acceptTerms = true;
+    #  defaults = {
+    #    email = admin_email;
+    #  };
+    #};
+
+    # ACME data must be readable by the NGINX user
+    #users.users.nginx.extraGroups = [
+    #  "acme"
+    #];
+
+    # Configure NGINX as a reverse proxy
+    services.nginx = {
+      enable = true;
+      recommendedProxySettings = true;
+
+      virtualHosts = {
+        "${matrix_hostname}" = {
+          forceSSL = true;
+          sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
+          sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+          #enableACME = true;
+
+          listen = [
+            {
+              addr = "0.0.0.0";
+              port = 443;
+              ssl = true;
+            }
+            {
+              addr = "0.0.0.0";
+              port = 8448;
+              ssl = true;
+            }
+          ];
+
+          locations."/_matrix/" = {
+            proxyPass = "http://backend_conduit$request_uri";
+            proxyWebsockets = true;
+            extraConfig = ''
+              proxy_set_header Host $host;
+              proxy_buffering off;
+            '';
+          };
+
+          extraConfig = ''
+            merge_slashes off;
+          '';
+        };
+
+        "${server_name}" = {
+          forceSSL = true;
+          sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
+          sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+          #enableACME = true;
+
+          locations."=/.well-known/matrix/server" = {
+            # Use the contents of the derivation built previously
+            alias = "${well_known_server}";
+
+            extraConfig = ''
+              # Set the header since by default NGINX thinks it's just bytes
+              default_type application/json;
+            '';
+          };
+
+          locations."=/.well-known/matrix/client" = {
+            # Use the contents of the derivation built previously
+            alias = "${well_known_client}";
+
+            extraConfig = ''
+              # Set the header since by default NGINX thinks it's just bytes
+              default_type application/json;
+
+              # https://matrix.org/docs/spec/client_server/r0.4.0#web-browser-clients
+              add_header Access-Control-Allow-Origin "*";
+            '';
+          };
+        };
+      };
+
+      upstreams = {
+        "backend_conduit" = {
+          servers."localhost:${toString config.services.matrix-conduit.settings.global.port}" = { };
+        };
       };
     };
-  };
 
-  # Open firewall ports for HTTP, HTTPS, and Matrix federation
-  networking.firewall.allowedTCPPorts = [ 80 443 8448 ];
-  networking.firewall.allowedUDPPorts = [ 80 443 8448 ];
+    # Open firewall ports for HTTP, HTTPS, and Matrix federation
+    networking.firewall.allowedTCPPorts = [ 80 443 8448 ];
+    networking.firewall.allowedUDPPorts = [ 80 443 8448 ];
+  }
 }
