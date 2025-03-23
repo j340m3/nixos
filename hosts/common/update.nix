@@ -21,7 +21,7 @@
         "--no-write-lock-file"
       ];
       allowReboot = config.allowReboot;
-      dates = "hourly";
+      dates = lib.mkDefault "hourly";
       rebootWindow = {
         lower = "22:00";
         upper = "08:00";
