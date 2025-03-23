@@ -1,9 +1,13 @@
 {
-{ self, inputs, config, lib, pkgs,
-  host, repo, user, network, machine,
-  ...
-}:
-let
+
+inputs = {
+  conduwuit = {
+      url = "github:girlbossceo/conduwuit";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+};
+outputs {conduwuit, self, inputs, config, lib, pkgs, host, repo, user, network, machine, ...} @ inputs :
+  let
   # The hostname that will appear in your user and room IDs
   server_name = "kauderwels.ch";
 
@@ -33,13 +37,6 @@ let
     }
   '';
 in
-inputs = {
-  conduwuit = {
-      url = "github:girlbossceo/conduwuit";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-};
-outputs {conduwuit, ...} @ inputs :
   {
     # Configure Conduit itself
     services.matrix-conduit = {
