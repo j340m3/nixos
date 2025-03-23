@@ -6,7 +6,7 @@ inputs = {
       inputs.nixpkgs.follows = "nixpkgs";
     };
 };
-outputs {conduwuit, self, config, lib, pkgs, host, repo, user, network, machine, ...} @ inputs :
+outputs = {conduwuit, self, config, lib, pkgs, host, repo, user, network, machine, ...} @ inputs :
   let
   # The hostname that will appear in your user and room IDs
   server_name = "kauderwels.ch";
