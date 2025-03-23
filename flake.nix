@@ -9,14 +9,12 @@
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
-    
-
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs = { self, nixpkgs, sops-nix, home-manager, conduwuit, nixos-hardware, ... } @ inputs : 
+  outputs = { self, nixpkgs, sops-nix, home-manager, nixos-hardware, ... } @ inputs : 
   let
     inherit (self) outputs;
   in
