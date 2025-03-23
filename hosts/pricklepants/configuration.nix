@@ -100,7 +100,7 @@
     options = "--delete-older-than 1d";
   }; */
 
-  systemd.services.monitoring = {
+  /* systemd.services.monitoring = {
     path = with pkgs; [
       bc
       ipcalc
@@ -114,7 +114,7 @@
       ${pkgs.bash}/bin/bash /root/system-monitoring.sh --NAME "NixOS-GB" --LA1 --LA5 --LA15 --CPU 80 --RAM 80 --DISK 80 --SSH-LOGIN --SFTP-MONITOR --REBOOT 2>&1 >> /var/log/monitoring/monitoring.log
     '';
     wantedBy = [ "multi-user.target" ];
-  };
+  }; */
 
   security.sudo.wheelNeedsPassword = true;
 

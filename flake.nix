@@ -28,6 +28,14 @@
         # sops-nix.nixosModules.sops
       ];
     };
+    nixosConfigurations.lenny = nixpkgs.lib.nixosSystem {
+      specialArgs = {inherit inputs outputs;};
+      system = "x86_64-linux";
+      modules = [ 
+        ./hosts/lenny/configuration.nix
+        # sops-nix.nixosModules.sops
+      ];
+    };
     nixosConfigurations.rex = nixpkgs.lib.nixosSystem {
       specialArgs = {inherit inputs outputs;};
       system = "x86_64-linux";
