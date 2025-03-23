@@ -13,7 +13,11 @@
       url = "github:girlbossceo/conduwuit";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
+
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   outputs = { self, nixpkgs, sops-nix, home-manager, conduwuit, ... } @ inputs : 
   let
@@ -33,6 +37,7 @@
       system = "x86_64-linux";
       modules = [ 
         ./hosts/lenny/configuration.nix
+        inputs.nixos-hardware.lenovo-thinkpad-x230
         # sops-nix.nixosModules.sops
       ];
     };
