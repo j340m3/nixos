@@ -37,7 +37,7 @@
       system = "x86_64-linux";
       modules = [ 
         ./hosts/lenny/configuration.nix
-        nixos-hardware.lenovo-thinkpad-x230
+        nixos-hardware.nixosModules.lenovo-thinkpad-x230
         # sops-nix.nixosModules.sops
       ];
     };
