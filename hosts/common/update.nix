@@ -31,7 +31,7 @@
     nix.gc = {
       automatic = true;
       dates = "hourly";
-      options = "--delete-older-than 7d";
+      options = lib.mkDefault "--delete-older-than 7d";
     };
     
     # Please do upgrades in Background
