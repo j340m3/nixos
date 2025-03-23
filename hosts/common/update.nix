@@ -13,8 +13,8 @@
     system.autoUpgrade = {
       enable = true;
       #flake = "/etc/nixos#nixos-gb";
-      #flake = "github:j340m3/nixos#nixos-gb";
-      flake = inputs.self.outPath;
+      flake = "github:j340m3/nixos";
+      #flake = inputs.self.outPath;
       flags = [ 
       # "--update-input" "nixpkgs"
       # "--update-all-inputs"
