@@ -2,12 +2,13 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 {
   imports =
     [ # Include the results of the hardware scan.
-      <nixos-hardware/lenovo/thinkpad/x230>
+      inputs.nixos-hardware.lenovo-thinkpad-x230
+      #<nixos-hardware/lenovo/thinkpad/x230>
       ./hardware-configuration.nix
     ];
 
