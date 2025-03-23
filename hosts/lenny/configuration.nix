@@ -205,22 +205,6 @@
                       min-free = ${toString (100 * 1024 * 1024)}
                       max-free = ${toString (1024 * 1024 * 1024)}
                      '';
-  nix = {
-      package = pkgs.nix;
-      settings.experimental-features = [ "nix-command" "flakes" ];
-      settings.auto-optimise-store = true;
-      settings.max-jobs = 1;
-      settings.cores = 1;
-      daemonIOSchedClass = lib.mkDefault "idle";
-      daemonCPUSchedPolicy = lib.mkDefault "idle";
-    };
-    systemd.services.nix-daemon.serviceConfig.Slice = "-.slice";
-    # always use the daemon, even executed  with root
-    environment.variables.NIX_REMOTE = "daemon";
-    systemd.services.nix-daemon.serviceConfig = {
-      MemoryHigh = "800M";
-      MemoryMax = "1G";
-  };
 
   services.nebula.networks.mesh = {
     enable = true;
