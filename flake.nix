@@ -19,7 +19,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs = { self, nixpkgs, sops-nix, home-manager, conduwuit, ... } @ inputs : 
+  outputs = { self, nixpkgs, sops-nix, home-manager, conduwuit, nixos-hardware, ... } @ inputs : 
   let
     inherit (self) outputs;
   in
@@ -37,7 +37,7 @@
       system = "x86_64-linux";
       modules = [ 
         ./hosts/lenny/configuration.nix
-        inputs.nixos-hardware.lenovo-thinkpad-x230
+        nixos-hardware.lenovo-thinkpad-x230
         # sops-nix.nixosModules.sops
       ];
     };
