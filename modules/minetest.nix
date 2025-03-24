@@ -4,7 +4,7 @@
  services.minetest-server = {
    enable = true;
    port = 30000;
-   gameId = "minetest";
+   gameId = "mineclone2";
    config = {
     enable_rollback = true;
     sprint_speed = 10;
