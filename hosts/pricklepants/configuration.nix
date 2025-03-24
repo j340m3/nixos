@@ -95,12 +95,12 @@
     allowReboot  = true;
     dates = "hourly";
   };
-
+  */
   nix.gc = {
     automatic = true;
     dates = "hourly";
     options = "--delete-older-than 1d";
-  }; */
+  }; 
 
   /* systemd.services.monitoring = {
     path = with pkgs; [
