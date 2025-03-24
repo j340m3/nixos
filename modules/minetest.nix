@@ -7,11 +7,9 @@
    gameId = "minetest";
    config = {
     enable_rollback = true;
-    port = 30000;
     sprint_speed = 10;
     hudbars_autohide_stamina = false;
     address = "minetest.kauderwels.ch";
-    port = 30000;
     remote_port = 30000;
     server_announce = false;
     server_name = "Bergmänners";
