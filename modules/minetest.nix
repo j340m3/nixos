@@ -4,7 +4,7 @@
  services.minetest-server = {
    enable = true;
    port = 30000;
-   gameId = "mineclone2";
+   gameId = "voxelibre";
    config = {
     enable_rollback = true;
     sprint_speed = 10;
