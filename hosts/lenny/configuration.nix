@@ -126,6 +126,7 @@
       spotify
       cutechess
       stockfish
+      minetest
     #  kalk
     #  kate
     #  thunderbird
