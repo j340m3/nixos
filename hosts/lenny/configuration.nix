@@ -121,6 +121,7 @@
       lynx
     #  kdenlive
       signal-desktop
+      (makeAutostartItem { name = "signal-desktop"; package = signal-desktop; })
       firefox
       kdePackages.kalk
       spotify
