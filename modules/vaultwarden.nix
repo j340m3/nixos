@@ -16,11 +16,15 @@ with lib;
     # Use recommended settings
     recommendedGzipSettings = true;
 
-    virtualHosts."kauderwels.ch" = {
+    virtualHosts."vaultwarden.kauderwels.ch" = {
       forceSSL = true;
       locations."/" = {
         proxyPass = "http://127.0.0.1:8000";
       };
+      sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
+      sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
     };
   };
+
+  networking.firewall.allowedTCPPorts = [ 8000 ];
 }
