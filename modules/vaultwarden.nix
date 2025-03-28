@@ -9,6 +9,10 @@ with lib;
 
 {
   services.vaultwarden.enable = true;
+  services.vaultwarden.config = {
+    ROCKET_ADDRESS = "127.0.0.1";
+    ROCKET_PORT = 8222;
+  };
 
   services.nginx = {
     enable = true;
