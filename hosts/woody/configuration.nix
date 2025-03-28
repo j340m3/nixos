@@ -114,7 +114,7 @@ let
     extraGroups = [ "networkmanager" "wheel" "plugdev" ];
     packages = with pkgs; [
       htop
-      home-manager
+      # home-manager
       github-desktop
       (vscode-with-extensions.override {
         vscode = vscodium;
