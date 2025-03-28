@@ -32,6 +32,14 @@
         # sops-nix.nixosModules.sops
       ];
     };
+    nixosConfigurations.woody = nixpkgs.lib.nixosSystem {
+      specialArgs = {inherit inputs outputs;};
+      system = "x86_64-linux";
+      modules = [ 
+        ./hosts/woody/configuration.nix
+        # sops-nix.nixosModules.sops
+      ];
+    };
     nixosConfigurations.lenny = nixpkgs.lib.nixosSystem {
       specialArgs = {inherit inputs outputs;};
       system = "x86_64-linux";
