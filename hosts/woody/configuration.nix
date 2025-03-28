@@ -126,7 +126,7 @@ let
     ];
   };
   #users.users.eve.isNormalUser = true;
-  home-manager.users.jeromeb = { pkgs, ... }: {
+  /* home-manager.users.jeromeb = { pkgs, ... }: {
     home.packages = [ pkgs.atool pkgs.httpie ];
     programs.bash.enable = true;
 
@@ -137,7 +137,7 @@ let
     programs.neovim.plugins = [ pkgs.vimPlugins.parinfer-rust ];
 
   };
-  home-manager.backupFileExtension = "backup.hm";
+  home-manager.backupFileExtension = "backup.hm"; */
 
   # Install firefox.
   # programs.firefox.enable = true;
