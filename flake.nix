@@ -17,6 +17,7 @@
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware/master";
     };
+    nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
   };
   outputs = { self, nixpkgs, sops-nix, home-manager, conduwuit, nixos-hardware, ... } @ inputs : 
   let
@@ -35,6 +36,8 @@
       specialArgs = {inherit inputs outputs;};
       system = "x86_64-linux";
       modules = [ 
+        #inputs.nixos-facter-modules.nixosModules.facter
+        #  { config.facter.reportPath = ./hosts/woody/facter.json; }
         ./hosts/woody/configuration.nix
         # sops-nix.nixosModules.sops
       ];

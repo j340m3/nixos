@@ -21,7 +21,9 @@
         "--no-write-lock-file"
       ];
       allowReboot = config.allowReboot;
-      dates = lib.mkDefault "hourly";
+      dates = lib.mkDefault "*-*-* 0/4:45:00";
+      randomizedDelaySec = lib.mkDefault "30min";
+      #dates = lib.mkDefault "hourly";
       rebootWindow = {
         lower = "22:00";
         upper = "08:00";
@@ -30,7 +32,8 @@
 
     nix.gc = {
       automatic = true;
-      dates = lib.mkDefault "hourly";
+      dates = lib.mkDefault "*-*-* 0/4:15:00";
+      randomizedDelaySec = lib.mkDefault "30min";
       options = lib.mkDefault "--delete-older-than 7d";
     };
     

@@ -6,8 +6,8 @@
     ../../modules/hardening.nix
     ../../modules/matrix2.nix
     ../../modules/minetest.nix
+    ../../modules/vaultwarden.nix
     ../common.nix
-    #./vaultwarden.nix
   ];
   swapDevices = [ { device = "/swapfile"; size = 1024; } ];
   boot.tmp.cleanOnBoot = true;
