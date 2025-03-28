@@ -496,7 +496,7 @@ let
 #    };
   };
   
-  services.vscode-server.enable = true;
+  #services.vscode-server.enable = true;
   services.udev.packages = [ pkgs.libfido2 ];
   #services.udev.packages = [ pkgs.yubikey-personalization ];
   
