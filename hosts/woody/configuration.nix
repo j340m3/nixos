@@ -297,7 +297,7 @@ let
   };
 
   # Please do upgrades in Background
-  nix = {
+  /* nix = {
     package = pkgs.nix;
     settings.experimental-features = [ "nix-command" "flakes" ];
     settings.auto-optimise-store = true;
@@ -312,7 +312,7 @@ let
   systemd.services.nix-daemon.serviceConfig = {
     MemoryHigh = "800M";
     MemoryMax = "1G";
-  };
+  }; */
 
   services.xrdp.enable = true;
   services.xrdp.defaultWindowManager = "mate-session";
