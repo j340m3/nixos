@@ -25,7 +25,7 @@ let
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       # ./firefox.nix
-      (fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
+      #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
       <home-manager/nixos>
     ];
   
