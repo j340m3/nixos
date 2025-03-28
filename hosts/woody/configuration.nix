@@ -24,6 +24,7 @@ let
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ../common.nix
       # ./firefox.nix
       #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
       #<home-manager/nixos>
