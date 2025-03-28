@@ -26,7 +26,7 @@ let
       ./hardware-configuration.nix
       # ./firefox.nix
       #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
-      <home-manager/nixos>
+      #<home-manager/nixos>
     ];
   
   boot.tmp.cleanOnBoot = true;
