@@ -25,6 +25,5 @@ with lib;
       sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
     };
   };
-
-  #networking.firewall.allowedTCPPorts = [ config.services.vaultwarden.config.ROCKET_PORT ];
+  networking.firewall.allowedTCPPorts = [ 443 ];
 }
