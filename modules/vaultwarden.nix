@@ -12,6 +12,7 @@ with lib;
   services.vaultwarden.config = {
     ROCKET_ADDRESS = "127.0.0.1";
     ROCKET_PORT = 8222;
+    backupDir = "/var/backup/vaultwarden";
   };
 
   services.nginx = {
