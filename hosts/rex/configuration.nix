@@ -159,6 +159,7 @@ let
        traceroute
        statix
        alejandra
+       age
     ];
   };
 
