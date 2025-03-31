@@ -37,6 +37,7 @@ let
   swapDevices = [ { device = "/swapfile"; size = 2048; } ];
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
+  virtualisation.diskSize = "auto";
 
   networking.hostName = "rex"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -355,10 +356,15 @@ let
     enable = true;
     isLighthouse = false;
     lighthouses = [ "10.0.0.1" ];
+    relays = [ "10.0.0.1" ];
     settings = {
-        cipher= "aes";
-        punchy.punch=true;
-        };
+      cipher = "aes";
+      punchy.punch=true;
+      dns = {
+        host = "10.0.0.1";
+        port = 53;
+      };
+    };
     cert = "/etc/nebula/rex.crt";
     key = "/etc/nebula/rex.key";
     ca = "/etc/nebula/ca.crt";
