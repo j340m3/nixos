@@ -38,7 +38,7 @@ let
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
   virtualisation.diskSize = "auto";
-  virtualisation.additionalSpace = "5G";
+  #virtualisation.additionalSpace = "5G";
   boot.growPartition = lib.mkDefault true;
 
   networking.hostName = "rex"; # Define your hostname.
