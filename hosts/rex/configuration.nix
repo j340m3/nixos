@@ -39,7 +39,7 @@ let
   zramSwap.enable = true;
   virtualisation.diskSize = "auto";
   #virtualisation.additionalSpace = "5G";
-  boot.growPartition = lib.mkDefault true;
+  boot.growPartition = true;
 
   networking.hostName = "rex"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
