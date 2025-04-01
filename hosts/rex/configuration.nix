@@ -131,6 +131,7 @@ let
        (makeAutostartItem { name = "telegram.desktop"; package = telegram-desktop; srcPrefix = "org.";})
        telegram-desktop
        jetbrains.pycharm-professional
+       python3Full
        elmPackages.elm
        python3Full
        vulnix
