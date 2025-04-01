@@ -130,7 +130,7 @@ let
        telegram-desktop
        (makeAutostartItem { name = "telegram.desktop"; package = telegram-desktop; srcPrefix = "org.";})
        telegram-desktop
-       #jetbrains.pycharm-professional
+       jetbrains.pycharm-professional
        elmPackages.elm
        python3Full
        vulnix
