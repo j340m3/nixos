@@ -275,7 +275,8 @@ let
     powerline-fonts
     powerline-symbols
     nebula
-    exfat-utils
+    exfat
+    #exfatprogs
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
