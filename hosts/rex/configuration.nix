@@ -133,7 +133,7 @@ let
        jetbrains.pycharm-professional
        elmPackages.elm
        python3Full
-       python312Packages.numpy
+       (python3Full.withPackages(ps: with ps; [ numpy ]))
        vulnix
        git
        zip
