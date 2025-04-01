@@ -9,8 +9,8 @@
   boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ ];
-  #boot.extraModulePackages = [ ];
-  boot.extraModulePackages = [ config.boot.kernelPackages.exfat-nofuse ];
+  boot.extraModulePackages = [ ];
+  #boot.extraModulePackages = [ config.boot.kernelPackages.exfat-nofuse ];
 
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/ab0899ec-d5b7-4642-be38-577ac223712d";
