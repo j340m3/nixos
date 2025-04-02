@@ -96,7 +96,7 @@ let
 
   # Enable sound with pipewire.
   #services.pulseaudio.enable = false;
-  services.pulseaudio.enable = true;
+  hardware.pulseaudio.enable = true;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
