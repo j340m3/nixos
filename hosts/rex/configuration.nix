@@ -37,7 +37,7 @@ let
   #swapDevices = [ { device = "/swapfile"; size = 2048; } ];
   services.swapspace.enable = true;
   boot.kernel.sysctl = { "vm.swappiness" = 10;};
-  
+
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
   virtualisation.diskSize = "auto";
@@ -136,7 +136,7 @@ let
        telegram-desktop
        jetbrains.pycharm-professional
        elmPackages.elm
-       python3Full
+       #python3Full
        (python3Full.withPackages(ps: with ps; [ numpy ]))
        vulnix
        git
