@@ -34,7 +34,8 @@ let
   
   # boot.kernelPackages = pkgs.linuxPackages_zen;
 
-  swapDevices = [ { device = "/swapfile"; size = 2048; } ];
+  #swapDevices = [ { device = "/swapfile"; size = 2048; } ];
+  services.swapspace.enable = true;
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
   virtualisation.diskSize = "auto";
