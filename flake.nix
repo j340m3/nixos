@@ -19,7 +19,7 @@
     };
     nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
   };
-  outputs = { self, nixpkgs, sops-nix, home-manager, conduwuit, nixos-hardware, ... } @ inputs : 
+  outputs = { self, nixpkgs, nixpkgs-stable, sops-nix, home-manager, conduwuit, nixos-hardware, ... } @ inputs : 
   let
     inherit (self) outputs;
   in
