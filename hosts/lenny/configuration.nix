@@ -106,6 +106,17 @@
     ];
   };
 
+  users.users.emelie = {
+    isNormalUser = true;
+    description = "Emelie Bergmann";
+    extraGroups = [ "networkmanager" "wheel" ];
+    packages = with pkgs; [
+      firefox
+    #  kate
+    #  thunderbird
+    ];
+  };
+
   users.users.lilly = {
     isNormalUser = true;
     description = "Lilly Bergmann";
