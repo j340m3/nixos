@@ -140,6 +140,7 @@ let
        (python311.withPackages(ps: with ps; [ 
           (dontCheckPython numpy)
           pytest
+          matplotlib
         ]))
        vulnix
        git
