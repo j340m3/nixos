@@ -17,7 +17,7 @@ let
       Value = "";
       Status = "locked";
     };
-
+    dontCheckPython = drv: drv.overridePythonAttrs (old: { doCheck = false; });
   in 
 {
   imports =
@@ -118,7 +118,7 @@ let
   # services.xserver.libinput.enable = true;
 
   allowReboot = false;
-  dontCheckPython = drv: drv.overridePythonAttrs (old: { doCheck = false; });
+  
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.jeromeb = {
     isNormalUser = true;
