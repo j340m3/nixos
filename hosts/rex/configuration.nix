@@ -118,12 +118,12 @@ let
   # services.xserver.libinput.enable = true;
 
   allowReboot = false;
-  
+  virtualisation.docker.enable = true;
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.jeromeb = {
     isNormalUser = true;
     description = "Jerome";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "docker"];
     shell = pkgs.zsh;
     packages = with pkgs; [
        gparted
