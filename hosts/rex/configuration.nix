@@ -137,7 +137,10 @@ let
        jetbrains.pycharm-professional
        elmPackages.elm
        #python3Full
-       (python311.withPackages(ps: with ps; [ (dontCheckPython numpy) ]))
+       (python311.withPackages(ps: with ps; [ 
+          (dontCheckPython numpy)
+          pytest
+        ]))
        vulnix
        git
        zip
