@@ -132,7 +132,7 @@ in
         extraConfig = ''
           merge_slashes off;
         '';
-        root = pkgs.riot-web;
+        root = pkgs.element-web;
       };
 
      /*  "${server_name}" = {
