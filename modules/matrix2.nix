@@ -49,6 +49,10 @@ in
       allow_registration = true;
       database_backend = "rocksdb";
       package = inputs.conduwuit;
+      well_known = {
+          client = "https://${matrix_hostname}";
+          server = "${matrix_hostname}:443";
+        };
     };
     settings.tls = {
       certs = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
