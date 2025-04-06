@@ -106,13 +106,35 @@ in
             proxy_buffering off;
           '';
         };
+        locations."=/.well-known/matrix/server" = {
+          # Use the contents of the derivation built previously
+          alias = "${well_known_server}";
+
+          extraConfig = ''
+            # Set the header since by default NGINX thinks it's just bytes
+            default_type application/json;
+          '';
+        };
+
+        locations."=/.well-known/matrix/client" = {
+          # Use the contents of the derivation built previously
+          alias = "${well_known_client}";
+
+          extraConfig = ''
+            # Set the header since by default NGINX thinks it's just bytes
+            default_type application/json;
+
+            # https://matrix.org/docs/spec/client_server/r0.4.0#web-browser-clients
+            add_header Access-Control-Allow-Origin "*";
+          '';
+        };
 
         extraConfig = ''
           merge_slashes off;
         '';
       };
 
-      "${matrix_hostname}" = {
+     /*  "${server_name}" = {
         forceSSL = true;
         sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
         sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
@@ -140,7 +162,7 @@ in
             add_header Access-Control-Allow-Origin "*";
           '';
         };
-      };
+      }; */
     };
 
     upstreams = {
