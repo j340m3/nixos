@@ -132,7 +132,14 @@ in
         extraConfig = ''
           merge_slashes off;
         '';
-        root = pkgs.element-web;
+        root = pkgs.element-web.override {
+          conf = {
+            default_server_config."m.homeserver" = {
+              "base_url" = "https://${matrix_hostname}";
+              "server_name" = "kauderwels.ch";
+            };
+          };
+        };
       };
 
      /*  "${server_name}" = {
