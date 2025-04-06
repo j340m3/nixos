@@ -51,7 +51,7 @@ in
       package = inputs.conduwuit;
     };
     settings.tls = {
-      certs = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
+      certs = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
       key = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
     };
   };
@@ -77,7 +77,7 @@ in
     virtualHosts = {
       "${matrix_hostname}" = {
         forceSSL = true;
-        sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
+        sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
         sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
         #enableACME = true;
 
