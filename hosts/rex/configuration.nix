@@ -17,7 +17,7 @@ let
       Value = "";
       Status = "locked";
     };
-
+    dontCheckPython = drv: drv.overridePythonAttrs (old: { doCheck = false; });
   in 
 {
   imports =
@@ -98,8 +98,8 @@ let
   #services.printing.enable = true;
 
   # Enable sound with pipewire.
-  #services.pulseaudio.enable = false;
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
+  #hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -118,12 +118,12 @@ let
   # services.xserver.libinput.enable = true;
 
   allowReboot = false;
-
+  virtualisation.docker.enable = true;
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.jeromeb = {
     isNormalUser = true;
     description = "Jerome";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "docker"];
     shell = pkgs.zsh;
     packages = with pkgs; [
        gparted
@@ -137,7 +137,11 @@ let
        jetbrains.pycharm-professional
        elmPackages.elm
        #python3Full
-       (python3Full.withPackages(ps: with ps; [ numpy ]))
+       (python311.withPackages(ps: with ps; [ 
+          #(dontCheckPython numpy)
+          pytest
+          (dontCheckPython matplotlib)
+        ]))
        vulnix
        git
        zip
