@@ -132,6 +132,7 @@ in
         extraConfig = ''
           merge_slashes off;
         '';
+        root = pkgs.riot-web;
       };
 
      /*  "${server_name}" = {
@@ -164,7 +165,7 @@ in
         };
       }; */
     };
-
+    
     upstreams = {
       "backend_conduit" = {
         servers."localhost:${toString config.services.matrix-conduit.settings.global.port}" = { };
