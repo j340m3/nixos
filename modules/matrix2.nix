@@ -112,7 +112,7 @@ in
         '';
       };
 
-      "${server_name}" = {
+      "${matrix_hostname}" = {
         forceSSL = true;
         sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
         sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
