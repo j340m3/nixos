@@ -36,7 +36,12 @@ let
 
   #swapDevices = [ { device = "/swapfile"; size = 2048; } ];
   services.swapspace.enable = true;
-  boot.kernel.sysctl = { "vm.swappiness" = 10;};
+  services.swapspace.settings = {
+    lower_freelimit=50;
+    upper_freelimit=70;
+    free_target=60;
+  };
+  boot.kernel.sysctl = { "vm.swappiness" = 5;};
 
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
