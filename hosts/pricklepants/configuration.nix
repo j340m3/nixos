@@ -68,7 +68,7 @@
   sops = {
     defaultSopsFile = ../../secrets/example.yaml;
     age = {
-      keyFile = /var/lib/sops-nix/key.txt;
+      keyFile = "/var/lib/sops-nix/key.txt";
     };
     secrets = {
       "telegram/bot_token" = {};
