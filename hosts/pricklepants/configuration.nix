@@ -65,6 +65,13 @@
     ];
   };
   
+  sops = {
+    defaultSopsFile = ./secrets/example.yaml;
+    age = {
+      keyFile = /root/.config/sops/age/keys.txt;
+    };
+  };
+
   #users.users.monitoring = {
   #  isSystemUser = true;
   #  createHome = false;

@@ -29,7 +29,7 @@
       system = "x86_64-linux";
       modules = [ 
         ./hosts/pricklepants/configuration.nix
-        # sops-nix.nixosModules.sops
+        sops-nix.nixosModules.sops
       ];
     };
     nixosConfigurations.woody = nixpkgs.lib.nixosSystem {
