@@ -39,7 +39,7 @@ let
   services.swapspace.settings = {
     lower_freelimit=50;
     upper_freelimit=70;
-    free_target=60;
+    freetarget=60;
   };
   boot.kernel.sysctl = { "vm.swappiness" = 5;};
 
