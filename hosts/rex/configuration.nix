@@ -40,6 +40,8 @@ let
     lower_freelimit=50;
     upper_freelimit=70;
     freetarget=60;
+    buffer_elasticity=100;
+    cache_elasticity=100;
   };
   boot.kernel.sysctl = { "vm.swappiness" = 5;};
 
