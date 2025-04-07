@@ -8,6 +8,7 @@
     ../../modules/minetest.nix
     ../../modules/vaultwarden.nix
     ../common.nix
+    ../common/ssh.nix
   ];
   swapDevices = [ { device = "/swapfile"; size = 1024; } ];
   boot.tmp.cleanOnBoot = true;

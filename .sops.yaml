@@ -5,17 +5,17 @@ keys:
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-      age:
-      - *admin_jerome
-      - *server_woody
-      - *server_pricklepants
+    - age:
+        - *admin_jerome
+        - *server_woody
+        - *server_pricklepants
   - path_regex: secrets/woody/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-      age:
-      - *admin_jerome
-      - *server_woody
+    - age:
+        - *admin_jerome
+        - *server_woody
   - path_regex: secrets/pricklepants/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-      age:
-      - *admin_jerome
-      - *server_pricklepants
+    - age:
+        - *admin_jerome
+        - *server_pricklepants

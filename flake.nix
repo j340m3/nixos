@@ -39,7 +39,7 @@
         #inputs.nixos-facter-modules.nixosModules.facter
         #  { config.facter.reportPath = ./hosts/woody/facter.json; }
         ./hosts/woody/configuration.nix
-        # sops-nix.nixosModules.sops
+        sops-nix.nixosModules.sops
       ];
     };
     nixosConfigurations.lenny = nixpkgs.lib.nixosSystem {
