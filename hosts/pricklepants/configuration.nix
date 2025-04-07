@@ -71,9 +71,9 @@
       keyFile = /root/.config/sops/age/keys.txt;
     };
     secrets = {
-      telegram = {
-        bot_token = {};
-        group_id = {};
+      "telegram" = {
+        "bot_token" = {};
+        "group_id" = {};
       };
     };
   };
