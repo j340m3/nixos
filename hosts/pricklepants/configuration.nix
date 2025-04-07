@@ -33,7 +33,7 @@
     ports = [22 42069];
     enable = true;
     settings.PasswordAuthentication = false;
-    settings.KbdInteractiveAuthentication = false;
+    settings.KbdInteractiveAuthentication = lib.mkDefault false;
     settings.PermitRootLogin = "no";
     settings.AllowGroups = [ "wheel" ];
     settings.AllowTcpForwarding = "no";
