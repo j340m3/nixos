@@ -1,4 +1,7 @@
-{ modulesPath, config, pkgs, lib, self, home-manager, inputs, ... }: {
+{ modulesPath, config, pkgs, lib, self, home-manager, inputs, ... }: 
+let rootPath = ../../.;
+in
+{
   imports = [
     ./hardware-configuration.nix
     (modulesPath + "/profiles/minimal.nix")
@@ -66,7 +69,7 @@
   };
   
   sops = {
-    defaultSopsFile = "${self.outPath}/secrets/example.yaml";
+    defaultSopsFile = rootPath + "/secrets/example.yaml";
     age = {
       keyFile = "/var/lib/sops-nix/key.txt";
     };
