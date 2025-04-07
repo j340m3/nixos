@@ -70,6 +70,12 @@
     age = {
       keyFile = /root/.config/sops/age/keys.txt;
     };
+    secrets = {
+      telegram = {
+        bot_token = {};
+        group_id = {};
+      };
+    };
   };
 
   #users.users.monitoring = {
