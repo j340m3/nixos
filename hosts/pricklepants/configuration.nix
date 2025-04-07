@@ -66,7 +66,7 @@
   };
   
   sops = {
-    defaultSopsFile = ../../secrets/example.yaml;
+    defaultSopsFile = "${self.outPath}/secrets/example.yaml";
     age = {
       keyFile = "/var/lib/sops-nix/key.txt";
     };
