@@ -59,8 +59,8 @@
 
   # Configure network IP and DNS
   systemd.network.networks.eth0 = {
-    #address = ["123.45.678.90/24"];
-    #gateway = ["123.45.678.1"];
+    #address = ["194.164.54.40/24"];
+    #gateway = ["194.164.54.1"];
     matchConfig.Name = "eth0";
   };
   networking.nameservers = [
@@ -81,7 +81,7 @@
   networking.firewall.enable = false;
 
   # Disable DHCP and configure IP manually
-  networking.useDHCP = false;
+  networking.useDHCP = true;
 
   # Hostname, can be set as you wish
   networking.hostName = "bootstrap";
