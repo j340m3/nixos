@@ -34,6 +34,7 @@
   # to manually adjust network config on serial console/VNC.
   users.mutableUsers = false;
   users.users.root.openssh.authorizedKeys.keys = [''ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKv3fhY8KfwN4GFxXpbWLCfNl4ZP+v+C59CIxXhj0SyB jerome@DESKTOP-B7K2FBB'' ];
+  users.users.root.hashedPassword = "$y$j9T$xI3Gvnwn4Q900uL0HQZHp/$fl5oFfnZWZWBz.6gPxvciND13komHHAXDqq6Yfpjn17";
   users.users.root.packages = with pkgs; [
     openssl
   ];
@@ -207,7 +208,7 @@
   # hard drive as "sda", I specify "sda3" here. If your VPS recognizes the drive
   # differently, change accordingly
   fileSystems."/nix" = {
-    device = "/dev/sda3";
+    device = "/dev/vda3";
     fsType = "btrfs";
     options = ["compress-force=zstd" "nosuid" "nodev"];
   };
@@ -216,7 +217,7 @@
   # hard drive as "sda", I specify "sda2" here. If your VPS recognizes the drive
   # differently, change accordingly
   fileSystems."/boot" = {
-    device = "/dev/sda2";
+    device = "/dev/vda2";
     fsType = "vfat";
     options = ["fmask=0077" "dmask=0077"];
   };
