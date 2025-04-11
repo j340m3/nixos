@@ -18,6 +18,11 @@
       url = "github:NixOS/nixos-hardware/master";
     };
     nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
+    impermanence.url = "github:nix-community/impermanence";
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   outputs = { self, nixpkgs, nixpkgs-stable, sops-nix, home-manager, conduwuit, nixos-hardware, ... } @ inputs : 
   let
@@ -59,6 +64,15 @@
         sops-nix.nixosModules.sops
       ];
     };
+    nixosConfigurations.bootstrap = nixpkgs.lib.nixosSystem {
+      specialArgs = {inherit inputs outputs;};
+      system = "x86_64-linux";
+      modules = [ 
+        ./hosts/bootstrap/configuration.nix
+        sops-nix.nixosModules.sops
+        inputs.impermanence.nixosModules.impermanence
+      ];
+    };
     homeConfigurations = {
       # FIXME replace with your username@hostname
       "donquezz@pricklepants" = home-manager.lib.homeManagerConfiguration {
@@ -67,6 +81,9 @@
         # > Our main home-manager configuration file <
         modules = [./home-manager/home.nix];
       };
+    };
+    packages.x86_64-linux = {
+      image = self.nixosConfigurations.bootstrap.config.system.build.diskoImages;
     };
   };
 }
