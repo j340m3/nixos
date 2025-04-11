@@ -62,6 +62,7 @@
     #address = ["194.164.54.40/24"];
     #gateway = ["194.164.54.1"];
     matchConfig.Name = "eth0";
+    networkConfig.DHCP = "yes";
   };
   networking.nameservers = [
     "8.8.8.8"
@@ -81,7 +82,7 @@
   networking.firewall.enable = false;
 
   # Disable DHCP and configure IP manually
-  networking.useDHCP = true;
+  networking.useDHCP = false;
 
   # Hostname, can be set as you wish
   networking.hostName = "bootstrap";
