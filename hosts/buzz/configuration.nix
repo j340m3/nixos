@@ -12,7 +12,6 @@
       (modulesPath + "/profiles/headless.nix")
       ../../modules/hardening.nix
       ../common.nix
-      ../common/ssh.nix
       ../../users/donquezz.nix
     ];
 
