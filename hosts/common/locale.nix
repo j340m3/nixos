@@ -21,4 +21,6 @@
     LC_TELEPHONE = lib.mkDefault "de_DE.UTF-8";
     LC_TIME = lib.mkDefault "de_DE.UTF-8";
   };
+
+  console.keyMap = "de";
 }

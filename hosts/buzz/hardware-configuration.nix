@@ -37,13 +37,16 @@
   };
 
   fileSystems."/" =
-    { device = "tmpfs";
+    { 
+      device = "tmpfs";
       fsType = "tmpfs";
     };
 
   fileSystems."/nix" =
-    { device = "/dev/disk/by-uuid/f014f8cb-3fe0-454b-b235-0ce296c4bf32";
+    { 
+      device = "/dev/disk/by-uuid/f014f8cb-3fe0-454b-b235-0ce296c4bf32";
       fsType = "btrfs";
+      options = ["compress-force=zstd:15"];
     };
 
   fileSystems."/boot" =
@@ -52,7 +55,10 @@
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
-  swapDevices = [ ];
+  services.btrfs.autoScrub = {
+    enable = true;
+    interval = "weekly";
+  };
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
