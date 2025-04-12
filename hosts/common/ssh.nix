@@ -35,5 +35,7 @@
       settings.AllowAgentForwarding = "no";
       settings.AuthenticationMethods = "publickey,keyboard-interactive:pam";
     };
+
+    networking.firewall.allowedTCPPorts = [42069];
   };
 }

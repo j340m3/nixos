@@ -36,7 +36,7 @@
     buffer_elasticity=100;
     cache_elasticity=100;
   };
-  boot.kernel.sysctl = { "vm.swappiness" = 5;};
+  boot.kernel.sysctl = { "vm.swappiness" = lib.mkDefault 5;};
 
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
@@ -93,7 +93,7 @@
   };
 
   # Disable NixOS's builtin firewall
-  networking.firewall.enable = false;
+  networking.firewall.enable = lib.mkDefault false;
 
   # Disable DHCP and configure IP manually
   networking.useDHCP = false;
