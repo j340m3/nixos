@@ -13,6 +13,29 @@
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
+  # Kernel parameters I use
+  boot.kernelParams = [
+    # Disable auditing
+    "audit=0"
+    # Do not generate NIC names based on PCIe addresses (e.g. enp1s0, useless for VPS)
+    # Generate names based on orders (e.g. eth0)
+    "net.ifnames=0"
+  ];
+
+  # My Initrd config, enable ZSTD compression and use systemd-based stage 1 boot
+  boot.initrd = {
+    compressor = "zstd";
+    compressorArgs = ["-19" "-T0"];
+    systemd.enable = true;
+  };
+
+  # Install Grub
+  boot.loader.grub = {
+    enable = !config.boot.isContainer;
+    default = "saved";
+    devices = ["/dev/vda"];
+  };
+
   fileSystems."/" =
     { device = "tmpfs";
       fsType = "tmpfs";
