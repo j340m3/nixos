@@ -99,7 +99,7 @@
   networking.useDHCP = false;
 
   # Hostname, can be set as you wish
-  networking.hostName = "bootstrap";
+  networking.hostName = lib.mkDefault "bootstrap";
 
   # Latest NixOS version on your first install. Used to prevent backward
   # incompatibilities on major upgrades
