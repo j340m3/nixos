@@ -74,6 +74,16 @@
         inputs.impermanence.nixosModules.impermanence
       ];
     };
+    nixosConfigurations.buzz = nixpkgs.lib.nixosSystem {
+      specialArgs = {inherit inputs outputs;};
+      system = "x86_64-linux";
+      modules = [ 
+        ./hosts/buzz/configuration.nix
+        sops-nix.nixosModules.sops
+        #inputs.disko.nixosModules.disko
+        inputs.impermanence.nixosModules.impermanence
+      ];
+    };
     homeConfigurations = {
       # FIXME replace with your username@hostname
       "donquezz@pricklepants" = home-manager.lib.homeManagerConfiguration {
