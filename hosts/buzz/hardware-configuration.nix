@@ -40,19 +40,20 @@
     { 
       device = "tmpfs";
       fsType = "tmpfs";
+      options = ["relatime" "mode=755" "nosuid" "nodev"];
     };
 
   fileSystems."/nix" =
     { 
       #device = "/dev/disk/by-uuid/f014f8cb-3fe0-454b-b235-0ce296c4bf32";
-      device = "/dev/vda3"
+      device = "/dev/vda3";
       fsType = "btrfs";
-      options = ["compress-force=zstd:15"];
+      options = ["compress-force=zstd:15" "nosuid" "nodev"];
     };
 
   fileSystems."/boot" =
     { 
-      device = "/dev/vda2"
+      device = "/dev/vda2";
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };
