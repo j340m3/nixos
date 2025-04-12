@@ -33,7 +33,8 @@
       settings.MaxSessions = 2;
       settings.TCPKeepAlive = "no";
       settings.AllowAgentForwarding = "no";
-      settings.AuthenticationMethods = "publickey,keyboard-interactive:pam";
+      settings.AuthenticationMethods = "publickey";
+      #settings.AuthenticationMethods = "publickey,keyboard-interactive:pam";
     };
 
     networking.firewall.allowedTCPPorts = [42069];
