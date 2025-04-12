@@ -5,7 +5,7 @@
   config = {
     services.fail2ban.enable = true;
 
-    security.pam.services = {
+    /* security.pam.services = {
       login.googleAuthenticator.enable = true;
       # https://github.com/NixOS/nixpkgs/issues/115044#issuecomment-2065409087
       sshd.text = ''
@@ -19,9 +19,9 @@
           session required pam_loginuid.so # loginuid (order 10300)
           session optional ${pkgs.systemd}/lib/security/pam_systemd.so # systemd (order 12000)
         '';
-    };
+    }; */
     services.openssh = {
-      ports = [22 42069];
+      ports = [42069];
       enable = true;
       settings.PasswordAuthentication = false;
       settings.KbdInteractiveAuthentication = true;
