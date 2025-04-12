@@ -3,7 +3,7 @@
 {
   options = {};
   config = {
-    services.fail2ban.enable = true;
+    services.fail2ban.enable = lib.mkDefault true;
 
     /* security.pam.services = {
       login.googleAuthenticator.enable = true;
