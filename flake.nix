@@ -80,7 +80,7 @@
       modules = [ 
         ./hosts/buzz/configuration.nix
         sops-nix.nixosModules.sops
-        #inputs.disko.nixosModules.disko
+        inputs.disko.nixosModules.disko
         inputs.impermanence.nixosModules.impermanence
       ];
     };
