@@ -103,7 +103,7 @@
 
   # Latest NixOS version on your first install. Used to prevent backward
   # incompatibilities on major upgrades
-  system.stateVersion = "24.11";
+  system.stateVersion = lib.mkDefault "25.05";
 
   # Kernel modules required by QEMU (KVM) virtual machine
   boot.initrd.postDeviceCommands = lib.mkIf (!config.boot.initrd.systemd.enable) ''
