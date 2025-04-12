@@ -223,7 +223,7 @@
   # hard drive as "sda", I specify "sda3" here. If your VPS recognizes the drive
   # differently, change accordingly
   fileSystems."/nix" = {
-    device = "/dev/vda3";
+    device = lib.mkDefault "/dev/vda3";
     fsType = "btrfs";
     options = ["compress-force=zstd" "nosuid" "nodev"];
   };
@@ -232,7 +232,7 @@
   # hard drive as "sda", I specify "sda2" here. If your VPS recognizes the drive
   # differently, change accordingly
   fileSystems."/boot" = {
-    device = "/dev/vda2";
+    device = lib.mkDefault "/dev/vda2";
     fsType = "vfat";
     options = ["fmask=0077" "dmask=0077"];
   };
