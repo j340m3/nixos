@@ -8,6 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ../bootstrap/configutation.nix
       #(modulesPath + "/profiles/minimal.nix")
       #(modulesPath + "/profiles/headless.nix")
       #../../modules/hardening.nix
