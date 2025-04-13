@@ -10,7 +10,7 @@ in
     ../../modules/matrix2.nix
     ../../modules/minetest.nix
     ../../modules/vaultwarden.nix
-    ../../modules/nextcloud.nix
+    #../../modules/nextcloud.nix
     ../common.nix
     ../common/ssh.nix
   ];
