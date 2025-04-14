@@ -23,7 +23,7 @@
       *.*  action(type="omfwd" target="10.0.0.3" port="514" protocol="udp"
             action.resumeRetryCount="100"
             queue.type="linkedList" queue.size="10000")
-			*.* @10.0.0.3
+			*.* @10.0.0.3:514
     '';
   };
 }
