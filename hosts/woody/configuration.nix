@@ -26,6 +26,7 @@ let
       ./hardware-configuration.nix
       ../common.nix
       ../../users/donquezz.nix
+      ../../modules/loghost.nix
       # ./firefox.nix
       #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
       #<home-manager/nixos>

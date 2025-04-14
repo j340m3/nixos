@@ -15,7 +15,7 @@
       ../../modules/swap.nix
       ../common.nix 
       ../../users/donquezz.nix
-      ../../modules/loghost.nix
+      ../../modules/logging.nix
     ];
 
   # Use the GRUB 2 boot loader.
