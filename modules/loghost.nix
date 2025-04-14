@@ -10,6 +10,11 @@
       port = "514";
       proto = "UDP";
     }
+    {
+      host = "any";
+      port = "514";
+      proto = "TCP";
+    }
   ];
   services.journald.extraConfig = ''
 		Storage=none
