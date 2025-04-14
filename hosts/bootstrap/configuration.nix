@@ -85,7 +85,7 @@
   # Enable SSH server and listen on port 2222
   services.openssh = {
     enable = true;
-    ports = [2222];
+    ports = lib.mkDefault [2222];
     settings = {
       #PasswordAuthentication = false;
       #PermitRootLogin = lib.mkForce "prohibit-password";
