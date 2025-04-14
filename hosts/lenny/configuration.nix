@@ -131,8 +131,8 @@
       arduino
       lynx
     #  kdenlive
-      signal-desktop
-      (makeAutostartItem { name = "signal-desktop"; package = signal-desktop; })
+      signal-desktop-bin
+      (makeAutostartItem { name = "signal-desktop"; package = signal-desktop-bin; })
       firefox
       kdePackages.kalk
       spotify
@@ -174,8 +174,8 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-  services.openssh.settings.PermitRootLogin = "yes";
-  services.openssh.settings.PasswordAuthentication = true;
+  services.openssh.settings.PermitRootLogin = lib.mkForce "yes";
+  services.openssh.settings.PasswordAuthentication = lib.mkForce true;
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];

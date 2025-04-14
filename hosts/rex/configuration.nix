@@ -136,8 +136,8 @@ let
        gparted
        nmap
        webex
-       signal-desktop
-       (makeAutostartItem { name = "signal-desktop"; package = signal-desktop; })
+       signal-desktop-bin
+       (makeAutostartItem { name = "signal-desktop"; package = signal-desktop-bin; })
        telegram-desktop
        (makeAutostartItem { name = "telegram.desktop"; package = telegram-desktop; srcPrefix = "org.";})
        telegram-desktop

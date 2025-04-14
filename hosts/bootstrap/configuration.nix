@@ -24,7 +24,7 @@
   boot.loader.grub = {
     enable = !config.boot.isContainer;
     default = "saved";
-    #devices = ["/dev/vda"];
+    devices = lib.mkDefault ["/dev/vda"];
   };
 
   services.swapspace.enable = true;
