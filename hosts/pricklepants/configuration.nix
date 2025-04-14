@@ -224,7 +224,10 @@ services.nginx = {
         };
       };
       cipher = "aes";
-      punchy.punch = true;
+      punchy = {
+        punch = true;
+        reload = true;
+      };
     };
     firewall.outbound = [
       {
