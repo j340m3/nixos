@@ -15,7 +15,7 @@
 			*.*;auth,authpriv.*               -/var/log/syslog
 		'';
     extraConfig = ''
-      *.*  action(type="omfwd" target="192.0.2.2" port="10514" protocol="tcp"
+      *.*  action(type="omfwd" target="10.0.0.3" port="10514" protocol="tcp"
             action.resumeRetryCount="100"
             queue.type="linkedList" queue.size="10000")
     '';
