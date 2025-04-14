@@ -1,4 +1,9 @@
-{} : {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+} : {
   services.nebula.networks.mesh.firewall.inbound = [
     {
       host = "any";

@@ -1,4 +1,9 @@
-{} : {
+{
+	config,
+  lib,
+  pkgs,
+  ...
+} : {
   services.journald.extraConfig = ''
 		Storage=none
 		ForwardToSyslog=yes
