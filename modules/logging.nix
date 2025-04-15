@@ -22,7 +22,8 @@
 		*.* @10.0.0.3:514
 		''; */
 		defaultConfig = ''
-
+			$PreserveFQDN on
+			$LocalHostName ${config.networking.hostName}
 			auth,authpriv.*                    /var/log/auth.log
 			local7.*                          -/var/log/boot.log
 			cron.*                             /var/log/cron.log

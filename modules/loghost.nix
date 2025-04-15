@@ -20,6 +20,8 @@
 
         module(load="imudp")
         input(type="imudp" port="514")
+        $PreserveFQDN on
+        $LocalHostName ${config.networking.hostName}
 
         #$template RemoteLogs,"/persist/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"
         $template RemoteLogs,"/persist/rsyslog/%FROMHOST%/%PROGRAMNAME%.log"
