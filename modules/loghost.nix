@@ -4,6 +4,10 @@
   pkgs,
   ...
 } : {
+  environment.systemPackages = with pkgs; [
+    rsyslogd
+  ];
+  
   services.journald.extraConfig = ''
 		Storage=none
 		ForwardToSyslog=yes
