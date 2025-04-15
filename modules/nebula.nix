@@ -31,11 +31,15 @@
       }
     ];
   };
-  sops.secrets."nebula/ca.crt" = {};
+  sops.secrets."nebula/ca.crt" = {
+    restartUnits = "nebula@mesh.service";
+  };
   sops.secrets."nebula/self.crt" = {
     sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    restartUnits = "nebula@mesh.service";
   };
   sops.secrets."nebula/self.key" = {
     sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    restartUnits = "nebula@mesh.service";
   };
 }
