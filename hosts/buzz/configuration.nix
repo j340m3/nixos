@@ -15,9 +15,9 @@
       ../../modules/swap.nix
       ../common.nix 
       ../../users/donquezz.nix
-      ../../modules/logging.nix
-      ../../modules/persistence.nix
-      ../../modules/nebula.nix
+      #../../modules/logging.nix
+      #../../modules/persistence.nix
+      #../../modules/nebula.nix
     ];
 
   # Use the GRUB 2 boot loader.
