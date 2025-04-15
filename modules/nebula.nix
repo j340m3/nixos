@@ -4,9 +4,14 @@
     enable = true;
     isLighthouse = false;
     lighthouses = [ "10.0.0.1" ];
+    relays = [ "10.0.0.1" ];
     settings = {
-        cipher= "aes";
-        punchy.punch=true;
+          cipher= "aes";
+          punchy.punch=true;
+          dns = {
+            host = "10.0.0.1";
+            port = 53;
+          };
         };
     cert = config.sops.secrets."nebula/self_crt".path; #"/run/secrets/nebula/self.crt";
     key = config.sops.secrets."nebula/self_key".path; #"/run/secrets/nebula/self.key";
