@@ -20,7 +20,7 @@
 		$UDPServerRun 514
 		# Forward all logs to a remote server
 		*.* @10.0.0.3:514
-		''
+		'';
 		/* defaultConfig = ''
 
 			auth,authpriv.*                    /var/log/auth.log
