@@ -1,4 +1,7 @@
 {config, lib, pkgs, ...} :{
+  environment.systemPackages = with pkgs; [
+    nebula
+  ];
 
   services.nebula.networks.mesh = {
     enable = true;
