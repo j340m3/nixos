@@ -53,7 +53,7 @@
       modules = [ 
         ./hosts/lenny/configuration.nix
         nixos-hardware.nixosModules.lenovo-thinkpad-x230
-        # sops-nix.nixosModules.sops
+        sops-nix.nixosModules.sops
       ];
     };
     nixosConfigurations.rex = nixpkgs.lib.nixosSystem {
