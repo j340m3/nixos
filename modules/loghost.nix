@@ -21,10 +21,12 @@
         module(load="imudp")
         input(type="imudp" port="514")
 
-        $template RemoteLogs,"/persist/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"
+        #$template RemoteLogs,"/persist/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"
+        $template RemoteLogs,"/persist/rsyslog/%FROMHOST%/%PROGRAMNAME%.log"
         ?RemoteLogs
 
-        $template RemoteLogs2,"/persist/rsyslog/%HOSTNAME%/messages.log"
+        #$template RemoteLogs2,"/persist/rsyslog/%HOSTNAME%/messages.log"
+        $template RemoteLogs2,"/persist/rsyslog/%FROMHOST%/messages.log"
         ?RemoteLogs2
       '';
 	};
