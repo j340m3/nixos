@@ -15,8 +15,8 @@
   services.rsyslogd = {
 		enable = true;
 		defaultConfig = ''
-        module(load="imtcp")
-        input(type="imtcp" port="514")
+        #module(load="imtcp")
+        #input(type="imtcp" port="514")
 
         module(load="imudp")
         input(type="imudp" port="514")
