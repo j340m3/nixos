@@ -24,7 +24,6 @@
   = "/nix/persist/etc/machine-id";
   sops.age.sshKeyPaths = [ 
     "/nix/persist/etc/ssh/ssh_host_ed25519_key"
-    "/nix/persist/etc/ssh/ssh_host_rsa_key"
     ];
   #fileSystems."/etc/ssh".neededForBoot = true;
 }
