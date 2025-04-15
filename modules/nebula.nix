@@ -31,4 +31,11 @@
       }
     ];
   };
+  sops.secrets."nebula/ca.crt" = {};
+  sops.secrets."nebula/self.crt" = {
+    sopsFile = "../secrets/${config.networking.hostName}/secrets.yaml"
+  };
+  sops.secrets."nebula/self.key" = {
+    sopsFile = "../secrets/${config.networking.hostName}/secrets.yaml"
+  };
 }
