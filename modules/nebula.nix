@@ -8,9 +8,9 @@
         cipher= "aes";
         punchy.punch=true;
         };
-    cert = config.sops.secrets."nebula/self.crt".path; #"/run/secrets/nebula/self.crt";
-    key = config.sops.secrets."nebula/self.key".path; #"/run/secrets/nebula/self.key";
-    ca = config.sops.secrets."nebula/ca.crt".path; #"/run/secrets/nebula/ca.crt";
+    cert = config.sops.secrets."nebula/self_crt".path; #"/run/secrets/nebula/self.crt";
+    key = config.sops.secrets."nebula/self_key".path; #"/run/secrets/nebula/self.key";
+    ca = config.sops.secrets."nebula/ca_crt".path; #"/run/secrets/nebula/ca.crt";
     staticHostMap = {
         "10.0.0.1" = [
                 "194.164.125.154:4242"
@@ -31,18 +31,18 @@
       }
     ];
   };
-  sops.secrets."nebula/ca.crt" = {
+  sops.secrets."nebula/ca_crt" = {
     restartUnits = ["nebula@mesh.service"];
     owner = "nebula-mesh";
   };
-  sops.secrets."nebula/self.crt" = {
+  sops.secrets."nebula/self_crt" = {
     sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
     restartUnits = ["nebula@mesh.service"];
     owner = "nebula-mesh";
   };
-  sops.secrets."nebula/self.key" = {
+  sops.secrets."nebula/self_key" = {
     sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
     restartUnits = ["nebula@mesh.service"];
-    owner = "nebula-mesh";
+    owner = config.users.nebula.networks.mesh.name; #"nebula-mesh";
   };
 }
