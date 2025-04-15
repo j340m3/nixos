@@ -43,6 +43,6 @@
   sops.secrets."nebula/self_key" = {
     sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
     restartUnits = ["nebula@mesh.service"];
-    owner = config.users.nebula.networks.mesh.name; #"nebula-mesh";
+    owner = "nebula-mesh";
   };
 }
