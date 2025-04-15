@@ -12,6 +12,7 @@ creation_rules:
         - *server_woody
         - *server_pricklepants
         - *server_rex
+        - *server_buzz
   - path_regex: secrets/woody/[^/]+\.(yaml|json|env|ini)$
     key_groups:
     - age:
