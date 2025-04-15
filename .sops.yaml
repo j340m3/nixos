@@ -3,6 +3,7 @@ keys:
   - &server_woody age1gjm3ntqmp5ulqdt5gswvprper9hkmnmupw9pl378q8v90m95nswsvklmdj
   - &server_pricklepants age1wrykyx4f8pwksclhj6jsamzjx676allyj8l3z09zjul2he6jhscssppu9l
   - &server_rex age1naetzgje6zlnd3pc5uat20wdnzc7kd9yf25m6my4flqvzjjfpvcqgrkw07
+  - &server_buzz age1t0e4p99fqtgccrum94qa4w3kclg8n3xscvwsfc5pezlcf9ztwufs4gvzzn
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
@@ -26,3 +27,8 @@ creation_rules:
     - age:
         - *admin_jerome
         - *server_rex
+  - path_regex: secrets/buzz/[^/]+\.(yaml|json|env|ini)$
+    key_groups:
+    - age:
+        - *admin_jerome
+        - *server_buzz

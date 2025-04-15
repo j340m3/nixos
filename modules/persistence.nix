@@ -1,9 +1,15 @@
-{} : {
+{config, lib, pkgs, ...} : {
   environment.persistence."/nix/persist" = {
+    hideMounts = true;
     directories = [
       "/srv"       # service data
       "/var/lib"   # system service persistent data
       "/var/log"   # the place that journald dumps it logs to
+      "/run/secrets.d" # sops-nix
+      "/run/secrets"
+    ];
+    files = [
+      "/etc/machine-id"
     ];
   };
   environment.etc."ssh/ssh_host_rsa_key".source
