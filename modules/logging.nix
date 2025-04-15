@@ -24,6 +24,15 @@
 		defaultConfig = ''
 			$PreserveFQDN on
 			$LocalHostName ${config.networking.hostName}
+
+			module(load="imjournal"             # provides access to the systemd journal
+					UsePid="system" # PID nummber is retrieved as the ID of the process the journal entry originates from
+					FileCreateMode="0644" # Set the access permissions for the state file
+					StateFile="imjournal.state"  # File to store the position in the journal
+					Ratelimit.Interval="300"     # Interval in seconds onto which rate-limiting is to be applied
+					Ratelimit.Burst="30000"      # Total number of messages allowed inside the interval 
+					)
+
 			auth,authpriv.*                    /var/log/auth.log
 			local7.*                          -/var/log/boot.log
 			cron.*                             /var/log/cron.log
