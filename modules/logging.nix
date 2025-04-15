@@ -6,7 +6,7 @@
 } : {
 
 	environment.systemPackages = with pkgs; [
-		rsyslogd
+		rsyslog
 	];
 	services.journald.extraConfig = ''
 		Storage=none
