@@ -32,6 +32,8 @@
 					Ratelimit.Interval="300"     # Interval in seconds onto which rate-limiting is to be applied
 					Ratelimit.Burst="30000"      # Total number of messages allowed inside the interval 
 					)
+			module(load="mmjsonparse")
+			module(load="imklog")
 
 			auth,authpriv.*                    /var/log/auth.log
 			local7.*                          -/var/log/boot.log
@@ -45,7 +47,7 @@
 		*.*  action(type="omfwd" target="10.0.0.3" port="514" protocol="udp"
 			action.resumeRetryCount="100"
 			queue.type="linkedList" queue.size="10000")
-			*.* @10.0.0.3:514
+		*.* @10.0.0.3:514
 	'';
 	};
 }
