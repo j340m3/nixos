@@ -18,6 +18,7 @@
       ../../modules/logging.nix
       ../../modules/persistence.nix
       ../../modules/nebula.nix
+      ../../modules/zabbix.nix
     ];
 
   # Use the GRUB 2 boot loader.
