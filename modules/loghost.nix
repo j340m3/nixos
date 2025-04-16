@@ -23,12 +23,12 @@
         $PreserveFQDN on
         $LocalHostName ${config.networking.hostName}
 
-        #$template RemoteLogs,"/persist/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"
-        $template RemoteLogs,"/persist/rsyslog/%FROMHOST-IP%/%PROGRAMNAME%.log"
+        $template RemoteLogs,"/persist/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"
+        #$template RemoteLogs,"/persist/rsyslog/%FROMHOST-IP%/%PROGRAMNAME%.log"
         ?RemoteLogs
 
-        #$template RemoteLogs2,"/persist/rsyslog/%HOSTNAME%/messages.log"
-        $template RemoteLogs2,"/persist/rsyslog/%FROMHOST-IP%/messages.log"
+        $template RemoteLogs2,"/persist/rsyslog/%HOSTNAME%/messages.log"
+        #$template RemoteLogs2,"/persist/rsyslog/%FROMHOST-IP%/messages.log"
         ?RemoteLogs2
       '';
 	};
