@@ -11,7 +11,8 @@ in
     ../../modules/minetest.nix
     ../../modules/vaultwarden.nix
     ../../modules/logging.nix
-    #../../modules/nextcloud.nix
+    ../../modules/zabbix.nix
+    ../../modules/nextcloud.nix
     ../common.nix
     ../common/ssh.nix
   ];
@@ -272,13 +273,13 @@ services.nginx = {
   networking.firewall.interfaces.mesh.allowedUDPPorts = [ 53 ];
   networking.firewall.interfaces.mesh.allowedTCPPorts = [ 10050 ];
 
-  services.zabbixAgent = {
+  /* services.zabbixAgent = {
     enable = true;
-    openFirewall = true;
+    #openFirewall = true;
     server = "10.0.0.0/24";
     settings = {
       Hostname = "pricklepants";
     };
-  };
+  }; */
 }
 

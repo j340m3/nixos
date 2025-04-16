@@ -11,6 +11,9 @@
       #<nixos-hardware/lenovo/thinkpad/x230>
       ./hardware-configuration.nix
       ../common.nix
+      ../../modules/logging.nix
+      ../../modules/nebula.nix
+      ../../modules/zabbix.nix
     ];
 
   # Bootloader.
@@ -106,7 +109,7 @@
     ];
   };
 
-  users.users.emelie = {
+ /*  users.users.emelie = {
     isNormalUser = true;
     description = "Emelie Bergmann";
     extraGroups = [ "networkmanager" "wheel" ];
@@ -115,7 +118,7 @@
     #  kate
     #  thunderbird
     ];
-  };
+  }; */
 
   users.users.lilly = {
     isNormalUser = true;
@@ -219,7 +222,7 @@
                       max-free = ${toString (1024 * 1024 * 1024)}
                      '';
 
-  services.nebula.networks.mesh = {
+  /* services.nebula.networks.mesh = {
     enable = true;
     isLighthouse = false;
     lighthouses = [ "10.0.0.1" ];
@@ -249,14 +252,14 @@
     proto = "any";
   }
 ];
-  };
+  }; */
 
-services.zabbixAgent = {
+/* services.zabbixAgent = {
     enable = true;
     openFirewall = true;
     server = "10.0.0.3";
     settings = {
       Hostname = "lenny";
     };
-  };
+  }; */
 }
