@@ -7,7 +7,7 @@
   environment.systemPackages = with pkgs; [
     rsyslog
   ];
-  networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 512 ];
+  networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 514 ];
   services.journald.extraConfig = ''
 		Storage=none
 		ForwardToSyslog=yes
