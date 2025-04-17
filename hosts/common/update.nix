@@ -79,6 +79,9 @@
         '';
       };
 
+    sops.secrets."telegram/group_id" = {};
+    sops.secrets."telegram/bot_token" = {};
+
     # Send an email whenever auto upgrade fails
     systemd.services.nixos-upgrade.onFailure =
       lib.mkIf config.systemd.services."notify-telegram@".enable
