@@ -3,8 +3,9 @@
 {
   options = {};
   config = {
-    services.fail2ban.enable = lib.mkDefault true;
-
+    services.fail2ban = {
+      enable = lib.mkDefault true;
+    };
     /* security.pam.services = {
       login.googleAuthenticator.enable = true;
       # https://github.com/NixOS/nixpkgs/issues/115044#issuecomment-2065409087

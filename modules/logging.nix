@@ -41,6 +41,7 @@
 			daemon.*                          -/var/log/daemon.log
 			kern.*                             /var/log/kern.log
 			user.*                            -/var/log/user.log
+			conduit.*													 /var/log/conduit.log
 			*.*;auth,authpriv.*               -/var/log/syslog
 		'';
 	extraConfig = ''

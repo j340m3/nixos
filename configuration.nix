@@ -117,9 +117,9 @@
 
   programs.mosh.enable = true;
   networking.firewall.allowedTCPPorts = [ 443 ];
-  networking.firewall.allowedUDPPortRanges = [
+  /* networking.firewall.allowedUDPPortRanges = [
     { from = 60000; to = 61000; }
-  ];
+  ]; */
 services.nginx = {
   enable = true;
   virtualHosts.localhost = {

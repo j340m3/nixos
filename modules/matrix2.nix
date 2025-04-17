@@ -48,7 +48,8 @@ in
       allow_federation = true;
       allow_registration = true;
       database_backend = "rocksdb";
-      package = inputs.conduwuit;
+      #package = inputs.conduwuit;
+      package = pkgs.matrix-conduit;
       well_known = {
           client = "https://${matrix_hostname}";
           server = "${matrix_hostname}:443";
@@ -183,4 +184,29 @@ in
   # Open firewall ports for HTTP, HTTPS, and Matrix federation
   networking.firewall.allowedTCPPorts = [ 80 443 8448 ];
   networking.firewall.allowedUDPPorts = [ 80 443 8448 ];
+  
+
+  services.fail2ban.jails."matrix".settings = {
+    enabled = true;
+    filter = "matrix";
+    logpath = "/var/log/conduit.log";
+    maxretry = 5;
+  };
+
+  environment.etc."/etc/fail2ban/filter.d/matrix.conf".text = ''
+    # matrix-synapse configuration file
+    #[Init]
+    maxlines = 3[Definition]# Option:  failregex
+    # Notes.:  regex to match the password failures messages in the logfile. The
+    #          host must be matched by a group named "host". The tag "<HOST>" can
+    #          be used for standard IP/hostname matching and is only an alias for
+    #          (?:::f{4,6}:)?(?P<host>\S+)
+    # Values:  TEXT
+    #failregex = .*::ffff:<HOST> - 8448 - Received request: POST.*\n.*Got login request.*\n.*Attempted to login as.*
+                .*::ffff:<HOST> - 8448 - Received request: POST.*\n.*Got login request.*\n.*Failed password login.*# Option:  ignoreregex
+    # Notes.:  regex to ignore. If this regex matches, the line is ignored.
+    # Values:  TEXT
+    #
+    ignoreregex =
+    '';
 }
