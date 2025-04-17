@@ -270,16 +270,6 @@ services.nginx = {
     DNSStubListener=no
   '';
   # open the systems firewall for DNS only on the nebula interface
-  networking.firewall.interfaces.mesh.allowedUDPPorts = [ 53 ];
-  networking.firewall.interfaces.mesh.allowedTCPPorts = [ 10050 ];
-
-  /* services.zabbixAgent = {
-    enable = true;
-    #openFirewall = true;
-    server = "10.0.0.0/24";
-    settings = {
-      Hostname = "pricklepants";
-    };
-  }; */
+  networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 53 ];
 }
 
