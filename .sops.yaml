@@ -3,6 +3,7 @@ keys:
   - &server_woody age1gjm3ntqmp5ulqdt5gswvprper9hkmnmupw9pl378q8v90m95nswsvklmdj
   - &server_pricklepants age1wrykyx4f8pwksclhj6jsamzjx676allyj8l3z09zjul2he6jhscssppu9l
   - &server_rex age1naetzgje6zlnd3pc5uat20wdnzc7kd9yf25m6my4flqvzjjfpvcqgrkw07
+  - &server_rex_ssh age1wl08jszz7kse2gp73a7w9d9mkgzn5n4awhypxj7a8vw9emlq6ymsmsvjaj
   - &server_buzz age1t0e4p99fqtgccrum94qa4w3kclg8n3xscvwsfc5pezlcf9ztwufs4gvzzn
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
@@ -12,6 +13,7 @@ creation_rules:
         - *server_woody
         - *server_pricklepants
         - *server_rex
+        - *server_rex_ssh
         - *server_buzz
   - path_regex: secrets/woody/[^/]+\.(yaml|json|env|ini)$
     key_groups:
@@ -28,6 +30,7 @@ creation_rules:
     - age:
         - *admin_jerome
         - *server_rex
+        - *server_rex_ssh
   - path_regex: secrets/buzz/[^/]+\.(yaml|json|env|ini)$
     key_groups:
     - age:
