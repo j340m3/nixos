@@ -21,8 +21,8 @@
         "--no-write-lock-file"
       ];
       allowReboot = config.allowReboot;
-      dates = lib.mkDefault "*-*-* 0/2:45:00";
-      randomizedDelaySec = lib.mkDefault "30min";
+      dates = lib.mkDefault "*-*-* */2:45:00";
+      randomizedDelaySec = lib.mkDefault "25min";
       #dates = lib.mkDefault "hourly";
       rebootWindow = {
         lower = "22:00";
@@ -32,18 +32,23 @@
 
     nix.gc = {
       automatic = true;
-      dates = lib.mkDefault "*-*-* 0/2:15:00";
-      randomizedDelaySec = lib.mkDefault "30min";
+      dates = lib.mkDefault "*-*-* *:15:00";
+      randomizedDelaySec = lib.mkDefault "25min";
       options = lib.mkDefault "--delete-older-than 7d";
     };
     
     # Please do upgrades in Background
     nix = {
       package = pkgs.nix;
-      settings.experimental-features = [ "nix-command" "flakes" ];
-      settings.auto-optimise-store = true;
-      settings.max-jobs = 1;
-      settings.cores = 1;
+      settings = {
+        experimental-features = [ "nix-command" "flakes" ];
+        auto-optimise-store = true;
+        max-jobs = 1;
+        cores = 1;
+        min-free = "${toString (100 * 1024 * 1024)}";
+        max-free = "${toString (1024 * 1024 * 1024)}";
+      };
+
       daemonIOSchedClass = lib.mkDefault "idle";
       daemonCPUSchedPolicy = lib.mkDefault "idle";
     };
