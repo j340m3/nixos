@@ -9,8 +9,8 @@
     lighthouses = [ "10.0.0.1" ];
     relays = [ "10.0.0.1" ];
     settings = {
-          cipher= "aes";
-          punchy.punch=true;
+        cipher= "aes";
+        punchy.punch=true;
           dns = {
             host = "10.0.0.1";
             port = 53;
