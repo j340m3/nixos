@@ -26,6 +26,9 @@ let
       #./mate.nix
       ./hardened.nix
       ../common.nix
+      ../../modules/logging.nix
+      ../../modules/nebula.nix
+      ../../modules/zabbix.nix
     ];
 
   # Bootloader.
@@ -364,16 +367,16 @@ let
     server = "localhost";
   }; */
 
-  services.zabbixAgent = {
+  /* services.zabbixAgent = {
     enable = true;
     openFirewall = true;
     server = "10.0.0.0/24";
     settings = {
       Hostname = "rex";
     };
-  };
+  }; */
 
-  services.nebula.networks.mesh = {
+  /* services.nebula.networks.mesh = {
     enable = true;
     isLighthouse = false;
     lighthouses = [ "10.0.0.1" ];
@@ -408,7 +411,7 @@ let
     proto = "any";
   }
 ];
-  };
+  }; */
   networking.nameservers = [ "10.0.0.1" "1.1.1.1" "8.8.8.8" "9.9.9.9" ];
   networking.useDHCP = lib.mkForce true;
 }
