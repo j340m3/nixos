@@ -189,21 +189,26 @@ in
   services.fail2ban.jails."matrix".settings = {
     enabled = true;
     filter = "matrix";
-    logpath = "/var/log/conduit.log";
+    logpath = "/var/log/syslog";
     maxretry = 5;
   };
 
   environment.etc."fail2ban/filter.d/matrix.local".text = ''
     # matrix-synapse configuration file
-    #[Init]
-    maxlines = 3[Definition]# Option:  failregex
+    #
+    [Init]
+    maxlines = 3
+    [Definition]
+    # Option:  failregex
     # Notes.:  regex to match the password failures messages in the logfile. The
     #          host must be matched by a group named "host". The tag "<HOST>" can
     #          be used for standard IP/hostname matching and is only an alias for
     #          (?:::f{4,6}:)?(?P<host>\S+)
     # Values:  TEXT
-    #failregex = .*::ffff:<HOST> - 8448 - Received request: POST.*\n.*Got login request.*\n.*Attempted to login as.*
-                .*::ffff:<HOST> - 8448 - Received request: POST.*\n.*Got login request.*\n.*Failed password login.*# Option:  ignoreregex
+    #
+    failregex = .*::ffff:<HOST> - 8448 - Received request: POST.*\n.*Got login request.*\n.*Attempted to login as.*
+                .*::ffff:<HOST> - 8448 - Received request: POST.*\n.*Got login request.*\n.*Failed password login.*
+    # Option:  ignoreregex
     # Notes.:  regex to ignore. If this regex matches, the line is ignored.
     # Values:  TEXT
     #

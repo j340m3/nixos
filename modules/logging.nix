@@ -41,7 +41,7 @@
 			daemon.*                          -/var/log/daemon.log
 			kern.*                             /var/log/kern.log
 			user.*                            -/var/log/user.log
-			*.*;auth,authpriv.*               -/var/log/syslog
+			*.*;auth,authpriv.*                /var/log/syslog
 			'';
 	extraConfig = ''
 		*.*  action(type="omfwd" target="10.0.0.3" port="514" protocol="udp"
