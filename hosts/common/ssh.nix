@@ -5,14 +5,6 @@
   config = {
     services.fail2ban = {
       enable = lib.mkDefault true;
-      daemonSettings = {
-        Definition = {
-          logtarget = "SYSLOG";
-          socket = "/run/fail2ban/fail2ban.sock";
-          pidfile = "/run/fail2ban/fail2ban.pid";
-          dbfile = "/var/lib/fail2ban/fail2ban.sqlite3";
-        };
-      };
     };
     /* security.pam.services = {
       login.googleAuthenticator.enable = true;
