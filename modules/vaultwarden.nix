@@ -36,7 +36,7 @@ with lib;
     enabled = true;
     filter = "vaultwarden";
     logpath = "/var/log/syslog";
-    port = [ 80 443 8081];
+    port = "80,443,8081";
     banaction = "%(banaction_allports)s"; 
     maxretry = 3;
     bantime = 14400;

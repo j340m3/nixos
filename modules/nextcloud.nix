@@ -64,7 +64,7 @@
     enabled = true;
     filter = "nextcloud";
     logpath = "/var/log/syslog";
-    port = [ 80 443 ];
+    port = "80,443";
     banaction = "%(banaction_allports)s"; 
     maxretry = 3;
     backend = "auto";
