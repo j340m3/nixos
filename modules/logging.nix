@@ -56,4 +56,9 @@
 		frequency = "hourly";
 		rotate = 1;
 	};
+
+	services.logrotate.settings."/var/log/audit/audit.log" = {
+		frequency = "hourly";
+		rotate = 1;
+	};
 }
