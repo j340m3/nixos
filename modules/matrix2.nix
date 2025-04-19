@@ -193,7 +193,7 @@ in
     maxretry = 5;
   };
 
-  environment.etc."/etc/fail2ban/filter.d/matrix.conf".text = ''
+  environment.etc."fail2ban/filter.d/matrix.local".text = ''
     # matrix-synapse configuration file
     #[Init]
     maxlines = 3[Definition]# Option:  failregex
