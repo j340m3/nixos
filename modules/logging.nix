@@ -51,4 +51,9 @@
 		*.* @10.0.0.3:514
 	'';
 	};
+
+	services.logrotate.settings."/var/log/syslog" = {
+		frequency = "hourly";
+		rotate = 1;
+	};
 }
