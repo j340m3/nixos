@@ -6,8 +6,8 @@
   services.nebula.networks.mesh = {
     enable = true;
     isLighthouse = false;
-    lighthouses = [ "10.0.0.1" ];
-    relays = [ "10.0.0.1" ];
+    lighthouses = [ "10.0.0.1" "10.0.0.5" ];
+    relays = [ "10.0.0.1" "10.0.0.5"];
     settings = {
         cipher= "aes";
         punchy.punch=true;
@@ -23,6 +23,7 @@
         "10.0.0.1" = [
                 "194.164.125.154:4242"
                 ];
+        "10.0.0.5" = [ "194.164.54.40:4242" ];
         };
     firewall.outbound = [
       {
