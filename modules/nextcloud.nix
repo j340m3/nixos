@@ -69,7 +69,6 @@
     maxretry = 3;
     backend = "auto";
     protocol = "tcp";
-    filter = "nextcloud";
     bantime = 86400;
     findtime = 43200;
   };
