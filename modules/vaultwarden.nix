@@ -32,5 +32,23 @@ with lib;
   };
   networking.firewall.allowedTCPPorts = [ 443 ];
 
-  
+  services.fail2ban.jails."vaultwarden".settings = {
+    enabled = true;
+    filter = "vaultwarden";
+    logpath = "/var/log/syslog";
+    port = [ 80 443 8081];
+    banaction = "%(banaction_allports)s"; 
+    maxretry = 3;
+    bantime = 14400;
+    findtime = 14400;
+  };
+
+  environment.etc."fail2ban/filter.d/vaultwarden.local".text = ''
+    [INCLUDES]
+    before = common.conf
+
+    [Definition]
+    failregex = ^.*?Username or password is incorrect\. Try again\. IP: <ADDR>\. Username:.*$
+    ignoreregex =
+    '';
 }
