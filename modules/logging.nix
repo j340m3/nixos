@@ -54,11 +54,19 @@
 
 	services.logrotate.settings."/var/log/syslog" = {
 		frequency = "hourly";
-		rotate = 1;
+		rotate = 0;
+		size = "100K";
 	};
 
 	services.logrotate.settings."/var/log/audit/audit.log" = {
 		frequency = "hourly";
-		rotate = 1;
+		rotate = 0;
+		size = "100K";
+	};
+
+	services.logrotate.settings."/var/log/*.log" = {
+		frequency = "hourly";
+		rotate = 0;
+		size = "100K";
 	};
 }
