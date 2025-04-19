@@ -55,17 +55,20 @@
 		frequency = "hourly";
 		rotate = 0;
 		size = "100K";
+		copytruncate = true;
 	};
 
 	services.logrotate.settings."/var/log/audit/audit.log" = {
 		frequency = "hourly";
 		rotate = 0;
 		size = "100K";
+		copytruncate = true;
 	};
 
 	services.logrotate.settings."/var/log/*.log" = {
 		frequency = "hourly";
 		rotate = 0;
 		size = "100K";
+		copytruncate = true;
 	};
 }
