@@ -17,7 +17,7 @@
       ../../users/donquezz.nix
       ../../modules/logging.nix
       ../../modules/persistence.nix
-      ../../modules/nebula.nix
+      #../../modules/nebula.nix
       ../../modules/zabbix.nix
     ];
 
@@ -136,5 +136,91 @@
   #
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "25.05"; # Did you read the comment?
+  
+  environment.systemPackages = with pkgs; [
+    nebula
+  ];
+  services.nebula.networks.mesh = {
+    enable = true;
+    isLighthouse = true;
+    isRelay = true;
+    cert = config.sops.secrets."nebula/self_crt".path; #"/run/secrets/nebula/self.crt";
+    key = config.sops.secrets."nebula/self_key".path; #"/run/secrets/nebula/self.key";
+    ca = config.sops.secrets."nebula/ca_crt".path; #"/run/secrets/nebula/ca.crt";
+    settings = {
+      lighthouse = {
+        serve_dns = true;
+        dns = {
+          host = "0.0.0.0";
+          port = 53;
+        };
+      };
+      cipher = "aes";
+      punchy = {
+        punch = true;
+        reload = true;
+      };
+    };
+    firewall.outbound = [
+      {
+      host = "any";
+      port = "any";
+      proto = "any";
+      }
+    ];
+    firewall.inbound = [
+    {
+      host = "any";
+      port = "22";
+      proto = "tcp";
+    }
+    {
+      host = "any";
+      port = "any";
+      proto = "icmp";
+    }
+    {
+      host = "any";
+      port = "53";
+      proto = "udp";
+    }
+    {
+      host = "any";
+      port = "10050";
+      proto = "any";
+    }
+    ];
+  };
+  
+  systemd.services."nebula@mesh".serviceConfig = {
+        CapabilityBoundingSet = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+        AmbientCapabilities = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+  };
+  # allow nebula to claim port 53 from systemd-resolved
+  services.resolved.extraConfig = ''
+    DNSStubListener=no
+  '';
+  # open the systems firewall for DNS only on the nebula interface
+  networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 53 ];
 
+  sops.secrets."nebula/ca_crt" = {
+    restartUnits = ["nebula@mesh.service"];
+    owner = "nebula-mesh";
+    group = "nebula-mesh";
+    path = "/etc/nebula/ca.crt";
+  };
+  sops.secrets."nebula/self_crt" = {
+    sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    restartUnits = ["nebula@mesh.service"];
+    owner = "nebula-mesh";
+    group = "nebula-mesh";
+    path = "/etc/nebula/self.crt";
+  };
+  sops.secrets."nebula/self_key" = {
+    sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    restartUnits = ["nebula@mesh.service"];
+    owner = "nebula-mesh";
+    group = "nebula-mesh";
+    path = "/etc/nebula/self.key";
+  };
 }
