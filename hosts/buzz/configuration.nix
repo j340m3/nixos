@@ -207,20 +207,20 @@
     restartUnits = ["nebula@mesh.service"];
     owner = "nebula-mesh";
     group = "nebula-mesh";
-    path = "/etc/nebula/ca.crt";
+    path = "/nix/persist/etc/nebula/ca.crt";
   };
   sops.secrets."nebula/self_crt" = {
     sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
     restartUnits = ["nebula@mesh.service"];
     owner = "nebula-mesh";
     group = "nebula-mesh";
-    path = "/etc/nebula/self.crt";
+    path = "/nix/persist/etc/nebula/self.crt";
   };
   sops.secrets."nebula/self_key" = {
     sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
     restartUnits = ["nebula@mesh.service"];
     owner = "nebula-mesh";
     group = "nebula-mesh";
-    path = "/etc/nebula/self.key";
+    path = "/nix/persist/etc/nebula/self.key";
   };
 }
