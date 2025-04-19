@@ -216,6 +216,9 @@ services.nginx = {
     cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
     key = "/etc/nebula/pricklepants.key";
     ca = "/etc/nebula/ca.crt";
+    staticHostMap = {
+        "10.0.0.5" = [ "194.164.54.40:4242" ];
+        };
     settings = {
       lighthouse = {
         serve_dns = true;
