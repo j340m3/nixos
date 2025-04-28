@@ -161,7 +161,7 @@
     python3Packages.pip
     python3Packages.setuptools
     cifs-utils
-    pkgs.signaldctl
+    #pkgs.signaldctl
     htop
   ];
 
@@ -194,10 +194,10 @@
   system.stateVersion = "23.11"; # Did you read the comment?
   system.autoUpgrade.enable = true;
 
-  services.signald = {
+  /* services.signald = {
     enable = true;
     user = "lilly";
-  };
+  }; */
   services.clamav.daemon.enable = true;
   services.clamav.updater.enable = true;
 
