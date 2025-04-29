@@ -23,7 +23,7 @@ let
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      #./mate.nix
+      ../../desktop-environments/mate.nix
       ./hardened.nix
       ../common.nix
       ../../modules/logging.nix
