@@ -9,6 +9,7 @@
 
   panels = import ./config/panels.nix;
 in {
+  imports = [ <plasma-manager/modules> ];
 
   programs.plasma = {
     enable = true;
