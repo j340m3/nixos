@@ -27,8 +27,9 @@ let
       ../common.nix
       ../../users/donquezz.nix
       ../../modules/loghost.nix
-      ../../desktop-environments/mate.nix
       ../../desktop-environments/kde.nix
+      ../../desktop-environments/mate.nix
+      
       # ./firefox.nix
       #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
       #<home-manager/nixos>
