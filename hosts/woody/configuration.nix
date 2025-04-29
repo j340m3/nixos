@@ -319,7 +319,8 @@ let
   }; */
 
   services.xrdp.enable = true;
-  services.xrdp.defaultWindowManager = "mate-session";
+  #services.xrdp.defaultWindowManager = "mate-session";
+  services.xrdp.defaultWindowManager = "plasma";
   services.xrdp.openFirewall = true;
 
   
