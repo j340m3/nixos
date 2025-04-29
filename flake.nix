@@ -99,15 +99,18 @@
         extraSpecialArgs = {inherit inputs outputs;};
         # > Our main home-manager configuration file <
         modules = [
+          home-manager.nixosModules.home-manager
           inputs.plasma-manager.homeManagerModules.plasma-manager
           ./home/kde/plasma.nix
           
           {
             home = {
+              username = "jeromeb";
               homeDirectory = "/home/jeromeb";
             };
           }
         ];
+        programs.home-manager.enable = true;
       };
     };
     packages.x86_64-linux = {

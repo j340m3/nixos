@@ -27,6 +27,7 @@ let
       ../common.nix
       ../../users/donquezz.nix
       ../../modules/loghost.nix
+      ../../desktop-environments/kde.nix
       # ./firefox.nix
       #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
       #<home-manager/nixos>
@@ -72,11 +73,11 @@ let
   };
 
   # Enable the X11 windowing system.
-  services.xserver.enable = true;
+  #services.xserver.enable = true;
 
   # Enable the MATE Desktop Environment.
-  services.xserver.displayManager.lightdm.enable = true;
-  services.xserver.desktopManager.mate.enable = true;
+  #services.xserver.displayManager.lightdm.enable = true;
+  #services.xserver.desktopManager.mate.enable = true;
 
   # Configure keymap in X11
   services.xserver.xkb = {
