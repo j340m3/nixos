@@ -321,8 +321,8 @@ let
   }; */
 
   services.xrdp.enable = true;
-  services.xrdp.defaultWindowManager = "mate-session";
-  #services.xrdp.defaultWindowManager = "plasma";
+  #services.xrdp.defaultWindowManager = "mate-session";
+  services.xrdp.defaultWindowManager = "startplasma-wayland";
   services.xrdp.openFirewall = true;
 
   
