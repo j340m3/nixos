@@ -27,7 +27,7 @@ let
       ../common.nix
       ../../users/donquezz.nix
       ../../modules/loghost.nix
-      ../../desktop-environments/kde.nix
+      ../../desktop-environments/mate.nix
       # ./firefox.nix
       #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
       #<home-manager/nixos>
@@ -319,8 +319,8 @@ let
   }; */
 
   services.xrdp.enable = true;
-  #services.xrdp.defaultWindowManager = "mate-session";
-  services.xrdp.defaultWindowManager = "plasma";
+  services.xrdp.defaultWindowManager = "mate-session";
+  #services.xrdp.defaultWindowManager = "plasma";
   services.xrdp.openFirewall = true;
 
   
