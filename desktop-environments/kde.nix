@@ -14,6 +14,9 @@
     [
       libsForQt5.qtstyleplugin-kvantum
       libsForQt5.qt5ct
+      whitesur-kde
+      whitesur-cursors
+      whitesur-icon-theme
   ];
 
   nixpkgs.config.qt5 = {
