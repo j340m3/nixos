@@ -10,7 +10,10 @@
     relays = [ "10.0.0.1" "10.0.0.5"];
     settings = {
         cipher= "aes";
-        punchy.punch=true;
+        punchy = {
+          punch = true;
+          respond = true;
+        };
           dns = {
             host = "10.0.0.1";
             port = 53;
