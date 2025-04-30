@@ -36,7 +36,6 @@ let
   boot.loader.efi.canTouchEfiVariables = true;
   
   # boot.kernelPackages = pkgs.linuxPackages_zen;
-  boot.kernelPackages = pkgs.linuxPackages_zen;
   boot.extraModulePackages = with config.boot.kernelPackages; [ virtualboxGuestAdditions ];
 
   #swapDevices = [ { device = "/swapfile"; size = 2048; } ];
