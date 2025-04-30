@@ -119,6 +119,7 @@ let
     description = "Jerome Bergmann";
     extraGroups = [ "networkmanager" "wheel" "plugdev" ];
     packages = with pkgs; [
+      goose-cli
       htop
       # home-manager
       github-desktop
