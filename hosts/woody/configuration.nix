@@ -542,5 +542,8 @@ let
   services.ollama = {
     enable = true;
     acceleration = false;
+    environmentVariables = {
+      OLLAMA_CONTEXT_LENGTH=32768;
+    };
   };
 }
