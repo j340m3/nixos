@@ -24,7 +24,7 @@ let
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       ../../desktop-environments/mate.nix
-      ./hardened.nix
+      #./hardened.nix
       ../common.nix
       ../../modules/logging.nix
       ../../modules/nebula.nix
