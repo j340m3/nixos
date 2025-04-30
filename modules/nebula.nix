@@ -4,6 +4,7 @@
   ];
 
   services.nebula.networks.mesh = {
+    listen.host = "[::]";
     enable = true;
     isLighthouse = false;
     lighthouses = [ "10.0.0.1" "10.0.0.5" ];
