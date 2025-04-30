@@ -538,4 +538,8 @@ let
       turbo = "never";
   };
 }; */
+  services.ollama = {
+    enable = true;
+    acceleration = false;
+  };
 }
