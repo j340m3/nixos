@@ -36,6 +36,8 @@ let
   boot.loader.efi.canTouchEfiVariables = true;
   
   # boot.kernelPackages = pkgs.linuxPackages_zen;
+  boot.kernelPackages = pkgs.linuxPackages_zen;
+  boot.extraModulePackages = with config.boot.kernelPackages; [ virtualboxGuestAdditions ];
 
   #swapDevices = [ { device = "/swapfile"; size = 2048; } ];
   services.swapspace.enable = true;
@@ -296,6 +298,7 @@ let
     nebula
     exfat
     #exfatprogs
+
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
