@@ -259,7 +259,13 @@ let
     pam_u2f
     vulnix
     git
-    elm
+    elmPackages.elm
+    elmPackages.elm-analyse
+    elmPackages.elm-coverage
+    elmPackages.elm-format
+    elmPackages.elm-json
+    elmPackages.elm-review
+    elmPackages.elm-upgrade
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
   ];
