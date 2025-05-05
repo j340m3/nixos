@@ -13,13 +13,13 @@
       path = "/var/lib/borgbackup/minetest";
       authorizedKeysAppendOnly = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMHzhGXrb4GrFuRKi1bTdXcEz9J8vrGk/cn8KeDDlntI lnti"];
     };
-    nextcloud = {
-      path = "/var/lib/borgbackup/nextcloud";
-      authorizedKeysAppendOnly = [];
-    };
-    vaultwarden = {
-      path = "/var/lib/borgbackup/vaultwarden";
-      authorizedKeysAppendOnly = [];
-    };
+    # nextcloud = {
+    #   path = "/var/lib/borgbackup/nextcloud";
+    #   authorizedKeysAppendOnly = [];
+    # };
+    # vaultwarden = {
+    #   path = "/var/lib/borgbackup/vaultwarden";
+    #   authorizedKeysAppendOnly = [];
+    # };
   };
 }
