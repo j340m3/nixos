@@ -35,6 +35,7 @@
     #owner = "nebula-mesh";
     #group = "nebula-mesh";
     #path = "/etc/nebula/ca.crt";
+    sopsFile = ../../secrets/${config.networking.hostName}/secrets.yaml;
   };
 
   services.borgbackup.jobs.minetest = {
