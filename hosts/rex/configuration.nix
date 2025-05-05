@@ -37,7 +37,10 @@ let
   
   # boot.kernelPackages = pkgs.linuxPackages_zen;
   boot.extraModulePackages = with config.boot.kernelPackages; [ virtualboxGuestAdditions ];
-  systemd.services."virtualboxClientDragAndDrop".wantedBy = lib.mkForce [ ]; #Disable Drag and Drop
+  systemd.services."virtualboxClientDragAndDrop" = {
+    wantedBy = lib.mkForce [ ]; #Disable Drag and Drop
+    ExecStart=lib.mkForce [""]
+  };
 
   #swapDevices = [ { device = "/swapfile"; size = 2048; } ];
   services.swapspace.enable = true;
