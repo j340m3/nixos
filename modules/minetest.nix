@@ -1,10 +1,11 @@
 { config, pkgs, ... }:
 
-environment.systemPackages = with pkgs; [
-  borgbackup
-];
 
 {
+  environment.systemPackages = with pkgs; [
+    borgbackup
+  ];
+
  services.minetest-server = {
    enable = true;
    port = 30000;
