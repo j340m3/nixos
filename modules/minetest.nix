@@ -42,8 +42,8 @@
     paths = "/var/lib/minetest/.minetest";
     encryption.mode = "none";
     environment.BORG_RSH = "ssh -i $(cat ${config.sops.secrets."borg/luanti".path})";
-    repo = "ssh://borg@10.0.0.3:23";
-    compression = "auto,zstd";
+    repo = "borg@10.0.0.3:minetest";
+    compression = "auto,lzma";
     startAt = "daily";
   };
 }
