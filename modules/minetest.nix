@@ -1,5 +1,9 @@
 { config, pkgs, ... }:
 
+environment.systemPackages = with pkgs; [
+  borgbackup
+];
+
 {
  services.minetest-server = {
    enable = true;
@@ -24,4 +28,20 @@
  };
   networking.firewall.allowedTCPPorts = [ 30000 ];
   networking.firewall.allowedUDPPorts = [ 30000 ];
+
+  sops.secrets."borg/luanti" = {
+    #restartUnits = ["nebula@mesh.service"];
+    #owner = "nebula-mesh";
+    #group = "nebula-mesh";
+    #path = "/etc/nebula/ca.crt";
+  };
+
+  services.borgbackup.jobs.minetest = {
+    paths = "/var/lib/minetest/.minetest";
+    encryption.mode = "none";
+    environment.BORG_RSH = "ssh -i $(cat ${config.sops.secrets."borg/luanti".path})";
+    repo = "ssh://borg@10.0.0.3:23";
+    compression = "auto,zstd";
+    startAt = "daily";
+  };
 }
