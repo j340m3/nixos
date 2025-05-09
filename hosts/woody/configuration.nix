@@ -267,6 +267,7 @@ let
     elmPackages.elm-json
     elmPackages.elm-review
     elmPackages.elm-upgrade
+    mate.caja-with-extensions
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
   ];
