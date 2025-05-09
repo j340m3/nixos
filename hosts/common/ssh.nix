@@ -13,6 +13,7 @@
           dbfile = "/var/lib/fail2ban/fail2ban.sqlite3";
         };
       };
+      ignoreIP = ["10.0.0.0/8"];  
     };
     /* security.pam.services = {
       login.googleAuthenticator.enable = true;
