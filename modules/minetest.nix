@@ -41,8 +41,8 @@
   services.borgbackup.jobs.minetest = {
     paths = "/var/lib/minetest/.minetest";
     encryption.mode = "none";
-    environment.BORG_RSH = "ssh -i $(cat ${config.sops.secrets."borg/luanti".path})";
-    repo = "borg@10.0.0.3:minetest";
+    environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/luanti".path}";
+    repo = "borg@10.0.0.3:.";
     compression = "auto,lzma";
     startAt = "daily";
   };
