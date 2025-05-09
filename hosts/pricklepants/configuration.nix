@@ -11,7 +11,7 @@ in
     #../../modules/minetest.nix
     #../../modules/vaultwarden.nix
     ../../modules/logging.nix
-    ../../modules/zabbix.nix
+    #../../modules/zabbix.nix
     #../../modules/nextcloud.nix
     ../common.nix
     ../common/ssh.nix
