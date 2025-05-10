@@ -28,6 +28,7 @@ let
       ../../users/donquezz.nix
       ../../modules/loghost.nix
       ../../modules/borg-server.nix
+      ../../remote-builder.nix
       ../../desktop-environments/kde.nix
       ../../desktop-environments/mate.nix
       
