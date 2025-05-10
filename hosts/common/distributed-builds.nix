@@ -8,8 +8,10 @@
       hostName = "builder";
       #sshUser = "remotebuild";
       #sshKey = "/root/.ssh/remotebuild";
-      system = pkgs.stdenv.hostPlatform.system;
+      systems = [ "x86_64-linux" "aarch64-linux" ];
+      #system = pkgs.stdenv.hostPlatform.system;
       speedFactor = 2;
+      protocol = "ssh-ng";
       supportedFeatures = [ "nixos-test" "big-parallel" "kvm" "benchmark" ];
     }
   ];

@@ -1,4 +1,6 @@
 {
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+
   users.users.remotebuild = {
     isNormalUser = true;
     createHome = false;
