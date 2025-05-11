@@ -45,6 +45,8 @@
     repo = "borg@10.0.0.3:.";
     compression = "auto,lzma";
     startAt = "daily";
+    preHook = "systemctl stop minetest";
+    postHook = "systemctl start minetest";
   };
 
   # Send an email whenever auto upgrade fails
