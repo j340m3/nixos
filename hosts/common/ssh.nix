@@ -36,7 +36,7 @@
       settings.PasswordAuthentication = false;
       settings.KbdInteractiveAuthentication = false;
       settings.PermitRootLogin = "no";
-      settings.AllowGroups = [ "wheel" "remotebuild" ];
+      settings.AllowGroups = [ "wheel" "remotebuild" "borg"];
       settings.AllowTcpForwarding = "no";
       settings.ClientAliveCountMax = 2;
       settings.MaxAuthTries = 3;
