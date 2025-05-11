@@ -46,4 +46,10 @@
     compression = "auto,lzma";
     startAt = "daily";
   };
+
+  # Send an email whenever auto upgrade fails
+    systemd.services."borgbackup-job-minetest-start".onFailure =
+      lib.mkIf config.systemd.services."notify-telegram@".enable
+      [ "notify-telegram@%i.service" ];
+
 }
