@@ -48,7 +48,7 @@
   };
 
   # Send an email whenever auto upgrade fails
-    systemd.services."borgbackup-job-minetest-start".onFailure =
+    systemd.services."borgbackup-job-minetest".onFailure =
       lib.mkIf config.systemd.services."notify-telegram@".enable
       [ "notify-telegram@%i.service" ];
 
