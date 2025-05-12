@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  peerix,
   ...
 } : {
   services.peerix = {
