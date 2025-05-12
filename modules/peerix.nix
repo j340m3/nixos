@@ -5,7 +5,10 @@
   inputs,
   ...
 } : {
-
+  users.user.peerix = {
+    isSystemUser = true;
+    group = "peerix";
+  };
 
   services.peerix = {
     enable = true;
