@@ -5,9 +5,13 @@
   inputs,
   ...
 } : {
+
+
   services.peerix = {
     enable = true;
     package = inputs.peerix.packages.${pkgs.system}.peerix;
+    user = "peerix";
+    group = "peerix";
     #openFirewall = true; # UDP/12304
     privateKeyFile = config.sops.secrets."peerix/private".path;
     #publicKeyFile =  config.sops.secrets."peerix/public".path;
@@ -26,8 +30,8 @@
   sops.secrets."peerix/private" = {
     sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
     #restartUnits = ["nebula@mesh.service"];
-    #owner = "nebula-mesh";
-    #group = "nebula-mesh";
+    owner = "peerix";
+    group = "peerix";
     #path = "/etc/nebula/self.crt";
   };
 }
