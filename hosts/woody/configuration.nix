@@ -30,6 +30,7 @@ let
       ../../modules/borg-server.nix
       ../../modules/remote-builder.nix
       ../../modules/peerix.nix
+      ../../modules/reticulum.nix
       ../../desktop-environments/kde.nix
       ../../desktop-environments/mate.nix
       
