@@ -5,7 +5,7 @@
   inputs,
   ...
 } : {
-  users.user.peerix = {
+  users.users.peerix = {
     isSystemUser = true;
     group = "peerix";
   };
