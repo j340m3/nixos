@@ -2,16 +2,16 @@
   config,
   lib,
   pkgs,
-  peerix,
+  inputs,
   ...
 } : {
   services.peerix = {
     enable = true;
-    package = peerix.packages.${pkgs.system}.peerix;
+    package = inputs.peerix.packages.${pkgs.system}.peerix;
     #openFirewall = true; # UDP/12304
     privateKeyFile = config.sops.secrets."peerix/private".path;
-    publicKeyFile =  config.sops.secrets."peerix/public".path;
-    #publicKey = "THE CONTENT OF peerix-public FROM THE OTHER COMPUTER";
+    #publicKeyFile =  config.sops.secrets."peerix/public".path;
+    publicKey = "peerix-woody:A84EBXl0lnyfP/v+IBB4HO7jkpL0OI9PNaY3PqZhW7Q= peerix-rex:CPPA1PQfRIkEpKYZckfRI04p37uIaBz5uKT2ufs/z/U=";
     # example # publicKey = "peerix-laptop:1ZjzxYFhzeRMni4CyK2uKHjgo6xy0=";
   };
 

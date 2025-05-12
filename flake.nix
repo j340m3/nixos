@@ -21,7 +21,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     }; */
     peerix = {
-      url = "github:cid-chan/peerix";
+      url = "github:j340m3/peerix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
