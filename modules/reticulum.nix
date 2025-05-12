@@ -4,7 +4,7 @@
       rns
     ];
     script = ''
-      ${pkgs.rns}/rnsd
+      ${pkgs.rns}/bin/rnsd
     '';
     wantedBy = [ "multi-user.target" ];
   };
