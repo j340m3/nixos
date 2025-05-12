@@ -29,6 +29,7 @@ let
       ../../modules/logging.nix
       ../../modules/nebula.nix
       ../../modules/zabbix.nix
+      ../common/distributed-builds.nix
     ];
 
   # Bootloader.
