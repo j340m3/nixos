@@ -40,7 +40,7 @@ let
   boot.extraModulePackages = with config.boot.kernelPackages; [ virtualboxGuestAdditions ];
   systemd.services."virtualboxClientDragAndDrop" = {
     wantedBy = lib.mkForce [ ]; #Disable Drag and Drop
-    ExecStart=lib.mkForce [""];
+    #execStart=lib.mkForce [""];
   };
 
   #swapDevices = [ { device = "/swapfile"; size = 2048; } ];
