@@ -20,6 +20,10 @@
       url = "github:girlbossceo/conduwuit";
       inputs.nixpkgs.follows = "nixpkgs";
     }; */
+    peerix = {
+      url = "github:cid-chan/peerix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware/master";
@@ -31,7 +35,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs = { self, nixpkgs, nixpkgs-stable, sops-nix, home-manager, nixos-hardware, ... } @ inputs : 
+  outputs = { self, nixpkgs, nixpkgs-stable, sops-nix, home-manager, nixos-hardware, peerix,... } @ inputs : 
   let
     inherit (self) outputs;
   in
@@ -42,6 +46,7 @@
       modules = [ 
         ./hosts/pricklepants/configuration.nix
         sops-nix.nixosModules.sops
+        peerix.nixosModules.peerix
       ];
     };
     nixosConfigurations.woody = nixpkgs.lib.nixosSystem {
@@ -52,6 +57,7 @@
         #  { config.facter.reportPath = ./hosts/woody/facter.json; }
         ./hosts/woody/configuration.nix
         sops-nix.nixosModules.sops
+        peerix.nixosModules.peerix
       ];
     };
     nixosConfigurations.lenny = nixpkgs.lib.nixosSystem {
@@ -61,6 +67,7 @@
         ./hosts/lenny/configuration.nix
         nixos-hardware.nixosModules.lenovo-thinkpad-x230
         sops-nix.nixosModules.sops
+        peerix.nixosModules.peerix
       ];
     };
     nixosConfigurations.rex = nixpkgs.lib.nixosSystem {
@@ -69,6 +76,7 @@
       modules = [ 
         ./hosts/rex/configuration.nix
         sops-nix.nixosModules.sops
+        peerix.nixosModules.peerix
       ];
     };
     nixosConfigurations.bootstrap = nixpkgs.lib.nixosSystem {
@@ -89,6 +97,7 @@
         sops-nix.nixosModules.sops
         inputs.disko.nixosModules.disko
         inputs.impermanence.nixosModules.impermanence
+        peerix.nixosModules.peerix
       ];
     };
     homeConfigurations = {

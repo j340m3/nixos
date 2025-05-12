@@ -29,6 +29,7 @@ let
       ../../modules/loghost.nix
       ../../modules/borg-server.nix
       ../../modules/remote-builder.nix
+      ../../modules/peerix.nix
       ../../desktop-environments/kde.nix
       ../../desktop-environments/mate.nix
       
@@ -535,7 +536,7 @@ let
 #    enableSSHSupport = true;
 #  };
   powerManagement.enable = true;
-  powerManagement.cpuFreqGovernor = "powersave";
+  #powerManagement.cpuFreqGovernor = "powersave";
   powerManagement.powertop.enable = true;   
   services.thermald.enable = true;
   /* services.auto-cpufreq.enable = true;
