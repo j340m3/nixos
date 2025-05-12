@@ -216,7 +216,7 @@ in
     '';
 
     services.borgbackup.jobs.matrix = {
-    paths = ${config.services.matrix-conduit.settings.global.database_path};
+    paths = "${config.services.matrix-conduit.settings.global.database_path}";
     encryption.mode = "none";
     environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/matrix".path}";
     repo = "borg@10.0.0.3:.";
