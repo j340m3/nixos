@@ -53,11 +53,12 @@
       specialArgs = {inherit inputs outputs;};
       system = "x86_64-linux";
       modules = [ 
+        peerix.nixosModules.peerix
         #inputs.nixos-facter-modules.nixosModules.facter
         #  { config.facter.reportPath = ./hosts/woody/facter.json; }
         ./hosts/woody/configuration.nix
         sops-nix.nixosModules.sops
-        peerix.nixosModules.peerix
+        
       ];
     };
     nixosConfigurations.lenny = nixpkgs.lib.nixosSystem {
