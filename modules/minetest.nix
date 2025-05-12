@@ -31,10 +31,6 @@
   networking.firewall.allowedUDPPorts = [ 30000 ];
 
   sops.secrets."borg/luanti" = {
-    #restartUnits = ["nebula@mesh.service"];
-    #owner = "nebula-mesh";
-    #group = "nebula-mesh";
-    #path = "/etc/nebula/ca.crt";
     sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
   };
 

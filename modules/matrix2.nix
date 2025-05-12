@@ -215,6 +215,10 @@ in
     ignoreregex =
     '';
 
+    sops.secrets."borg/matrix" = {
+      sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    };
+
     services.borgbackup.jobs.matrix = {
     paths = "${config.services.matrix-conduit.settings.global.database_path}";
     encryption.mode = "none";
