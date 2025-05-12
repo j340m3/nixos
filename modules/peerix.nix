@@ -9,6 +9,7 @@
     isSystemUser = true;
     group = "peerix";
   };
+  users.groups.peerix = {};
 
   services.peerix = {
     enable = true;
