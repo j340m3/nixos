@@ -1,4 +1,4 @@
-{pgks,...}:{
+{config,lib,pgks,...}:{
   fonts.packages = with pkgs; [
     nerd-fonts.monoid
     nerd-fonts.fira-code
