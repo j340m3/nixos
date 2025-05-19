@@ -17,7 +17,6 @@
       ../../users/donquezz.nix
       ../../modules/logging.nix
       ../../modules/persistence.nix
-      ../../modules/nebula.nix
       ../../modules/zabbix.nix
       ../common/distributed-builds.nix
     ];
