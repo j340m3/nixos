@@ -29,6 +29,8 @@ let
       ../../modules/logging.nix
       ../../modules/nebula.nix
       ../../modules/zabbix.nix
+      ../../modules/peerix.nix
+      ../common/distributed-builds.nix
     ];
 
   # Bootloader.
@@ -39,19 +41,19 @@ let
   boot.extraModulePackages = with config.boot.kernelPackages; [ virtualboxGuestAdditions ];
   systemd.services."virtualboxClientDragAndDrop" = {
     wantedBy = lib.mkForce [ ]; #Disable Drag and Drop
-    ExecStart=lib.mkForce [""]
+    #execStart=lib.mkForce [""];
   };
 
   #swapDevices = [ { device = "/swapfile"; size = 2048; } ];
-  services.swapspace.enable = true;
-  services.swapspace.settings = {
-    lower_freelimit=50;
-    upper_freelimit=70;
-    freetarget=60;
-    buffer_elasticity=100;
-    cache_elasticity=100;
-  };
-  boot.kernel.sysctl = { "vm.swappiness" = 5;};
+  #services.swapspace.enable = true;
+  #services.swapspace.settings = {
+  #  lower_freelimit=50;
+  #  upper_freelimit=70;
+  #  freetarget=60;
+  #  buffer_elasticity=100;
+  #  cache_elasticity=100;
+  #};
+  boot.kernel.sysctl = { "vm.swappiness" = 1;};
 
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
@@ -144,14 +146,14 @@ let
        gparted
        nmap
        #webex
-       signal-desktop-bin
-       (makeAutostartItem { name = "signal-desktop"; package = signal-desktop-bin; })
+       signal-desktop
+       (makeAutostartItem { name = "signal"; package = signal-desktop; prependExtraArgs = [ "--start-in-tray" ];})
        telegram-desktop
        (makeAutostartItem { name = "telegram.desktop"; package = telegram-desktop; srcPrefix = "org.";})
        telegram-desktop
-       #jetbrains.pycharm-professional
+       jetbrains.pycharm-professional
        elmPackages.elm
-       #python3Full
+       python3Full
        (python311.withPackages(ps: with ps; [ 
           #(dontCheckPython numpy)
           pytest

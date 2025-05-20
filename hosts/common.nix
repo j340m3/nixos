@@ -5,5 +5,6 @@
     ./common/locale.nix
     ./common/sops.nix
     ./common/rate_limiting_avoidance.nix
+    ./common/fonts.nix
   ];
 }

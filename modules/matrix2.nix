@@ -214,4 +214,24 @@ in
     #
     ignoreregex =
     '';
+
+    sops.secrets."borg/matrix" = {
+      sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    };
+
+    services.borgbackup.jobs.matrix = {
+    paths = "${config.services.matrix-conduit.settings.global.database_path}";
+    encryption.mode = "none";
+    environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/matrix".path}";
+    repo = "borg@10.0.0.3:.";
+    compression = "auto,lzma";
+    startAt = "daily";
+    preHook = "systemctl stop conduit";
+    postHook = "systemctl start conduit";
+  };
+
+  # Send an email whenever auto upgrade fails
+    systemd.services."borgbackup-job-matrix".onFailure =
+      lib.mkIf config.systemd.services."notify-telegram@".enable
+      [ "notify-telegram@%i.service" ];
 }
