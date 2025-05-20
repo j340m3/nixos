@@ -19,6 +19,7 @@
       ../../modules/persistence.nix
       #../../modules/nebula.nix
       ../../modules/zabbix.nix
+      ../../modules/minecraft-bedrock.nix
     ];
 
   # Use the GRUB 2 boot loader.
