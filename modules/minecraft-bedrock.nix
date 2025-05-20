@@ -1,4 +1,5 @@
-{}:{virtualisation.oci-containers.containers = {
+{}:{
+  virtualisation.oci-containers.containers = {
     minecraft = {
       environment = {
         ALLOW_CHEATS = "true";
@@ -14,4 +15,8 @@
       volumes = [ "/nix/persist/minecraft/:/data" ];
     };
   };
+  networking.firewall.allowedUDPPorts = [
+    #53 # DNS
+    19132 # Minecraft
+  ];
 }
