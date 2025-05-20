@@ -14,7 +14,7 @@
       };
       image = "itzg/minecraft-bedrock-server";
       ports = ["0.0.0.0:19132:19132/udp"];
-      volumes = [ "/nix/persist/minecraft/:/data" ];
+      volumes = [ "/nix/persist/minecraft/klassenserver/:/data" ];
     };
   };
   networking.firewall.allowedUDPPorts = [
