@@ -91,6 +91,16 @@
         inputs.impermanence.nixosModules.impermanence
       ];
     };
+    nixosConfigurations.jessie = nixpkgs.lib.nixosSystem {
+      specialArgs = {inherit inputs outputs;};
+      system = "x86_64-linux";
+      modules = [ 
+        ./hosts/jessie/configuration.nix
+        sops-nix.nixosModules.sops
+        inputs.disko.nixosModules.disko
+        inputs.impermanence.nixosModules.impermanence
+      ];
+    };
     homeConfigurations = {
       # FIXME replace with your username@hostname
       "jeromeb" = home-manager.lib.homeManagerConfiguration {
