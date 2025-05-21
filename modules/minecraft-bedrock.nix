@@ -14,11 +14,12 @@
         LEVEL_NAME = "Klassenserver";
         TZ = "Europe/Berlin";
         VERSION = "LATEST";
+        SER
         #OPS = "2535414708374553,2535448442672198"
         #ALLOW_LIST_USERS = "adyxax:2535470760215402,pseudo2:XXXXXXX,pseudo3:YYYYYYY";
       };
       image = "itzg/minecraft-bedrock-server";
-      ports = ["19132:19132/udp"];
+      ports = ["19132:19132/udp" "[::]:19132:19132/udp"];
       volumes = [ "/nix/persist/minecraft/klassenserver/:/data" ];
     };
     emeliebjorn = {
