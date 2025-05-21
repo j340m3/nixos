@@ -30,7 +30,7 @@
         #ALLOW_LIST_USERS = "adyxax:2535470760215402,pseudo2:XXXXXXX,pseudo3:YYYYYYY";
       };
       image = "itzg/minecraft-bedrock-server";
-      ports = ["19132:19133/udp"];
+      ports = ["19133:19132/udp"];
       volumes = [ "/nix/persist/minecraft/emeliebjorn/:/data" ];
     };
   };
