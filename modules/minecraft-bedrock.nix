@@ -14,7 +14,6 @@
         LEVEL_NAME = "Klassenserver";
         TZ = "Europe/Berlin";
         VERSION = "LATEST";
-        SER
         #OPS = "2535414708374553,2535448442672198"
         #ALLOW_LIST_USERS = "adyxax:2535470760215402,pseudo2:XXXXXXX,pseudo3:YYYYYYY";
       };
