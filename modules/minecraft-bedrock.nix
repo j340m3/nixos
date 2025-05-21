@@ -36,6 +36,7 @@
   };
   networking.firewall.allowedUDPPorts = [
     #53 # DNS
-    19132 # Minecraft
+    19132 # Klassenserver
+    19133 # emelie bjorn
   ];
 }
