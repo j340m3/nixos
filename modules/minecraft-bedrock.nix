@@ -1,6 +1,9 @@
 { config, pkgs, lib, ... }:
 
 {
+  virtualisation.containers.enable = true;
+  virtualisation.podman.enable = true;
+  virtualisation.oci-containers.backend = "podman";
   virtualisation.oci-containers.containers = {
     minecraft = {
       environment = {
