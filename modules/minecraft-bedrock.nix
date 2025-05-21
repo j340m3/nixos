@@ -11,8 +11,10 @@
         EULA = "TRUE";
         DIFFICULTY = "1";
         SERVER_NAME = "Klassenserver";
+        LEVEL_NAME = "Klassenserver";
         TZ = "Europe/Berlin";
         VERSION = "LATEST";
+        #OPS = "2535414708374553,2535448442672198"
         #ALLOW_LIST_USERS = "adyxax:2535470760215402,pseudo2:XXXXXXX,pseudo3:YYYYYYY";
       };
       image = "itzg/minecraft-bedrock-server";
@@ -25,8 +27,10 @@
         EULA = "TRUE";
         DIFFICULTY = "1";
         SERVER_NAME = "Emelie Bjorn";
+        LEVEL_NAME = "Emelie Bjorn";
         TZ = "Europe/Berlin";
         VERSION = "LATEST";
+
         #ALLOW_LIST_USERS = "adyxax:2535470760215402,pseudo2:XXXXXXX,pseudo3:YYYYYYY";
       };
       image = "itzg/minecraft-bedrock-server";
