@@ -17,7 +17,7 @@ in
     ../common/ssh.nix
     ../common/distributed-builds.nix
   ];
-  swapDevices = [ { device = "/swapfile"; size = 1024; } ];
+  #swapDevices = [ { device = "/swapfile"; size = 1024; } ];
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
   
