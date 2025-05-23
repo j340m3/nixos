@@ -6,9 +6,7 @@
 }: 
 {
   nix = {
-    settings = {
-      access-tokens = "!include ${config.sops.secrets.nixAccessTokens.path}";
-    };
+    extraOptions = ''!include ${config.sops.secrets.nixAccessTokens.path}'';
   };
 
   sops.secrets.nixAccessTokens = {
