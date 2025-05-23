@@ -134,8 +134,8 @@
       arduino
       lynx
     #  kdenlive
-      signal-desktop-bin
-      (makeAutostartItem { name = "signal-desktop"; package = signal-desktop-bin; })
+      signal-desktop
+      (makeAutostartItem { name = "signal"; package = signal-desktop; })
       firefox
       kdePackages.kalk
       spotify
