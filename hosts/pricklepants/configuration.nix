@@ -7,12 +7,12 @@ in
     (modulesPath + "/profiles/minimal.nix")
     (modulesPath + "/profiles/headless.nix")
     ../../modules/hardening.nix
-    ../../modules/matrix2.nix
-    ../../modules/minetest.nix
-    ../../modules/vaultwarden.nix
+    #../../modules/matrix2.nix
+    #../../modules/minetest.nix
+    #../../modules/vaultwarden.nix
     ../../modules/logging.nix
     ../../modules/zabbix.nix
-    ../../modules/nextcloud.nix
+    #../../modules/nextcloud.nix
     ../common.nix
     ../common/ssh.nix
     ../common/distributed-builds.nix
