@@ -21,6 +21,7 @@ in
   #swapDevices = [ { device = "/swapfile"; size = 1024; } ];
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
+  boot.kernelPackages = pkgs.linuxPackages_zen;
   
   environment.systemPackages = with pkgs; [
     #bc
