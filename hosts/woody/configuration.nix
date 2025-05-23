@@ -454,12 +454,15 @@ let
 #  };
 
   services.nebula.networks.mesh = {
+    listen.host = "[::]";
     enable = true;
     isLighthouse = false;
-    lighthouses = [ "10.0.0.1" ];
+    lighthouses = [ "10.0.0.1" "10.0.0.5"];
+    relays = [ "10.0.0.1" "10.0.0.5"];
     settings = {
         cipher= "aes";
         punchy.punch=true;
+        punchy.respond=true;
         };
     cert = "/etc/nebula/woody.crt";
     key = "/etc/nebula/woody.key";
@@ -468,6 +471,7 @@ let
         "10.0.0.1" = [
                 "194.164.125.154:4242"
                 ];
+        "10.0.0.5" = [ "194.164.54.40:4242" ];
         };
     firewall.outbound = [
   {
