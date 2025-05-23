@@ -15,10 +15,10 @@ in
     ../../modules/nextcloud.nix
     ../common.nix
     ../common/ssh.nix
-    ../common/zram.nix
+    #../common/zram.nix
     ../common/distributed-builds.nix
   ];
-  #swapDevices = [ { device = "/swapfile"; size = 1024; } ];
+  swapDevices = [ { device = "/swapfile"; size = 512; } ];
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_zen;
