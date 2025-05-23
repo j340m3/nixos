@@ -9,7 +9,7 @@
 		rsyslog
 	];
 	services.journald.extraConfig = ''
-		Storage=none
+	  MaxRetentionSec=1week
 		ForwardToSyslog=yes
 	'';
 	services.rsyslogd = {
