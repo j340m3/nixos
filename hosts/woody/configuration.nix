@@ -486,7 +486,10 @@ let
   };
 
   networking.firewall.interfaces.mesh.allowedTCPPorts = [ 80 443 8080 ];
-  services.zabbixServer.enable = true;
+  services.zabbixServer ={
+    enable = true;
+    package = pkgs.zabbix72.server;
+  };
 
   services.zabbixWeb = {
     enable = true;
@@ -509,6 +512,7 @@ let
   services.zabbixAgent = {
     enable = true;
     server = "localhost";
+    package = pkgs.zabbix72.agent;
 #    settings = {
 #      Plugins.MQTT.Session.iot = {
 #        User = "root";
