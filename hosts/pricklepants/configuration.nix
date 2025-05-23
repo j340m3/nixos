@@ -15,6 +15,7 @@ in
     ../../modules/nextcloud.nix
     ../common.nix
     ../common/ssh.nix
+    ../common/zram.nix
     ../common/distributed-builds.nix
   ];
   #swapDevices = [ { device = "/swapfile"; size = 1024; } ];
