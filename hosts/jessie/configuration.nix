@@ -17,7 +17,7 @@
       ../../users/donquezz.nix
       ../../modules/logging.nix
       ../../modules/persistence.nix
-      #../../modules/nebula.nix
+      ../../modules/nebula.nix
       ../../modules/zabbix.nix
       ../../modules/minecraft-bedrock.nix
     ];
