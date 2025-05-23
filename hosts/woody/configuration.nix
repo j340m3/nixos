@@ -492,6 +492,7 @@ let
     enable = true;
 #    server.port = 8080;
     frontend = "nginx";
+    package = pkgs.zabbix72.web;
     nginx.virtualHost = {
       #hostName = "woody";
       #adminAddr = "webmaster@localhost";
