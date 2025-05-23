@@ -32,5 +32,10 @@
         ?RemoteLogs2
       '';
 	};
-  
+  #  services.logrotate.settings."/persist/rsyslog/*/*.log" = {
+	# 	frequency = "daily";
+	# 	rotate = 0;
+	# 	size = "100K";
+	# 	copytruncate = true;
+	# }; 
 }
