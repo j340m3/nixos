@@ -53,7 +53,7 @@ let
   #  buffer_elasticity=100;
   #  cache_elasticity=100;
   #};
-  boot.kernel.sysctl = { "vm.swappiness" = 1;};
+  #boot.kernel.sysctl = { "vm.swappiness" = 1;};
 
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
