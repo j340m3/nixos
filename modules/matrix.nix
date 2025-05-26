@@ -97,3 +97,6 @@ in {
     allowedUDPPorts = [80 443 8448];
   };
 }
+ervices.xserver.enable = true;
+  services.xserver.displayManager.lightdm.enable = true;
+  services.xserver.desktopManager.mate.enable = true;
