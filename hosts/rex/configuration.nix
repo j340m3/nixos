@@ -30,6 +30,7 @@ let
       ../../modules/nebula.nix
       ../../modules/zabbix.nix
       ../../modules/peerix.nix
+      ../../modules/cool-shell.nix
       ../common/distributed-builds.nix
     ];
 
