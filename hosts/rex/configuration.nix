@@ -344,7 +344,7 @@ let
     acceleration = false;
   };
   
-  programs.thefuck.enable = true;
+  programs.pay-respects.enable = true;
   
   programs.zsh = {
     enable = true;
@@ -353,7 +353,7 @@ let
     syntaxHighlighting.enable = true;
     ohMyZsh = {
       enable = true;
-      plugins = [ "git" "thefuck" "sudo" ];
+      plugins = [ "git" "sudo" ];
       theme = "frisk";
     };
   };
