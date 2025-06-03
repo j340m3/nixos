@@ -25,7 +25,7 @@
       randomizedDelaySec = lib.mkDefault "25min";
       #dates = lib.mkDefault "hourly";
       rebootWindow = {
-        lower = "22:00";
+        lower = lib.mkDefault "22:00";
         upper = "08:00";
       };
     };

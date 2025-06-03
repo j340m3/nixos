@@ -72,4 +72,10 @@
       '');
     };
   };
+
+  system.autoUpgrade = {
+      rebootWindow = {
+        lower = "03:00";
+      };
+    };
 }
