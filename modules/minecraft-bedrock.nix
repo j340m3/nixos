@@ -14,6 +14,7 @@
         LEVEL_NAME = "Klassenserver";
         TZ = "Europe/Berlin";
         VERSION = "LATEST";
+        KEEP_INVENTORY = "true";
         #OPS = "2535414708374553,2535448442672198"
         #ALLOW_LIST_USERS = "adyxax:2535470760215402,pseudo2:XXXXXXX,pseudo3:YYYYYYY";
       };
@@ -30,6 +31,7 @@
         LEVEL_NAME = "Emelie Bjorn";
         TZ = "Europe/Berlin";
         VERSION = "LATEST";
+        #KEEP_INVENTORY = "true";
 
         #ALLOW_LIST_USERS = "adyxax:2535470760215402,pseudo2:XXXXXXX,pseudo3:YYYYYYY";
       };
