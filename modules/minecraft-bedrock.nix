@@ -2,7 +2,13 @@
 
 {
   virtualisation.containers.enable = true;
-  virtualisation.podman.enable = true;
+  virtualisation.podman = { 
+    enable = true;
+    autoPrune = {
+      enable = true;
+      flags = [ "--all" ];
+    };
+  };
   virtualisation.oci-containers.backend = "podman";
   virtualisation.oci-containers.containers = {
     klassenserver = {
@@ -53,7 +59,7 @@
     };
     wantedBy = [ "timers.target" ];
   };
-  
+
   systemd.services.update-containers = {
     serviceConfig = {
       Type = "oneshot";
