@@ -4,7 +4,7 @@
     enable = true;
     domain = "t.kauderwels.ch";
     ip = "10.70.1.1";
-    #extraConfig = "-c";
+    extraConfig = "-c";
     passwordFile = config.sops.secrets."iodine".path;
   };
 
