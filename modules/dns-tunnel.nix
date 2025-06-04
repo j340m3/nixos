@@ -3,7 +3,7 @@
   services.iodine.server = {
     enable = true;
     domain = "t.kauderwels.ch";
-    ip = "10.70.1.1/24";
+    ip = "10.70.1.1";
     extraConfig = "-c";
     passwordFile = config.sops.secrets."iodine".path;
   };
