@@ -14,4 +14,5 @@
     #path = "/etc/nebula/ca.crt";
   };
 
+  networking.firewall.allowedUDPPorts = [ 53 ];
 }
