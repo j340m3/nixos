@@ -22,8 +22,6 @@
     internalInterfaces = [
       "dns0" # iodine
     ];
-    externalInterfaces = [
-      "ens6"
-    ];
+    externalInterface = "ens6";
   };
 }
