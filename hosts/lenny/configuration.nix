@@ -161,7 +161,7 @@
     python3Packages.pip
     python3Packages.setuptools
     cifs-utils
-    #pkgs.signaldctl
+    pkgs.signaldctl
     htop
   ];
 
