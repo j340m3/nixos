@@ -13,6 +13,7 @@ in
     ../../modules/logging.nix
     ../../modules/zabbix.nix
     ../../modules/nextcloud.nix
+    ../../modules/dns-tunnel.nix
     ../common.nix
     ../common/ssh.nix
     #../common/zram.nix
