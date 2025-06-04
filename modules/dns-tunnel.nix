@@ -3,7 +3,8 @@
   services.iodine.server = {
     enable = true;
     domain = "t.kauderwels.ch";
-    ip = "10.70.1.1";
+    ip = "10.70.1.1/24";
+    extraConfig = "-c";
     passwordFile = config.sops.secrets."iodine".path;
   };
 
@@ -15,4 +16,14 @@
   };
 
   networking.firewall.allowedUDPPorts = [ 53 ];
+
+  networking.nat = {
+    enable = true;
+    internalInterfaces = [
+      "dns0" # iodine
+    ];
+    externalInterfaces = [
+      "ens6"
+    ];
+  };
 }
