@@ -134,6 +134,7 @@
       arduino
       lynx
     #  kdenlive
+      signal-cli
       signal-desktop
       (makeAutostartItem { name = "signal"; package = signal-desktop; })
       firefox
@@ -161,7 +162,7 @@
     pkgs.python3Packages.pip
     pkgs.python3Packages.setuptools
     pkgs.cifs-utils
-    pkgs-2411.signaldctl
+    #pkgs-2411.signaldctl
     pkgs.htop
   ];
   
