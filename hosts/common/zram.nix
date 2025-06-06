@@ -5,7 +5,7 @@
     memoryPercent = 90;
   };
   boot.kernel.sysctl = { 
-    "vm.swappiness" = lib.mkDefault  180;
+    "vm.swappiness" = lib.mkDefault 180;
     "vm.watermark_boost_factor" = 0;
     "vm.watermark_scale_factor" = 125;
     "vm.page-cluster" = 0;
