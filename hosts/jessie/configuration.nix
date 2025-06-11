@@ -20,6 +20,7 @@
       ../../modules/nebula.nix
       ../../modules/zabbix.nix
       ../../modules/minecraft-bedrock.nix
+      ../common/distributed-builds.nix
     ];
 
   # Use the GRUB 2 boot loader.
