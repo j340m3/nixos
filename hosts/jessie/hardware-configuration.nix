@@ -48,7 +48,7 @@
       #device = "/dev/disk/by-uuid/f014f8cb-3fe0-454b-b235-0ce296c4bf32";
       device = "/dev/vda3";
       fsType = "btrfs";
-      options = ["compress-force=zstd:15" "nosuid" "nodev"];
+      options = ["compress-force=zstd" "nosuid" "nodev"];
     };
 
   fileSystems."/boot" =
