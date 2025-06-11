@@ -2,7 +2,7 @@
   zramSwap = {
     enable = true;
     algorithm = lib.mkDefault "lz4";
-    memoryPercent = 90;
+    memoryPercent = 50;
   };
   boot.kernel.sysctl = { 
     "vm.swappiness" = lib.mkDefault 180;
