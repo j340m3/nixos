@@ -123,7 +123,7 @@ in
   */
   nix.gc = {
     automatic = true;
-    dates = "hourly";
+    #dates = "hourly";
     options = "--delete-older-than 1d";
   }; 
 
