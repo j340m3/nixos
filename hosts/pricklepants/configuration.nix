@@ -19,7 +19,7 @@ in
     #../common/zram.nix
     ../common/distributed-builds.nix
   ];
-  swapDevices = [ { device = "/swapfile"; size = 512; } ];
+  #swapDevices = [ { device = "/swapfile"; size = 512; } ];
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_zen;
