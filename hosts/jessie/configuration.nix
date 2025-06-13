@@ -25,6 +25,7 @@
 
   system.autoUpgrade.dates = lib.mkForce "daily";
   nix.gc.dates = lib.mkForce "daily";
+  
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
   # boot.loader.grub.efiSupport = true;

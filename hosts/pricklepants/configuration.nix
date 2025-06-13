@@ -24,6 +24,9 @@ in
   zramSwap.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_zen;
   
+  system.autoUpgrade.dates = lib.mkForce "daily";
+  nix.gc.dates = lib.mkForce "daily";
+
   environment.systemPackages = with pkgs; [
     #bc
     #ipcalc
