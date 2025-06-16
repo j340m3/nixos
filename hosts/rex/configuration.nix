@@ -175,8 +175,8 @@ let
            
          ];
        })
-       (makeAutostartItem { name = "firefox"; package = firefox; })
-       (makeAutostartItem { name = "spotify"; package = spotify; })
+       #(makeAutostartItem { name = "firefox"; package = firefox; })
+       #(makeAutostartItem { name = "spotify"; package = spotify; })
        mosh
     #  thunderbird
        libreoffice-qt
