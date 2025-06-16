@@ -188,6 +188,7 @@ let
        statix
        alejandra
        age
+       wezterm
     ];
   };
 
