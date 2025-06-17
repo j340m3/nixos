@@ -48,7 +48,7 @@
       #device = "/dev/disk/by-uuid/f014f8cb-3fe0-454b-b235-0ce296c4bf32";
       device = "/dev/vda3";
       fsType = "btrfs";
-      options = ["compress-force=zstd:15" "nosuid" "nodev"];
+      options = ["compress-force=zstd" "nosuid" "nodev"];
     };
 
   fileSystems."/boot" =
@@ -62,6 +62,8 @@
     enable = true;
     interval = "weekly";
   };
+
+  swapDevices = [ { device = "/nix/persist/swapfile"; size = 2048; } ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's

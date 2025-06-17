@@ -19,11 +19,14 @@ in
     #../common/zram.nix
     ../common/distributed-builds.nix
   ];
-  swapDevices = [ { device = "/swapfile"; size = 512; } ];
+  #swapDevices = [ { device = "/swapfile"; size = 512; } ];
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_zen;
   
+  system.autoUpgrade.dates = lib.mkForce "daily";
+  nix.gc.dates = lib.mkForce "daily";
+
   environment.systemPackages = with pkgs; [
     #bc
     #ipcalc
@@ -120,7 +123,7 @@ in
   */
   nix.gc = {
     automatic = true;
-    dates = "hourly";
+    #dates = "hourly";
     options = "--delete-older-than 1d";
   }; 
 

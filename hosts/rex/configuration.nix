@@ -153,7 +153,7 @@ let
        telegram-desktop
        (makeAutostartItem { name = "telegram.desktop"; package = telegram-desktop; srcPrefix = "org.";})
        telegram-desktop
-       jetbrains.pycharm-professional
+       #jetbrains.pycharm-professional
        elmPackages.elm
        python3Full
        (python311.withPackages(ps: with ps; [ 
@@ -175,8 +175,8 @@ let
            
          ];
        })
-       (makeAutostartItem { name = "firefox"; package = firefox; })
-       (makeAutostartItem { name = "spotify"; package = spotify; })
+       #(makeAutostartItem { name = "firefox"; package = firefox; })
+       #(makeAutostartItem { name = "spotify"; package = spotify; })
        mosh
     #  thunderbird
        libreoffice-qt
@@ -188,6 +188,7 @@ let
        statix
        alejandra
        age
+       wezterm
     ];
   };
 

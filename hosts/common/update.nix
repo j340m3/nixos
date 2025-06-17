@@ -74,7 +74,6 @@
           set -e
           export GROUP_ID="$(cat ${config.sops.secrets."telegram/group_id".path})"
           export BOT_TOKEN="$(cat ${config.sops.secrets."telegram/bot_token".path})"
-          source /etc/telegram.secrets
           ${pkgs.curl}/bin/curl -s -X POST https://api.telegram.org/bot$BOT_TOKEN/sendMessage -d chat_id=$GROUP_ID -d text="${config.networking.hostName}: $(cat $TEMPFILE)" > /dev/null
         '';
       };

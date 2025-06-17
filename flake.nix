@@ -1,7 +1,8 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
 
     home-manager.url = "github:nix-community/home-manager/release-24.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -35,7 +36,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs = { self, nixpkgs, nixpkgs-stable, sops-nix, home-manager, nixos-hardware, peerix,... } @ inputs : 
+  outputs = { self, nixpkgs, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, nixos-hardware, peerix,... } @ inputs : 
   let
     inherit (self) outputs;
   in
@@ -62,8 +63,18 @@
       ];
     };
     nixosConfigurations.lenny = nixpkgs.lib.nixosSystem {
-      specialArgs = {inherit inputs outputs;};
       system = "x86_64-linux";
+      specialArgs = {
+        inherit inputs outputs;
+        pkgs-2411 = import nixpkgs-2411 {
+            # Refer to the `system` parameter from
+            # the outer scope recursively
+            system = "x86_64-linux";
+            # To use Chrome, we need to allow the
+            # installation of non-free software.
+            config.allowUnfree = true;
+          };
+      };
       modules = [ 
         ./hosts/lenny/configuration.nix
         nixos-hardware.nixosModules.lenovo-thinkpad-x230

@@ -27,7 +27,7 @@
     devices = lib.mkDefault ["/dev/vda"];
   };
 
-  services.swapspace.enable = true;
+  /* services.swapspace.enable = true;
   services.swapspace.settings = {
     swappath="/nix/swapfile";
     lower_freelimit=50;
@@ -37,7 +37,7 @@
     cache_elasticity=100;
   };
   boot.kernel.sysctl = { "vm.swappiness" = lib.mkDefault 5;};
-
+ */
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
 
