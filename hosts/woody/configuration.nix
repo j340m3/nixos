@@ -337,6 +337,7 @@ let
   #services.xrdp.defaultWindowManager = "mate-session";
   services.xrdp.defaultWindowManager = "startplasma-x11";
   services.xrdp.openFirewall = true;
+  services.xrdp.extraConfDirCommands = "substituteInPlace $out/etc/xrdp/sesman.ini --replace '#SessionSockdirGroup=root' 'SessionSockdirGroup=xrdp'";
 
   
   services.home-assistant = {
