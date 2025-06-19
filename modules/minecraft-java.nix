@@ -1,7 +1,9 @@
-{ config, pkgs, lib, builtins, ... }:
+{ config, pkgs, lib, ... }:
 
 {
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+   allowUnfreePredicate =
+    pkg:
+    builtins.elem (lib.getName pkg) [
       "minecraft-server"
     ];
          
