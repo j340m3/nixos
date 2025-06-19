@@ -21,7 +21,7 @@
     white-list = true;
     allow-cheats = true;
   };
-  dataDir = "/nix/persist/minecraft";
+  dataDir = "/nix/persist/minecraft/java";
   jvmOpts = "-Xms4092M -Xmx4092M -XX:+UseG1GC -XX:+CMSIncrementalPacing -XX:+CMSClassUnloadingEnabled -XX:ParallelGCThreads=2 -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10";
 };
 }
