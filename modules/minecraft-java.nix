@@ -18,10 +18,10 @@
     gamemode = 1;
     max-players = 5;
     motd = "NixOS Minecraft server!";
-    white-list = true;
+    #white-list = true;
     allow-cheats = true;
   };
   dataDir = "/nix/persist/minecraft/java";
-  jvmOpts = "-Xms4092M -Xmx4092M -XX:+UseG1GC -XX:+CMSIncrementalPacing -XX:+CMSClassUnloadingEnabled -XX:ParallelGCThreads=2 -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10";
+  #jvmOpts = "-Xms4092M -Xmx4092M -XX:+UseG1GC -XX:+CMSIncrementalPacing -XX:+CMSClassUnloadingEnabled -XX:ParallelGCThreads=2 -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10";
 };
 }
