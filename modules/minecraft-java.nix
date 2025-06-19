@@ -1,6 +1,11 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, builtins, ... }:
 
 {
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+      "minecraft-server"
+    ];
+         
+
   services.minecraft-server = {
   enable = true;
   eula = true;
