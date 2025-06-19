@@ -20,6 +20,7 @@
       ../../modules/nebula.nix
       ../../modules/zabbix.nix
       ../../modules/minecraft-bedrock.nix
+      ../../modules/minecraft-java.nix
       ../common/distributed-builds.nix
     ];
 
