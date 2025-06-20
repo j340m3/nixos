@@ -191,7 +191,7 @@ let
        wezterm
     ];
   };
-
+  services.yubikey-agent.enable = true;
   # Install firefox.
   
   programs.firefox = {
