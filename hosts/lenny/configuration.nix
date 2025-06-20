@@ -143,11 +143,21 @@
       cutechess
       stockfish
       minetest
+      flatpak
     #  kalk
     #  kate
     #  thunderbird
     ];
   };
+  services.flatpak.enable = true;
+  systemd.services.flatpak-repo = {
+    wantedBy = [ "multi-user.target" ];
+    path = [ pkgs.flatpak ];
+    script = ''
+      flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    '';
+  };
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -164,6 +174,7 @@
     pkgs.cifs-utils
     #pkgs-2411.signaldctl
     pkgs.htop
+    kdePackages.discover
   ];
   
   # Some programs need SUID wrappers, can be configured further or are
