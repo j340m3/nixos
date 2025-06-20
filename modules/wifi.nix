@@ -1,4 +1,10 @@
-sops.secrets."wifi/phone/ssid" = {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+{ sops.secrets."wifi/phone/ssid" = {
   };
 
   sops.secrets."wifi/phone/psk" = {
@@ -71,3 +77,4 @@ sops.secrets."wifi/phone/ssid" = {
       };
     };
   };
+}

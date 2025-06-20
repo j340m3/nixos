@@ -175,7 +175,7 @@
     pkgs.cifs-utils
     #pkgs-2411.signaldctl
     pkgs.htop
-    kdePackages.discover
+    pkgs.kdePackages.discover
   ];
   
   # Some programs need SUID wrappers, can be configured further or are
