@@ -192,6 +192,7 @@ let
     ];
   };
   services.yubikey-agent.enable = true;
+  services.udev.packages = [ pkgs.libfido2 ];
   # Install firefox.
   
   programs.firefox = {
