@@ -123,7 +123,7 @@
   users.users.lilly = {
     isNormalUser = true;
     description = "Lilly Bergmann";
-    extraGroups = [ ];
+    extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
       tipp10
       libreoffice-qt
