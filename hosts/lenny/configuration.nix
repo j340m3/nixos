@@ -14,6 +14,7 @@
       ../../modules/logging.nix
       ../../modules/nebula.nix
       ../../modules/zabbix.nix
+      ../../modules/wifi.nix
     ];
 
   # Bootloader.
