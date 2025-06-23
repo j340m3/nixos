@@ -175,7 +175,7 @@ let
            bbenoist.nix
            elmtooling.elm-ls-vscode
          ];
-         vscode = vscodium
+         vscode = vscodium;
        })
        #(makeAutostartItem { name = "firefox"; package = firefox; })
        #(makeAutostartItem { name = "spotify"; package = spotify; })
