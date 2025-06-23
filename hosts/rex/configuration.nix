@@ -172,8 +172,10 @@ let
          # When the extension is already available in the default extensions set.
          vscodeExtensions = with vscode-extensions; [
            jnoortheen.nix-ide
-           
+           bbenoist.nix
+           elmtooling.elm-ls-vscode
          ];
+         vscode = vscodium
        })
        #(makeAutostartItem { name = "firefox"; package = firefox; })
        #(makeAutostartItem { name = "spotify"; package = spotify; })
