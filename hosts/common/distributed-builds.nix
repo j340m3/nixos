@@ -10,7 +10,7 @@
       #sshKey = "/root/.ssh/remotebuild";
       systems = [ "x86_64-linux" "aarch64-linux" ];
       #system = pkgs.stdenv.hostPlatform.system;
-      speedFactor = 2;
+      speedFactor = 100;
       protocol = "ssh-ng";
       supportedFeatures = [ "nixos-test" "big-parallel" "kvm" "benchmark" ];
     }
