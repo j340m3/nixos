@@ -12,6 +12,7 @@
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
+  boot.kernelParams = ["intel_pstate=passive"];
 
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/9bf7dc58-7c06-4f84-a028-84f59ae08bc8";
