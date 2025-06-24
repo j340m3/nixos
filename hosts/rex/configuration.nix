@@ -32,6 +32,7 @@ let
       ../../modules/peerix.nix
       ../../modules/cool-shell.nix
       ../common/distributed-builds.nix
+      ../../modules/google-drive.nix
     ];
 
   # Bootloader.
