@@ -201,7 +201,7 @@ let
   
   programs.firefox = {
     enable = true;
-    package = pkgs.firefox-esr;
+    package = pkgs.librewolf;
     policies = {
       Cookies = {
         "Locked" = true;
