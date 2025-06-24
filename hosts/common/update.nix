@@ -43,10 +43,10 @@
       settings = {
         experimental-features = [ "nix-command" "flakes" ];
         auto-optimise-store = true;
-        max-jobs = 1;
-        cores = 1;
-        min-free = "${toString (100 * 1024 * 1024)}";
-        max-free = "${toString (1024 * 1024 * 1024)}";
+        max-jobs = lib.mkDefault 1;
+        cores = lib.mkDefault 1;
+        min-free = lib.mkDefault "${toString (100 * 1024 * 1024)}";
+        max-free = lib.mkDefault "${toString (1024 * 1024 * 1024)}";
       };
 
       daemonIOSchedClass = lib.mkDefault "idle";
@@ -56,8 +56,8 @@
     # always use the daemon, even executed  with root
     environment.variables.NIX_REMOTE = "daemon";
     systemd.services.nix-daemon.serviceConfig = {
-      MemoryHigh = "800M";
-      MemoryMax = "1G";
+      MemoryHigh = lib.mkDefault "800M";
+      MemoryMax = lib.mkDefault "1G";
     };
 
     # TODO: Change to Sops-nix secrets
