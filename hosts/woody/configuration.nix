@@ -552,17 +552,19 @@ let
   #powerManagement.cpuFreqGovernor = "powersave";
   powerManagement.powertop.enable = true;   
   services.thermald.enable = true;
-  /* services.auto-cpufreq.enable = true;
+  services.auto-cpufreq.enable = true;
   services.auto-cpufreq.settings = {
     battery = {
-      governor = "powersave";
+      governor = "schedutil";
       turbo = "never";
     };
     charger = {
-      governor = "powersave";
-      turbo = "never";
+      governor = "schedutil";
+      turbo = "auto";
+      energy_performance_preference = "balance_power";
+      energy_perf_bias = "balance_power";
   };
-}; */
+}; 
   services.ollama = {
     enable = true;
     acceleration = false;
