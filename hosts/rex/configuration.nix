@@ -147,6 +147,7 @@ let
     packages = with pkgs; [
       btop
       acct
+      nix-index
        anytype
        gparted
        nmap
