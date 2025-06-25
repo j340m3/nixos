@@ -146,6 +146,7 @@ let
     shell = pkgs.zsh;
     packages = with pkgs; [
       btop
+      acct
        anytype
        gparted
        nmap
