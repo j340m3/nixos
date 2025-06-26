@@ -178,6 +178,7 @@ let
            jnoortheen.nix-ide
            bbenoist.nix
            elmtooling.elm-ls-vscode
+           ms-python.python
            charliermarsh.ruff
          ];
          vscode = vscodium;
