@@ -180,6 +180,7 @@ let
            elmtooling.elm-ls-vscode
            ms-python.python
            charliermarsh.ruff
+           DeepSourceCorp.deepsource-vscode
          ];
          vscode = vscodium;
        })
