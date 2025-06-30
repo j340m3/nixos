@@ -10,6 +10,7 @@
       ''ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJu52XPMcQve06Z6PeYgW4bLxF+zWrORq3zb2swGeL6F root@rex''
       ''ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILV1ywPe/y2QdwFzwn9cFuTSjxyDxf4VTyq//PO3bQLs root@buzz''
       ''ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIHuH2aKZz3RxX3H5FBFuxFrcyD2hilgJFc3y0jTUbgR root@jessie''
+      ''ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILNdRpz4JYAfntx0frTB78EBZRjWqalvacM63b/7Twu7 root@slinky''
       ];
     #openssh.authorizedKeys.keyFiles = [ ./remotebuild.pub ];
   };
