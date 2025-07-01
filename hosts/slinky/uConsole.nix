@@ -1,9 +1,9 @@
 {pkgs, ...}: {
   imports = [
-    "${builtins.fetchGit {url = "https://github.com/NixOS/nixos-hardware.git";}}/raspberry-pi/4"
-    "${builtins.fetchGit {url = "https://github.com/robertjakub/oom-hardware.git";}}/uconsole/kernel"
-    "${builtins.fetchGit {url = "https://github.com/robertjakub/oom-hardware.git";}}/raspberry-pi/overlays"
-    "${builtins.fetchGit {url = "https://github.com/robertjakub/oom-hardware.git";}}/raspberry-pi/apply-overlays"
+    #"${builtins.fetchGit {url = "https://github.com/NixOS/nixos-hardware.git";}}/raspberry-pi/4"
+    #"${builtins.fetchGit {url = "https://github.com/robertjakub/oom-hardware.git";}}/uconsole/kernel"
+    #"${builtins.fetchGit {url = "https://github.com/robertjakub/oom-hardware.git";}}/raspberry-pi/overlays"
+    #"${builtins.fetchGit {url = "https://github.com/robertjakub/oom-hardware.git";}}/raspberry-pi/apply-overlays"
   ];
 
   nixpkgs.overlays = [

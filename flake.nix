@@ -29,14 +29,21 @@
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware/master";
     };
+
     nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
     impermanence.url = "github:nix-community/impermanence";
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    oom-hardware ={
+      url = "github:j340m3/oom-hardware";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixos-hardware.follows = "nixos-hardware";
+    };
   };
-  outputs = { self, nixpkgs, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, nixos-hardware, peerix,... } @ inputs : 
+  outputs = { self, nixpkgs, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, nixos-hardware, peerix, oom-hardware, ... } @ inputs : 
   let
     inherit (self) outputs;
   in
@@ -121,13 +128,15 @@
         inputs.disko.nixosModules.disko
         inputs.impermanence.nixosModules.impermanence
       ];
-    };
+    }; 
     nixosConfigurations.slinky= nixpkgs.lib.nixosSystem {
       specialArgs = {inherit inputs outputs;};
       system = "aarch64-linux";
       modules = [ 
         ./hosts/slinky/configuration.nix
         sops-nix.nixosModules.sops
+        nixos-hardware.nixosModules.raspberry-pi-4
+        oom-hardware.nixosModules.uconsole
       ];
     };
     homeConfigurations = {
