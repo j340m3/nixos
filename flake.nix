@@ -122,6 +122,14 @@
         inputs.impermanence.nixosModules.impermanence
       ];
     };
+    nixosConfigurations.slinky= nixpkgs.lib.nixosSystem {
+      specialArgs = {inherit inputs outputs;};
+      system = "aarch64-linux";
+      modules = [ 
+        ./hosts/slinky/configuration.nix
+        sops-nix.nixosModules.sops
+      ];
+    };
     homeConfigurations = {
       # FIXME replace with your username@hostname
       "jeromeb" = home-manager.lib.homeManagerConfiguration {
