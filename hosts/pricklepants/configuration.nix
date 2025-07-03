@@ -16,7 +16,7 @@ in
     ../../modules/dns-tunnel.nix
     ../common.nix
     ../common/ssh.nix
-    #../common/zram.nix
+    ../common/zram.nix
     ../common/distributed-builds.nix
   ];
   #swapDevices = [ { device = "/swapfile"; size = 512; } ];
