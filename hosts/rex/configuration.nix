@@ -29,7 +29,7 @@ let
       ../../modules/logging.nix
       ../../modules/nebula.nix
       ../../modules/zabbix.nix
-      ../../modules/peerix.nix
+      #../../modules/peerix.nix
       ../../modules/cool-shell.nix
       ../common/distributed-builds.nix
       ../../modules/google-drive.nix

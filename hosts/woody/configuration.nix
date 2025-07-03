@@ -29,7 +29,7 @@ let
       ../../modules/loghost.nix
       ../../modules/borg-server.nix
       ../../modules/remote-builder.nix
-      ../../modules/peerix.nix
+      #../../modules/peerix.nix
       ../../modules/reticulum.nix
       ../../desktop-environments/kde.nix
       ../../desktop-environments/mate.nix
@@ -318,7 +318,7 @@ let
   nix.gc = {
     automatic = true;
     dates = "daily";
-    options = "--delete-older-than 7d";
+    options = "--delete-older-than 30d";
   };
 
   # Please do upgrades in Background
