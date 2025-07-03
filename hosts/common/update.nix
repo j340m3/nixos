@@ -109,6 +109,7 @@
             "tmux: client"
             "tmux: server"
             "nix"
+            "nebula"
           ];
         in
         [
