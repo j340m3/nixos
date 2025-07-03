@@ -46,6 +46,12 @@
       settings.AuthenticationMethods = "publickey";
       #settings.AuthenticationMethods = "publickey,keyboard-interactive:pam";
     };
+    
+    services.endlessh = {
+      enable = true;
+      port = 22;
+      openFirewall = true;
+    };
 
     networking.firewall.allowedTCPPorts = [42069];
   };
