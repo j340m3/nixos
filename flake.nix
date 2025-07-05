@@ -129,7 +129,7 @@
         inputs.impermanence.nixosModules.impermanence
       ];
     }; 
-    nixosConfigurations.slinky= nixpkgs.lib.nixosSystem {
+    nixosConfigurations.slinky = nixpkgs.lib.nixosSystem {
       specialArgs = {inherit inputs outputs;};
       system = "aarch64-linux";
       modules = [ 

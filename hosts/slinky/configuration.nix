@@ -15,6 +15,10 @@
       ./uConsole.nix
       ../common.nix
       ../../modules/vscodium.nix
+      ../../modules/logging.nix
+      ../../modules/nebula.nix
+      ../../modules/zabbix.nix
+      ../../modules/wifi.nix
     ]
     ++ lib.optional (builtins.pathExists ./local.nix) ./local.nix;
 
