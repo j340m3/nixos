@@ -26,6 +26,8 @@
       PAPERLESS_OCR_USER_ARGS = {
         "invalidate_digital_signatures" = true;
       };
+      PAPERLESS_CONVERT_TMPDIR = "/var/tmp/paperless";
+      PAPERLESS_SCRATCH_DIR = "/var/tmp/paperless-scratch";
     };
   };
 
