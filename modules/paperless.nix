@@ -29,13 +29,6 @@
     };
   };
 
-  services.permown."/var/lib/paperless/consume" = {
-    owner = "paperless";
-    group = "paperless";
-    directory-mode = "755";
-    file-mode = "640";
-  };
-
   services.tika = {
     enable = true;
     enableOcr = true;
