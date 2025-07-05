@@ -13,6 +13,7 @@
       ./hardware-configuration.nix
       # Include uConsole settings
       ./uConsole.nix
+      ../common.nix
     ]
     ++ lib.optional (builtins.pathExists ./local.nix) ./local.nix;
 
@@ -21,7 +22,7 @@
   # Enables the generation of /boot/extlinux/extlinux.conf
   boot.loader.generic-extlinux-compatible.enable = true;
 
-  # networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "slinky"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
