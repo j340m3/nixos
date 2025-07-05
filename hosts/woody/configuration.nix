@@ -34,6 +34,7 @@ let
       ../../desktop-environments/kde.nix
       ../../desktop-environments/mate.nix
       ../../modules/wifi.nix
+      ../../modules/immich.nix
       
       # ./firefox.nix
       #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
