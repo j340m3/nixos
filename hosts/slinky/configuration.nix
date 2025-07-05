@@ -14,6 +14,7 @@
       # Include uConsole settings
       ./uConsole.nix
       ../common.nix
+      ../../modules/vscodium.nix
     ]
     ++ lib.optional (builtins.pathExists ./local.nix) ./local.nix;
 
