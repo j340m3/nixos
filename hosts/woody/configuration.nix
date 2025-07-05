@@ -48,7 +48,7 @@ let
   boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "woody"; # Define your hostname.
-  networking.domain = "fritz.box";
+  #networking.domain = "fritz.box";
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary

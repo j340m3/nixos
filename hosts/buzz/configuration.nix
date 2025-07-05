@@ -205,8 +205,9 @@
   services.resolved.extraConfig = ''
     DNSStubListener=no
   '';
-  # open the systems firewall for DNS only on the nebula interface
+  # open the systems firewall for DNS on the nebula interface and public interfaces
   networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 53 ];
+  networking.firewall.allowedUDPPorts = [ 53 ];
 
   sops.secrets."nebula/ca_crt" = {
     restartUnits = ["nebula@mesh.service"];

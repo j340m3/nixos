@@ -40,10 +40,9 @@ in
   ];
 
   networking.hostName = "pricklepants";
-  networking.domain = "";
   services.fail2ban.enable = true;
   services.openssh = {
-    ports = [22 42069];
+    ports = [42069];
     enable = true;
     settings.PasswordAuthentication = false;
     settings.KbdInteractiveAuthentication = lib.mkDefault false;
