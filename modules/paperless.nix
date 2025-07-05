@@ -11,7 +11,7 @@
     passwordFile = "/etc/paperless-admin-pass";
     configureTika = true;
     database.createLocally = true;
-    dataDir = "/apps/paperless";
+    #dataDir = "/apps/paperless";
     settings = {
       PAPERLESS_TASK_WORKERS = 1;
       PAPERLESS_THREADS_PER_WORKER = 2;
