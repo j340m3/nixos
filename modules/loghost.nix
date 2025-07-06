@@ -9,7 +9,7 @@
   ];
   networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 514 ];
   services.journald.extraConfig = ''
-		Storage=none
+		MaxRetentionSec=1week
 		ForwardToSyslog=yes
 	'';
   services.rsyslogd = {
