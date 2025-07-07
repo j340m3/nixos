@@ -10,4 +10,5 @@
 }; */
 
   users.users.immich.extraGroups = [ "video" "render" ];
+  networking.firewall.interfaces.mesh.allowedTCPPorts = [ 2283 ];
 }
