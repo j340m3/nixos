@@ -14,6 +14,7 @@ in
     ../../modules/zabbix.nix
     ../../modules/nextcloud.nix
     ../../modules/dns-tunnel.nix
+    ../../modules/immich-proxy.nix
     ../common.nix
     ../common/ssh.nix
     ../common/zram.nix

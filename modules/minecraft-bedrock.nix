@@ -78,4 +78,20 @@
         lower = "03:00";
       };
     };
+
+  services.borgbackup.jobs.minecraft-bedrock = {
+    paths = ["/nix/persist/minecraft/klassenserver" /nix/persist/minecraft/emeliebjorn/];
+    encryption.mode = "none";
+    environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/minecraft-bedrock".path}";
+    repo = "borg@10.0.0.3:.";
+    compression = "auto,lzma";
+    startAt = "*-*-* 02:30:00";
+    preHook = "${pkgs.podman}/bin/podman stop --all";
+    postHook = "${pkgs.podman}/bin/podman start --all";
+  };
+
+  # Send an email whenever auto upgrade fails
+    systemd.services."borgbackup-job-minecraft-bedrock".onFailure =
+      lib.mkIf config.systemd.services."notify-telegram@".enable
+      [ "notify-telegram@%i.service" ];
 }

@@ -1,8 +1,18 @@
 { config, pkgs, lib, ...} : 
 {
-  services.immich.enable = true;
-  services.immich.port = 2283;
-  services.immich.accelerationDevices = null;
+  services = {
+    immich = {
+      enable = true;
+      host = "::";
+      #secretsFile = config.vaultix.secrets.immich.path;
+      database.createDB = false;
+      machine-learning.enable = true;
+      redis.enable = true;
+      settings = null;
+      accelerationDevices = null;
+      port = 2283;
+    };
+  };
 
 /* hardware.graphics = { 
  # ...
@@ -10,4 +20,5 @@
 }; */
 
   users.users.immich.extraGroups = [ "video" "render" ];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 2283 ];
 }
