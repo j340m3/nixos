@@ -4,13 +4,13 @@
     immich = {
       enable = true;
       host = "::";
-      secretsFile = config.vaultix.secrets.immich.path;
+      #secretsFile = config.vaultix.secrets.immich.path;
       database.createDB = false;
       machine-learning.enable = true;
       redis.enable = true;
       settings = null;
       accelerationDevices = null;
-      services.immich.port = 2283;
+      port = 2283;
     };
   };
 
