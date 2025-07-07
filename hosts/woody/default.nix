@@ -279,6 +279,7 @@ let
     elmPackages.elm-review
     elmPackages.elm-upgrade
     mate.caja-with-extensions
+    rclone
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
   ];
@@ -585,4 +586,25 @@ let
       OLLAMA_CONTEXT_LENGTH="32768";
     };
   };
+
+
+  environment.etc."rclone-mnt.conf".text = ''
+  [bergmannnas.fritz.box]
+  type = sftp
+  host = bergmannnas.fritz.box
+  user = borg
+  key_file = /root/.ssh/id_rsa
+'';
+
+fileSystems."/mnt/nas" = {
+  device = "bergmannnas.fritz.box:/volume1/borgbackup";
+  fsType = "rclone";
+  options = [
+    "nodev"
+    "nofail"
+    "allow_other"
+    "args2env"
+    "config=/etc/rclone-mnt.conf"
+  ];
+};
 }
