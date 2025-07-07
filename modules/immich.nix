@@ -11,5 +11,5 @@
 }; */
 
   users.users.immich.extraGroups = [ "video" "render" ];
-  networking.firewall.interfaces.mesh.allowedTCPPorts = [ 2283 ];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 2283 ];
 }
