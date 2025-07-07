@@ -3,6 +3,7 @@
   services.immich.enable = true;
   services.immich.port = 2283;
   services.immich.accelerationDevices = null;
+  serviecs.immich.host = "0.0.0.0";
 
 /* hardware.graphics = { 
  # ...
