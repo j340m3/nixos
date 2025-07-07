@@ -11,6 +11,7 @@
       settings = null;
       accelerationDevices = null;
       port = 2283;
+      mediaLocation = "/mnt/nas/immich"
     };
   };
 
