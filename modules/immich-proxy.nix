@@ -4,7 +4,7 @@
       immichUrl = "http://10.0.0.3:2283";
       port = 3001;
     };
-    
+
   services.nginx.virtualHosts = {
       "immich.kauderwels.ch" = {
         forceSSL = true;
@@ -18,4 +18,5 @@
           }
         ];
       };
+  };
 }
