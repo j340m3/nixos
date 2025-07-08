@@ -2,18 +2,22 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, modulesPath, ... }:
+{ config, lib, pkgs, modulesPath, inputs, ... }:
 
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ../bootstrap/configuration.nix
+      inputs.sops-nix.nixosModules.sops
+      inputs.disko.nixosModules.disko
+      inputs.impermanence.nixosModules.impermanence
+      inputs.peerix.nixosModules.peerix
+      #../bootstrap --> TODO: Check buzz if hes doing alright
       (modulesPath + "/profiles/minimal.nix")
       (modulesPath + "/profiles/headless.nix")
       ../../modules/hardening.nix
       ../../modules/swap.nix
-      ../common.nix 
+      ../../modules/common 
       ../../users/donquezz.nix
       ../../modules/logging.nix
       ../../modules/persistence.nix
