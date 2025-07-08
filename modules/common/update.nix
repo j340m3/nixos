@@ -59,6 +59,7 @@
       MemoryHigh = lib.mkDefault "800M";
       MemoryMax = lib.mkDefault "1G";
     };
+    
 
     # TODO: Change to Sops-nix secrets
     # Create an email notification service for failed jobs
@@ -132,6 +133,9 @@
     # strongly prefer killing nix-daemon child processes
     services."nix".serviceConfig.OOMScoreAdjust = lib.mkDefault 1000;
   };
-  
+  systemd.services.nix.serviceConfig = {
+      MemoryHigh = lib.mkDefault "800M";
+      MemoryMax = lib.mkDefault "1G";
+    };
   };
 }
