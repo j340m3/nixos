@@ -39,7 +39,7 @@
     
     # Please do upgrades in Background
     nix = {
-      package = pkgs.nix;
+      package = pkgs.lix;
       settings = {
         experimental-features = [ "nix-command" "flakes" ];
         auto-optimise-store = true;
@@ -119,23 +119,24 @@
         ];
     };
 
-    # OOM configuration:
-  /* systemd = {
-    # Create a separate slice for nix-daemon that is
-    # memory-managed by the userspace systemd-oomd killer
-    slices."nix".sliceConfig = {
-      ManagedOOMMemoryPressure = "kill";
-      ManagedOOMMemoryPressureLimit = "50%";
-    };
-    services."nix".serviceConfig.Slice = "nix.slice";
+  systemd.slices.anti-hungry.sliceConfig = {
+    CPUAccounting = true;
+    CPUQuota = "50%";
+    MemoryAccounting = true; # Allow to control with systemd-cgtop
+    MemoryHigh = "50%";
+    MemoryMax = "75%";
+    MemorySwapMax = "50%";
+    MemoryZSwapMax = "50%";
+  };
 
-    # If a kernel-level OOM event does occur anyway,
-    # strongly prefer killing nix-daemon child processes
-    services."nix".serviceConfig.OOMScoreAdjust = lib.mkDefault 1000;
-  }; */
-  systemd.services.nix.serviceConfig = {
-      MemoryHigh = lib.mkDefault "800M";
-      MemoryMax = lib.mkDefault "1G";
-    };
+  systemd.services.nix-daemon.serviceConfig.Slice = "anti-hungry.slice";
+
+  # Avoid freezing the system
+  systemd.oomd.enable = true;
+  systemd.oomd.enableRootSlice = true;
+  systemd.oomd.enableSystemSlice = true;
+  systemd.oomd.enableUserSlices = true;
+  zramSwap.enable = true;
+
   };
 }
