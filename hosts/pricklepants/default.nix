@@ -20,7 +20,7 @@ in
   #swapDevices = [ { device = "/swapfile"; size = 512; } ];
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
-  boot.kernelPackages = pkgs.linuxPackages_zen;
+  #boot.kernelPackages = pkgs.linuxPackages_zen;
   
   system.autoUpgrade.dates = lib.mkForce "daily";
   nix.gc.dates = lib.mkForce "daily";
@@ -86,68 +86,17 @@ in
     };
   };
 
-  #users.users.monitoring = {
-  #  isSystemUser = true;
-  #  createHome = false;
-  #  packages = with pkgs; [
-  #    bc
-  #    ipcalc
-  #    curl
-  #  ];
-  #  group = "monitoring";
-  #};
-  #users.groups.monitoring = {};
   
   system.stateVersion = "23.11";
-
-  #nix.settings.auto-optimise-store = true;
-  #system.autoUpgrade.enable  = true;
-  #system.autoUpgrade.allowReboot  = true;
-  #system.autoUpgrade.dates = "daily";  
-
-  /* system.autoUpgrade = {
-    enable = true;
-    #flake = "/etc/nixos#pricklepants";
-    #flake = "github:j340m3/nixos#pricklepants";
-    flake = inputs.self.outPath;
-    flags = [ 
-    #  "--update-input" "nixpkgs" 
-      "--no-write-lock-file"
-    ];
-    allowReboot  = true;
-    dates = "hourly";
-  };
-  */
   nix.gc = {
     automatic = true;
     #dates = "hourly";
     options = "--delete-older-than 1d";
   }; 
 
-  /* systemd.services.monitoring = {
-    path = with pkgs; [
-      bc
-      ipcalc
-      curl
-      procps
-      gawk
-      coreutils
-      iproute2
-    ];
-    script = ''
-      ${pkgs.bash}/bin/bash /root/system-monitoring.sh --NAME "NixOS-GB" --LA1 --LA5 --LA15 --CPU 80 --RAM 80 --DISK 80 --SSH-LOGIN --SFTP-MONITOR --REBOOT 2>&1 >> /var/log/monitoring/monitoring.log
-    '';
-    wantedBy = [ "multi-user.target" ];
-  }; */
-
+  
   security.sudo.wheelNeedsPassword = true;
-  /*
-  programs.mosh.enable = true;
-  networking.firewall.allowedTCPPorts = [ 443 ];
-  networking.firewall.allowedUDPPortRanges = [
-    { from = 60000; to = 61000; }
-
-  ];*/
+  
 services.nginx = {
   enable = true;
   virtualHosts.localhost = {
@@ -170,47 +119,9 @@ services.nginx = {
   };
 };
   
-  #services.sslh.enable = true;
-  #services.sslh.settings.transparent = true;
-  #services.sslh.method = "fork";
-  #services.sslh.settings.protocols = [
-#	  {
-#	    host = "localhost";
-#	    name = "ssh";
-#	    port = "22";
-#	    service = "ssh";
-#	  }
-#	  {
-#	    host = "localhost";
-#	    name = "http";
-#	    port = "80";
-#	  }
-#	  {
-#	    host = "localhost";
-#	    name = "tls";
-#	    port = "442";
-#	  }
-#  ];
   services.logrotate.enable = true;
   services.logrotate.checkConfig = false;
 
-  # Please do upgrades in Background
-  # nix = {
-  #   package = pkgs.nix;
-  #   settings.experimental-features = [ "nix-command" "flakes" ];
-  #   settings.auto-optimise-store = true;
-  #   settings.max-jobs = 1;
-  #   settings.cores = 1;
-  #   daemonIOSchedClass = lib.mkDefault "idle";
-  #   daemonCPUSchedPolicy = lib.mkDefault "idle";
-  # };
-  # systemd.services.nix-daemon.serviceConfig.Slice = "-.slice";
-  # # always use the daemon, even executed  with root
-  # environment.variables.NIX_REMOTE = "daemon";
-  # systemd.services.nix-daemon.serviceConfig = {
-  #   MemoryHigh = "800M";
-  #   MemoryMax = "1G";
-  # };
 
   # environment.systemPackages = with pkgs; [ nebula ];
   services.nebula.networks.mesh = {
