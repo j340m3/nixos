@@ -127,7 +127,7 @@
       ManagedOOMMemoryPressure = "kill";
       ManagedOOMMemoryPressureLimit = "50%";
     };
-    services."nix".serviceConfig.Slice = "nix-daemon.slice";
+    services."nix".serviceConfig.Slice = "nix.slice";
 
     # If a kernel-level OOM event does occur anyway,
     # strongly prefer killing nix-daemon child processes
