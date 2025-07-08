@@ -1,9 +1,17 @@
 {
+  inputs,
   config,
   pkgs,
   lib,
   ...
 }: {
+  imports = [
+    inputs.disko.nixosModules.disko
+    inputs.sops-nix.nixosModules.sops
+    inputs.impermanence.nixosModules.impermanence
+  ];
+  
+  nixpkgs.hostPlatform = "x86_64-linux";
   # Kernel parameters I use
   boot.kernelParams = [
     # Disable auditing
