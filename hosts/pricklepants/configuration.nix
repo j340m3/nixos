@@ -250,7 +250,7 @@ services.nginx = {
     firewall.inbound = [
     {
       host = "any";
-      port = "22";
+      port = "42069";
       proto = "tcp";
     }
     {
