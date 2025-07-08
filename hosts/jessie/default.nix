@@ -8,12 +8,12 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ../bootstrap/configuration.nix
+      #../bootstrap
       (modulesPath + "/profiles/minimal.nix")
       (modulesPath + "/profiles/headless.nix")
       ../../modules/hardening.nix
       #../../modules/swap.nix
-      ../common.nix 
+      ../../modules/common 
       ../../users/donquezz.nix
       ../../modules/logging.nix
       ../../modules/persistence.nix
@@ -21,7 +21,6 @@
       ../../modules/zabbix.nix
       ../../modules/minecraft-bedrock.nix
       ../../modules/minecraft-java.nix
-      ../common/distributed-builds.nix
     ];
 
   system.autoUpgrade.dates = lib.mkForce "daily";

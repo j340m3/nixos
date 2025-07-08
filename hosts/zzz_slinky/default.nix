@@ -5,6 +5,7 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }: {
   imports =
@@ -12,8 +13,10 @@
       # Include the results of the hardware scan.
       ./hardware-configuration.nix
       # Include uConsole settings
+      inputs.nixos-hardware.nixosModules.raspberry-pi-4
+      inputs.oom-hardware.nixosModules.uconsole
       ./uConsole.nix
-      ../common.nix
+      ../../modules/common 
       ../../modules/vscodium.nix
       ../../modules/logging.nix
       ../../modules/nebula.nix

@@ -15,10 +15,7 @@ in
     ../../modules/nextcloud.nix
     ../../modules/dns-tunnel.nix
     ../../modules/immich-proxy.nix
-    ../common.nix
-    ../common/ssh.nix
-    ../common/zram.nix
-    ../common/distributed-builds.nix
+    ../../modules/common
   ];
   #swapDevices = [ { device = "/swapfile"; size = 512; } ];
   boot.tmp.cleanOnBoot = true;
