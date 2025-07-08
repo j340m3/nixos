@@ -120,7 +120,7 @@
     };
 
     # OOM configuration:
-  systemd = {
+  /* systemd = {
     # Create a separate slice for nix-daemon that is
     # memory-managed by the userspace systemd-oomd killer
     slices."nix".sliceConfig = {
@@ -132,7 +132,7 @@
     # If a kernel-level OOM event does occur anyway,
     # strongly prefer killing nix-daemon child processes
     services."nix".serviceConfig.OOMScoreAdjust = lib.mkDefault 1000;
-  };
+  }; */
   systemd.services.nix.serviceConfig = {
       MemoryHigh = lib.mkDefault "800M";
       MemoryMax = lib.mkDefault "1G";
