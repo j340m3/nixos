@@ -22,7 +22,7 @@
       ../../modules/logging.nix
       ../../modules/persistence.nix
       ../../modules/zabbix.nix
-      ../common/distributed-builds.nix
+      ../../modules/common/distributed-builds.nix
     ];
 
   # Use the GRUB 2 boot loader.
