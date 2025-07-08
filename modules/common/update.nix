@@ -122,15 +122,15 @@
   systemd = {
     # Create a separate slice for nix-daemon that is
     # memory-managed by the userspace systemd-oomd killer
-    slices."nix-daemon".sliceConfig = {
+    slices."nix".sliceConfig = {
       ManagedOOMMemoryPressure = "kill";
       ManagedOOMMemoryPressureLimit = "50%";
     };
-    services."nix-daemon".serviceConfig.Slice = "nix-daemon.slice";
+    services."nix".serviceConfig.Slice = "nix-daemon.slice";
 
     # If a kernel-level OOM event does occur anyway,
     # strongly prefer killing nix-daemon child processes
-    services."nix-daemon".serviceConfig.OOMScoreAdjust = lib.mkDefault 1000;
+    services."nix".serviceConfig.OOMScoreAdjust = lib.mkDefault 1000;
   };
   
   };
