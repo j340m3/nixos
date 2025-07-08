@@ -9,5 +9,6 @@
     ./zram.nix
     ./domain.nix
     ./distributed-builds.nix
+    ../../users/donquezz.nix
   ];
 }
