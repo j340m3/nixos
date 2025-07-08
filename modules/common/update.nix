@@ -88,7 +88,7 @@
       [ "notify-telegram@%i.service" ];
 
     nix.settings.max-silent-time = let minute = 60; in 120 * minute;
-    services.earlyoom = {
+    /* services.earlyoom = {
       enable = true;
       enableNotifications = true;
       extraArgs =
@@ -136,7 +136,7 @@
   systemd.oomd.enableRootSlice = true;
   systemd.oomd.enableSystemSlice = true;
   systemd.oomd.enableUserSlices = true;
-  zramSwap.enable = true;
+  zramSwap.enable = true; */
 
   };
 }
