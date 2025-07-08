@@ -225,7 +225,7 @@ services.nginx = {
         };
     settings = {
       lighthouse = {
-        serve_dns = false;
+        serve_dns = true;
         dns = {
           host = "0.0.0.0";
           port = 53;
