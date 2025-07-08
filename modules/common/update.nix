@@ -1,6 +1,10 @@
 { config, pkgs, inputs, lib,  ... }:
 
 {
+  imports = [
+      inputs.lix-module.nixosModules.default
+    ];
+
   options = {
     allowReboot = lib.mkOption {
       type = lib.types.bool;
@@ -39,7 +43,7 @@
     
     # Please do upgrades in Background
     nix = {
-      package = pkgs.lix;
+      #package = pkgs.lix;
       settings = {
         experimental-features = [ "nix-command" "flakes" ];
         auto-optimise-store = true;
@@ -88,7 +92,7 @@
       [ "notify-telegram@%i.service" ];
 
     nix.settings.max-silent-time = let minute = 60; in 120 * minute;
-    /* services.earlyoom = {
+    services.earlyoom = {
       enable = true;
       enableNotifications = true;
       extraArgs =
@@ -136,7 +140,7 @@
   systemd.oomd.enableRootSlice = true;
   systemd.oomd.enableSystemSlice = true;
   systemd.oomd.enableUserSlices = true;
-  zramSwap.enable = true; */
+  zramSwap.enable = true;
 
   };
 }
