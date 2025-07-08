@@ -24,6 +24,7 @@ in
   
   system.autoUpgrade.dates = lib.mkForce "daily";
   nix.gc.dates = lib.mkForce "daily";
+  nix.package = pkgs.nix;
 
   environment.systemPackages = with pkgs; [
     #bc
