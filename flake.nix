@@ -46,9 +46,21 @@
   outputs = { self, nixpkgs, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, nixos-hardware, peerix, oom-hardware, ... } @ inputs : 
   let
     inherit (self) outputs;
+    inherit (nixpkgs) lib;
   in
   {
-    nixosConfigurations.pricklepants = nixpkgs.lib.nixosSystem {
+    nixosConfigurations = builtins.listToAttrs (
+      map (host: {
+        name = host;
+        value = nixpkgs.lib.nixosSystem {
+          specialArgs = {
+            inherit inputs outputs lib;
+          };
+          modules = [ ./hosts/${host} ];
+        };
+      }) (builtins.attrNames (builtins.readDir ./hosts))
+    );
+    /* nixosConfigurations.pricklepants = nixpkgs.lib.nixosSystem {
       specialArgs = {inherit inputs outputs;};
       system = "x86_64-linux";
       modules = [ 
@@ -138,7 +150,7 @@
         nixos-hardware.nixosModules.raspberry-pi-4
         oom-hardware.nixosModules.uconsole
       ];
-    };
+    }; */
     homeConfigurations = {
       # FIXME replace with your username@hostname
       "jeromeb" = home-manager.lib.homeManagerConfiguration {
