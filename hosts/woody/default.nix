@@ -24,7 +24,7 @@ let
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ../common.nix
+      ../../modules/common 
       ../../users/donquezz.nix
       ../../modules/loghost.nix
       ../../modules/borg-server.nix

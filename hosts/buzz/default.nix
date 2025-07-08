@@ -8,10 +8,10 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      inputs.sops-nix.nixosModules.sops
-      inputs.disko.nixosModules.disko
-      inputs.impermanence.nixosModules.impermanence
-      inputs.peerix.nixosModules.peerix
+      #inputs.sops-nix.nixosModules.sops
+      #inputs.disko.nixosModules.disko
+      #inputs.impermanence.nixosModules.impermanence
+      #inputs.peerix.nixosModules.peerix
       #../bootstrap --> TODO: Check buzz if hes doing alright
       (modulesPath + "/profiles/minimal.nix")
       (modulesPath + "/profiles/headless.nix")
@@ -22,7 +22,6 @@
       ../../modules/logging.nix
       ../../modules/persistence.nix
       ../../modules/zabbix.nix
-      ../../modules/common/distributed-builds.nix
     ];
 
   # Use the GRUB 2 boot loader.

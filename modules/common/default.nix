@@ -8,5 +8,6 @@
     ./fonts.nix
     ./zram.nix
     ./domain.nix
+    ./distributed-builds.nix
   ];
 }

@@ -52,7 +52,7 @@
       daemonIOSchedClass = lib.mkDefault "idle";
       daemonCPUSchedPolicy = lib.mkDefault "idle";
     };
-    systemd.services.nix-daemon.serviceConfig.Slice = "-.slice";
+    #systemd.services.nix-daemon.serviceConfig.Slice = "-.slice";
     # always use the daemon, even executed  with root
     environment.variables.NIX_REMOTE = "daemon";
     systemd.services.nix-daemon.serviceConfig = {
@@ -117,7 +117,21 @@
           "--avoid" "'^(${catPatterns avoidPatterns})$'"
         ];
     };
+
+    # OOM configuration:
+  systemd = {
+    # Create a separate slice for nix-daemon that is
+    # memory-managed by the userspace systemd-oomd killer
+    slices."nix-daemon".sliceConfig = {
+      ManagedOOMMemoryPressure = "kill";
+      ManagedOOMMemoryPressureLimit = "50%";
+    };
+    services."nix-daemon".serviceConfig.Slice = "nix-daemon.slice";
+
+    # If a kernel-level OOM event does occur anyway,
+    # strongly prefer killing nix-daemon child processes
+    services."nix-daemon".serviceConfig.OOMScoreAdjust = lib.mkDefault 1000;
   };
   
-  
+  };
 }

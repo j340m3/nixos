@@ -10,7 +10,7 @@
       #inputs.nixos-hardware.lenovo-thinkpad-x230
       #<nixos-hardware/lenovo/thinkpad/x230>
       ./hardware-configuration.nix
-      ../common.nix
+      ../../modules/common 
       ../../modules/logging.nix
       ../../modules/nebula.nix
       ../../modules/zabbix.nix

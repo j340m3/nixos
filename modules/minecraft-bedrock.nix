@@ -78,9 +78,13 @@
         lower = "03:00";
       };
     };
+  
+  sops.secrets."borg/minecraft-bedrock" = {
+    sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+  };
 
   services.borgbackup.jobs.minecraft-bedrock = {
-    paths = ["/nix/persist/minecraft/klassenserver" /nix/persist/minecraft/emeliebjorn/];
+    paths = ["/nix/persist/minecraft/klassenserver" "/nix/persist/minecraft/emeliebjorn"];
     encryption.mode = "none";
     environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/minecraft-bedrock".path}";
     repo = "borg@10.0.0.3:.";
