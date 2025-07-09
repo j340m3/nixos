@@ -11,7 +11,7 @@
 
   services.nginx = {
     enable = true;
-    forceSSL = true;
+    #forceSSL = true;
     recommendedTlsSettings = true;
     virtualHosts."cache.kauderwels.ch" = {
       sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
