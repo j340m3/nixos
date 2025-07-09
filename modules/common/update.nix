@@ -45,7 +45,7 @@
     nix = {
       #package = pkgs.lix;
       settings = {
-        substituters = [ "https://cache.kauderwels.ch" ];
+        substituters = [ "https://cache.kauderwels.ch:5000" ];
         trusted-public-keys = [ "cache.kauderwels.ch:0fswEglSoELjSBSMOuvnLAXMstePxzeTmOTYziR7z+Y=" ];
         experimental-features = [ "nix-command" "flakes" ];
         auto-optimise-store = true;

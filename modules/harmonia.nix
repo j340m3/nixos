@@ -9,7 +9,7 @@
   nix.settings.allowed-users = [ "harmonia" ];
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 443 80 5000];
 
-  services.nginx = {
+  /* services.nginx = {
     enable = true;
     #forceSSL = true;
     recommendedTlsSettings = true;
@@ -26,5 +26,5 @@
         proxy_set_header Connection $connection_upgrade;
       '';
     };
-  };
+  }; */
 }
