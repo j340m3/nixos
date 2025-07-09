@@ -5,7 +5,7 @@
   services.harmonia.signKeyPaths = [ "/var/lib/secrets/harmonia.secret" ];
 
   nix.settings.allowed-users = [ "harmonia" ];
-  networking.firewall."nebula.mesh".allowedTCPPorts = [ 443 80 ];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 443 80 ];
 
   services.nginx = {
     enable = true;
