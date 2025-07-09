@@ -3,12 +3,15 @@
 {
   services.harmonia.enable = true;
   services.harmonia.signKeyPaths = [ "/var/lib/secrets/harmonia.secret" ];
+  services.harmonia-dev.settings.tls_cert_path = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
+  services.harmonia-dev.settings.tls_key_path = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
 
   nix.settings.allowed-users = [ "harmonia" ];
-  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 443 80 ];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 443 80 5000];
 
   services.nginx = {
     enable = true;
+    forceSSL = true;
     recommendedTlsSettings = true;
     virtualHosts."cache.kauderwels.ch" = {
       sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
