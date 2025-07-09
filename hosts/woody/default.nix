@@ -36,6 +36,7 @@ let
       ../../modules/wifi.nix
       ../../modules/immich.nix
       ../../modules/paperless.nix
+      ../../modules/harmonia.nix
       
       # ./firefox.nix
       #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
