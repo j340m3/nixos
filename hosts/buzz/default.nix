@@ -197,6 +197,11 @@
       port = "10050";
       proto = "any";
     }
+    {
+      host = "any";
+      port = "42069";
+      proto = "tcp";
+    }
     ];
   };
   
