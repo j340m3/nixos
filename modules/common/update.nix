@@ -41,15 +41,12 @@
       options = lib.mkDefault "--delete-older-than 7d";
     };
 
-    nix.settings = {
-      substituters = [ "https://cache.kauderwels.ch" ];
-      trusted-public-keys = [ "cache.kauderwels.ch:0fswEglSoELjSBSMOuvnLAXMstePxzeTmOTYziR7z+Y=" ];
-    };
-    
     # Please do upgrades in Background
     nix = {
       #package = pkgs.lix;
       settings = {
+        substituters = [ "https://cache.kauderwels.ch" ];
+        trusted-public-keys = [ "cache.kauderwels.ch:0fswEglSoELjSBSMOuvnLAXMstePxzeTmOTYziR7z+Y=" ];
         experimental-features = [ "nix-command" "flakes" ];
         auto-optimise-store = true;
         max-jobs = lib.mkDefault 1;
