@@ -8,7 +8,7 @@
       enable = true;
       host = "::";
       #secretsFile = config.vaultix.secrets.immich.path;
-      database.createDB = false;
+      database.createDB = true;
       machine-learning.enable = true;
       redis.enable = true;
       settings = null;
