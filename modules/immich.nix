@@ -14,7 +14,7 @@
       settings = null;
       accelerationDevices = null;
       port = 2283;
-      # mediaLocation = "/mnt/nas/immich";
+      mediaLocation = "/mnt/nas/immich";
     };
   };
 
@@ -28,7 +28,7 @@
   networking.firewall.allowedTCPPorts = [ 2283 ];
 
   users.users.immich = {
-    home = "/var/lib/immich";
+    home = "/mnt/nas/immich";
     createHome = true;
   };
 }
