@@ -26,4 +26,9 @@
   users.users.immich.extraGroups = [ "video" "render" ];
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 2283 ];
   networking.firewall.allowedTCPPorts = [ 2283 ];
+
+  users.users.immich = {
+    home = "/var/lib/immich";
+    createHome = true;
+  };
 }
