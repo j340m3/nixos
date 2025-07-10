@@ -1,5 +1,8 @@
 { config, pkgs, lib, ...} : 
 {
+  environment.systemPackages = with pkgs; [
+		immich-machine-learning
+	];
   services = {
     immich = {
       enable = true;
