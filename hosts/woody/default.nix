@@ -274,7 +274,7 @@ let
     git
     elmPackages.elm
     elmPackages.elm-analyse
-    elmPackages.elm-coverage
+    #elmPackages.elm-coverage
     elmPackages.elm-format
     elmPackages.elm-json
     elmPackages.elm-review
