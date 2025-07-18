@@ -23,7 +23,7 @@ in
   #boot.kernelPackages = pkgs.linuxPackages_zen;
   
   system.autoUpgrade.dates = lib.mkForce "daily";
-  nix.gc.dates = lib.mkForce "daily";
+  nix.gc.dates = lib.mkForce "hourly";
   nix.package = pkgs.nix;
 
   environment.systemPackages = with pkgs; [
@@ -39,7 +39,7 @@ in
   ];
 
   networking.hostName = "pricklepants";
-  services.fail2ban.enable = true;
+  #services.fail2ban.enable = true;
   services.openssh = {
     ports = [42069];
     enable = true;
