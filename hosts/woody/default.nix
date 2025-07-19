@@ -605,7 +605,7 @@ fileSystems."/mnt/nas" = {
     "nodev"
     "_netdev"
     #"nofail"
-    "auto"
+    "noauto"
     "allow_other"
     "args2env"
     "x-systemd.automount"
