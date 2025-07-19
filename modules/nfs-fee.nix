@@ -19,7 +19,6 @@
     lockdPort = 4001;
     mountdPort = 4002;
     statdPort = 4000;
-    extraNfsdConfig = '''';
   };
   networking.firewall = {
     enable = true;
@@ -27,4 +26,16 @@
     allowedTCPPorts = [ 111  2049 4000 4001 4002 20048 ];
     allowedUDPPorts = [ 111 2049 4000 4001  4002 20048 ];
   };
+
+  sevices.nfs = {
+    settings = {
+      nfsd.udp = true;
+      nfsd.rdma = true;
+      nfsd.vers3 = false;
+      nfsd.vers4 = true;
+      nfsd."vers4.0" = false;
+      nfsd."vers4.1" = false;
+      nfsd."vers4.2" = true;
+    }
+  }
 }
