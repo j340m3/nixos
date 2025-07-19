@@ -619,7 +619,7 @@ systemd.services.rclone-sftp = {
   requires = [ "network-online.target" ];
 
   # Service configuration
-  serviceConfig = {
+  /* serviceConfig = {
     Type = "simple";
     ExecStartPre = "/run/current-system/sw/bin/mkdir -p /mnt/nas"; # Creates folder if didn't exist
     ExecStart = "${pkgs.rclone}/bin/rclone mount bergmannnas.fritz.box:/volume1/borgbackup /mnt/nas"; # Mounts
@@ -629,7 +629,7 @@ systemd.services.rclone-sftp = {
     User = "root";
     Group = "root";
     Environment = [ "PATH=/run/wrappers/bin/:$PATH" ]; # Required environments
-  };
+  }; */
 };
   
 }
