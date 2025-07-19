@@ -603,7 +603,9 @@ fileSystems."/mnt/nas" = {
   fsType = "rclone";
   options = [
     "nodev"
-    "nofail"
+    "_netdev"
+    #"nofail"
+    "auto"
     "allow_other"
     "args2env"
     "x-systemd.automount"
