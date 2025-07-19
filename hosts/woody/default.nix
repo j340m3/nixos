@@ -599,7 +599,7 @@ let
 '';
 
 fileSystems."/mnt/nas" = {
-  device = "bergmannnas.fritz.box:/volume1/borgbackup";
+  device = "bergmannnas.fritz.box://volume1/borgbackup";
   fsType = "rclone";
   options = [
     "nodev"
