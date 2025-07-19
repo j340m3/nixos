@@ -10,9 +10,9 @@
   }; */
 
   services.nfs.server.exports = ''
-    /export         192.168.178.71(rw,fsid=0,no_subtree_check) 192.168.178.105(rw,fsid=0,no_subtree_check)
-    /export/feeshare  192.168.178.71(rw,nohide,insecure,no_subtree_check) 192.168.178.105(rw,nohide,insecure,no_subtree_check)
-  '';
+    /export         192.168.178.0/24(rw,fsid=0,no_subtree_check)
+    /export/feeshare  192.168.178.0/24(rw,nohide,insecure,no_subtree_check,all_squash,anonuid=0,anongid=0)
+    '';
 
   services.nfs.server = {
     enable = true;
