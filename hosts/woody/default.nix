@@ -37,6 +37,7 @@ let
       ../../modules/immich.nix
       ../../modules/paperless.nix
       ../../modules/harmonia.nix
+      ../../modules/nfs-fee.nix
       
       # ./firefox.nix
       #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
@@ -403,7 +404,6 @@ let
   networking.firewall.allowedTCPPorts = [ 
     8123 # Home Assistant
     1883 # Mosquitto
-    2049 # NFS
   ];
 
   services.mosquitto = {
@@ -610,14 +610,5 @@ fileSystems."/mnt/nas" = {
   ];
 };
 
-  fileSystems."/export/feeshare" = {
-    device = "/mnt/feeshare";
-    options = [ "bind" ];
-  };
-
-  services.nfs.server.enable = true;
-  services.nfs.server.exports = ''
-    /export         192.168.178.71(rw,fsid=0,no_subtree_check) 192.168.178.105(rw,fsid=0,no_subtree_check)
-    /export/feeshare  192.168.178.71(rw,nohide,insecure,no_subtree_check) 192.168.178.105(rw,nohide,insecure,no_subtree_check)
-  '';
+  
 }
