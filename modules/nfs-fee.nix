@@ -10,8 +10,7 @@
   }; */
 
   services.nfs.server.exports = ''
-    /export         192.168.178.0/24(rw,fsid=0,no_subtree_check)
-    /export/feeshare  192.168.178.0/24(rw,nohide,insecure,no_subtree_check,all_squash,anonuid=0,anongid=0)
+    /export/feeshare  192.168.178.0/24(rw,crossmnt,sync,no_wdelay,root_squash,insecure,no_subtree_check,fsid=0,anonuid=0,anongid=0)
     '';
 
   services.nfs.server = {
