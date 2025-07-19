@@ -606,6 +606,9 @@ fileSystems."/mnt/nas" = {
     "nofail"
     "allow_other"
     "args2env"
+    "x-systemd.automount"
+    "cache_dir=/var/cache/rclone"
+    "vfs-cache-mode=full"
     "config=/etc/rclone-mnt.conf"
   ];
 };
