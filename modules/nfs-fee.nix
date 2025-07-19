@@ -4,10 +4,10 @@
   pkgs,
   ...
 } : {
-  fileSystems."/export/feeshare" = {
+  /* fileSystems."/export/feeshare" = {
     device = "/mnt/feeshare";
     options = [ "bind" ];
-  };
+  }; */
 
   services.nfs.server.exports = ''
     /export         192.168.178.71(rw,fsid=0,no_subtree_check) 192.168.178.105(rw,fsid=0,no_subtree_check)
