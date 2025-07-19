@@ -27,7 +27,7 @@
     allowedUDPPorts = [ 111 2049 4000 4001  4002 20048 ];
   };
 
-  sevices.nfs = {
+  services.nfs = {
     settings = {
       nfsd.udp = true;
       nfsd.rdma = true;
