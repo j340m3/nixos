@@ -597,43 +597,5 @@ environment.etc."rclone-mnt.conf".text = ''
   user = borg
   key_file = /root/.ssh/id_rsa
 '';
-
-fileSystems."/mnt/nas/immich" = {
-  device = "bergmannnas.fritz.box:/immich";
-  fsType = "rclone";
-  options = [
-    "nodev"
-    "_netdev"
-    #"nofail"
-    "noauto"
-    "allow_other"
-    "args2env"
-    "x-systemd.automount"
-    "cache_dir=/var/cache/rclone"
-    "vfs-cache-mode=full"
-    "config=/etc/rclone-mnt.conf"
-    "uid=${toString config.users.users.immich.uid}"
-    "gid=${config.users.users.immich.group}"
-  ];
-};
-/* systemd.services.rclone-sftp = {
-  # Ensure the service starts after the network is up
-  wantedBy = [ "multi-user.target" ];
-  after = [ "network-online.target" ];
-  requires = [ "network-online.target" ];
-
-  # Service configuration
-  serviceConfig = {
-    Type = "simple";
-    ExecStartPre = "/run/current-system/sw/bin/mkdir -p /mnt/nas"; # Creates folder if didn't exist
-    ExecStart = "${pkgs.rclone}/bin/rclone mount bergmannnas.fritz.box:/volume1/borgbackup /mnt/nas"; # Mounts
-    ExecStop = "/run/current-system/sw/bin/fusermount -u /mnt/nas"; # Dismounts
-    Restart = "on-failure";
-    RestartSec = "10s";
-    User = "root";
-    Group = "root";
-    Environment = [ "PATH=/run/wrappers/bin/:$PATH" ]; # Required environments
-  }; 
-}; */
   
 }

@@ -33,4 +33,24 @@
     uid = 989;
     group = "immich";
   };
+
+  fileSystems."/mnt/nas/immich" = {
+  device = "bergmannnas.fritz.box:/immich";
+  fsType = "rclone";
+  options = [
+    "nodev"
+    "_netdev"
+    #"nofail"
+    "noauto"
+    "allow_other"
+    "args2env"
+    "x-systemd.automount"
+    "cache_dir=/var/cache/rclone"
+    "vfs-cache-mode=full"
+    "vfs-cache-min-free-space=10G"
+    "config=/etc/rclone-mnt.conf"
+    "uid=${toString config.users.users.immich.uid}"
+    "gid=${config.users.users.immich.group}"
+  ];
+};
 }
