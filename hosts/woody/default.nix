@@ -598,8 +598,8 @@ let
   key_file = /root/.ssh/id_rsa
 '';
 
-fileSystems."/mnt/nas" = {
-  device = "bergmannnas.fritz.box:/volume1/borgbackup";
+fileSystems."/mnt/nas/immich" = {
+  device = "bergmannnas.fritz.box:/immich";
   fsType = "rclone";
   options = [
     "nodev"
@@ -612,6 +612,8 @@ fileSystems."/mnt/nas" = {
     "cache_dir=/var/cache/rclone"
     "vfs-cache-mode=full"
     "config=/etc/rclone-mnt.conf"
+    "uid=${users.users.immich.uid}"
+    "gid=${users.users.immich.group}"
   ];
 };
 /* systemd.services.rclone-sftp = {
