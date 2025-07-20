@@ -11,7 +11,12 @@
       database.createDB = true;
       #machine-learning.enable = true;
       #redis.enable = true;
-      settings = null;
+      settings = {
+        logging = {
+          enabled = true;
+          level = "verbose";
+        };
+      };
       accelerationDevices = null;
       port = 2283;
       mediaLocation = "/mnt/nas/immich";
