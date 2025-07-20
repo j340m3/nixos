@@ -57,5 +57,5 @@
     #"uid=${toString config.users.users.immich.uid}"
     #"gid=${config.users.users.immich.group}"
   ];
-  }
+  };
 }
