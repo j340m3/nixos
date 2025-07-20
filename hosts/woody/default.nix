@@ -612,7 +612,7 @@ fileSystems."/mnt/nas/immich" = {
     "cache_dir=/var/cache/rclone"
     "vfs-cache-mode=full"
     "config=/etc/rclone-mnt.conf"
-    "uid=${config.users.users.immich.uid}"
+    "uid=${toString config.users.users.immich.uid}"
     #"gid=${config.users.users.immich.group}"
   ];
 };
