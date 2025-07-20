@@ -31,5 +31,6 @@
     home = "/mnt/nas/immich";
     createHome = true;
     uid = 989;
+    group = "immich";
   };
 }

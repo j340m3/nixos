@@ -613,7 +613,7 @@ fileSystems."/mnt/nas/immich" = {
     "vfs-cache-mode=full"
     "config=/etc/rclone-mnt.conf"
     "uid=${toString config.users.users.immich.uid}"
-    #"gid=${config.users.users.immich.group}"
+    "gid=${config.users.users.immich.group}"
   ];
 };
 /* systemd.services.rclone-sftp = {
