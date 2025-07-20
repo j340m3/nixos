@@ -590,7 +590,7 @@ let
   };
 
 
-  environment.etc."rclone-mnt.conf".text = ''
+environment.etc."rclone-mnt.conf".text = ''
   [bergmannnas.fritz.box]
   type = sftp
   host = bergmannnas.fritz.box
@@ -613,7 +613,7 @@ fileSystems."/mnt/nas/immich" = {
     "vfs-cache-mode=full"
     "config=/etc/rclone-mnt.conf"
     "uid=${config.users.users.immich.uid}"
-    "gid=${config.users.users.immich.group}"
+    #"gid=${config.users.users.immich.group}"
   ];
 };
 /* systemd.services.rclone-sftp = {

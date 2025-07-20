@@ -30,5 +30,6 @@
   users.users.immich = {
     home = "/mnt/nas/immich";
     createHome = true;
+    uid = 989;
   };
 }
