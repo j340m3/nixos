@@ -591,7 +591,13 @@ let
 
 
 environment.etc."rclone-mnt.conf".text = ''
-  [bergmannnas.fritz.box]
+  [immich]
+  type = sftp
+  host = bergmannnas.fritz.box
+  user = borg
+  key_file = /root/.ssh/id_rsa
+
+  [rsyslog]
   type = sftp
   host = bergmannnas.fritz.box
   user = borg

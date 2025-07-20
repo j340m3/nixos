@@ -35,7 +35,7 @@
   };
 
   fileSystems."/mnt/nas/immich" = {
-  device = "bergmannnas.fritz.box:/immich";
+  device = "immich:/immich";
   fsType = "rclone";
   options = [
     "nodev"

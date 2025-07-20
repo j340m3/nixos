@@ -40,7 +40,7 @@
 	}; 
 
   fileSystems."/mnt/nas/rsyslog" = {
-  device = "bergmannnas.fritz.box:/rsyslog";
+  device = "rsyslog:/rsyslog";
   fsType = "rclone";
   options = [
     "nodev"
