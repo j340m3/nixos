@@ -5,7 +5,7 @@
   ...
 }:
 {
-  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 10050 ];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 10050 10051];
   services.zabbixAgent = {
       enable = true;
       package = pkgs.zabbix72.agent;
