@@ -501,7 +501,7 @@ let
 ];
   };
 
-  networking.firewall.interfaces.mesh.allowedTCPPorts = [ 80 443 8080 ];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 80 443 8080 10051];
   services.zabbixServer ={
     enable = true;
     package = pkgs.zabbix72.server;
