@@ -63,4 +63,6 @@
       "gid=${config.users.users.immich.group}"
     ];
   };
+
+  systemd.services."immich-server.service".after = ["mnt-nas-immich.mount"];
 }
