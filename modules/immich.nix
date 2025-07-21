@@ -52,7 +52,7 @@
       "vfs-cache-min-free-space=10G"
       "config=/etc/rclone-mnt.conf"
       "uid=${toString config.users.users.immich.uid}"
-      "gid=${config.users.users.immich.group}"
+      #"gid=${config.users.users.immich.group}"
     ];
   };
 }
