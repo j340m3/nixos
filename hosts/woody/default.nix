@@ -604,6 +604,6 @@ environment.etc."rclone-mnt.conf" = {
     user = borg
     key_file = /root/.ssh/id_rsa
   '';
-  mode = "755"
+  mode = "755";
 };
 }
