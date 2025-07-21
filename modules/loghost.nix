@@ -51,6 +51,7 @@
     "args2env"
     "x-systemd.automount"
     "cache_dir=/var/cache/rclone"
+    "fast-list"
     "vfs-cache-mode=full"
     "vfs-cache-min-free-space=10G"
     "vfs-fast-fingerprint"
