@@ -44,7 +44,7 @@
     options = [
       "nodev"
       "_netdev"
-      #"nofail"
+      "nofail"
       "noauto"
       "allow_other"
       "args2env"
