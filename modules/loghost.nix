@@ -52,11 +52,11 @@
     "x-systemd.automount"
     "cache_dir=/var/cache/rclone"
     "dir-cache-time=24h"
-    "poll-interval=1h"
+    "poll-interval=4h"
     "vfs-cache-mode=full"
     "vfs-cache-min-free-space=10G"
     "vfs-fast-fingerprint"
-    "vfs-write-back=1h" # write changes after one hour
+    "vfs-write-back=2h" # write changes after one hour
     "tpslimit=8"
     "tpslimit-burst=16"
     "config=/etc/rclone-mnt.conf"
