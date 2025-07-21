@@ -32,10 +32,10 @@
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 2283 ];
   networking.firewall.allowedTCPPorts = [ 2283 ];
 
-  /* users.users.immich = {
-    home = "/mnt/nas/immich";
-    createHome = true;
-  }; */
+  users.users.immich = {
+    #home = "/mnt/nas/immich";
+    #createHome = true;
+  }; 
   fileSystems."/mnt/nas/immich" = {
     device = "immich:/immich";
     fsType = "rclone";
@@ -52,7 +52,7 @@
       "vfs-cache-min-free-space=10G"
       "config=/etc/rclone-mnt.conf"
       "uid=${toString config.users.users.immich.uid}"
-      #"gid=${config.users.users.immich.group}"
+      "gid=${config.users.users.immich.group}"
     ];
   };
 }
