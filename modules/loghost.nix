@@ -56,8 +56,8 @@
     "vfs-cache-min-free-space=10G"
     "vfs-fast-fingerprint"
     "vfs-write-back=1h" # write changes after one hour
-    "tpslimit=16"
-    "tpslimit-burst=32"
+    "tpslimit=1024"
+    "tpslimit-burst=2048"
     "config=/etc/rclone-mnt.conf"
     "x-systemd.after=network-online.target" # only after network came up
     #"uid=${toString config.users.users.immich.uid}"
