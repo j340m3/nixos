@@ -33,6 +33,8 @@
   networking.firewall.allowedTCPPorts = [ 2283 ];
 
   users.users.immich = {
+    uid = 989;
+    group = "immich";
     #home = "/mnt/nas/immich";
     #createHome = true;
   }; 
