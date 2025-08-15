@@ -23,20 +23,21 @@
         $PreserveFQDN on
         $LocalHostName ${config.networking.hostName}
 
-        $template RemoteLogs,"/mnt/nas/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"
-        #$template RemoteLogs,"/mnt/nas/rsyslog/%FROMHOST-IP%/%PROGRAMNAME%.log"
+        $template RemoteLogs,"/persist/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"
+        #$template RemoteLogs,"/persist/rsyslog/%FROMHOST-IP%/%PROGRAMNAME%.log"
         ?RemoteLogs
 
-        $template RemoteLogs2,"/mnt/nas/rsyslog/%HOSTNAME%/messages.log"
-        #$template RemoteLogs2,"/mnt/nas/rsyslog/%FROMHOST-IP%/messages.log"
+        $template RemoteLogs2,"/persist/rsyslog/%HOSTNAME%/messages.log"
+        #$template RemoteLogs2,"/persist/rsyslog/%FROMHOST-IP%/messages.log"
         ?RemoteLogs2
       '';
 	};
-  services.logrotate.settings."/mnt/nas/rsyslog/*/*.log" = {
+  services.logrotate.settings."/persist/rsyslog/*/*.log" = {
 		frequency = "weekly";
 		rotate = 8;
     compress = true;
 		copytruncate = true;
+    olddir = "/mnt/nas/rsyslog";
 	}; 
 
   fileSystems."/mnt/nas/rsyslog" = {
