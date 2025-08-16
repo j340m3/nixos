@@ -94,7 +94,7 @@
       [ "notify-telegram@%i.service" ];
 
     nix.settings.max-silent-time = let minute = 60; in 120 * minute;
-    services.earlyoom = {
+   /*  services.earlyoom = {
       enable = true;
       enableNotifications = true;
       extraArgs =
@@ -123,7 +123,7 @@
           "--prefer" "'^(${catPatterns preferPatterns})$'"
           "--avoid" "'^(${catPatterns avoidPatterns})$'"
         ];
-    };
+    }; */
 
   systemd.slices.anti-hungry.sliceConfig = {
     CPUAccounting = true;
@@ -138,10 +138,10 @@
   systemd.services.nix-daemon.serviceConfig.Slice = "anti-hungry.slice";
 
   # Avoid freezing the system
-  systemd.oomd.enable = true;
+  /* systemd.oomd.enable = true;
   systemd.oomd.enableRootSlice = true;
   systemd.oomd.enableSystemSlice = true;
-  systemd.oomd.enableUserSlices = true;
+  systemd.oomd.enableUserSlices = true; */
   zramSwap.enable = true;
 
   };
