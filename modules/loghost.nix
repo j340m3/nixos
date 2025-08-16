@@ -37,10 +37,10 @@
 		rotate = 8;
     compress = true;
 		copytruncate = true;
-    #olddir = "/mnt/nas/rsyslog";
+    olddir = "/mnt/nas/rsyslog";
 	}; 
 
-  /* fileSystems."/mnt/nas/rsyslog" = {
+  fileSystems."/mnt/nas/rsyslog" = {
   device = "rsyslog:/rsyslog";
   fsType = "rclone";
   options = [
@@ -60,11 +60,11 @@
     "vfs-write-back=2h" # write changes after one hour
     "tpslimit=8"
     "tpslimit-burst=16"
-    "bwlimit=30K"
+    "bwlimit=10K"
     "config=/etc/rclone-mnt.conf"
     "x-systemd.after=network-online.target" # only after network came up
     #"uid=${toString config.users.users.immich.uid}"
     #"gid=${config.users.users.immich.group}"
   ];
-  }; */
+  };
 }
