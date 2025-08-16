@@ -60,6 +60,7 @@
     "vfs-write-back=2h" # write changes after one hour
     "tpslimit=8"
     "tpslimit-burst=16"
+    "bwlimit=500"
     "config=/etc/rclone-mnt.conf"
     "x-systemd.after=network-online.target" # only after network came up
     #"uid=${toString config.users.users.immich.uid}"
