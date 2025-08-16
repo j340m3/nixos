@@ -40,7 +40,7 @@
     { 
       device = "tmpfs";
       fsType = "tmpfs";
-      options = ["relatime" "mode=755" "nosuid" "nodev" "size=3G"];
+      options = ["relatime" "mode=755" "nosuid" "nodev" "size=4G"];
     };
 
   fileSystems."/nix" =
