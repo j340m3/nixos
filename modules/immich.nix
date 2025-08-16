@@ -59,7 +59,7 @@
       "vfs-write-back=2h" # write changes after one hour
       "tpslimit=8"
       "tpslimit-burst=16"
-      "bwlimit=10K"
+      "bwlimit=1K"
       "x-systemd.after=network-online.target" # only after network came up
       "uid=${toString config.users.users.immich.uid}"
       "gid=${config.users.users.immich.group}"
