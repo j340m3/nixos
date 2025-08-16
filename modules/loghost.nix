@@ -37,10 +37,10 @@
 		rotate = 8;
     compress = true;
 		copytruncate = true;
-    olddir = "/mnt/nas/rsyslog";
+    #olddir = "/mnt/nas/rsyslog";
 	}; 
 
-  fileSystems."/mnt/nas/rsyslog" = {
+  /* fileSystems."/mnt/nas/rsyslog" = {
   device = "rsyslog:/rsyslog";
   fsType = "rclone";
   options = [
@@ -66,5 +66,5 @@
     #"uid=${toString config.users.users.immich.uid}"
     #"gid=${config.users.users.immich.group}"
   ];
-  };
+  }; */
 }
