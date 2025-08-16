@@ -57,9 +57,15 @@
       "vfs-fast-fingerprint"
       "config=/etc/rclone-mnt.conf"
       "vfs-write-back=2h" # write changes after one hour
+      "vfs-cache-max-age=24h"                    # Retain cached files for up to 24 hours
+      "vfs-read-chunk-size=32M"                  # Start with 32MB chunks for faster initial reads
+      "vfs-read-chunk-size-limit=1G"             # Allow chunk size to grow up to 1GB for large files
+      "vfs-cache-poll-interval=30s" 
       "tpslimit=8"
       "tpslimit-burst=16"
       "bwlimit=1K"
+      "transfers=4"
+      "x-systemd.requires=network-online.target"
       "x-systemd.after=network-online.target" # only after network came up
       "uid=${toString config.users.users.immich.uid}"
       "gid=${config.users.users.immich.group}"
