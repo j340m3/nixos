@@ -19,7 +19,7 @@
       ../../modules/persistence.nix
       ../../modules/nebula.nix
       ../../modules/zabbix.nix
-      #../../modules/minecraft-bedrock.nix
+      ../../modules/minecraft-bedrock.nix
       ../../modules/minecraft-java.nix
     ];
 
