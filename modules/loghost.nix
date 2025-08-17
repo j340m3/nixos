@@ -50,7 +50,7 @@
     "noauto"
     "allow_other"
     "args2env"
-    #"x-systemd.automount"
+    "x-systemd.automount"
     "cache_dir=/var/cache/rclone"
     "dir-cache-time=24h"
     "vfs-cache-mode=full"
