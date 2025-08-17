@@ -41,7 +41,7 @@
 	}; 
 
   fileSystems."/mnt/nas/rsyslog" = {
-  device = "rsyslog:rsyslog";
+  device = "rsyslog:/rsyslog";
   fsType = "rclone";
   options = [
     "nodev"
