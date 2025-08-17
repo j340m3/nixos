@@ -39,7 +39,7 @@
     #createHome = true;
   }; 
   fileSystems."/mnt/nas/immich" = {
-    device = "immich:/volume1/borgbackup/immich";
+    device = "immich:immich";
     fsType = "rclone";
     options = [
       "nodev"
