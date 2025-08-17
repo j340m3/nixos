@@ -43,7 +43,7 @@
     fsType = "rclone";
     options = [
       "nodev"
-      "_netdev"
+      #"_netdev"
       "nofail"
       "noauto"
       "allow_other"
