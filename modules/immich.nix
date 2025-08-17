@@ -65,6 +65,8 @@
       "tpslimit-burst=16"
       "bwlimit=1K"
       "transfers=4"
+      "log-level=INFO"
+      "log-file=/var/log/rclone.log"
       "x-systemd.requires=network-online.target"
       "x-systemd.after=network-online.target" # only after network came up
       "uid=${toString config.users.users.immich.uid}"
