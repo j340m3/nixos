@@ -31,6 +31,12 @@
     };
   };
 
+  users.users.immich = {
+    uid = 315;
+    group = "immich";
+    #home = "/mnt/nas/immich";
+    #createHome = true;
+  }; 
 
   fileSystems."/mnt/nas/paperless" = {
   device = "paperless:paperless";
@@ -63,8 +69,8 @@
     "config=/etc/rclone-mnt.conf"
     "x-systemd.requires=network-online.target"
     "x-systemd.after=network-online.target" # only after network came up
-    #"uid=${toString config.users.users.immich.uid}"
-    #"gid=${config.users.users.immich.group}"
+    "uid=${toString config.users.paperless.immich.uid}"
+    "gid=${config.users.users.paperless.group}"
   ];
   };
 }
