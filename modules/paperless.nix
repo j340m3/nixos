@@ -31,9 +31,9 @@
     };
   };
 
-  users.users.immich = {
+  users.users.paperless = {
     uid = 315;
-    group = "immich";
+    group = "paperless";
     #home = "/mnt/nas/immich";
     #createHome = true;
   }; 
