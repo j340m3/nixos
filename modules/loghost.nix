@@ -53,6 +53,7 @@
     "x-systemd.automount"
     "cache_dir=/var/cache/rclone"
     "dir-cache-time=24h"
+    "sftp-path-override=/volume1/borgbackup/rsyslog"
     "vfs-cache-mode=full"
     "vfs-cache-min-free-space=10G"
     "vfs-fast-fingerprint"
