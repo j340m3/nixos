@@ -34,7 +34,7 @@ let
       ../../desktop-environments/kde.nix
       ../../desktop-environments/mate.nix
       ../../modules/wifi.nix
-      #../../modules/immich.nix
+      ../../modules/immich.nix
       ../../modules/paperless.nix
       ../../modules/harmonia.nix
       ../../modules/nfs-fee.nix
