@@ -69,7 +69,7 @@
     "config=/etc/rclone-mnt.conf"
     "x-systemd.requires=network-online.target"
     "x-systemd.after=network-online.target" # only after network came up
-    "uid=${toString config.users.users.paperless.immich.uid}"
+    "uid=${toString config.users.users.paperless.uid}"
     "gid=${config.users.users.paperless.group}"
   ];
   };
