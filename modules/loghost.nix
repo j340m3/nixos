@@ -66,6 +66,8 @@
     "tpslimit-burst=16"
     "bwlimit=1K"
     "transfers=4"
+    "log-level=INFO"
+    "log-file=/var/log/rclone/rsyslog.log"
     "config=/etc/rclone-mnt.conf"
     "x-systemd.requires=network-online.target"
     "x-systemd.after=network-online.target" # only after network came up
