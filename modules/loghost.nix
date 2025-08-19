@@ -53,6 +53,7 @@
     "x-systemd.automount"
     "cache_dir=/var/cache/rclone"
     "dir-cache-time=24h"
+    "sftp-path-override=/volume1/borgbackup/rsyslog"
     "vfs-cache-mode=full"
     "vfs-cache-min-free-space=10G"
     "vfs-fast-fingerprint"
@@ -65,6 +66,8 @@
     "tpslimit-burst=16"
     "bwlimit=1K"
     "transfers=4"
+    "log-level=INFO"
+    "log-file=/var/log/rclone/rsyslog.log"
     "config=/etc/rclone-mnt.conf"
     "x-systemd.requires=network-online.target"
     "x-systemd.after=network-online.target" # only after network came up

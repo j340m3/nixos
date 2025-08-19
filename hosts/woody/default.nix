@@ -603,6 +603,12 @@ environment.etc."rclone-mnt.conf" = {
     host = bergmannnas.fritz.box
     user = borg
     key_file = /root/.ssh/id_rsa
+
+    [paperless]
+    type = sftp
+    host = bergmannnas.fritz.box
+    user = borg
+    key_file = /root/.ssh/id_rsa
   '';
   mode = "755";
 };
