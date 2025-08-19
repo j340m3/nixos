@@ -63,7 +63,7 @@
       #"tpslimit=8"
       #"tpslimit-burst=16"
       #"bwlimit=1K"
-      "transfers=4"
+      #"transfers=4"
       "log-level=INFO"
       "log-file=/var/log/rclone.log"
       "x-systemd.requires=network-online.target"
