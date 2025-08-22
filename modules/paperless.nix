@@ -13,6 +13,7 @@
     database.createLocally = true;
     dataDir = "/mnt/nas/paperless";
     port = 28981;
+    address = "0.0.0.0";
     settings = {
       PAPERLESS_TASK_WORKERS = 1;
       PAPERLESS_THREADS_PER_WORKER = 2;
