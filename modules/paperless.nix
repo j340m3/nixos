@@ -12,6 +12,7 @@
     configureTika = true;
     database.createLocally = true;
     dataDir = "/mnt/nas/paperless";
+    port = 28981;
     settings = {
       PAPERLESS_TASK_WORKERS = 1;
       PAPERLESS_THREADS_PER_WORKER = 2;
@@ -30,6 +31,9 @@
       # };  
     };
   };
+
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 28981 ];
+  networking.firewall.allowedTCPPorts = [ 28981 ];
 
   users.users.paperless = {
     uid = 315;
