@@ -60,10 +60,8 @@
     "vfs-read-chunk-size=32M"                  # Start with 32MB chunks for faster initial reads
     "vfs-read-chunk-size-limit=1G"             # Allow chunk size to grow up to 1GB for large files
     "vfs-cache-poll-interval=30s" 
-    "tpslimit=8"
-    "tpslimit-burst=16"
-    "bwlimit=1K"
-    "transfers=4"
+    "tpslimit=16"
+    "tpslimit-burst=32"
     "log-level=INFO"
     "log-file=/var/log/rclone/paperless.log"
     "config=/etc/rclone-mnt.conf"
