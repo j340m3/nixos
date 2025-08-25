@@ -177,7 +177,7 @@ let
            jnoortheen.nix-ide
            bbenoist.nix
            elmtooling.elm-ls-vscode
-           ms-python.python
+           # ms-python.python #TODO: FIXME Doesn't work currently
            charliermarsh.ruff
          ];
          vscode = vscodium;
