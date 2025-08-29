@@ -11,6 +11,9 @@
     relays = [ "10.0.0.1" "10.0.0.5"];
     settings = {
         cipher= "aes";
+        static_map = {
+          network = "ip";
+        };
         punchy = {
           punch = true;
           respond = true;
@@ -26,8 +29,10 @@
     staticHostMap = {
         "10.0.0.1" = [
                 "194.164.125.154:4242"
+                
                 ];
-        "10.0.0.5" = [ "194.164.54.40:4242" ];
+        "10.0.0.5" = [ "194.164.54.40:4242" 
+        "2a01:239:27f:fd00::1:4242"];
         };
     firewall.outbound = [
       {
