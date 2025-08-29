@@ -504,14 +504,14 @@ let
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 80 443 8080 10051];
   services.zabbixServer ={
     enable = true;
-    package = pkgs.zabbix72.server;
+    package = pkgs.zabbix74.server;
   };
 
   services.zabbixWeb = {
     enable = true;
 #    server.port = 8080;
     frontend = "nginx";
-    package = pkgs.zabbix72.web;
+    package = pkgs.zabbix74.web;
     nginx.virtualHost = {
       #hostName = "woody";
       #adminAddr = "webmaster@localhost";
@@ -528,7 +528,7 @@ let
   services.zabbixAgent = {
     enable = true;
     server = "localhost";
-    package = pkgs.zabbix72.agent;
+    package = pkgs.zabbix74.agent;
 #    settings = {
 #      Plugins.MQTT.Session.iot = {
 #        User = "root";
