@@ -186,7 +186,7 @@ let
        #(makeAutostartItem { name = "spotify"; package = spotify; })
        mosh
     #  thunderbird
-       libreoffice-qt
+       libreoffice
        hunspell
        hunspellDicts.de_DE
        hunspellDicts.en_US
