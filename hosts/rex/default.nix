@@ -160,7 +160,7 @@ let
        elmPackages.elm
        python3Full
        (python311.withPackages(ps: with ps; [ 
-          #(dontCheckPython numpy)
+          (dontCheckPython numpy)
           pytest
           (dontCheckPython matplotlib)
         ]))
