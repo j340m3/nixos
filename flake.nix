@@ -38,7 +38,8 @@
     };
 
     oom-hardware ={
-      url = "github:j340m3/oom-hardware";
+      #url = "github:j340m3/oom-hardware";
+      url = "github:robertjakub/oom-hardware";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.nixos-hardware.follows = "nixos-hardware";
     };
