@@ -183,15 +183,15 @@
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "25.05"; # Did you read the comment?
 
-  programs.ccache = {
+  /* programs.ccache = {
     enable = true;
     packageNames = [ "linux_rpi4" ];
   };
-  nix.sandboxPaths = [ (toString config.programs.ccache.cacheDir) ];  
+  nix.sandboxPaths = [ (toString config.programs.ccache.cacheDir) ];   */
   
   
 
-  nixpkgs.overlays = [
+  /* nixpkgs.overlays = [
   (self: super: {
     ccacheWrapper = super.ccacheWrapper.override {
       extraConfig = ''
@@ -225,7 +225,7 @@
           depsBuildBuild = oldAttrs.depsBuildBuild // [ super.ccacheStdenv ];
       });
     })
-];
+]; */
   
 
   nix.settings.max-jobs = 1;
