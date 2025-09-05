@@ -44,7 +44,7 @@
     
     firewall.inbound = [
       {
-        cidr = "any";
+        host = "any";
         proto = "icmp";
         port = "any"
       }
