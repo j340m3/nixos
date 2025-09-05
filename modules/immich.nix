@@ -36,7 +36,7 @@
               config.services.nebula.networks.mesh.enable) 
       [
         {
-          host = constants.nebula.cidr;
+          cidr = constants.nebula.cidr;
           port = config.services.immich.port;
           proto = "any";
         }
