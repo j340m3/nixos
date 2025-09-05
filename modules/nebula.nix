@@ -41,18 +41,17 @@
         proto = "any";
       }
     ];
-    firewall.inbound = lib.mkMerge [
+    firewall.inbound = [
       {
         host = "any";
         port = "any";
         proto = "any";
-      }
-      (lib.mkIf config.useComin {
+      }] 
+      ++ lib.optional (config.useComin) ({
         host = "any";
         port = "4242";
         proto = "any";
-      })
-    ];
+      });
   };
   sops.secrets."nebula/ca_crt" = {
     restartUnits = ["nebula@mesh.service"];
