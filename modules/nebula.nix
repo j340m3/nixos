@@ -44,15 +44,15 @@
     
     firewall.inbound = [
       {
-        cidr = "10.0.0.1/24";
+        cidr = "any";
         proto = "icmp";
         port = "any"
       }
-      {
+      /* {
         host = "any";
         port = "any";
         proto = "any";
-      }
+      } */
     ];
       /* {
         host = "any";
