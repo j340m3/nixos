@@ -9,6 +9,16 @@
   nix.settings.allowed-users = [ "harmonia" ];
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 443 80 5000];
 
+  services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
+              (config.services.harmonia.enable && 
+              config.services.nebula.networks.mesh.enable) 
+      [
+        {
+          cidr = "10.0.0.1/24";
+          port = 5000;
+          proto = "any";
+        }
+      ];
   /* services.nginx = {
     enable = true;
     #forceSSL = true;
