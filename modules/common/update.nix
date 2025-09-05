@@ -3,6 +3,7 @@
 {
   imports = [
       #inputs.lix-module.nixosModules.default
+      inputs.comin.nixosModules.comin
     ];
 
   options = {
@@ -11,11 +12,30 @@
       default = true;
       description = "Allow random reboots.";
     };
+    useComin = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Allow random reboots.";
+    };
   };
   
   config = {
+    services.comin = {
+      enable = config.useComin;
+      remotes = [
+        {
+          name = "origin";
+          url = "https://github.com/j340m3/nixos.git";
+          # This is an access token to access our private repository
+          auth.access_token_path = cfg.sops.secrets."gitlab/access_token".path;
+          # No testing branch on this remote
+          branches.testing.name = "";
+        }
+      ];
+      #machineId = "22823ba6c96947e78b006c51a56fd89c";
+    };
     system.autoUpgrade = {
-      enable = true;
+      enable = !config.useComin;
       #flake = "/etc/nixos#nixos-gb";
       flake = "github:j340m3/nixos";
       #flake = inputs.self.outPath;
