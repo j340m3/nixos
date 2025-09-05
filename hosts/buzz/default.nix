@@ -182,11 +182,6 @@
     firewall.inbound = [
     {
       cidr = constants.nebula.cidr;
-      port = "22";
-      proto = "tcp";
-    }
-    {
-      cidr = constants.nebula.cidr;
       port = "any";
       proto = "icmp";
     }
