@@ -495,7 +495,7 @@ let
     ];
     firewall.inbound = [
       {
-        cidr = "10.0.0.1/24";
+        cidr = "any";
         port = "any";
         proto = "any";
       }
