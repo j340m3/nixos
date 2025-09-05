@@ -16,7 +16,17 @@
         {
           cidr = "10.0.0.1/24";
           port = 5000;
-          proto = "any";
+          proto = "tcp";
+        }
+        {
+          cidr = "10.0.0.1/24";
+          port = 443;
+          proto = "tcp";
+        }
+        {
+          cidr = "10.0.0.1/24";
+          port = 80;
+          proto = "tcp";
         }
       ];
   /* services.nginx = {
