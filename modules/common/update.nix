@@ -144,25 +144,34 @@
           "--avoid" "'^(${catPatterns avoidPatterns})$'"
         ];
     }; */
+    lib.mkIf (config.useComin && config.services.nebula.networks.mesh.enable) {
+      services.nebula.networks.mesh.firewall.outbound = [
+        {
+          host = "any";
+          port = "4242";
+          proto = "any";
+        }
+      ];
+    };
 
-  systemd.slices.anti-hungry.sliceConfig = {
-    CPUAccounting = true;
-    CPUQuota = "50%";
-    MemoryAccounting = true; # Allow to control with systemd-cgtop
-    MemoryHigh = "50%";
-    MemoryMax = "75%";
-    MemorySwapMax = "50%";
-    MemoryZSwapMax = "50%";
-  };
+    systemd.slices.anti-hungry.sliceConfig = {
+      CPUAccounting = true;
+      CPUQuota = "50%";
+      MemoryAccounting = true; # Allow to control with systemd-cgtop
+      MemoryHigh = "50%";
+      MemoryMax = "75%";
+      MemorySwapMax = "50%";
+      MemoryZSwapMax = "50%";
+    };
 
-  systemd.services.nix-daemon.serviceConfig.Slice = "anti-hungry.slice";
+    systemd.services.nix-daemon.serviceConfig.Slice = "anti-hungry.slice";
 
-  # Avoid freezing the system
-  /* systemd.oomd.enable = true;
-  systemd.oomd.enableRootSlice = true;
-  systemd.oomd.enableSystemSlice = true;
-  systemd.oomd.enableUserSlices = true; */
-  zramSwap.enable = true;
+    # Avoid freezing the system
+    /* systemd.oomd.enable = true;
+    systemd.oomd.enableRootSlice = true;
+    systemd.oomd.enableSystemSlice = true;
+    systemd.oomd.enableUserSlices = true; */
+    zramSwap.enable = true;
 
   };
 }
