@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, home-manager,... }:
+{ config, pkgs, lib, home-manager, constants, ... }:
 
 let
     lock-false = {
@@ -495,7 +495,7 @@ let
     ];
     firewall.inbound = [
       {
-        cidr = "10.0.0.1/24";
+        cidr = constants.nebula.cidr;
         proto = "icmp";
         port = "any";
       }

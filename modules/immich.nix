@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ...} : 
+{ config, pkgs, lib, constants, ...} : 
 {
   environment.systemPackages = with pkgs; [
 		immich-machine-learning
@@ -36,7 +36,7 @@
               config.services.nebula.networks.mesh.enable) 
       [
         {
-          host = "10.0.0.1/24";
+          host = constants.nebula.cidr;
           port = config.services.immich.port;
           proto = "any";
         }

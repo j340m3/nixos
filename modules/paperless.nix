@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  constants,
   ...
 }:
 {
@@ -41,7 +42,7 @@
               config.services.nebula.networks.mesh.enable) 
       [
         {
-          host = "10.0.0.1/24";
+          host = constants.nebula.cidr;
           port = config.services.paperless.port;
           proto = "any";
         }

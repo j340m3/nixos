@@ -58,6 +58,7 @@
   let
     inherit (self) outputs;
     inherit (nixpkgs) lib;
+    constants = (import ./global/constants.nix);
   in
   {
     nixosConfigurations = builtins.listToAttrs (
@@ -65,7 +66,7 @@
         name = host;
         value = nixpkgs.lib.nixosSystem {
           specialArgs = {
-            inherit inputs outputs lib;
+            inherit inputs outputs lib constants;
           };
           modules = [ ./hosts/${host} ];
         };

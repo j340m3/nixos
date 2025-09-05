@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, constants, ... }:
 
 {
   services.harmonia.enable = true;
@@ -14,17 +14,17 @@
               config.services.nebula.networks.mesh.enable) 
       [
         {
-          cidr = "10.0.0.1/24";
+          cidr = constants.nebula.cidr;
           port = 5000;
           proto = "tcp";
         }
         {
-          cidr = "10.0.0.1/24";
+          cidr = constants.nebula.cidr;
           port = 443;
           proto = "tcp";
         }
         {
-          cidr = "10.0.0.1/24";
+          cidr = constants.nebula.cidr;
           port = 80;
           proto = "tcp";
         }
