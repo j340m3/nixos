@@ -41,8 +41,14 @@
         proto = "any";
       }
     ];
-    /* firewall.inbound = [
+    
+    firewall.inbound = [
       {
+        cidr = "10.0.0.1/24";
+        proto = "icmp";
+      }
+    ];
+      /* {
         host = "any";
         port = "any";
         proto = "any";
@@ -52,6 +58,7 @@
         port = "4242";
         proto = "any";
       }); */
+
   };
   sops.secrets."nebula/ca_crt" = {
     restartUnits = ["nebula@mesh.service"];
