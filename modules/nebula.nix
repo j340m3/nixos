@@ -41,12 +41,17 @@
         proto = "any";
       }
     ];
-    firewall.inbound = [
+    firewall.inbound = mkMerge [
       {
         host = "any";
         port = "any";
         proto = "any";
       }
+      (mkIf config.useComin {
+        host = "any";
+        port = "4242";
+        proto = "any";
+      })
     ];
   };
   sops.secrets."nebula/ca_crt" = {
