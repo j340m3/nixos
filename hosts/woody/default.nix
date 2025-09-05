@@ -493,13 +493,12 @@ let
         proto = "any";
       }
     ];
-    /* firewall.inbound = [
+    firewall.inbound = [
       {
-        host = "any";
-        port = "any";
-        proto = "any";
+        cidr = "10.0.0.1/24";
+        proto = "icmp";
       }
-    ]; */
+    ]; 
   };
 
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 80 443 8080 10051];
