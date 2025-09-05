@@ -41,7 +41,7 @@
         proto = "any";
       }
     ];
-    firewall.inbound = [
+    /* firewall.inbound = [
       {
         host = "any";
         port = "any";
@@ -51,7 +51,7 @@
         host = "any";
         port = "4242";
         proto = "any";
-      });
+      }); */
   };
   sops.secrets."nebula/ca_crt" = {
     restartUnits = ["nebula@mesh.service"];

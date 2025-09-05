@@ -54,5 +54,15 @@
     };
 
     networking.firewall.allowedTCPPorts = [42069];
+    services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
+              (config.services.openssh.enable && 
+              config.services.nebula.networks.mesh.enable) 
+      [
+        {
+          host = "any";
+          port = 42069;
+          proto = "any";
+        }
+      ];
   };
 }
