@@ -495,13 +495,9 @@ let
     ];
     firewall.inbound = [
       {
-        cidr = "any";
-        port = "any";
-        proto = "any";
-      }
-      {
         cidr = "10.0.0.1/24";
         proto = "icmp";
+        port = "any";
       }
     ]; 
   };
