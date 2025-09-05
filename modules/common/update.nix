@@ -20,16 +20,14 @@
   };
   
   config = {
-
-    lib.mkIf (config.useComin && config.services.nebula.networks.mesh.enable) {
-      services.nebula.networks.mesh.firewall.outbound = [
+    services.nebula.networks.mesh.firewall.outbound = lib.mkIf (config.useComin && config.services.nebula.networks.mesh.enable) 
+      [
         {
           host = "any";
           port = "4242";
           proto = "any";
         }
       ];
-    };
     
     services.comin = {
       enable = config.useComin;
