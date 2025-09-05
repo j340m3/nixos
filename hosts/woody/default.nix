@@ -487,19 +487,19 @@ let
         "10.0.0.5" = [ "194.164.54.40:4242" ];
         };
     firewall.outbound = [
-  {
-    host = "any";
-    port = "any";
-    proto = "any";
-  }
-];
-    firewall.inbound = [
-  {
-    host = "any";
-    port = "any";
-    proto = "any";
-  }
-];
+      {
+        host = "any";
+        port = "any";
+        proto = "any";
+      }
+    ];
+    /* firewall.inbound = [
+      {
+        host = "any";
+        port = "any";
+        proto = "any";
+      }
+    ]; */
   };
 
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 80 443 8080 10051];
