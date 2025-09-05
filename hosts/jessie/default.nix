@@ -173,29 +173,29 @@
     };
     firewall.outbound = [
       {
-      host = "any";
+      cidr = constants.nebula.cidr;
       port = "any";
       proto = "any";
       }
     ];
     firewall.inbound = [
     {
-      host = "any";
+      cidr = constants.nebula.cidr;
       port = "22";
       proto = "tcp";
     }
     {
-      host = "any";
+      cidr = constants.nebula.cidr;
       port = "any";
       proto = "icmp";
     }
     {
-      host = "any";
+      cidr = constants.nebula.cidr;
       port = "53";
       proto = "udp";
     }
     {
-      host = "any";
+      cidr = constants.nebula.cidr;
       port = "10050";
       proto = "any";
     }

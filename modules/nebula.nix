@@ -38,7 +38,7 @@
         };
     firewall.outbound = [
       {
-        host = "any";
+        cidr = constants.nebula.cidr;
         port = "any";
         proto = "any";
       }
@@ -46,23 +46,23 @@
     
     firewall.inbound = [
       {
-        host = "any";
+        cidr = constants.nebula.cidr;
         proto = "icmp";
         port = "any";
       }
       /* {
-        host = "any";
+        cidr = constants.nebula.cidr;
         port = "any";
         proto = "any";
       } */
     ];
       /* {
-        host = "any";
+        cidr = constants.nebula.cidr;
         port = "any";
         proto = "any";
       }] 
       ++ lib.optional (config.useComin) ({
-        host = "any";
+        cidr = constants.nebula.cidr;
         port = "4242";
         proto = "any";
       }); */

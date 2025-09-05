@@ -488,7 +488,7 @@ let
         };
     firewall.outbound = [
       {
-        host = "any";
+        cidr = constants.nebula.cidr;
         port = "any";
         proto = "any";
       }

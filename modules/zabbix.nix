@@ -11,7 +11,7 @@
               config.services.nebula.networks.mesh.enable) 
       [
         {
-          host = "any";
+          cidr = constants.nebula.cidr;
           port = config.services.zabbixAgent.listen.port;
           proto = "any";
         }
