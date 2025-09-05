@@ -41,13 +41,13 @@
         proto = "any";
       }
     ];
-    firewall.inbound = mkMerge [
+    firewall.inbound = lib.mkMerge [
       {
         host = "any";
         port = "any";
         proto = "any";
       }
-      (mkIf config.useComin {
+      (lib.mkIf config.useComin {
         host = "any";
         port = "4242";
         proto = "any";
