@@ -92,7 +92,7 @@ in
   nix.gc = {
     automatic = true;
     #dates = "hourly";
-    options = "--delete-older-than 1d";
+    options = "--delete-older-than 30d";
   }; 
 
   
