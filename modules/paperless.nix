@@ -33,8 +33,19 @@
     };
   };
 
-  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 28981 ];
-  networking.firewall.allowedTCPPorts = [ 28981 ];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ config.services.paperless.port ];
+  networking.firewall.allowedTCPPorts = [ config.services.paperless.port ];
+
+  services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
+              (config.services.immich.enable && 
+              config.services.nebula.networks.mesh.enable) 
+      [
+        {
+          host = "10.0.0.1/24";
+          port = config.services.paperless.port;
+          proto = "any";
+        }
+      ];
 
   users.users.paperless = {
     uid = 315;
