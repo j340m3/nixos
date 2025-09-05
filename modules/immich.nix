@@ -29,8 +29,8 @@
 }; */
 
   users.users.immich.extraGroups = [ "video" "render" ];
-  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 2283 ];
-  networking.firewall.allowedTCPPorts = [ 2283 ];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ config.services.immich.port ];
+  networking.firewall.allowedTCPPorts = [ config.services.immich.port ];
   services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
               (config.services.immich.enable && 
               config.services.nebula.networks.mesh.enable) 
