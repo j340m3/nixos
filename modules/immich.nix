@@ -31,6 +31,16 @@
   users.users.immich.extraGroups = [ "video" "render" ];
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 2283 ];
   networking.firewall.allowedTCPPorts = [ 2283 ];
+  services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
+              (config.services.immich.enable && 
+              config.services.nebula.networks.mesh.enable) 
+      [
+        {
+          host = "10.0.0.1/24";
+          port = config.services.immich.port;
+          proto = "any";
+        }
+      ];
 
   users.users.immich = {
     uid = 989;

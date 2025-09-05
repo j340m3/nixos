@@ -46,6 +46,7 @@
       {
         cidr = "10.0.0.1/24";
         proto = "icmp";
+        port = "any"
       }
       {
         host = "any";
