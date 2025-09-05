@@ -20,6 +20,17 @@
   };
   
   config = {
+
+    lib.mkIf (config.useComin && config.services.nebula.networks.mesh.enable) {
+      services.nebula.networks.mesh.firewall.outbound = [
+        {
+          host = "any";
+          port = "4242";
+          proto = "any";
+        }
+      ];
+    };
+    
     services.comin = {
       enable = config.useComin;
       remotes = [
@@ -144,15 +155,7 @@
           "--avoid" "'^(${catPatterns avoidPatterns})$'"
         ];
     }; */
-    lib.mkIf (config.useComin && config.services.nebula.networks.mesh.enable) {
-      services.nebula.networks.mesh.firewall.outbound = [
-        {
-          host = "any";
-          port = "4242";
-          proto = "any";
-        }
-      ];
-    };
+    
 
     systemd.slices.anti-hungry.sliceConfig = {
       CPUAccounting = true;
