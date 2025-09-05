@@ -20,7 +20,9 @@
   };
   
   config = {
-    services.nebula.networks.mesh.firewall.outbound = lib.mkIf (config.useComin && config.services.nebula.networks.mesh.enable) 
+    services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
+              (config.services.comin.enable && 
+              config.services.nebula.networks.mesh.enable) 
       [
         {
           host = "any";
