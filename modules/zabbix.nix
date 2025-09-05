@@ -5,7 +5,7 @@
   ...
 }:
 {
-  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 10050 10051];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ config.services.zabbixAgent.listen.port];
   services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
               (config.services.zabbixAgent.enable && 
               config.services.nebula.networks.mesh.enable) 
