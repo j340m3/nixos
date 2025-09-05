@@ -315,10 +315,11 @@ let
   system.stateVersion = "24.11"; # Did you read the comment?
 
   system.autoUpgrade = {
-    enable = true;
+    #enable = true;
    # allowReboot  = true;
     dates = "hourly";
   };
+  useComin = true;
 
   nix.gc = {
     automatic = true;
