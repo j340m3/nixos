@@ -496,6 +496,11 @@ let
     firewall.inbound = [
       {
         cidr = "10.0.0.1/24";
+        port = "any";
+        proto = "any";
+      }
+      {
+        cidr = "10.0.0.1/24";
         proto = "icmp";
       }
     ]; 
