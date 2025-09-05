@@ -46,7 +46,7 @@
       {
         host = "any";
         proto = "icmp";
-        port = "any"
+        port = "any";
       }
       /* {
         host = "any";
