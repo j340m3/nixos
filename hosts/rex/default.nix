@@ -151,7 +151,7 @@ let
        #anytype
        gparted
        nmap
-       #webex
+       webex
        signal-desktop
        (makeAutostartItem { name = "signal"; package = signal-desktop; prependExtraArgs = [ "--start-in-tray" ];})
        telegram-desktop
