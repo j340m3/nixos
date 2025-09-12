@@ -1,4 +1,4 @@
-{
+{pkgs,...}:{
   system.nixos.tags = [ "lilly" ];
   uid = 1001;
   users.users.lilly = {
