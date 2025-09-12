@@ -319,7 +319,7 @@ let
    # allowReboot  = true;
     dates = "hourly";
   };
-  useComin = true;
+  #useComin = true;
 
   nix.gc = {
     automatic = true;
