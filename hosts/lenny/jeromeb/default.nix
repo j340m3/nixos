@@ -1,4 +1,4 @@
-{
+{pkgs,...}:{
   system.nixos.tags = [ "jeromeb" ];
   users.users.jeromeb = {
     isNormalUser = true;
