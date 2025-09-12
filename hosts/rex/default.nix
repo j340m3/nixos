@@ -197,6 +197,7 @@ let
        alejandra
        age
        wezterm
+       home-manager
     ];
   };
   services.yubikey-agent.enable = true;
