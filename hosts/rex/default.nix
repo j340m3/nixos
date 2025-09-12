@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, home-manager, ... }:
 
 let
     lock-false = {
@@ -32,6 +32,7 @@ let
       #../../modules/peerix.nix
       ../../modules/cool-shell.nix
       ../../modules/google-drive.nix
+      home-manager.nixosModules.home-manager
     ];
 
   # Bootloader.
@@ -144,12 +145,23 @@ let
     description = "Jerome";
     extraGroups = [ "networkmanager" "wheel" "docker"];
     shell = pkgs.zsh;
-    packages = with pkgs; [
+    
+  };
+  services.yubikey-agent.enable = true;
+  services.udev.packages = [ pkgs.libfido2 ];
+  # Install firefox.
+  home-manager.users.jeromeb = {pkgs, ...} : {
+    nixpkgs.config.allowUnfreePredicate = pkg:
+    builtins.elem (lib.getName pkg) [
+      # Add additional package names here
+      "spotify"
+    ];
+    home.packages = with pkgs; [
       btop
       acct
       nix-index
        #anytype
-       gparted
+       #gparted
        nmap
        #webex
        signal-desktop
@@ -169,7 +181,7 @@ let
        git
        zip
        lynis
-       zabbix.agent
+       
        spotify
        #nur.repos.rycee.firefox-addons.bitwarden
        (vscode-with-extensions.override {
@@ -186,7 +198,7 @@ let
        #(makeAutostartItem { name = "firefox"; package = firefox; })
        #(makeAutostartItem { name = "spotify"; package = spotify; })
        mosh
-    #  thunderbird
+      thunderbird
        libreoffice
        hunspell
        hunspellDicts.de_DE
@@ -197,13 +209,27 @@ let
        alejandra
        age
        wezterm
-       home-manager
     ];
-  };
-  services.yubikey-agent.enable = true;
-  services.udev.packages = [ pkgs.libfido2 ];
-  # Install firefox.
+    home = {
+      username = "jeromeb";
+      homeDirectory = "/home/jeromeb";
+    };
+    home.stateVersion = "25.05";
+    programs.home-manager.enable = true;
+    programs.pay-respects.enable = true;
   
+    programs.zsh = {
+      enable = true;
+      enableCompletion = true;
+      autosuggestions.enable = true;
+      syntaxHighlighting.enable = true;
+      ohMyZsh = {
+        enable = true;
+        plugins = [ "git" "sudo" ];
+        theme = "frisk";
+      };
+    };
+  };
   programs.firefox = {
     enable = true;
     package = pkgs.librewolf;
@@ -313,7 +339,7 @@ let
   };
   
   # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
+  #nixpkgs.config.allowUnfree = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -325,6 +351,7 @@ let
     powerline-symbols
     nebula
     exfat
+    zabbix.agent
     #exfatprogs
 
   ];
@@ -363,19 +390,7 @@ let
     acceleration = false;
   };
   
-  programs.pay-respects.enable = true;
   
-  programs.zsh = {
-    enable = true;
-    enableCompletion = true;
-    autosuggestions.enable = true;
-    syntaxHighlighting.enable = true;
-    ohMyZsh = {
-      enable = true;
-      plugins = [ "git" "sudo" ];
-      theme = "frisk";
-    };
-  };
 
   #nixpkgs.config.packageOverrides = pkgs: {
   #  nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {

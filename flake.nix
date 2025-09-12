@@ -1,10 +1,10 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/master";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
 
-    home-manager.url = "github:nix-community/home-manager/release-24.11";
+    home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
      # kde
@@ -66,7 +66,7 @@
         name = host;
         value = nixpkgs.lib.nixosSystem {
           specialArgs = {
-            inherit inputs outputs lib constants;
+            inherit inputs outputs lib constants home-manager;
           };
           modules = [ ./hosts/${host} ];
         };
@@ -166,22 +166,22 @@
     homeConfigurations = {
       # FIXME replace with your username@hostname
       "jeromeb" = home-manager.lib.homeManagerConfiguration {
-        system = "x86_64-linux";
-        pkgs = import nixpkgs;
+        pkgs = import nixpkgs {system = "x86_64-linux";};
         extraSpecialArgs = {inherit inputs outputs;};
         # > Our main home-manager configuration file <
         modules = [
-          home-manager.nixosModules.home-manager
+          /* home-manager.nixosModules.home-manager
           {
             home = {
               username = "jeromeb";
               homeDirectory = "/home/jeromeb";
             };
-          }
-          inputs.plasma-manager.homeManagerModules.plasma-manager
-          ./home/kde/plasma.nix
+          } */
+          ./home
+          #inputs.plasma-manager.homeModules.plasma-manager
+          #./home/kde/plasma.nix
         ];
-        programs.home-manager.enable = true;
+        #programs.home-manager.enable = true;
       };
     };
     packages.x86_64-linux = {
