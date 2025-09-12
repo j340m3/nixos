@@ -1,7 +1,7 @@
 {pkgs,...}:{
   system.nixos.tags = [ "lilly" ];
-  uid = 1001;
   users.users.lilly = {
+    uid = 1001;
     isNormalUser = true;
     description = "Lilly Bergmann";
     extraGroups = [ "networkmanager" "wheel" ];
