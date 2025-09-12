@@ -137,7 +137,7 @@ let
   # services.xserver.libinput.enable = true;
 
   allowReboot = false;
-  useComin = true;
+  #useComin = true;
   virtualisation.docker.enable = true;
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.jeromeb = {
@@ -145,8 +145,8 @@ let
     description = "Jerome";
     extraGroups = [ "networkmanager" "wheel" "docker"];
     shell = pkgs.zsh;
-    
   };
+  programs.zsh.enable = true;
   services.yubikey-agent.enable = true;
   services.udev.packages = [ pkgs.libfido2 ];
   # Install firefox.
@@ -221,13 +221,13 @@ let
     programs.zsh = {
       enable = true;
       enableCompletion = true;
-      autosuggestions.enable = true;
+      #autosuggestions.enable = true;
       syntaxHighlighting.enable = true;
-      ohMyZsh = {
+      /* ohMyZsh = {
         enable = true;
         plugins = [ "git" "sudo" ];
         theme = "frisk";
-      };
+      }; */
     };
   };
   programs.firefox = {

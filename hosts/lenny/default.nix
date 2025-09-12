@@ -99,64 +99,9 @@
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.jeromeb = {
-    isNormalUser = true;
-    description = "Jerome Bergmann";
-    extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      firefox
-    #  kate
-    #  thunderbird
-    ];
-  };
-
- /*  users.users.emelie = {
-    isNormalUser = true;
-    description = "Emelie Bergmann";
-    extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      firefox
-    #  kate
-    #  thunderbird
-    ];
-  }; */
-
-  users.users.lilly = {
-    isNormalUser = true;
-    description = "Lilly Bergmann";
-    extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      tipp10
-      libreoffice-qt
-      anki
-      jetbrains.pycharm-community
-      pinta
-      krita
-      arduino
-      lynx
-    #  kdenlive
-      signal-cli
-      signal-desktop
-      (makeAutostartItem { name = "signal"; package = signal-desktop; })
-      firefox
-      kdePackages.kalk
-      spotify
-      cutechess
-      stockfish
-      minetest
-      flatpak
-    #  kalk
-    #  kate
-    #  thunderbird
-    ];
-  };
-  services.flatpak.enable = true;
-  systemd.services.flatpak-repo = {
-    wantedBy = [ "multi-user.target" ];
-    path = [ pkgs.flatpak ];
-    script = ''
-      flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    '';
+  specialisation = {
+    jeromeb.configuration = (import ./jeromeb);
+    lilly.configuration = (import ./lilly);
   };
 
   # Allow unfree packages
@@ -169,9 +114,9 @@
   #  wget
     pkgs.hunspell
     pkgs.hunspellDicts.de_DE
-    pkgs.python3Full
+    /* pkgs.python3Full
     pkgs.python3Packages.pip
-    pkgs.python3Packages.setuptools
+    pkgs.python3Packages.setuptools */
     pkgs.cifs-utils
     #pkgs-2411.signaldctl
     pkgs.htop
@@ -205,7 +150,6 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.11"; # Did you read the comment?
-  system.autoUpgrade.enable = true;
 
   /* services.signald = {
     enable = true;
@@ -235,44 +179,5 @@
                       max-free = ${toString (1024 * 1024 * 1024)}
                      '';
 
-  /* services.nebula.networks.mesh = {
-    enable = true;
-    isLighthouse = false;
-    lighthouses = [ "10.0.0.1" ];
-    settings = {
-        cipher= "aes";
-        punchy.punch=true;
-        };
-    cert = "/etc/nebula/lenny.crt";
-    key = "/etc/nebula/lenny.key";
-    ca = "/etc/nebula/ca.crt";
-    staticHostMap = {
-        "10.0.0.1" = [
-                "194.164.125.154:4242"
-                ];
-        };
-    firewall.outbound = [
-  {
-    cidr = constants.nebula.cidr;
-    port = "any";
-    proto = "any";
-  }
-];
-    firewall.inbound = [
-  {
-    cidr = constants.nebula.cidr;
-    port = "any";
-    proto = "any";
-  }
-];
-  }; */
-
-/* services.zabbixAgent = {
-    enable = true;
-    openFirewall = true;
-    server = "10.0.0.3";
-    settings = {
-      Hostname = "lenny";
-    };
-  }; */
+  
 }
