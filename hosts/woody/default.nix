@@ -32,7 +32,7 @@ let
       #../../modules/peerix.nix
       ../../modules/reticulum.nix
       ../../desktop-environments/kde.nix
-      ../../desktop-environments/mate.nix
+      #../../desktop-environments/mate.nix
       ../../modules/wifi.nix
       ../../modules/immich.nix
       ../../modules/paperless.nix
