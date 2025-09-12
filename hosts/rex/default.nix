@@ -151,7 +151,7 @@ let
        #anytype
        gparted
        nmap
-       webex
+       #webex
        signal-desktop
        (makeAutostartItem { name = "signal"; package = signal-desktop; prependExtraArgs = [ "--start-in-tray" ];})
        telegram-desktop
@@ -159,12 +159,12 @@ let
        telegram-desktop
        #jetbrains.pycharm-professional
        elmPackages.elm
-       python3Full
+       /* python3Full
        (python311.withPackages(ps: with ps; [ 
           #(dontCheckPython numpy)
           pytest
           (dontCheckPython matplotlib)
-        ]))
+        ])) */
        vulnix
        git
        zip
