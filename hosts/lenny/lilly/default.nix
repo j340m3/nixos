@@ -17,7 +17,7 @@
     #  kdenlive
       signal-cli
       signal-desktop
-      (makeAutostartItem { name = "signal"; package = signal-desktop; })
+      #(makeAutostartItem { name = "signal"; package = signal-desktop; }) #TODO: makeAutostartItem is not reachable
       firefox
       kdePackages.kalk
       spotify
