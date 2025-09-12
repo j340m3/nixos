@@ -172,15 +172,14 @@
         # > Our main home-manager configuration file <
         modules = [
           home-manager.nixosModules.home-manager
-          inputs.plasma-manager.homeManagerModules.plasma-manager
-          ./home/kde/plasma.nix
-          
           {
             home = {
               username = "jeromeb";
               homeDirectory = "/home/jeromeb";
             };
           }
+          inputs.plasma-manager.homeManagerModules.plasma-manager
+          ./home/kde/plasma.nix
         ];
         programs.home-manager.enable = true;
       };
