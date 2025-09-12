@@ -128,7 +128,7 @@ let
     description = "Jerome Bergmann";
     extraGroups = [ "networkmanager" "wheel" "plugdev" ];
     packages = with pkgs; [
-      goose-cli
+      #goose-cli
       htop
       # home-manager
       github-desktop
@@ -582,13 +582,13 @@ let
   
 
 }; 
-  services.ollama = {
-    enable = true;
-    acceleration = false;
-    environmentVariables = {
-      OLLAMA_CONTEXT_LENGTH="32768";
-    };
-  };
+  # services.ollama = {
+  #   enable = true;
+  #   acceleration = false;
+  #   environmentVariables = {
+  #     OLLAMA_CONTEXT_LENGTH="32768";
+  #   };
+  # };
 
 
 environment.etc."rclone-mnt.conf" = {
