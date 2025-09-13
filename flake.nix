@@ -1,9 +1,10 @@
 {
   inputs = {
-    #nixpkgs.url = "github:NixOS/nixpkgs/master";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/master";
+    #nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
     nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
+    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
 
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -55,7 +56,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs = { self, nixpkgs, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, nixos-hardware, peerix, oom-hardware, ... } @ inputs : 
+  outputs = { self, nixpkgs, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, nixos-hardware, peerix, oom-hardware, chaotic,... } @ inputs : 
   let
     inherit (self) outputs;
     inherit (nixpkgs) lib;
@@ -69,7 +70,10 @@
           specialArgs = {
             inherit inputs outputs lib constants home-manager;
           };
-          modules = [ ./hosts/${host} ];
+          modules = [ 
+            ./hosts/${host} 
+            chaotic.nixosModules.default
+          ];
         };
       }) (builtins.attrNames (builtins.readDir ./hosts))
     );
