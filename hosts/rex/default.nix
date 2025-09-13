@@ -182,7 +182,7 @@ let
        zip
        lynis
        
-       spotify
+       #spotify
        #nur.repos.rycee.firefox-addons.bitwarden
        (vscode-with-extensions.override {
          # When the extension is already available in the default extensions set.
@@ -198,8 +198,8 @@ let
        #(makeAutostartItem { name = "firefox"; package = firefox; })
        #(makeAutostartItem { name = "spotify"; package = spotify; })
        mosh
-      thunderbird
-       libreoffice
+      #thunderbird
+       #libreoffice
        hunspell
        hunspellDicts.de_DE
        hunspellDicts.en_US
