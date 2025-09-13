@@ -13,7 +13,7 @@
       speedFactor = 100;
       protocol = "ssh-ng";
       supportedFeatures = [ "nixos-test" "big-parallel" "kvm" "benchmark" ];
-      max-jobs = 6;
+      maxJobs = 6;
     }
   ];
   programs.ssh.extraConfig = ''
