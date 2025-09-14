@@ -96,7 +96,7 @@ in
   }; 
 
   
-  security.sudo.wheelNeedsPassword = true;
+security.sudo.wheelNeedsPassword = true;
   
 services.nginx = {
   enable = true;

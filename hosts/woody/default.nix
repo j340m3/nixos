@@ -50,6 +50,8 @@ let
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.kernelPackages = pkgs.linuxPackages_cachyos-server;
+  services.scx.enable = true;
 
   networking.hostName = "woody"; # Define your hostname.
   #networking.domain = "fritz.box";
