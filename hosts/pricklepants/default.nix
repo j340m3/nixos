@@ -21,7 +21,7 @@ in
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
   nix.gc.dates = lib.mkForce "hourly";
-  nix.gc.options = lib.mkForce "--delete-older-than 1h";
+  nix.gc.options = lib.mkForce "--delete-older-than 1d";
   #boot.kernelPackages = pkgs.linuxPackages_zen;
   
   #system.autoUpgrade.dates = lib.mkForce "daily";
