@@ -20,10 +20,12 @@ in
   #swapDevices = [ { device = "/swapfile"; size = 512; } ];
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
+  nix.gc.dates = lib.mkForce "hourly";
+  nix.gc.options = lib.mkForce "--delete-older-than 1h";
   #boot.kernelPackages = pkgs.linuxPackages_zen;
   
   #system.autoUpgrade.dates = lib.mkForce "daily";
-  #nix.gc.dates = lib.mkForce "hourly";
+  
   nix.package = pkgs.nix;
 
   environment.systemPackages = with pkgs; [

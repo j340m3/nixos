@@ -32,6 +32,10 @@
   # boot.loader.efi.efiSysMountPoint = "/boot/efi";
   # Define on which hard drive you want to install Grub.
   # boot.loader.grub.device = "/dev/sda"; # or "nodev" for efi only
+  
+  nix.gc.dates = lib.mkForce "hourly";
+  nix.gc.options = lib.mkForce "--delete-older-than 1h";
+
   security.sudo.extraConfig = ''
     # rollback results in sudo lectures after each reboot
     Defaults lecture = never
