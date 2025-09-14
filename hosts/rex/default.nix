@@ -150,6 +150,7 @@ let
   services.yubikey-agent.enable = true;
   services.udev.packages = [ pkgs.libfido2 ];
   # Install firefox.
+  home-manager.backupFileExtension = "hmbackup";
   home-manager.users.jeromeb = {pkgs, ...} : {
     nixpkgs.config.allowUnfreePredicate = pkg:
     builtins.elem (lib.getName pkg) [
