@@ -159,7 +159,7 @@ let
     ];
     home.packages = with pkgs; [
       btop
-      acct
+      #acct
       nix-index
        #anytype
        #gparted
@@ -169,7 +169,6 @@ let
        (makeAutostartItem { name = "signal"; package = signal-desktop; prependExtraArgs = [ "--start-in-tray" ];})
        telegram-desktop
        (makeAutostartItem { name = "telegram.desktop"; package = telegram-desktop; srcPrefix = "org.";})
-       telegram-desktop
        #jetbrains.pycharm-professional
        elmPackages.elm
        /* python3Full
@@ -198,12 +197,12 @@ let
        })
        #(makeAutostartItem { name = "firefox"; package = firefox; })
        #(makeAutostartItem { name = "spotify"; package = spotify; })
-       mosh
+       #mosh
       #thunderbird
        #libreoffice
-       hunspell
-       hunspellDicts.de_DE
-       hunspellDicts.en_US
+       #hunspell
+       #hunspellDicts.de_DE
+       #hunspellDicts.en_US
        remmina
        traceroute
        statix
