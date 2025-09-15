@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, lib, constants, ... }:
+{ config, pkgs, inputs, lib, constants, pkgsUnstable, ... }:
 
 {
   imports = [
@@ -20,6 +20,10 @@
   };
   
   config = {
+    _module.args.pkgsUnstable = import inputs.nixpkgs-unstable {
+      inherit (pkgs.stdenv.hostPlatform) system;
+      inherit (config.nixpkgs) config;
+    };
     services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
               (config.services.comin.enable && 
               config.services.nebula.networks.mesh.enable) 
@@ -74,7 +78,7 @@
 
     # Please do upgrades in Background
     nix = {
-      #package = pkgs.lix;
+      package = pkgsUnstable.nix;
       settings = {
         substituters = [ "https://cache.kauderwels.ch:5000" "https://nix-community.cachix.org" "https://cache.nixos.org"];
         trusted-public-keys = [ "cache.kauderwels.ch:0fswEglSoELjSBSMOuvnLAXMstePxzeTmOTYziR7z+Y=" "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="];
