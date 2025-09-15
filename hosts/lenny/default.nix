@@ -2,8 +2,11 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, pkgs-2411, lib, inputs, ... }:
+{ config, pkgs, pkgsUnstable, lib, inputs, ... }:
 
+let 
+  mypkgs = pkgsUnstable;
+in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -17,12 +20,18 @@
       ../../modules/wifi.nix
     ];
 
+  _module.args.pkgsUnstable = import inputs.nixpkgs-master {
+    inherit (pkgs.stdenv.hostPlatform) system;
+    inherit (config.nixpkgs) config;
+  };
+
   # Bootloader.
   boot.loader.grub.enable = true;
   boot.loader.grub.device = "/dev/sda";
   boot.loader.grub.useOSProber = true;
 
-  boot.kernelPackages = pkgs.linuxPackages_zen;
+  #boot.kernelPackages = pkgs.linuxPackages_zen;
+  boot.kernelPackages = pkgs.linuxPackages_cachyos;
 
   swapDevices = [ { device = "/swapfile"; size = 2048; } ];
   boot.tmp.cleanOnBoot = true;
@@ -112,15 +121,15 @@
   environment.systemPackages = [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
-    pkgs.hunspell
-    pkgs.hunspellDicts.de_DE
+    mypkgs.hunspell
+    mypkgs.hunspellDicts.de_DE
     /* pkgs.python3Full
     pkgs.python3Packages.pip
     pkgs.python3Packages.setuptools */
-    pkgs.cifs-utils
+    mypkgs.cifs-utils
     #pkgs-2411.signaldctl
-    pkgs.htop
-    pkgs.kdePackages.discover
+    mypkgs.htop
+    mypkgs.kdePackages.discover
   ];
   
   # Some programs need SUID wrappers, can be configured further or are
