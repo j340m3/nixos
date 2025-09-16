@@ -78,7 +78,8 @@
 
     # Please do upgrades in Background
     nix = {
-      package = pkgsUnstable.nix;
+      package = pkgs.lixPackageSets.stable.lix;
+      #package = pkgsUnstable.nix;
       settings = {
         substituters = [ "https://cache.kauderwels.ch:5000" "https://nix-community.cachix.org" "https://cache.nixos.org"];
         trusted-public-keys = [ "cache.kauderwels.ch:0fswEglSoELjSBSMOuvnLAXMstePxzeTmOTYziR7z+Y=" "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="];

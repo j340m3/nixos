@@ -45,6 +45,7 @@ let
     wantedBy = lib.mkForce [ ]; #Disable Drag and Drop
     #execStart=lib.mkForce [""];
   };
+  #boot.kernelPackages = pkgs.linuxPackages_cachyos;
 
   #swapDevices = [ { device = "/swapfile"; size = 2048; } ];
   #services.swapspace.enable = true;

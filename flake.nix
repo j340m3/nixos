@@ -56,23 +56,33 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs = { self, nixpkgs, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, nixos-hardware, peerix, oom-hardware, chaotic,... } @ inputs : 
+  outputs = { self, nixpkgs, nixpkgs-master, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, nixos-hardware, peerix, oom-hardware, chaotic,... } @ inputs : 
   let
     inherit (self) outputs;
     inherit (nixpkgs) lib;
     constants = (import ./global/constants.nix);
   in
   {
+    /* nixpkgs-master.overlays = [ (final: prev: {
+    inherit (final.lixPackageSets.stable)
+      nixpkgs-review
+      nix-direnv
+      nix-eval-jobs
+      nix-fast-build
+      colmena;
+  }) ]; */
+
     nixosConfigurations = builtins.listToAttrs (
       map (host: {
         name = host;
-        value = nixpkgs.lib.nixosSystem {
+        value = nixpkgs-master.lib.nixosSystem {
           specialArgs = {
             inherit inputs outputs lib constants home-manager;
           };
           modules = [ 
             ./hosts/${host} 
             chaotic.nixosModules.default
+            #inputs.lix-module.nixosModules.default
           ];
         };
       }) (builtins.attrNames (builtins.readDir ./hosts))
