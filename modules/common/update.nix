@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, lib, constants, pkgsUnstable, ... }:
+{ config, pkgs, inputs, lib, constants, ... }:
 
 {
   imports = [
@@ -20,10 +20,10 @@
   };
   
   config = {
-    _module.args.pkgsUnstable = import inputs.nixpkgs-master {
+    /* _module.args.pkgsUnstable = import inputs.nixpkgs-master {
       inherit (pkgs.stdenv.hostPlatform) system;
       inherit (config.nixpkgs) config;
-    };
+    }; */
     services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
               (config.services.comin.enable && 
               config.services.nebula.networks.mesh.enable) 

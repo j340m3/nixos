@@ -2,11 +2,11 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, pkgsUnstable, lib, inputs, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
-let 
+/* let 
   mypkgs = pkgsUnstable;
-in
+in */
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -20,10 +20,10 @@ in
       ../../modules/wifi.nix
     ];
 
-  _module.args.pkgsUnstable = import inputs.nixpkgs-master {
+  /* _module.args.pkgsUnstable = import inputs.nixpkgs-master {
     inherit (pkgs.stdenv.hostPlatform) system;
     inherit (config.nixpkgs) config;
-  };
+  }; */
 
   # Bootloader.
   boot.loader.grub.enable = true;
