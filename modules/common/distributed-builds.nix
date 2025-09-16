@@ -5,7 +5,7 @@
 
   nix.buildMachines = [
     {
-      hostName = "builder";
+      hostName = "builder1";
       #sshUser = "remotebuild";
       #sshKey = "/root/.ssh/remotebuild";
       systems = [ "x86_64-linux" "aarch64-linux" ];
@@ -14,6 +14,17 @@
       protocol = "ssh-ng";
       supportedFeatures = [ "nixos-test" "big-parallel" "kvm" "benchmark" ];
       maxJobs = 6;
+    }
+    {
+      hostName = "builder2";
+      #sshUser = "remotebuild";
+      #sshKey = "/root/.ssh/remotebuild";
+      systems = [ "x86_64-linux" "aarch64-linux" ];
+      #system = pkgs.stdenv.hostPlatform.system;
+      speedFactor = 1;
+      protocol = "ssh-ng";
+      supportedFeatures = [];
+      maxJobs = 2;
     }
   ];
   programs.ssh.extraConfig = ''
@@ -32,14 +43,14 @@
   '';
 
   sops.secrets."remotebuild/key" = {
-    sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    sopsFile = ../../secrets/${config.networking.hostName}/secrets.yaml;
     owner = "root";
     group = "root";
     path = "/root/.ssh/remotebuild";
   };
 
   sops.secrets."remotebuild/pub" = {
-    sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    sopsFile = ../../secrets/${config.networking.hostName}/secrets.yaml;
     owner = "root";
     group = "root";
     path = "/root/.ssh/remotebuild.pub";
