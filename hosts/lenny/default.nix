@@ -121,15 +121,15 @@ in */
   environment.systemPackages = [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
-    mypkgs.hunspell
-    mypkgs.hunspellDicts.de_DE
+    pkgs.hunspell
+    pkgs.hunspellDicts.de_DE
     /* pkgs.python3Full
     pkgs.python3Packages.pip
     pkgs.python3Packages.setuptools */
-    mypkgs.cifs-utils
+    pkgs.cifs-utils
     #pkgs-2411.signaldctl
-    mypkgs.htop
-    mypkgs.kdePackages.discover
+    pkgs.htop
+    pkgs.kdePackages.discover
   ];
   
   # Some programs need SUID wrappers, can be configured further or are
