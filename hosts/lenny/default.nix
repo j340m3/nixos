@@ -10,7 +10,7 @@ in */
 {
   imports =
     [ # Include the results of the hardware scan.
-      inputs.nixos-hardware.lenovo-thinkpad-x230
+      inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x230
       #<nixos-hardware/lenovo/thinkpad/x230>
       ./hardware-configuration.nix
       ../../modules/common 
