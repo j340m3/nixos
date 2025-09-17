@@ -34,7 +34,7 @@
   # boot.loader.grub.device = "/dev/sda"; # or "nodev" for efi only
 
   nix.gc.dates = lib.mkForce "hourly";
-  nix.gc.options = lib.mkForce "--delete-older-than 1d";
+  nix.gc.options = lib.mkForce "-d";
 
   security.sudo.extraConfig = ''
     # rollback results in sudo lectures after each reboot
