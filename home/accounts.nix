@@ -25,6 +25,7 @@
       };
     };
     accounts.gmail-privat = {
+      primary = true;
       address = "bergmann.jerome@gmail.com";
       userName = "bergmann.jerome@gmail.com";
       realName = "Jerome Bergmann";
