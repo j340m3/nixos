@@ -3,7 +3,23 @@
 , config
 , pkgs
 , ...
-}: {
+}: 
+let
+    lock-false = {
+      Value = false;
+      Status = "locked";
+    };
+    lock-true = {
+      Value = true;
+      Status = "locked";
+    };
+    lock-empty-string = {
+      Value = "";
+      Status = "locked";
+    };
+    dontCheckPython = drv: drv.overridePythonAttrs (old: { doCheck = false; });
+  in 
+{
   programs.firefox = {
     enable = true;
     package = pkgs.librewolf;

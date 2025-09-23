@@ -4,21 +4,7 @@
 
 { config, pkgs, lib, home-manager, ... }:
 
-let
-    lock-false = {
-      Value = false;
-      Status = "locked";
-    };
-    lock-true = {
-      Value = true;
-      Status = "locked";
-    };
-    lock-empty-string = {
-      Value = "";
-      Status = "locked";
-    };
-    dontCheckPython = drv: drv.overridePythonAttrs (old: { doCheck = false; });
-  in 
+
 {
   imports =
     [ # Include the results of the hardware scan.

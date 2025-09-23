@@ -2,6 +2,7 @@
     imports = [
         ./vscode.nix
         ./browser.nix
+        ./accounts.nix
     ];
     home.username = "jeromeb";
     home.homeDirectory = "/home/jeromeb";    
