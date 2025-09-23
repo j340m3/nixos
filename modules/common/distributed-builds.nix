@@ -26,6 +26,17 @@
       supportedFeatures = [];
       maxJobs = 2;
     }
+    {
+      hostName = "builder3";
+      #sshUser = "remotebuild";
+      #sshKey = "/root/.ssh/remotebuild";
+      systems = [ "x86_64-linux" "aarch64-linux" ];
+      #system = pkgs.stdenv.hostPlatform.system;
+      speedFactor = 1;
+      protocol = "ssh-ng";
+      supportedFeatures = [];
+      maxJobs = 6;
+    }
   ];
   programs.ssh.extraConfig = ''
     Host builder1
@@ -36,6 +47,12 @@
       IdentityFile /root/.ssh/remotebuild
     Host builder2
       HostName 10.0.0.7
+      Port 42069
+      User remotebuild
+      IdentitiesOnly yes
+      IdentityFile /root/.ssh/remotebuild
+    Host builder3
+      HostName woody.fritz.box
       Port 42069
       User remotebuild
       IdentitiesOnly yes
