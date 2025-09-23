@@ -267,10 +267,10 @@
 
   nix.settings.auto-optimise-store = true;
 
-  services.ollama = {
+  /* services.ollama = {
     enable = true;
     acceleration = false;
-  };
+  }; */
   
   
 
