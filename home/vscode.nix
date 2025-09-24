@@ -7,7 +7,6 @@
   home.packages = with pkgs; [ 
     nixfmt-rfc-style
     nerd-fonts.victor-mono
-    rnix-lsp
     nil
   ];
   
@@ -36,7 +35,7 @@
           "nix.enableLanguageServer" = true;
           "nix.serverPath" = "nil";
           "nix.serverSettings" = {
-            "nil":{
+            "nil" = {
               "formatting" = {
                 "command" = ["nixfmt"];
               };
