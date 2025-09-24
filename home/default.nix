@@ -1,6 +1,6 @@
-{pkgs,...}: {
+{pkgs, inputs,...}: {
     imports = [
-        stylix.homeModules.stylix
+        inputs.stylix.homeModules.stylix
         ./vscode.nix
         ./browser.nix
         ./accounts.nix
