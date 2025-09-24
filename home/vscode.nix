@@ -11,6 +11,7 @@
       default = {
         extensions = with pkgs.vscode-extensions; [
           catppuccin.catppuccin-vsc
+          catppuccin.catppuccin-vsc-icons
           streetsidesoftware.code-spell-checker
           dbaeumer.vscode-eslint
           esbenp.prettier-vscode
@@ -27,10 +28,11 @@
           "git.enableSmartCommit" = true;
           "git.confirmSync" = false;
           "git.autofetch" = true;
+          "files.autoSave" = "afterDelay";
 
-          "editor.fontFamily" = "Victor Mono";
+          "editor.fontFamily" = "Victor Mono Nerd Font";
           "editor.snippetSuggestions" = "none";
-          "terminal.integrated.fontFamily" = "Victor Mono";
+          "terminal.integrated.fontFamily" = "Victor Mono Nerd Font";
           "files.insertFinalNewline" = true;
           "editor.fontLigatures" = true;
           "editor.formatOnSave" = true;
