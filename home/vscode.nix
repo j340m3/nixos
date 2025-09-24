@@ -14,7 +14,7 @@
           streetsidesoftware.code-spell-checker
           dbaeumer.vscode-eslint
           esbenp.prettier-vscode
-          vscodevim.vim
+          #vscodevim.vim
           rust-lang.rust-analyzer
           haskell.haskell
           davidanson.vscode-markdownlint
@@ -23,6 +23,11 @@
           jnoortheen.nix-ide
         ];
         userSettings = {
+          # Git
+          "git.enableSmartCommit" = true;
+          "git.confirmSync" = false;
+          "git.autofetch" = true;
+
           "editor.fontFamily" = "Victor Mono";
           "editor.snippetSuggestions" = "none";
           "terminal.integrated.fontFamily" = "Victor Mono";
@@ -40,7 +45,7 @@
           "window.commandCenter" = false;
           "window.titleBarStyle" = "custom";
           "breadcrumbs.enabled" = true;
-          "workbench.sideBar.location" = "right";
+          #"workbench.sideBar.location" = "right";
           "workbench.statusBar.visible" = true;
           "workbench.startupEditor" = "none";
           "workbench.tree.indent" = 22;
