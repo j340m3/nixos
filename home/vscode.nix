@@ -8,6 +8,7 @@
     nixfmt-rfc-style
     nerd-fonts.victor-mono
     rnix-lsp
+    nil
   ];
   
   programs.vscode = {
@@ -28,10 +29,20 @@
           elmtooling.elm-ls-vscode
           unifiedjs.vscode-mdx
           jnoortheen.nix-ide
+          christian-kohler.path-intellisense
         ];
         userSettings = {
           # Nix
           "nix.enableLanguageServer" = true;
+          "nix.serverPath" = "nil";
+          "nix.serverSettings" = {
+            "nil":{
+              "formatting" = {
+                "command" = ["nixfmt"];
+              };
+            };
+          };
+          "nix.suggest.path" = false;
 
           # Git
           "git.enableSmartCommit" = true;

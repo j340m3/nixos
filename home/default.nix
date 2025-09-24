@@ -1,5 +1,6 @@
 {pkgs,...}: {
     imports = [
+        stylix.homeModules.stylix
         ./vscode.nix
         ./browser.nix
         ./accounts.nix
