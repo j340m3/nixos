@@ -4,7 +4,10 @@
 , pkgs
 , ...
 }: {
-  home.packages = [ pkgs.nixfmt-rfc-style ];
+  home.packages = with pkgs; [ 
+    nixfmt-rfc-style
+    nerd-fonts.victor-mono
+  ];
 
   programs.vscode = {
     enable = true;
