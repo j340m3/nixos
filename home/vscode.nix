@@ -35,9 +35,9 @@
           "git.autofetch" = true;
           "files.autoSave" = "afterDelay";
 
-          "editor.fontFamily" = "Victor Mono Nerd Font";
+          "editor.fontFamily" = "Victor Mono Nerd Font Mono";
           "editor.snippetSuggestions" = "none";
-          "terminal.integrated.fontFamily" = "Victor Mono Nerd Font";
+          "terminal.integrated.fontFamily" = "Victor Mono Nerd Font Mono";
           "files.insertFinalNewline" = true;
           "editor.fontLigatures" = true;
           "editor.formatOnSave" = true;
