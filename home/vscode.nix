@@ -13,7 +13,7 @@
       default = {
         extensions = with pkgs.vscode-extensions; [
           catppuccin.catppuccin-vsc
-          #catppuccin.catppuccin-vsc-icons
+          catppuccin.catppuccin-vsc-icons
           #streetsidesoftware.code-spell-checker
           dbaeumer.vscode-eslint
           esbenp.prettier-vscode
@@ -93,9 +93,9 @@
                   "keyboard.control.from.ts"
                   "keyboard.control.from.tsx"
                 ];
-                "settings" = {
-                  "fontStyle" = "italic";
-                };
+                # "settings" = {
+                #   "fontStyle" = "italic";
+                # };
               }
             ];
           };
