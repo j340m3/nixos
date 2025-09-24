@@ -7,8 +7,9 @@
   home.packages = with pkgs; [ 
     nixfmt-rfc-style
     nerd-fonts.victor-mono
+    rnix-lsp
   ];
-
+  
   programs.vscode = {
     enable = true;
     package = pkgs.vscodium;
