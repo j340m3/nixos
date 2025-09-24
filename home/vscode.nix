@@ -30,7 +30,7 @@
         ];
         userSettings = {
           # Nix
-
+          "nix.enableLanguageServer" = true;
 
           # Git
           "git.enableSmartCommit" = true;
