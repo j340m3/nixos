@@ -82,7 +82,7 @@
         name = host;
         value = nixpkgs-master.lib.nixosSystem {
           specialArgs = {
-            inherit inputs outputs lib constants home-manager;
+            inherit inputs outputs lib constants home-manager stylix;
           };
           modules = [ 
             ./hosts/${host} 
