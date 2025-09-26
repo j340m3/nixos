@@ -122,7 +122,10 @@ let
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
-  
+  nix.settings.max-jobs = 6;
+  nix.settings.cores = 6;
+  nix.distributedBuilds = lib.mkForce false;
+
   users.groups.plugdev = {};
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.jeromeb = {
