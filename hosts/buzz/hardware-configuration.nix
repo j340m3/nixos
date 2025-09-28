@@ -63,7 +63,7 @@
     interval = "weekly";
   };
 
-  services.beesd.fileSystems = {
+  services.beesd.filesystems = {
     root = {
       hashTableSizeMB = 64;
       spec = "/";
