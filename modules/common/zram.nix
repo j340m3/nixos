@@ -11,7 +11,7 @@
       enable = true;
       algorithm = lib.mkDefault "lz4";
       memoryPercent = 100;
-      writebackPartition = lib.mkIf (config.writebackPartition != "") config.writebackPartition;
+      writebackDevice = lib.mkIf (config.writebackPartition != "") config.writebackPartition;
     };
     boot.kernel.sysctl = { 
       "vm.swappiness" = lib.mkDefault 180;
