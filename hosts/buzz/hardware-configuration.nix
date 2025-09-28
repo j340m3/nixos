@@ -63,6 +63,15 @@
     interval = "weekly";
   };
 
+  services.beesd.fileSystems = {
+    root = {
+      hashTableSizeMB = 64;
+      spec = "/";
+      verbosity = "crit";
+      extraOptions = [ "--loadavg-target" "5.0" ];
+    };
+  };
+
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
   # still possible to use this option, but it's recommended to use it in conjunction
