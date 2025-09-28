@@ -85,7 +85,7 @@
         trusted-public-keys = [ "cache.kauderwels.ch:0fswEglSoELjSBSMOuvnLAXMstePxzeTmOTYziR7z+Y=" "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="];
         experimental-features = [ "nix-command" "flakes" ];
         auto-optimise-store = true;
-        max-jobs = lib.mkDefault 0;
+        max-jobs = lib.mkDefault 1;
         cores = lib.mkDefault 1;
         min-free = lib.mkDefault "${toString (100 * 1024 * 1024)}";
         max-free = lib.mkDefault "${toString (1024 * 1024 * 1024)}";
