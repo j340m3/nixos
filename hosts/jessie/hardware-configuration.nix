@@ -63,6 +63,15 @@
     interval = "weekly";
   };
 
+  services.beesd.fileSystems = {
+    root = {
+      hashTableSizeMB = 64;
+      spec = "/";
+      verbosity = "crit";
+      extraOptions = [ "--loadavg-target" "5.0" ];
+    };
+  };
+
   swapDevices = [ { device = "/nix/persist/swapfile"; size = 2048; } ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
