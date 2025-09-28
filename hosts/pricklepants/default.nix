@@ -24,6 +24,7 @@ in
   nix.gc.options = lib.mkForce "-d";
   #boot.kernelPackages = pkgs.linuxPackages_zen;
   
+  boot.loader.grub.configurationLimit = 2;
   #system.autoUpgrade.dates = lib.mkForce "daily";
   
   #nix.package = pkgs.nix;
