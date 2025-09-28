@@ -31,7 +31,7 @@ in */
   boot.loader.grub.useOSProber = true;
 
   #boot.kernelPackages = pkgs.linuxPackages_zen;
-  boot.kernelPackages = pkgs.linuxPackages_cachyos;
+  #boot.kernelPackages = pkgs.linuxPackages_cachyos;
 
   swapDevices = [ { device = "/swapfile"; size = 2048; } ];
   boot.tmp.cleanOnBoot = true;
