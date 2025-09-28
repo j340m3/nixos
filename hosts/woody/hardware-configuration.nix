@@ -25,7 +25,7 @@
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
-  swapDevices =
+  swapDevices = lib.mkForce
     [ 
       #{ device = "/dev/disk/by-uuid/0eba583c-551f-48b0-b920-78bcd0c99521"; }
     ];
