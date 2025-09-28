@@ -63,11 +63,6 @@
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
   
-  programs.command-not-found = {
-    enable = true;
-  }
-  environment.variables.NIX_AUTO_RUN = "1";
-  
 
   # Configure keymap in X11
   # services.xserver.xkb.layout = "us";
