@@ -1,4 +1,5 @@
 { pkgs
+, lib
 , ...
 }: {
   home.packages = with pkgs; [ 
@@ -110,7 +111,7 @@
             ];
           };
 
-          # "workbench.colorTheme" = "Catppuccin Frappé";
+          "workbench.colorTheme" = lib.mkForce "Catppuccin Frappé";
           "workbench.iconTheme" = "catppuccin-frappe";
         };
       };

@@ -27,21 +27,11 @@
 in {
   config = {
     # ---- System Configuration ----
-    services.xserver = {
-      enable = true;
-      desktopManager.mate.enable = true;
-    };
 
-    xdg.portal.enable = true;
-    environment = {
-      pathsToLink = [ "/share/backgrounds" ]; # TODO: https://github.com/NixOS/nixpkgs/issues/47173
-      systemPackages = mate-packages ++ [
-        pkgs.xdg-user-dirs
-      ];
-    };
+    #xdg.portal.enable = true;
 
     # ---- Home Configuration ----
-    home-manager.users.jeromeb = { pkgs, ...}: {
+    
       home.packages = fontList;
       xdg.mimeApps = {
         enable = true;
@@ -224,5 +214,4 @@ in {
         };
       };
     };
-  };
 }

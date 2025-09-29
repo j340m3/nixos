@@ -1,4 +1,5 @@
 { pkgs
+, lib
 , ...
 }: 
 let
@@ -16,6 +17,26 @@ let
     };
   in 
 {
+  stylix.targets.librewolf = {
+    colorTheme.enable = true;
+    profileNames = [ "personal" ];
+  };
+
+  home.sessionVariables =  {
+    DEFAULT_BROWSER = lib.getExe pkgs.librewolf;
+    BROWSER = lib.getExe pkgs.librewolf;
+  };
+
+  xdg.mimeApps.defaultApplications = {
+    "application/pdf" = "librewolf.desktop";
+    "text/html" = "librewolf.desktop";
+    "x-scheme-handler/http" = "librewolf.desktop";
+    "x-scheme-handler/https" = "librewolf.desktop";
+    "x-scheme-handler/about" = "librewolf.desktop";
+    "x-scheme-handler/unknown" = "librewolf.desktop";
+  };
+
+
   programs.firefox = {
     enable = true;
     package = pkgs.librewolf;
@@ -122,5 +143,6 @@ let
         Exceptions = [];
       };
     };
+    
   };
 }

@@ -8,7 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ../../desktop-environments/mate.nix
+      ../../desktop-environments/xfce.nix
       #./hardened.nix
       ../../modules/common 
       ../../modules/logging.nix
@@ -135,6 +135,8 @@
   home-manager.backupFileExtension = "hmbackup";
   home-manager.users.jeromeb = import ../../home;
   home-manager.extraSpecialArgs = {inherit inputs; };
+  #stylix.homeManagerIntegration.followSystem = false;
+  #stylix.homeManagerIntegration.autoImport = false;
   # home-manager.useGlobalPkgs = true;
 /*   home-manager.users.jeromeb = {pkgs, ...} : {
     nixpkgs.config.allowUnfreePredicate = pkg:
