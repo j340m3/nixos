@@ -1,4 +1,4 @@
-{ config, pkgs, lib, constants, ... }:
+{ config, lib, constants, ... }:
 
 {
   services.harmonia.enable = true;

@@ -17,7 +17,6 @@ let
       Value = "";
       Status = "locked";
     };
-    dontCheckPython = drv: drv.overridePythonAttrs (old: { doCheck = false; });
   in 
 {
   programs.firefox = {

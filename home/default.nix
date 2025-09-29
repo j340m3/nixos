@@ -16,5 +16,6 @@
     btop
     git
     vulnix
+    wezterm
   ];
 }

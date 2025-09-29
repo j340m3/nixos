@@ -10,8 +10,8 @@
   stylix.enable = true;
   #stylix.homeManagerIntegration.followSystem = false;
   #stylix.homeManagerIntegration.autoImport = false;
-  stylix.base16Scheme = "${inputs.tinted-schemes}/base16/da-one-paper.yaml";
-  #stylix.polarity = "dark";
+  stylix.base16Scheme = "${inputs.tinted-schemes}/base16/catppuccin-frappe.yaml";
+  #stylix.polarity = "light";
   stylix.fonts = {
     monospace = {
       package = pkgs.nerd-fonts.victor-mono;
