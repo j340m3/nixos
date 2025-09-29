@@ -1,7 +1,8 @@
-{ pkgs, ... }:
+{ pkgs, inputs,... }:
 {
   imports = [
-    #./style.nix
+    inputs.stylix.homeModules.stylix
+    ./style.nix
     ./vscode.nix
     ./browser.nix
     ./accounts.nix
@@ -14,5 +15,6 @@
   home.packages = with pkgs; [
     btop
     git
+    vulnix
   ];
 }

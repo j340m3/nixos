@@ -6,7 +6,6 @@
 }: {
   home.packages = with pkgs; [ 
     nixfmt-rfc-style
-    nerd-fonts.victor-mono
     nil
   ];
   
@@ -114,7 +113,7 @@
             ];
           };
 
-          "workbench.colorTheme" = "Catppuccin Frappé";
+          # "workbench.colorTheme" = "Catppuccin Frappé";
           "workbench.iconTheme" = "catppuccin-frappe";
         };
       };

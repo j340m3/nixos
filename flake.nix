@@ -1,8 +1,12 @@
 {
+# =============================================================================
+# Inputs
+# =============================================================================
+
   inputs = {
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05"; #TODO: Remove unused
     nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
     chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
 
@@ -60,21 +64,32 @@
       url = "github:nix-community/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    tinted-schemes = {
+      flake = false;
+      url = "github:tinted-theming/schemes";
+    };
+
+    # Apple font
+    apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
+    apple-fonts.inputs.nixpkgs.follows = "nixpkgs";
   };
+
+# =============================================================================
+# Outputs
+# =============================================================================
+
   outputs = { nixpkgs, nixpkgs-master, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, comin, nixos-hardware, peerix, oom-hardware, chaotic, stylix,... } @ inputs: 
   let
     inherit (nixpkgs) lib;
+    # Constants represent variables which are important for multiple hosts
     constants = (import ./global/constants.nix);
   in
   {
-    /* nixpkgs-master.overlays = [ (final: prev: {
-    inherit (final.lixPackageSets.stable)
-      nixpkgs-review
-      nix-direnv
-      nix-eval-jobs
-      nix-fast-build
-      colmena;
-  }) ]; */
+
+# -----------------------------------------------------------------------------
+# NixOS Hosts - Each folder in ./hosts is one host-config
+# ----------------------------------------------------------------------------- 
 
     nixosConfigurations = builtins.listToAttrs (
       map (host: {
@@ -83,35 +98,22 @@
           specialArgs.inputs = inputs;
           specialArgs.constants = constants;
           modules = [ 
-            #inputs.home-manager.nixosModules.home-manager
-            #inputs.stylix.nixosModules.stylix
             ./hosts/${host} 
             inputs.chaotic.nixosModules.default
-            #inputs.lix-module.nixosModules.default
           ];
         };
       }) (builtins.attrNames (builtins.readDir ./hosts))
     );
+# -----------------------------------------------------------------------------
+# home-manager configurations
+# -----------------------------------------------------------------------------
     homeConfigurations = {
-      # FIXME replace with your username@hostname
       "jeromeb" = home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {system = "x86_64-linux";};
-        extraSpecialArgs = {};
-        # > Our main home-manager configuration file <
+        extraSpecialArgs = {inherit inputs; };
         modules = [
-          /* home-manager.nixosModules.home-manager
-          {
-            home = {
-              username = "jeromeb";
-              homeDirectory = "/home/jeromeb";
-            };
-          } */
-          inputs.stylix.homeModules.stylix
           ./home
-          #inputs.plasma-manager.homeModules.plasma-manager
-          #./home/kde/plasma.nix
         ];
-        #programs.home-manager.enable = true;
       };
     };
     # packages.x86_64-linux = {

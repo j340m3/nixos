@@ -50,25 +50,6 @@ in {
         };
       };
 
-      dconf.settings = {
-          "org/mate/desktop/interface" = {
-              gtk-theme = gtkTheme;
-              icon-theme = gtkIconTheme;
-              color-scheme = "prefer-dark";
-          };
-
-          "org/mate/marco/general" = {
-              theme = gtkTheme;
-          };
-
-          "org/mate/desktop/peripherals/mouse" = {
-              cursor-theme = gtkCursorTheme;
-          };
-
-          #"org/mate/desktop/background" = {
-          #    picture-filename = "/run/current-system/sw/share/backgrounds/athena/"+backgroundTheme;
-          #};
-      };
 
       # It copies "./config/menus/gnome-applications.menu" source file to the nix store, and then symlinks it to the location.
       #xdg.configFile."menus/applications-merged/mate-applications.menu".source = ./config/menus/applications-merged/mate-applications.menu;
