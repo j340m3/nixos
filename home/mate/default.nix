@@ -1,4 +1,4 @@
-{ lib, pkgs, config, ...}: let
+{ pkgs, ...}: let
   mate-packages = with pkgs.mate; [
     caja-with-extensions
     eom
