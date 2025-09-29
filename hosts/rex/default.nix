@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, home-manager, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 
 {
@@ -18,7 +18,7 @@
       #../../modules/peerix.nix
       ../../modules/cool-shell.nix
       ../../modules/google-drive.nix
-      home-manager.nixosModules.home-manager
+      inputs.home-manager.nixosModules.home-manager
     ];
 
   # Bootloader.
