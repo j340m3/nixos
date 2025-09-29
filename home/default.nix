@@ -1,11 +1,11 @@
 { pkgs, ... }:
 {
   imports = [
-    ./style.nix
+    #./style.nix
     ./vscode.nix
     ./browser.nix
     ./accounts.nix
-    ./mate
+    #./mate
   ];
   home.username = "jeromeb";
   home.homeDirectory = "/home/jeromeb";
