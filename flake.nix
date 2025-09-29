@@ -61,9 +61,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs = { self, nixpkgs, nixpkgs-master, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, nixos-hardware, peerix, oom-hardware, chaotic, stylix,... } @ inputs : 
+  outputs = { nixpkgs, nixpkgs-master, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, comin, nixos-hardware, peerix, oom-hardware, chaotic, stylix,... } @ inputs: 
   let
-    inherit (self) outputs;
     inherit (nixpkgs) lib;
     constants = (import ./global/constants.nix);
   in
@@ -81,12 +80,11 @@
       map (host: {
         name = host;
         value = nixpkgs-master.lib.nixosSystem {
-          specialArgs = {
-            inherit inputs outputs lib constants home-manager stylix;
-          };
+          specialArgs.inputs = inputs;
           modules = [ 
+            #inputs.home-manager.nixosModules.home-manager
             ./hosts/${host} 
-            chaotic.nixosModules.default
+            inputs.chaotic.nixosModules.default
             #inputs.lix-module.nixosModules.default
           ];
         };
@@ -187,7 +185,7 @@
       # FIXME replace with your username@hostname
       "jeromeb" = home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {system = "x86_64-linux";};
-        extraSpecialArgs = {inherit inputs outputs;};
+        extraSpecialArgs = {inherit stylix;};
         # > Our main home-manager configuration file <
         modules = [
           /* home-manager.nixosModules.home-manager
@@ -197,6 +195,7 @@
               homeDirectory = "/home/jeromeb";
             };
           } */
+          inputs.stylix.homeModules.stylix
           ./home
           #inputs.plasma-manager.homeModules.plasma-manager
           #./home/kde/plasma.nix
@@ -204,8 +203,8 @@
         #programs.home-manager.enable = true;
       };
     };
-    packages.x86_64-linux = {
-      image = self.nixosConfigurations.bootstrap.config.system.build.diskoImages;
-    };
+    # packages.x86_64-linux = {
+    #   image = self.nixosConfigurations.bootstrap.config.system.build.diskoImages;
+    # };
   };
 }
