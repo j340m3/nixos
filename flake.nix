@@ -81,8 +81,10 @@
         name = host;
         value = nixpkgs-master.lib.nixosSystem {
           specialArgs.inputs = inputs;
+          specialArgs.constants = constants;
           modules = [ 
             #inputs.home-manager.nixosModules.home-manager
+            #inputs.stylix.nixosModules.stylix
             ./hosts/${host} 
             inputs.chaotic.nixosModules.default
             #inputs.lix-module.nixosModules.default
@@ -90,102 +92,11 @@
         };
       }) (builtins.attrNames (builtins.readDir ./hosts))
     );
-    /* nixosConfigurations.pricklepants = nixpkgs.lib.nixosSystem {
-      specialArgs = {inherit inputs outputs;};
-      system = "x86_64-linux";
-      modules = [ 
-        ./hosts/pricklepants/configuration.nix
-        sops-nix.nixosModules.sops
-        peerix.nixosModules.peerix
-      ];
-    };
-    nixosConfigurations.woody = nixpkgs.lib.nixosSystem {
-      specialArgs = {inherit inputs outputs;};
-      system = "x86_64-linux";
-      modules = [ 
-        peerix.nixosModules.peerix
-        #inputs.nixos-facter-modules.nixosModules.facter
-        #  { config.facter.reportPath = ./hosts/woody/facter.json; }
-        ./hosts/woody/configuration.nix
-        sops-nix.nixosModules.sops
-        
-      ];
-    };
-    nixosConfigurations.lenny = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      specialArgs = {
-        inherit inputs outputs;
-        pkgs-2411 = import nixpkgs-2411 {
-            # Refer to the `system` parameter from
-            # the outer scope recursively
-            system = "x86_64-linux";
-            # To use Chrome, we need to allow the
-            # installation of non-free software.
-            config.allowUnfree = true;
-          };
-      };
-      modules = [ 
-        ./hosts/lenny/configuration.nix
-        nixos-hardware.nixosModules.lenovo-thinkpad-x230
-        sops-nix.nixosModules.sops
-        peerix.nixosModules.peerix
-      ];
-    };
-    nixosConfigurations.rex = nixpkgs.lib.nixosSystem {
-      specialArgs = {inherit inputs outputs;};
-      system = "x86_64-linux";
-      modules = [ 
-        ./hosts/rex/configuration.nix
-        sops-nix.nixosModules.sops
-        peerix.nixosModules.peerix
-      ];
-    };
-    nixosConfigurations.bootstrap = nixpkgs.lib.nixosSystem {
-      specialArgs = {inherit inputs outputs;};
-      system = "x86_64-linux";
-      modules = [ 
-        ./hosts/bootstrap/configuration.nix
-        sops-nix.nixosModules.sops
-        inputs.disko.nixosModules.disko
-        inputs.impermanence.nixosModules.impermanence
-      ];
-    };
-    nixosConfigurations.buzz = nixpkgs.lib.nixosSystem {
-      specialArgs = {inherit inputs outputs;};
-      system = "x86_64-linux";
-      modules = [ 
-        ./hosts/buzz/configuration.nix
-        sops-nix.nixosModules.sops
-        inputs.disko.nixosModules.disko
-        inputs.impermanence.nixosModules.impermanence
-        peerix.nixosModules.peerix
-      ];
-    };
-    nixosConfigurations.jessie = nixpkgs.lib.nixosSystem {
-      specialArgs = {inherit inputs outputs;};
-      system = "x86_64-linux";
-      modules = [ 
-        ./hosts/jessie/configuration.nix
-        sops-nix.nixosModules.sops
-        inputs.disko.nixosModules.disko
-        inputs.impermanence.nixosModules.impermanence
-      ];
-    }; 
-    nixosConfigurations.slinky = nixpkgs.lib.nixosSystem {
-      specialArgs = {inherit inputs outputs;};
-      system = "aarch64-linux";
-      modules = [ 
-        ./hosts/slinky/configuration.nix
-        sops-nix.nixosModules.sops
-        nixos-hardware.nixosModules.raspberry-pi-4
-        oom-hardware.nixosModules.uconsole
-      ];
-    }; */
     homeConfigurations = {
       # FIXME replace with your username@hostname
       "jeromeb" = home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {system = "x86_64-linux";};
-        extraSpecialArgs = {inherit stylix;};
+        extraSpecialArgs = {};
         # > Our main home-manager configuration file <
         modules = [
           /* home-manager.nixosModules.home-manager
