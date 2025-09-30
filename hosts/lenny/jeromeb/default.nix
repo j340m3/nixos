@@ -17,6 +17,6 @@
     ];
   };
   home-manager.backupFileExtension = "hmbackup";
-  home-manager.users.jeromeb = import ../../home;
+  home-manager.users.jeromeb = import ../../../home;
   home-manager.extraSpecialArgs = {inherit inputs; };
 }
