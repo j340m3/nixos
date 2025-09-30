@@ -1,6 +1,6 @@
 {pkgs,inputs,...}:{
   imports = [
-    ../../desktop-environments/xfce.nix
+    ../../../desktop-environments/xfce.nix
     inputs.home-manager.nixosModules.home-manager
   ];
 
