@@ -1,4 +1,9 @@
-{pkgs,...}:{
+{pkgs,inputs,...}:{
+  imports = [
+    ../../desktop-environments/xfce.nix
+    inputs.home-manager.nixosModules.home-manager
+  ];
+
   system.nixos.tags = [ "jeromeb" ];
   users.users.jeromeb = {
     isNormalUser = true;
@@ -11,4 +16,7 @@
     #  thunderbird
     ];
   };
+  home-manager.backupFileExtension = "hmbackup";
+  home-manager.users.jeromeb = import ../../home;
+  home-manager.extraSpecialArgs = {inherit inputs; };
 }
