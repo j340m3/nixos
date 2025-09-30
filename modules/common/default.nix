@@ -9,6 +9,7 @@
     ./zram.nix
     ./domain.nix
     ./distributed-builds.nix
+    ./lockup.nix
     ../../users/donquezz.nix
   ];
 }
