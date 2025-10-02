@@ -22,6 +22,7 @@
       ../../modules/minecraft-bedrock.nix
       ../../modules/minecraft-java.nix
       ../../modules/remote-builder.nix
+      ../../modules/matrix3.nix
     ];
 
   #system.autoUpgrade.dates = lib.mkForce "daily";
