@@ -10,6 +10,7 @@
     description  = "Jerome";
     extraGroups  = [ "wheel" "networkmanager" ];
     hashedPassword = "$y$j9T$xI3Gvnwn4Q900uL0HQZHp/$fl5oFfnZWZWBz.6gPxvciND13komHHAXDqq6Yfpjn17";
+    uid = 1003;
     openssh.authorizedKeys.keys = [
 	    ''ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKv3fhY8KfwN4GFxXpbWLCfNl4ZP+v+C59CIxXhj0SyB jerome@DESKTOP-B7K2FBB'' 
       ''ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICBx/L/AY2505t1Sj1yyugnK6Cf2QuIECx8kXxyoks3f jeromeb@nixos''
