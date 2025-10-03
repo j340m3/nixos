@@ -18,6 +18,8 @@ in */
       ../../modules/nebula.nix
       ../../modules/zabbix.nix
       ../../modules/wifi.nix
+      ./jeromeb
+      ./lilly
     ];
 
   /* _module.args.pkgsUnstable = import inputs.nixpkgs-master {
@@ -106,12 +108,12 @@ in */
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  specialisation = {
+ /*  specialisation = {
     jeromeb = {
       configuration = (import ./jeromeb);
     };
     lilly.configuration = (import ./lilly);
-  };
+  }; */
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
