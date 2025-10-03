@@ -107,7 +107,9 @@ in */
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   specialisation = {
-    jeromeb.configuration = (import ./jeromeb);
+    jeromeb = {
+      configuration = (import ./jeromeb);
+    };
     lilly.configuration = (import ./lilly);
   };
 

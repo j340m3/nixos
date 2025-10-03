@@ -9,7 +9,6 @@
     isNormalUser = true;
     description = "Jerome Bergmann";
     extraGroups = [ "networkmanager" "wheel" ];
-    uid = 1001;
     packages = with pkgs; [
       firefox
     #  kate
