@@ -71,6 +71,9 @@ in */
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   xdg.portal.enable = true;
+  xdg.portal.extraPortals =[
+    pkgs.xdg-desktop-portal-gtk
+];
   
 
   # Configure keymap in X11
@@ -132,7 +135,6 @@ in */
     #pkgs-2411.signaldctl
     pkgs.htop
     pkgs.kdePackages.discover
-    pkgs.xdg-desktop-portal-gtk
   ];
   
   # Some programs need SUID wrappers, can be configured further or are
