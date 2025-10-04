@@ -11,7 +11,7 @@
       font-manager
       gimp-with-plugins
       file-roller
-      gnome.gnome-disk-utility
+      gnome-disk-utility
       inkscape-with-extensions
       libqalculate
       orca
