@@ -6,7 +6,7 @@
     ./vscode.nix
     ./browser.nix
     ./accounts.nix
-    ./mate
+    ./xfce
   ];
   home.username = "jeromeb";
   home.homeDirectory = "/home/jeromeb";
