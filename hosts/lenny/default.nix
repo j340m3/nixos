@@ -71,7 +71,10 @@ in */
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
-
+  xdg.portal.enable = true;
+  xdg.portal.extraPortals =[
+    pkgs.xdg-desktop-portal-gtk
+];
   
 
   # Configure keymap in X11
