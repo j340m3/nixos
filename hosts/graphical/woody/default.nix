@@ -24,20 +24,20 @@ let
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ../../modules/common 
-      ../../users/donquezz.nix
-      ../../modules/loghost.nix
-      ../../modules/borg-server.nix
-      ../../modules/remote-builder.nix
-      #../../modules/peerix.nix
-      ../../modules/reticulum.nix
-      ../../desktop-environments/kde.nix
-      #../../desktop-environments/mate.nix
-      ../../modules/wifi.nix
-      ../../modules/immich.nix
-      ../../modules/paperless.nix
-      ../../modules/harmonia.nix
-      ../../modules/nfs-fee.nix
+      ../../../modules/common 
+      ../../../users/donquezz.nix
+      ../../../modules/loghost.nix
+      ../../../modules/borg-server.nix
+      ../../../modules/remote-builder.nix
+      #../../../modules/peerix.nix
+      ../../../modules/reticulum.nix
+      ../../../desktop-environments/kde.nix
+      #../../../desktop-environments/mate.nix
+      ../../../modules/wifi.nix
+      ../../../modules/immich.nix
+      ../../../modules/paperless.nix
+      ../../../modules/harmonia.nix
+      ../../../modules/nfs-fee.nix
       
       # ./firefox.nix
       #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
