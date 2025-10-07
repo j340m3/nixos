@@ -11,18 +11,18 @@
       #../bootstrap
       (modulesPath + "/profiles/minimal.nix")
       (modulesPath + "/profiles/headless.nix")
-      ../../modules/hardening.nix
+      ../../../modules/hardening.nix
       #../../modules/swap.nix
-      ../../modules/common 
-      ../../users/donquezz.nix
-      ../../modules/logging.nix
-      ../../modules/persistence.nix
-      ../../modules/nebula.nix
-      ../../modules/zabbix.nix
-      ../../modules/minecraft-bedrock.nix
-      ../../modules/minecraft-java.nix
-      ../../modules/remote-builder.nix
-      ../../modules/matrix3.nix
+      ../../../modules/common 
+      ../../../users/donquezz.nix
+      ../../../modules/logging.nix
+      ../../../modules/persistence.nix
+      ../../../modules/nebula.nix
+      ../../../modules/zabbix.nix
+      ../../../modules/minecraft-bedrock.nix
+      ../../../modules/minecraft-java.nix
+      ../../../modules/remote-builder.nix
+      ../../../modules/matrix3.nix
     ];
 
   #system.autoUpgrade.dates = lib.mkForce "daily";

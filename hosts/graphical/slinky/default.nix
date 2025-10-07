@@ -16,12 +16,12 @@
       inputs.nixos-hardware.nixosModules.raspberry-pi-4
       inputs.oom-hardware.nixosModules.uconsole
       ./uConsole.nix
-      ../../modules/common 
-      ../../modules/vscodium.nix
-      ../../modules/logging.nix
-      ../../modules/nebula.nix
-      ../../modules/zabbix.nix
-      ../../modules/wifi.nix
+      ../../../modules/common 
+      ../../../modules/vscodium.nix
+      ../../../modules/logging.nix
+      ../../../modules/nebula.nix
+      ../../../modules/zabbix.nix
+      ../../../modules/wifi.nix
     ]
     ++ lib.optional (builtins.pathExists ./local.nix) ./local.nix;
 

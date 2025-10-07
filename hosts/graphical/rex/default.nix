@@ -8,15 +8,15 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ../../desktop-environments/xfce.nix
+      ../../../desktop-environments/xfce.nix
       #./hardened.nix
-      ../../modules/common 
-      ../../modules/logging.nix
-      ../../modules/nebula.nix
-      ../../modules/zabbix.nix
+      ../../../modules/common 
+      ../../../modules/logging.nix
+      ../../../modules/nebula.nix
+      ../../../modules/zabbix.nix
       #../../modules/peerix.nix
       #../../modules/cool-shell.nix
-      ../../modules/google-drive.nix
+      ../../../modules/google-drive.nix
       inputs.home-manager.nixosModules.home-manager
     ];
 

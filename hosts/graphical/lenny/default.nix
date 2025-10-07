@@ -13,14 +13,14 @@ in */
       inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x230
       #<nixos-hardware/lenovo/thinkpad/x230>
       ./hardware-configuration.nix
-      ../../modules/common 
-      ../../modules/logging.nix
-      ../../modules/nebula.nix
-      ../../modules/zabbix.nix
-      ../../modules/wifi.nix
+      ../../../modules/common 
+      ../../../modules/logging.nix
+      ../../../modules/nebula.nix
+      ../../../modules/zabbix.nix
+      ../../../modules/wifi.nix
       ./jeromeb
       ./lilly
-      ../../desktop-environments/xfce.nix
+      ../../../desktop-environments/xfce.nix
     ];
 
   /* _module.args.pkgsUnstable = import inputs.nixpkgs-master {

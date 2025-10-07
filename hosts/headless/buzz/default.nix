@@ -15,13 +15,13 @@
       #../bootstrap --> TODO: Check buzz if hes doing alright
       (modulesPath + "/profiles/minimal.nix")
       (modulesPath + "/profiles/headless.nix")
-      ../../modules/hardening.nix
-      ../../modules/swap.nix
-      ../../modules/common 
-      ../../users/donquezz.nix
-      ../../modules/logging.nix
-      ../../modules/persistence.nix
-      ../../modules/zabbix.nix
+      ../../../modules/hardening.nix
+      ../../../modules/swap.nix
+      ../../../modules/common 
+      ../../../users/donquezz.nix
+      ../../../modules/logging.nix
+      ../../../modules/persistence.nix
+      ../../../modules/zabbix.nix
       #../../modules/nebula.nix
     ];
 
