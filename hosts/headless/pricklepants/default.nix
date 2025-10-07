@@ -6,7 +6,7 @@ in
     ./hardware-configuration.nix
     (modulesPath + "/profiles/minimal.nix")
     (modulesPath + "/profiles/headless.nix")
-    ../../../../modules/hardening.nix
+    ../../../modules/hardening.nix
     ../../../modules/matrix2.nix
     ../../../modules/minetest.nix
     ../../../modules/vaultwarden.nix

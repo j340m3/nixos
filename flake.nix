@@ -102,7 +102,8 @@
             inputs.chaotic.nixosModules.default
           ];
         };
-      }) (builtins.attrNames (builtins.readDir ./hosts/graphical))) ++
+      }) (builtins.attrNames (builtins.readDir ./hosts/graphical))) 
+      ++
       (map (host: {
         name = host;
         value = nixpkgs-master.lib.nixosSystem {
