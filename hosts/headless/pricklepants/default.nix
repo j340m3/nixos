@@ -1,5 +1,5 @@
 { modulesPath, config, pkgs, lib, inputs, constants, ... }: 
-let rootPath = ../../.;
+let rootPath = ../../../.;
 in
 {
   imports = [
