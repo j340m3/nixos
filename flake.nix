@@ -92,17 +92,28 @@
 # ----------------------------------------------------------------------------- 
 
     nixosConfigurations = builtins.listToAttrs (
-      map (host: {
+      (map (host: {
+        name = host;
+        value = nixpkgs.lib.nixosSystem {
+          specialArgs.inputs = inputs;
+          specialArgs.constants = constants;
+          modules = [ 
+            ./hosts/graphical/${host} 
+            inputs.chaotic.nixosModules.default
+          ];
+        };
+      }) (builtins.attrNames (builtins.readDir ./hosts/graphical))) ++
+      (map (host: {
         name = host;
         value = nixpkgs-master.lib.nixosSystem {
           specialArgs.inputs = inputs;
           specialArgs.constants = constants;
           modules = [ 
-            ./hosts/${host} 
+            ./hosts/headless/${host} 
             inputs.chaotic.nixosModules.default
           ];
         };
-      }) (builtins.attrNames (builtins.readDir ./hosts))
+      }) (builtins.attrNames (builtins.readDir ./hosts/headless)))
     );
 # -----------------------------------------------------------------------------
 # home-manager configurations
