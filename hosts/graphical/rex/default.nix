@@ -133,7 +133,7 @@
   services.udev.packages = [ pkgs.libfido2 ];
   # Install firefox.
   home-manager.backupFileExtension = "hmbackup";
-  home-manager.users.jeromeb = import ../../home;
+  home-manager.users.jeromeb = import ../../../home;
   home-manager.extraSpecialArgs = {inherit inputs; };
   #stylix.homeManagerIntegration.followSystem = false;
   #stylix.homeManagerIntegration.autoImport = false;
