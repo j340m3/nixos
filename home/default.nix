@@ -29,6 +29,7 @@
     signal-desktop
     telegram-desktop
     radicle-desktop
+    radicle-node
   ];
   nixpkgs.config.allowUnfreePredicate =
     pkg:
