@@ -1,11 +1,17 @@
-{pkgs,inputs,lib,...}:{
+{
+  pkgs,
+  inputs,
+  lib,
+  ...
+}:
+{
   imports = [
-    
+
   ];
 
   stylix.autoEnable = true;
   stylix.enable = true;
-  
+
   stylix.base16Scheme = "${inputs.tinted-schemes}/base16/catppuccin-frappe.yaml";
   #stylix.polarity = "light";
   stylix.fonts = {
@@ -38,5 +44,5 @@
     light = "WhiteSur-light";
   };
 
-  stylix.targets.firefox.profileNames = ["personal"];
+  stylix.targets.firefox.profileNames = [ "personal" ];
 }
