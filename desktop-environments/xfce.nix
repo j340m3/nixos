@@ -51,7 +51,7 @@
       xorg.xev
       xsel
       xtitle
-      xwinmosaic
+      #xwinmosaic
     ];
   };
 

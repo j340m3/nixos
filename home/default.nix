@@ -30,6 +30,7 @@
     telegram-desktop
     radicle-desktop
     radicle-node
+    sops
   ];
   nixpkgs.config.allowUnfreePredicate =
     pkg:

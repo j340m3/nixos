@@ -4,8 +4,8 @@
   gtk = {
     enable = true;
     theme = {
-      package = pkgs.whitesur-gtk-theme;
-      name = "WhiteSur-dark-solid";
+      package = lib.mkForce pkgs.whitesur-gtk-theme;
+      name = lib.mkForce "WhiteSur-Dark";
     };
     # iconTheme = {
     #   package = pkgs.whitesur-icon-theme.override {
@@ -26,11 +26,8 @@
     };
   };
 
-  qt.kvantum.theme = {
-    package = pkgs.my.whitesur-kde;
-    dir = "WhiteSur-solid";
-    name = "WhiteSur-solid";
-  };
+  home.sessionVariables.GTK_THEME = "WhiteSur-Dark";
+
   stylix.targets.xfce.enable = true;
 
   programs.gpg.enable = true;
