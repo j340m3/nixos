@@ -27,7 +27,8 @@ with lib;
       locations."/" = {
         proxyPass = "http://127.0.0.1:${toString config.services.vaultwarden.config.ROCKET_PORT}";
       };
-      sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
+      # sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
+      sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
       sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
     };
   };
