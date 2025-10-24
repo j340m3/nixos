@@ -170,6 +170,9 @@
           port = 53;
         };
       };
+      static_map = {
+        network = "ip";
+      };
       cipher = "aes";
       punchy = {
         punch = true;

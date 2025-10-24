@@ -38,6 +38,7 @@ let
       ../../../modules/paperless.nix
       ../../../modules/harmonia.nix
       ../../../modules/nfs-fee.nix
+      ../../../modules/nebula.nix
       
       # ./firefox.nix
       #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
@@ -482,15 +483,15 @@ let
         punchy.punch=true;
         punchy.respond=true;
         };
-    cert = "/etc/nebula/woody.crt";
-    key = "/etc/nebula/woody.key";
-    ca = "/etc/nebula/ca.crt";
-    staticHostMap = {
-        "10.0.0.1" = [
-                "194.164.125.154:4242"
-                ];
-        "10.0.0.5" = [ "194.164.54.40:4242" ];
-        };
+    # cert = "/etc/nebula/woody.crt";
+    # key = "/etc/nebula/woody.key";
+    # ca = "/etc/nebula/ca.crt";
+    # staticHostMap = {
+    #     "10.0.0.1" = [
+    #             "194.164.125.154:4242"
+    #             ];
+    #     "10.0.0.5" = [ "194.164.54.40:4242" ];
+    #     };
     firewall.outbound = [
       {
         cidr = constants.nebula.cidr;
