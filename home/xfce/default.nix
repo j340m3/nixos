@@ -33,7 +33,4 @@
   programs.gpg.enable = true;
 
   services.gpg-agent.enable = true;
-
-  # xfce-terminal use system font
-  programs.xfconf.enable = true; #https://github.com/NixOS/nixpkgs/issues/256428
 }
