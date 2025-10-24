@@ -1,4 +1,4 @@
-{ modulesPath, config, pkgs, lib, inputs, constants, ... }: 
+{ modulesPath, pkgs, lib, constants, ... }: 
 let rootPath = ../../../.;
 in
 {
