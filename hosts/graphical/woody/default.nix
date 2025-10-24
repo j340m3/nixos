@@ -483,9 +483,9 @@ let
         punchy.punch=true;
         punchy.respond=true;
         };
-    # cert = "/etc/nebula/woody.crt";
-    # key = "/etc/nebula/woody.key";
-    # ca = "/etc/nebula/ca.crt";
+    cert = lib.mkForce "/etc/nebula/woody.crt";
+    key = lib.mkForce "/etc/nebula/woody.key";
+    ca = lib.mkForce "/etc/nebula/ca.crt";
     # staticHostMap = {
     #     "10.0.0.1" = [
     #             "194.164.125.154:4242"
