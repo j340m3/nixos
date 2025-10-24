@@ -359,7 +359,7 @@ let
 
   
   services.home-assistant = {
-    enable = true;
+    enable = false; #doesn't build!?
     extraComponents = [
       # Components required to complete the onboarding
       "esphome"
