@@ -1,4 +1,4 @@
-{config, lib, pkgs, constants, ...} :{
+{config, pkgs, constants, ...} :{
   environment.systemPackages = with pkgs; [
     nebula
   ];
@@ -27,15 +27,15 @@
     key = config.sops.secrets."nebula/self_key".path; #"/run/secrets/nebula/self.key";
     ca = config.sops.secrets."nebula/ca_crt".path; #"/run/secrets/nebula/ca.crt";
     staticHostMap = {
-        "10.0.0.1" = [
-                "194.164.125.154:4242"
-                
-                ];
-        "10.0.0.5" = [ 
-          "194.164.54.40:4242" 
-          "[2a01:239:27f:fd00::1]:4242"
-        ];
-        };
+      "10.0.0.1" = [
+        "194.164.125.154:4242"
+        "[2a00:da00:f43a:8800::1]:4242"
+      ];
+      "10.0.0.5" = [ 
+        "194.164.54.40:4242" 
+        "[2a01:239:27f:fd00::1]:4242"
+      ];
+    };
     firewall.outbound = [
       {
         cidr = constants.nebula.cidr;
