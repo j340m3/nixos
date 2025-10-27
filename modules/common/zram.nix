@@ -1,9 +1,9 @@
 {config,lib,pkgs,...}:{
   options = {
     writebackPartition = lib.mkOption {
-      type = lib.types.string;
+      type = lib.types.path;
       default = "";
-      description = "The writeback partition fro zramSwap.";
+      description = "The writeback partition for zramSwap.";
     };
   };
   config = {
