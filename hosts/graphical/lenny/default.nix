@@ -20,7 +20,7 @@ in */
       ../../../modules/wifi.nix
       ./jeromeb
       ./lilly
-      ../../../../desktop-environments/xfce.nix
+      ../../../desktop-environments/xfce.nix
     ];
 
   /* _module.args.pkgsUnstable = import inputs.nixpkgs-master {
