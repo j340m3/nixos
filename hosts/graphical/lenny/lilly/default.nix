@@ -23,7 +23,7 @@
       spotify
       cutechess
       stockfish
-      minetest
+      luanti
       flatpak
     #  kalk
     #  kate
