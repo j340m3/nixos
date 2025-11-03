@@ -1,4 +1,5 @@
-{pkgs,inputs,...}:{
+{ pkgs, inputs, ... }:
+{
   imports = [
     ../../../../desktop-environments/xfce.nix
     inputs.home-manager.nixosModules.home-manager
@@ -8,16 +9,19 @@
   users.users.jeromeb = {
     isNormalUser = true;
     description = "Jerome Bergmann";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
     hashedPassword = "$y$j9T$xI3Gvnwn4Q900uL0HQZHp/$fl5oFfnZWZWBz.6gPxvciND13komHHAXDqq6Yfpjn17";
     uid = 1002;
     packages = with pkgs; [
       firefox
-    #  kate
-    #  thunderbird
+      #  kate
+      #  thunderbird
     ];
   };
   home-manager.backupFileExtension = "hmbackup";
-  home-manager.users.jeromeb = import ../../../home;
-  home-manager.extraSpecialArgs = {inherit inputs; };
+  home-manager.users.jeromeb = import ../../../../home;
+  home-manager.extraSpecialArgs = { inherit inputs; };
 }
