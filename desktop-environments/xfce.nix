@@ -100,4 +100,8 @@
       desktopManager.xfce.enable = true;
     };
   };
+
+  # xfce-terminal use system font
+  programs.xfconf.enable = true; # https://github.com/NixOS/nixpkgs/issues/256428
+
 }

@@ -2,7 +2,7 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, modulesPath, inputs, constants, ... }:
+{ config, lib, pkgs, modulesPath, constants, ... }:
 
 {
   imports =
@@ -152,14 +152,15 @@
   services.nebula.networks.mesh = {
     enable = true;
     isLighthouse = true;
-    isRelay = true;
+    #isRelay = true;
     cert = config.sops.secrets."nebula/self_crt".path; #"/run/secrets/nebula/self.crt";
     key = config.sops.secrets."nebula/self_key".path; #"/run/secrets/nebula/self.key";
     ca = config.sops.secrets."nebula/ca_crt".path; #"/run/secrets/nebula/ca.crt";
     staticHostMap = {
-        "10.0.0.1" = [
-                "194.164.125.154:4242"
-                ];
+          "10.0.0.1" = [
+            "194.164.125.154:4242"
+            "[2a00:da00:f43a:8800::1]:4242"
+          ];
         };
     settings = {
       lighthouse = {
@@ -168,6 +169,9 @@
           host = "0.0.0.0";
           port = 53;
         };
+      };
+      static_map = {
+        network = "ip";
       };
       cipher = "aes";
       punchy = {

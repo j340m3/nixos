@@ -301,42 +301,6 @@
     };
   }; */
 
-  /* services.nebula.networks.mesh = {
-    enable = true;
-    isLighthouse = false;
-    lighthouses = [ "10.0.0.1" ];
-    relays = [ "10.0.0.1" ];
-    settings = {
-      cipher = "aes";
-      punchy.punch=true;
-      dns = {
-        host = "10.0.0.1";
-        port = 53;
-      };
-    };
-    cert = "/etc/nebula/rex.crt";
-    key = "/etc/nebula/rex.key";
-    ca = "/etc/nebula/ca.crt";
-    staticHostMap = {
-        "10.0.0.1" = [
-                "194.164.125.154:4242"
-                ];
-        };
-    firewall.outbound = [
-  {
-    cidr = constants.nebula.cidr;
-    port = "any";
-    proto = "any";
-  }
-];
-    firewall.inbound = [
-  {
-    cidr = constants.nebula.cidr;
-    port = "any";
-    proto = "any";
-  }
-];
-  }; */
   networking.nameservers = [ "10.0.0.1" "1.1.1.1" "8.8.8.8" "9.9.9.9" ];
   networking.useDHCP = lib.mkForce true;
 }

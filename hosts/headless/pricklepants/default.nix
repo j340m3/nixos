@@ -1,4 +1,4 @@
-{ modulesPath, config, pkgs, lib, inputs, constants, ... }: 
+{ modulesPath, pkgs, lib, constants, ... }: 
 let rootPath = ../../../.;
 in
 {
@@ -131,13 +131,16 @@ services.nginx = {
   services.nebula.networks.mesh = {
     enable = true;
     isLighthouse = true;
-    isRelay = true;
+    #isRelay = true;
     cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
     key = "/etc/nebula/pricklepants.key";
     ca = "/etc/nebula/ca.crt";
     staticHostMap = {
-        "10.0.0.5" = [ "194.164.54.40:4242" ];
-        };
+      "10.0.0.5" = [ 
+        "[2a01:239:27f:fd00::1]:4242"
+        "194.164.54.40:4242" 
+      ];
+    };
     settings = {
       lighthouse = {
         serve_dns = true;
@@ -145,6 +148,9 @@ services.nginx = {
           host = "0.0.0.0";
           port = 53;
         };
+      };
+      static_map = {
+        network = "ip";
       };
       cipher = "aes";
       punchy = {

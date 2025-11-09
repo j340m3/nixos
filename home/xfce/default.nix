@@ -29,7 +29,7 @@
   home.sessionVariables.GTK_THEME = "WhiteSur-Dark";
 
   stylix.targets.xfce.enable = true;
-
+  
   programs.gpg.enable = true;
 
   services.gpg-agent.enable = true;
