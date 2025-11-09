@@ -1,6 +1,7 @@
 {pkgs,...}:{
   system.nixos.tags = [ "lilly" ];
   users.users.lilly = {
+    hashedPassword = "$y$j9T$9nhgpZ1ZGEPdJW.NDaBZN/$Gpo9WnS8B8zGj9Ax19PRa2IdZSIxrkBKYLISRNsvd53";
     uid = 1001;
     isNormalUser = true;
     description = "Lilly Bergmann";
