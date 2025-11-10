@@ -39,7 +39,7 @@ let
       ../../../modules/harmonia.nix
       ../../../modules/nfs-fee.nix
       ../../../modules/nebula.nix
-      
+      ../../../modules/technitium.nix
       # ./firefox.nix
       #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
       #<home-manager/nixos>
