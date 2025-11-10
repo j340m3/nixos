@@ -301,6 +301,6 @@
     };
   }; */
 
-  networking.nameservers = [ "10.0.0.1" "1.1.1.1" "8.8.8.8" "9.9.9.9" ];
+  networking.nameservers = [ "10.0.0.3" "1.1.1.1" "8.8.8.8" "9.9.9.9" ];
   networking.useDHCP = lib.mkForce true;
 }
