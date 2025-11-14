@@ -152,7 +152,7 @@
   services.nebula.networks.mesh = {
     enable = true;
     isLighthouse = true;
-    #isRelay = true;
+    isRelay = true;
     cert = config.sops.secrets."nebula/self_crt".path; #"/run/secrets/nebula/self.crt";
     key = config.sops.secrets."nebula/self_key".path; #"/run/secrets/nebula/self.key";
     ca = config.sops.secrets."nebula/ca_crt".path; #"/run/secrets/nebula/ca.crt";
