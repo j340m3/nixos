@@ -181,5 +181,8 @@
     systemd.oomd.enableUserSlices = true; */
     zramSwap.enable = true;
 
+
+    # BUGFIX: Too many open files
+    systemd.extraConfig = "DefaultLimitNOFILE=2048";
   };
 }
