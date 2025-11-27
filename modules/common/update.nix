@@ -183,6 +183,6 @@
 
 
     # BUGFIX: Too many open files
-    systemd.extraConfig = "DefaultLimitNOFILE=2048";
+    systemd.settings.Manager.DefaultLimitNOFILE=2048;
   };
 }
