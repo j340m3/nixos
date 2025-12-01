@@ -8,7 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ../../../desktop-environments/xfce.nix
+      ../../../desktop-environments/xfce-mini.nix
       #./hardened.nix
       ../../../modules/common 
       ../../../modules/logging.nix
