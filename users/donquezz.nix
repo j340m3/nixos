@@ -7,7 +7,7 @@
   users.users.donquezz = {
     isNormalUser  = true;
     home  = "/home/donquezz";
-    description  = "Jerome";
+    description  = "Jerome (DonQuezz)";
     extraGroups  = [ "wheel" "networkmanager" ];
     hashedPassword = "$y$j9T$xI3Gvnwn4Q900uL0HQZHp/$fl5oFfnZWZWBz.6gPxvciND13komHHAXDqq6Yfpjn17";
     uid = 1003;

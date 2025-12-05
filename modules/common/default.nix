@@ -9,6 +9,7 @@
     ./domain.nix
     ./distributed-builds.nix
     ./lockup.nix
+    ./ntp.nix
     ../../users/donquezz.nix
   ];
 }
