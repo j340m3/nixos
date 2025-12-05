@@ -21,8 +21,8 @@
       ../../../users/donquezz.nix
       ../../../modules/logging.nix
       ../../../modules/persistence.nix
-      ../../../modules/zabbix.nix
-      ../../../modules/radicle-seed.nix
+      #../../../modules/zabbix.nix
+      #../../../modules/radicle-seed.nix
       #../../modules/nebula.nix
     ];
 
