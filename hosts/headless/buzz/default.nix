@@ -16,7 +16,7 @@
       (modulesPath + "/profiles/minimal.nix")
       (modulesPath + "/profiles/headless.nix")
       ../../../modules/hardening.nix
-      #../../../modules/swap.nix
+      ../../../modules/swap.nix
       ../../../modules/common 
       ../../../users/donquezz.nix
       ../../../modules/logging.nix
