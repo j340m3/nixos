@@ -2,29 +2,36 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, modulesPath, constants, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  modulesPath,
+  constants,
+  ...
+}:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      #inputs.sops-nix.nixosModules.sops
-      #inputs.disko.nixosModules.disko
-      #inputs.impermanence.nixosModules.impermanence
-      #inputs.peerix.nixosModules.peerix
-      #../bootstrap --> TODO: Check buzz if hes doing alright
-      (modulesPath + "/profiles/minimal.nix")
-      (modulesPath + "/profiles/headless.nix")
-      ../../../modules/hardening.nix
-      ../../../modules/swap.nix
-      ../../../modules/common 
-      ../../../users/donquezz.nix
-      ../../../modules/logging.nix
-      ../../../modules/persistence.nix
-      #../../../modules/zabbix.nix
-      #../../../modules/radicle-seed.nix
-      #../../modules/nebula.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    #inputs.sops-nix.nixosModules.sops
+    #inputs.disko.nixosModules.disko
+    #inputs.impermanence.nixosModules.impermanence
+    #inputs.peerix.nixosModules.peerix
+    #../bootstrap --> TODO: Check buzz if hes doing alright
+    (modulesPath + "/profiles/minimal.nix")
+    (modulesPath + "/profiles/headless.nix")
+    ../../../modules/hardening.nix
+    ../../../modules/swap.nix
+    ../../../modules/common
+    ../../../users/donquezz.nix
+    #../../../modules/logging.nix
+    ../../../modules/persistence.nix
+    #../../../modules/zabbix.nix
+    #../../../modules/radicle-seed.nix
+    #../../modules/nebula.nix
+  ];
 
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
@@ -63,7 +70,6 @@
 
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
-  
 
   # Configure keymap in X11
   # services.xserver.xkb.layout = "us";
@@ -143,25 +149,24 @@
   #
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "25.05"; # Did you read the comment?
-  
+
   environment.systemPackages = with pkgs; [
     nebula
   ];
-
 
   services.nebula.networks.mesh = {
     enable = true;
     isLighthouse = true;
     isRelay = true;
-    cert = config.sops.secrets."nebula/self_crt".path; #"/run/secrets/nebula/self.crt";
-    key = config.sops.secrets."nebula/self_key".path; #"/run/secrets/nebula/self.key";
-    ca = config.sops.secrets."nebula/ca_crt".path; #"/run/secrets/nebula/ca.crt";
+    cert = config.sops.secrets."nebula/self_crt".path; # "/run/secrets/nebula/self.crt";
+    key = config.sops.secrets."nebula/self_key".path; # "/run/secrets/nebula/self.key";
+    ca = config.sops.secrets."nebula/ca_crt".path; # "/run/secrets/nebula/ca.crt";
     staticHostMap = {
-          "10.0.0.1" = [
-            "194.164.125.154:4242"
-            "[2a00:da00:f43a:8800::1]:4242"
-          ];
-        };
+      "10.0.0.1" = [
+        "194.164.125.154:4242"
+        "[2a00:da00:f43a:8800::1]:4242"
+      ];
+    };
     settings = {
       lighthouse = {
         serve_dns = true;
@@ -181,38 +186,38 @@
     };
     firewall.outbound = [
       {
-      cidr = constants.nebula.cidr;
-      port = "any";
-      proto = "any";
+        cidr = constants.nebula.cidr;
+        port = "any";
+        proto = "any";
       }
     ];
     firewall.inbound = [
-    {
-      cidr = constants.nebula.cidr;
-      port = "any";
-      proto = "icmp";
-    }
-    {
-      cidr = constants.nebula.cidr;
-      port = "53";
-      proto = "udp";
-    }
-    {
-      cidr = constants.nebula.cidr;
-      port = "10050";
-      proto = "any";
-    }
-    {
-      cidr = constants.nebula.cidr;
-      port = "42069";
-      proto = "tcp";
-    }
+      {
+        cidr = constants.nebula.cidr;
+        port = "any";
+        proto = "icmp";
+      }
+      {
+        cidr = constants.nebula.cidr;
+        port = "53";
+        proto = "udp";
+      }
+      {
+        cidr = constants.nebula.cidr;
+        port = "10050";
+        proto = "any";
+      }
+      {
+        cidr = constants.nebula.cidr;
+        port = "42069";
+        proto = "tcp";
+      }
     ];
   };
-  
+
   systemd.services."nebula@mesh".serviceConfig = {
-        CapabilityBoundingSet = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-        AmbientCapabilities = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+    CapabilityBoundingSet = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+    AmbientCapabilities = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
   };
   # allow nebula to claim port 53 from systemd-resolved
   services.resolved.extraConfig = ''
@@ -223,21 +228,21 @@
   networking.firewall.allowedUDPPorts = [ 53 ];
 
   sops.secrets."nebula/ca_crt" = {
-    restartUnits = ["nebula@mesh.service"];
+    restartUnits = [ "nebula@mesh.service" ];
     owner = "nebula-mesh";
     group = "nebula-mesh";
     path = "/nix/persist/etc/nebula/ca.crt";
   };
   sops.secrets."nebula/self_crt" = {
     sopsFile = ../../secrets/${config.networking.hostName}/secrets.yaml;
-    restartUnits = ["nebula@mesh.service"];
+    restartUnits = [ "nebula@mesh.service" ];
     owner = "nebula-mesh";
     group = "nebula-mesh";
     path = "/nix/persist/etc/nebula/self.crt";
   };
   sops.secrets."nebula/self_key" = {
     sopsFile = ../../secrets/${config.networking.hostName}/secrets.yaml;
-    restartUnits = ["nebula@mesh.service"];
+    restartUnits = [ "nebula@mesh.service" ];
     owner = "nebula-mesh";
     group = "nebula-mesh";
     path = "/nix/persist/etc/nebula/self.key";
