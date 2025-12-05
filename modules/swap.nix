@@ -12,7 +12,7 @@
     cooldown=1;
   };
   # Source: https://manpages.ubuntu.com/manpages/focal/man8/swapspace.8.html
-  services.swapspace.extraArgs = ["-z" "v"]; # --> Necessary for btrfs
+  services.swapspace.extraArgs = ["v"]; 
 
   boot.kernel.sysctl = { "vm.swappiness" = 5;};
 
