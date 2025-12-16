@@ -28,6 +28,7 @@
     spotify
     signal-desktop
     telegram-desktop
+    element-desktop
     radicle-desktop
     radicle-node
     sops
