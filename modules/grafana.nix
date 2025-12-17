@@ -12,5 +12,15 @@
         proxyWebsockets = true;
     };
   };
-
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ config.services.grafana.port];
+  services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
+              (config.services.grafana.enable && 
+              config.services.nebula.networks.mesh.enable) 
+      [
+        {
+          cidr = constants.nebula.cidr;
+          port = config.services.grafana.port;
+          proto = "any";
+        }
+      ];
 }
