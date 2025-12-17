@@ -4,7 +4,7 @@
     enable = true;
     domain = "grafana.kauderwels.ch";
     port = 2342;
-    addr = "127.0.0.1";
+    addr = "0.0.0.0";
   };
   services.nginx.virtualHosts.${config.services.grafana.domain} = {
     locations."/" = {
