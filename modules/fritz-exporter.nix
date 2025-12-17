@@ -14,7 +14,7 @@
               name = "Router";
               hostname = "fritz.box";
               username = "prometheus";
-              password_file = ./prometheus.nix;
+              password_file = config.sops.secrets."prometheus/fritz/router".path;;
               host_info = true;
             }
           ];
@@ -37,5 +37,12 @@
         #extraFlags = [ "--collector.ntp.protocol-version=4" "--no-collector.mdadm" ];
       };
     };
+  };
+
+  sops.secrets."prometheus/fritz/router" = {
+    sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    restartUnits = ["prometheus-fritz-exporter.service"];
+    owner = "fritz-exporter";
+    group = "fritz-exporter";
   };
 }
