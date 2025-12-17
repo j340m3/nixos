@@ -16,8 +16,8 @@
             host_info = true;
           }
         ];
-        };
       };
+      
       node = {
         enable = true;
         port = 9000;
