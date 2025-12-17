@@ -1,4 +1,5 @@
 { config, pkgs, ... }:
+{
   environment.systemPackages = with pkgs; [
     fritz-exporter
   ];
@@ -18,3 +19,4 @@
     # but is otherwise equivalent to using `enabledCollectors` above.
     #extraFlags = [ "--collector.ntp.protocol-version=4" "--no-collector.mdadm" ];
   };
+}
