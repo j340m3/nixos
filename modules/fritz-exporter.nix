@@ -14,7 +14,7 @@
               name = "Router";
               hostname = "fritz.box";
               username = "prometheus";
-              password_file = config.sops.secrets."prometheus/fritz/router".path;;
+              password_file = config.sops.secrets."prometheus/fritz/router".path;
               host_info = true;
             }
           ];
