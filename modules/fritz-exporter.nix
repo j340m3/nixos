@@ -15,7 +15,7 @@
             password = "prometheus";
             host_info = true;
           }
-        ]
+        ];
         };
       };
       node = {
