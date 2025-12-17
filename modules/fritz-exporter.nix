@@ -6,16 +6,19 @@
 
   services.prometheus = {
     exporters = {
-      fritz.settings = {
-        devices = [
-          {
-            name = "Router";
-            hostname = "fritz.box";
-            username = "prometheus";
-            password = "prometheus";
-            host_info = true;
-          }
-        ];
+      fritz = {
+        enable = true;
+        settings = {
+          devices = [
+            {
+              name = "Router";
+              hostname = "fritz.box";
+              username = "prometheus";
+              password = "prometheus";
+              host_info = true;
+            }
+          ];
+        };
       };
       
       node = {
