@@ -40,6 +40,9 @@ let
       ../../../modules/nfs-fee.nix
       ../../../modules/nebula.nix
       ../../../modules/technitium.nix
+      ../../../modules/prometheus.nix
+      ../../../modules/grafana.nix
+      ../../../modules/fritz-exporter.nix
       # ./firefox.nix
       #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
       #<home-manager/nixos>
