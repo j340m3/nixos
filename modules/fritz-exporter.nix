@@ -14,7 +14,7 @@
               name = "Router";
               hostname = "fritz.box";
               username = "prometheus";
-              password_file = "prometheus";
+              password_file = ./prometheus.nix;
               host_info = true;
             }
           ];
