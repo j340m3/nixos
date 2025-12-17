@@ -12,7 +12,7 @@
       }
       {
         job_name = "fritz";
-        scrape_timeout = "60s";
+        scrape_timeout = "60s"; # 2* 30s since i have 2 hosts that need 30s according to the documentation
         scrape_interval = "60s";
         static_configs = [{
           targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.fritz.port}" ];
