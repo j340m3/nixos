@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, constants, ... }:
 {
   services.grafana = {
     enable = true;
