@@ -2,6 +2,6 @@
 {
   services.prometheus = {
     enable = true;
-    port = 9001
+    port = 9001;
   }
 }
