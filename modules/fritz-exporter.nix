@@ -24,9 +24,9 @@
         # For the list of available collectors, run, depending on your install:
         # - Flake-based: nix run nixpkgs#prometheus-node-exporter -- --help
         # - Classic: nix-shell -p prometheus-node-exporter --run "node_exporter --help"
-        enabledCollectors = [
-          "fritz"   
-        ];
+        # enabledCollectors = [
+        #   "fritz"   
+        # ];
         # You can pass extra options to the exporter using `extraFlags`, e.g.
         # to configure collectors or disable those enabled by default.
         # Enabling a collector is also possible using "--collector.[name]",
