@@ -1,4 +1,4 @@
-{ pkgs, inputs, affinity-nix... }:
+{ pkgs, inputs, affinity-nix, ... }:
 {
   imports = [
     ../../../../desktop-environments/xfce.nix
