@@ -1,4 +1,4 @@
-{ pkgs, inputs, affinity-nix, ... }:
+{ pkgs, inputs, ... }:
 {
   imports = [
     ../../../../desktop-environments/xfce.nix
@@ -17,7 +17,7 @@
     uid = 1002;
     packages = with pkgs; [
       firefox
-      affinity-nix.packages.${pkgs.stdenv.system}.v3
+      inputs.affinity-nix.packages.${pkgs.stdenv.system}.v3
       #  kate
       #  thunderbird
     ];
