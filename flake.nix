@@ -73,13 +73,16 @@
     # Apple font
     apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
     apple-fonts.inputs.nixpkgs.follows = "nixpkgs";
+
+    affinity-nix.url = "github:mrshmllow/affinity-nix";
+    affinity-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
 # =============================================================================
 # Outputs
 # =============================================================================
 
-  outputs = { nixpkgs, nixpkgs-master, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, comin, nixos-hardware, peerix, oom-hardware, chaotic, stylix,... } @ inputs: 
+  outputs = { nixpkgs, nixpkgs-master, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, comin, nixos-hardware, peerix, oom-hardware, chaotic, stylix, affinity-nix... } @ inputs: 
   let
     inherit (nixpkgs) lib;
     # Constants represent variables which are important for multiple hosts
