@@ -18,11 +18,11 @@
       ../../../modules/logging.nix
       ../../../modules/persistence.nix
       ../../../modules/nebula.nix
-      ../../../modules/zabbix.nix
+      #../../../modules/zabbix.nix
       ../../../modules/minecraft-bedrock.nix
-      ../../../modules/minecraft-java.nix
-      ../../../modules/remote-builder.nix
-      ../../../modules/matrix3.nix
+      #../../../modules/minecraft-java.nix
+      #../../../modules/remote-builder.nix
+      #../../../modules/matrix3.nix
     ];
 
   #system.autoUpgrade.dates = lib.mkForce "daily";
