@@ -21,13 +21,13 @@
         TZ = "Europe/Berlin";
         VERSION = "LATEST";
         KEEP_INVENTORY = "true";
-        SERVER_PORT_V6="19133";
+        #SERVER_PORT_V6="19133";
         #OPS = "2535414708374553,2535448442672198"
         #ALLOW_LIST_USERS = "adyxax:2535470760215402,pseudo2:XXXXXXX,pseudo3:YYYYYYY";
       };
       image = "itzg/minecraft-bedrock-server";
-      #ports = ["19132:19132/udp" "[::]:19132:19132/udp"];
-      ports = ["19132:19132/udp" "[::]:19133:19133/udp"];
+      ports = ["19132:19132/udp" "[::]:19132:19132/udp"];
+      #ports = ["19132:19132/udp" "[::]:19133:19133/udp"];
       volumes = [ "/nix/persist/minecraft/klassenserver/:/data" ];
     };
     /* emeliebjorn = {
