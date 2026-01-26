@@ -10,6 +10,7 @@
     ./distributed-builds.nix
     ./lockup.nix
     ./ntp.nix
+    ./ulimit.nix
     ../../users/donquezz.nix
   ];
 }
