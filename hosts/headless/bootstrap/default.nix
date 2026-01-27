@@ -145,7 +145,7 @@
       # Define a disk
       disk.main = {
         # Size for generated disk image. 2GB is enough for me. Adjust per your need.
-        #imageSize = "2G";
+        imageSize = "2G";
         # Path to disk. When Disko generates disk images, it actually runs a QEMU
         # virtual machine and runs the installation steps. Whether your VPS
         # recognizes its hard disk as "sda" or "vda" doesn't matter. We abide to
