@@ -85,7 +85,7 @@
 # Outputs
 # =============================================================================
 
-  outputs = { nixpkgs, nixpkgs-master, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, comin, nixos-hardware, peerix, oom-hardware, chaotic, stylix, affinity-nix, ... } @ inputs: 
+  outputs = {self, nixpkgs, nixpkgs-master, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, comin, nixos-hardware, peerix, oom-hardware, chaotic, stylix, affinity-nix, ... } @ inputs: 
   let
     inherit (nixpkgs) lib;
     # Constants represent variables which are important for multiple hosts
@@ -134,8 +134,9 @@
         ];
       };
     };
-    # packages.x86_64-linux = {
-    #   image = self.nixosConfigurations.bootstrap.config.system.build.diskoImages;
-    # };
+    packages.x86_64-linux = {
+      image = self.nixosConfigurations.bootstrap.config.system.build.diskoImages;
+      image-impermanent = self.nixosConfigurations.bootstrap-impermanent.config.system.build.diskoImages;
+    };
   };
 }

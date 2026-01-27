@@ -206,4 +206,10 @@
       };
     };
   };
+
+  fileSystems."/" = {
+    device = "/dev/vda3";
+    fsType = "btrfs";
+    options = ["compress-force=zstd:15" "nosuid" "nodev"];
+  };
 }
