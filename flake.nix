@@ -87,7 +87,7 @@
 
   outputs = {self, nixpkgs, nixpkgs-master, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, comin, nixos-hardware, peerix, oom-hardware, chaotic, stylix, affinity-nix, ... } @ inputs: 
   let
-    inherit (nixpkgs) lib;
+    #inherit (nixpkgs) lib;
     # Constants represent variables which are important for multiple hosts
     constants = (import ./global/constants.nix);
   in
