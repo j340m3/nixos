@@ -212,14 +212,14 @@ in
     path = "/nix/persist/etc/nebula/ca.crt";
   };
   sops.secrets."nebula/self_crt" = {
-    sopsFile = ../../secrets/${config.networking.hostName}/secrets.yaml;
+    sopsFile = ../../../secrets/${config.networking.hostName}/secrets.yaml;
     restartUnits = [ "nebula@mesh.service" ];
     owner = "nebula-mesh";
     group = "nebula-mesh";
     path = "/nix/persist/etc/nebula/self.crt";
   };
   sops.secrets."nebula/self_key" = {
-    sopsFile = ../../secrets/${config.networking.hostName}/secrets.yaml;
+    sopsFile = ../../../secrets/${config.networking.hostName}/secrets.yaml;
     restartUnits = [ "nebula@mesh.service" ];
     owner = "nebula-mesh";
     group = "nebula-mesh";
