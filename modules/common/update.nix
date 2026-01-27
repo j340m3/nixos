@@ -20,6 +20,9 @@
   };
   
   config = {
+    environment.systemPackages = with pkgs; [
+      git
+    ];
     /* _module.args.pkgsUnstable = import inputs.nixpkgs-master {
       inherit (pkgs.stdenv.hostPlatform) system;
       inherit (config.nixpkgs) config;
