@@ -1,4 +1,4 @@
-{ modulesPath, pkgs, lib, constants, ... }: 
+{ modulesPath, pkgs, lib, constants, config, ... }: 
 let rootPath = ../../../.;
 in
 {
@@ -132,9 +132,12 @@ services.nginx = {
     enable = true;
     isLighthouse = true;
     isRelay = true;
-    cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
-    key = "/etc/nebula/pricklepants.key";
-    ca = "/etc/nebula/ca.crt";
+    cert = config.sops.secrets."nebula/self_crt".path; # "/run/secrets/nebula/self.crt";
+    key = config.sops.secrets."nebula/self_key".path; # "/run/secrets/nebula/self.key";
+    ca = config.sops.secrets."nebula/ca_crt".path;
+    # cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
+    # key = "/etc/nebula/pricklepants.key";
+    # ca = "/etc/nebula/ca.crt";
     staticHostMap = {
       "10.0.0.5" = [ 
         "[2a01:239:27f:fd00::1]:4242"

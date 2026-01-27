@@ -9,7 +9,7 @@
     # Shallow cloning 
     # Source: https://tsawyer87.github.io/posts/nix_flakes_tips/
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable"; 
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05"; #TODO: Remove unused
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11"; #TODO: Remove unused
     nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
     chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
 
