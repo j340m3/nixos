@@ -8,7 +8,7 @@
   };
   config = {
     zramSwap = {
-      enable = true;
+      enable = lib.mkDefault true;
       algorithm = lib.mkDefault "lz4";
       memoryPercent = 100;
       writebackDevice = lib.mkIf (config.writebackPartition != "") config.writebackPartition;
