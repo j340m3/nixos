@@ -8,6 +8,7 @@
   imports = [
     inputs.disko.nixosModules.disko
     inputs.sops-nix.nixosModules.sops
+    inputs.impermanence.nixosModules.impermanence
   ];
   
   nixpkgs.hostPlatform = "x86_64-linux";
@@ -106,7 +107,7 @@
   networking.useDHCP = false;
 
   # Hostname, can be set as you wish
-  networking.hostName = lib.mkDefault "bootstrap";
+  networking.hostName = lib.mkDefault "bootstrap-impermanent";
 
   # Latest NixOS version on your first install. Used to prevent backward
   # incompatibilities on major upgrades
@@ -145,7 +146,7 @@
       # Define a disk
       disk.main = {
         # Size for generated disk image. 2GB is enough for me. Adjust per your need.
-        #imageSize = "2G";
+        imageSize = "2G";
         # Path to disk. When Disko generates disk images, it actually runs a QEMU
         # virtual machine and runs the installation steps. Whether your VPS
         # recognizes its hard disk as "sda" or "vda" doesn't matter. We abide to
@@ -187,23 +188,60 @@
                 # partitions on disk image generation. Use the same settings as
                 # fileSystems.*
                 mountpoint = "/boot";
-                #mountOptions = ["fmask=0077" "dmask=0077"];
+                mountOptions = ["fmask=0077" "dmask=0077"];
               };
             };
 
-            
-            root = {
+            # Parition to store the NixOS system, use all remaining space.
+            nix = {
               size = "100%";
+              # Format as Btrfs. Change per your needs.
               content = {
                 type = "filesystem";
                 format = "btrfs";
-                mountpoint = "/";
+                # Use as the Nix partition. Disko use the information here to mount
+                # partitions on disk image generation. Use the same settings as
+                # fileSystems.*
+                mountpoint = "/nix";
                 mountOptions = ["compress-force=zstd" "nosuid" "nodev"];
               };
             };
           };
         };
       };
+
+      # Since I enabled Impermanence, I need to declare the root partition as tmpfs,
+      # so Disko can mount the partitions when generating disk images
+      nodev."/" = {
+        fsType = "tmpfs";
+        mountOptions = ["relatime" "mode=755" "nosuid" "nodev"];
+      };
     };
+  };
+
+  # Since we aren't letting Disko manage fileSystems.*, we need to configure it ourselves
+  # Root partition, is tmpfs because I enabled impermanence.
+  fileSystems."/" = {
+    device = "tmpfs";
+    fsType = "tmpfs";
+    options = ["relatime" "mode=755" "nosuid" "nodev"];
+  };
+
+  # /nix partition, third partition on the disk image. Since my VPS recognizes
+  # hard drive as "sda", I specify "sda3" here. If your VPS recognizes the drive
+  # differently, change accordingly
+  fileSystems."/nix" = {
+    device = lib.mkDefault "/dev/vda3";
+    fsType = "btrfs";
+    options = ["compress-force=zstd" "nosuid" "nodev"];
+  };
+
+  # /boot partition, second partition on the disk image. Since my VPS recognizes
+  # hard drive as "sda", I specify "sda2" here. If your VPS recognizes the drive
+  # differently, change accordingly
+  fileSystems."/boot" = {
+    device = lib.mkDefault "/dev/vda2";
+    fsType = "vfat";
+    options = ["fmask=0077" "dmask=0077"];
   };
 }
