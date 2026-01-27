@@ -212,4 +212,10 @@
     fsType = "btrfs";
     options = ["compress-force=zstd:15" "nosuid" "nodev"];
   };
+
+  fileSystems."/boot" = {
+    device = lib.mkDefault "/dev/vda2";
+    fsType = "vfat";
+    options = ["fmask=0077" "dmask=0077"];
+  };
 }
