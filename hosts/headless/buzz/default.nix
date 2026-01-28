@@ -220,9 +220,9 @@
     AmbientCapabilities = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
   };
   # allow nebula to claim port 53 from systemd-resolved
-  services.resolved.extraConfig = ''
-    DNSStubListener=no
-  '';
+  #services.resolved.extraConfig = ''
+  #  DNSStubListener=no
+  #'';
   # open the systems firewall for DNS on the nebula interface and public interfaces
   networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 53 ];
   networking.firewall.allowedUDPPorts = [ 53 ];
