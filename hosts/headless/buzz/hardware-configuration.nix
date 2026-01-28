@@ -36,14 +36,14 @@
     devices = ["/dev/vda"];
   };
 
-  fileSystems."/" =
-    { 
-      device = "tmpfs";
-      fsType = "tmpfs";
-      options = ["relatime" "mode=755" "nosuid" "nodev" "size=3G"];
-    };
+  # fileSystems."/" =
+  #   { 
+  #     device = "tmpfs";
+  #     fsType = "tmpfs";
+  #     options = ["relatime" "mode=755" "nosuid" "nodev" "size=3G"];
+  #   };
 
-  fileSystems."/nix" =
+  fileSystems."/" =
     { 
       #device = "/dev/disk/by-uuid/f014f8cb-3fe0-454b-b235-0ce296c4bf32";
       device = "/dev/vda3";
@@ -66,7 +66,7 @@
   services.beesd.filesystems = {
     root = {
       hashTableSizeMB = 64;
-      spec = "/nix";
+      spec = "/";
       verbosity = "crit";
       extraOptions = [ "--loadavg-target" "5.0" ];
     };
