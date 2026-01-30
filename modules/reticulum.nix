@@ -23,6 +23,10 @@ in
     #  ${pkgs.rns}/bin/rnsd
     #'';
     wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Restart = "always";
+      RestartSec = "3s";
+    };
   };
   networking.firewall.allowedUDPPorts = [
     29716
