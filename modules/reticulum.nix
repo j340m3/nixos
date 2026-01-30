@@ -17,7 +17,7 @@ in
 {
   systemd.services.reticulum = {
     script = ''
-      ${rnspython} -m rnsd --service --verbose
+      ${rnspython}/bin/rnsd --service --verbose
     '';
     #script = ''
     #  ${pkgs.rns}/bin/rnsd
