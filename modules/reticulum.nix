@@ -31,7 +31,7 @@ in
   
   systemd.services.lxmf = {
     script = ''
-      ${rnspython}/bin/lxmd --service --propagation-node
+      ${rnspython}/bin/lxmd --service --verbose
     '';
     #script = ''
     #  ${pkgs.rns}/bin/rnsd
