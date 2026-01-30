@@ -28,6 +28,20 @@ in
       RestartSec = "3s";
     };
   };
+  
+  systemd.services.lxmf = {
+    script = ''
+      ${rnspython}/bin/lxmd --service --propagation-node
+    '';
+    #script = ''
+    #  ${pkgs.rns}/bin/rnsd
+    #'';
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Restart = "always";
+      RestartSec = "3s";
+    };
+  };
   networking.firewall.allowedUDPPorts = [
     29716
     42671
