@@ -60,14 +60,14 @@
   '';
 
   sops.secrets."remotebuild/key" = {
-    sopsFile = ../../secrets/${config.networking.hostName}/secrets.yaml;
+    sopsFile = ../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
     owner = "root";
     group = "root";
     path = "/root/.ssh/remotebuild";
   };
 
   sops.secrets."remotebuild/pub" = {
-    sopsFile = ../../secrets/${config.networking.hostName}/secrets.yaml;
+    sopsFile = ../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
     owner = "root";
     group = "root";
     path = "/root/.ssh/remotebuild.pub";

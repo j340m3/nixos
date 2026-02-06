@@ -23,7 +23,7 @@
   };
 
   sops.secrets."radicle/private" = {
-    sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
   };
 
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ config.services.radicle.port ];

@@ -52,21 +52,21 @@
   };
 
   sops.secrets."prometheus/fritz/router" = {
-    sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
     restartUnits = ["prometheus-fritz-exporter.service"];
     owner = "fritz-exporter";
     group = "fritz-exporter";
   };
 
   sops.secrets."prometheus/fritz/fritz-rep1" = {
-    sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
     restartUnits = ["prometheus-fritz-exporter.service"];
     owner = "fritz-exporter";
     group = "fritz-exporter";
   };
 
   sops.secrets."prometheus/fritz/kueche" = {
-    sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
     restartUnits = ["prometheus-fritz-exporter.service"];
     owner = "fritz-exporter";
     group = "fritz-exporter";

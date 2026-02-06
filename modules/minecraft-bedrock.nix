@@ -82,7 +82,7 @@
     };
   
   sops.secrets."borg/minecraft-bedrock" = {
-    sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
   };
 
   services.borgbackup.jobs.minecraft-bedrock = {

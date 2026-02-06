@@ -216,7 +216,7 @@ in
     '';
 
     sops.secrets."borg/matrix" = {
-      sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+      sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
     };
 
     services.borgbackup.jobs.matrix = {
