@@ -131,6 +131,8 @@
       "vfs-cache-mode=full"
       #"vfs-cache-min-free-space=10G"
       "vfs-fast-fingerprint"
+      "vfs-links"
+      "transfers=16"
       "vfs-write-back=1m" # write changes after one hour
       "vfs-cache-max-age=24h" # Retain cached files for up to 24 hours
       "vfs-read-chunk-size=32M" # Start with 32MB chunks for faster initial reads
