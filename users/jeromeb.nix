@@ -5,6 +5,7 @@
   ...
 }:
 {
+  users.group.users.gid = 100;
   users.users.jeromeb = {
     uid = 1001;
     isNormalUser = true;
@@ -62,8 +63,8 @@
       "config=${config.sops.secrets."filen/jeromeb.conf".path}"
       "x-systemd.requires=network-online.target"
       "x-systemd.after=network-online.target" # only after network came up
-      "uid=${config.users.users.jeromeb.uid}"
-      #"gid=${config.users.users.jeromeb.group}"
+      "uid=${toString config.users.users.jeromeb.uid}"
+      "gid=${toString config.users.groups.users.gid}"
     ];
   };
 }
