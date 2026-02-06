@@ -87,7 +87,7 @@
     networkConfig.DHCP = "yes";
   };
   networking.nameservers = [
-    "8.8.8.8"
+    "1.1.1.1"
   ];
 
   # Enable SSH server and listen on port 2222
