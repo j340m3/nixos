@@ -1,8 +1,18 @@
-{pkgs, inputs, config, ...}:{
+{
+  pkgs,
+  inputs,
+  config,
+  ...
+}:
+{
   users.users.jeromeb = {
     isNormalUser = true;
     description = "Jerome";
-    extraGroups = [ "networkmanager" "wheel" "docker"];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "docker"
+    ];
     shell = pkgs.zsh;
   };
   programs.zsh.enable = true;
@@ -11,14 +21,14 @@
   # Install firefox.
   home-manager.backupFileExtension = "hmbackup";
   home-manager.users.jeromeb = import ../home;
-  home-manager.extraSpecialArgs = {inherit inputs; };
+  home-manager.extraSpecialArgs = { inherit inputs; };
 
   sops.secrets."filen/jeromeb.conf" = {
     format = "ini";
     sopsFile = ../secrets/users/jeromeb/rclone.ini;
     #restartUnits = ["nebula@mesh.service"];
     owner = "jeromeb";
-    group = "jeromeb";
+    group = "users";
     #path = "/etc/nebula/self.key";
     key = "";
   };
@@ -43,7 +53,7 @@
       #"vfs-cache-max-age=24h"                    # Retain cached files for up to 24 hours
       #"vfs-read-chunk-size=32M"                  # Start with 32MB chunks for faster initial reads
       #"vfs-read-chunk-size-limit=1G"             # Allow chunk size to grow up to 1GB for large files
-      #"vfs-cache-poll-interval=30s" 
+      #"vfs-cache-poll-interval=30s"
       #"tpslimit=16"
       #"tpslimit-burst=32"
       "log-level=INFO"
