@@ -6,6 +6,9 @@
   ...
 }:
 {
+
+  users.users.nextcloud.uid = 989;
+  users.groups.nextcloud.gid = 987;
   # Based on https://carjorvaz.com/posts/the-holy-grail-nextcloud-setup-made-easy-by-nixos/
   services = {
     nginx.virtualHosts = {
