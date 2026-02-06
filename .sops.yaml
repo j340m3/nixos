@@ -5,7 +5,7 @@ keys:
   - &server_pricklepants age1wrykyx4f8pwksclhj6jsamzjx676allyj8l3z09zjul2he6jhscssppu9l
   - &server_rex age1naetzgje6zlnd3pc5uat20wdnzc7kd9yf25m6my4flqvzjjfpvcqgrkw07
   - &server_rex_ssh age1klmaxwfx895f99afm526wqd7apuumnky33unqlhx2j8s27pcu30qkjg49w
-  - &server_buzz age1t0e4p99fqtgccrum94qa4w3kclg8n3xscvwsfc5pezlcf9ztwufs4gvzzn
+  - &server_buzz age1kugdd9sgaywmzg0k2d3lrutvq03shuy6lwc5cr6yjg5fzzzgjdvqzllptz
   - &server_lenny age1epwzgq42tx30zp99sep75qd7wy9ppgrl7k2gdualqq8aq8fhde8qu99nku
   - &server_jessie age1ryu9sln638lryj3yupm3p9swtqm986h3g84ezw43c9pqe8pw0g4qy7j2gt
   - &server_slinky age1zkm0j83lzkekgetkj9mlatmtg5p8dqqc6g0sf24pnw9dwkrytejq8t0sfc
