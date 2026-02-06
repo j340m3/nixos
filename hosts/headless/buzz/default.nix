@@ -14,16 +14,16 @@
 {
   imports = [
     # Include the results of the hardware scan.
-    ./hardware-configuration.nix
+    #./hardware-configuration.nix
     #inputs.sops-nix.nixosModules.sops
     #inputs.disko.nixosModules.disko
     #inputs.impermanence.nixosModules.impermanence
     #inputs.peerix.nixosModules.peerix
-    #../bootstrap --> TODO: Check buzz if hes doing alright
+    ../bootstrap
     (modulesPath + "/profiles/minimal.nix")
     (modulesPath + "/profiles/headless.nix")
     ../../../modules/hardening.nix
-    ../../../modules/swap.nix
+    #../../../modules/swap.nix
     ../../../modules/common
     ../../../users/donquezz.nix
     ../../../modules/logging.nix
