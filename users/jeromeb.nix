@@ -62,7 +62,7 @@
       "x-systemd.requires=network-online.target"
       "x-systemd.after=network-online.target" # only after network came up
       "uid=${toString config.users.users.jeromeb.uid}"
-      "gid=${config.users.users.jeromeb.group}"
+      #"gid=${config.users.users.jeromeb.group}"
     ];
   };
 }
