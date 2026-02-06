@@ -48,7 +48,7 @@
       "x-systemd.automount"
       "cache_dir=/var/cache/rclone"
       #"dir-cache-time=24h"
-      #"vfs-cache-mode=full"
+      "vfs-cache-mode=full"
       #"vfs-cache-min-free-space=10G"
       #"vfs-fast-fingerprint"
       #"vfs-write-back=1m" # write changes after one hour
