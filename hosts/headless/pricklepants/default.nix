@@ -16,11 +16,11 @@ in
     (modulesPath + "/profiles/headless.nix")
     ../../../modules/hardening.nix
     #../../../modules/matrix2.nix
-    #../../../modules/minetest.nix
+    ../../../modules/minetest.nix
     ../../../modules/vaultwarden.nix
     ../../../modules/logging.nix
     #../../../modules/zabbix.nix
-    #../../../modules/nextcloud.nix
+    ../../../modules/nextcloud.nix
     #../../../modules/dns-tunnel.nix
     #../../../modules/immich-proxy.nix
     ../../../modules/common
