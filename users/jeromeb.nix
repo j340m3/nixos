@@ -6,6 +6,7 @@
 }:
 {
   users.users.jeromeb = {
+    uid = 1001;
     isNormalUser = true;
     description = "Jerome";
     extraGroups = [
