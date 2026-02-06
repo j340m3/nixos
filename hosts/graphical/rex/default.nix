@@ -123,7 +123,7 @@
   #useComin = true;
   virtualisation.docker.enable = true;
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.jeromeb = {
+  /* users.users.jeromeb = {
     isNormalUser = true;
     description = "Jerome";
     extraGroups = [ "networkmanager" "wheel" "docker"];
@@ -135,7 +135,7 @@
   # Install firefox.
   home-manager.backupFileExtension = "hmbackup";
   home-manager.users.jeromeb = import ../../../home;
-  home-manager.extraSpecialArgs = {inherit inputs; };
+  home-manager.extraSpecialArgs = {inherit inputs; }; */
   #stylix.homeManagerIntegration.followSystem = false;
   #stylix.homeManagerIntegration.autoImport = false;
   # home-manager.useGlobalPkgs = true;
