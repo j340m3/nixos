@@ -48,6 +48,7 @@
     #home = "/mnt/nas/immich";
     #createHome = true;
   }; 
+  
   fileSystems."/mnt/nas/immich" = {
     device = "immich:immich";
     fsType = "rclone";

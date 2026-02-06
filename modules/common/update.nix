@@ -84,7 +84,7 @@
       #package = pkgs.lixPackageSets.stable.lix;
       #package = pkgsUnstable.nix;
       settings = {
-        substituters = [ "https://cache.kauderwels.ch:5000" "https://nix-community.cachix.org" "https://cache.nixos.org"];
+        substituters = ["https://cache.nixos.org" "https://cache.kauderwels.ch:5000" "https://nix-community.cachix.org"];
         trusted-public-keys = [ "cache.kauderwels.ch:0fswEglSoELjSBSMOuvnLAXMstePxzeTmOTYziR7z+Y=" "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="];
         experimental-features = [ "nix-command" "flakes" ];
         auto-optimise-store = true;
