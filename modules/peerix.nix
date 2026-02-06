@@ -24,7 +24,7 @@
   };
 
   sops.secrets."peerix/public" = {
-    sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
     #restartUnits = ["nebula@mesh.service"];
     #owner = "nebula-mesh";
     #group = "nebula-mesh";
@@ -32,7 +32,7 @@
   };
 
   sops.secrets."peerix/private" = {
-    sopsFile = ../secrets/${config.networking.hostName}/secrets.yaml;
+    sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
     #restartUnits = ["nebula@mesh.service"];
     owner = "peerix";
     group = "peerix";
