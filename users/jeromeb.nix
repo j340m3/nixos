@@ -5,7 +5,7 @@
   ...
 }:
 {
-  users.group.users.gid = 100;
+  users.groups.users.gid = 100;
   users.users.jeromeb = {
     uid = 1001;
     isNormalUser = true;
