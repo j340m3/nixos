@@ -34,7 +34,7 @@
   };
 
   fileSystems."/mnt/filen/users/jeromeb" = {
-    device = "filen:users/jeromeb";
+    device = "filen:users/jerome";
     fsType = "rclone";
     options = [
       "nodev"

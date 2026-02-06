@@ -52,6 +52,10 @@
   # Timezone, change based on your location
   time.timeZone = "Europe/Berlin";
 
+  environment.systemPackages = with pkgs; [
+    git
+  ];
+
   # Root password and SSH keys. If network config is incorrect, use this password
   # to manually adjust network config on serial console/VNC.
   /* users.mutableUsers = false;
