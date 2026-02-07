@@ -94,6 +94,8 @@
     findtime = 43200;
   };
 
+  networking.firewall.allowedTCPPorts = [ 443 ];
+
   environment.etc."fail2ban/filter.d/nextcloud.local".text = ''
     [Definition]
     _groupsre = (?:(?:,?\s*"\w+":(?:"[^"]+"|\w+))*)
