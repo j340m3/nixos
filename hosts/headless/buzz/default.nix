@@ -27,6 +27,7 @@
     ../../../modules/common
     ../../../users/donquezz.nix
     ../../../modules/logging.nix
+    #../../../modules/nextcloud.nix
     #../../../modules/persistence.nix
     ../../../modules/zabbix.nix
     #../../../modules/radicle-seed.nix
