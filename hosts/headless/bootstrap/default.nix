@@ -238,5 +238,5 @@
     };
   };
 
-  swapDevices = [ { device = "/swapfile"; size = 512; } ];
+  swapDevices = [ { device = "/swapfile"; size = 1024; } ];
 }
