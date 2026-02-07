@@ -28,6 +28,7 @@
     #
     nextcloud = {
       enable = true;
+      home = "/mnt/filen/services/nextcloud";
       hostName = "nextcloud.kauderwels.ch";
       # Need to manually increment with every major upgrade.
       package = pkgs.nextcloud31;
