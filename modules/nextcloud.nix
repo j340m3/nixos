@@ -150,6 +150,7 @@
       "x-systemd.after=network-online.target" # only after network came up
       "uid=${toString config.users.users.nextcloud.uid}"
       "gid=${toString config.users.groups.nextcloud.gid}"
+      "umask=0770"
     ];
   };
 }
