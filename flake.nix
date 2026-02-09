@@ -9,9 +9,9 @@
     # Shallow cloning 
     # Source: https://tsawyer87.github.io/posts/nix_flakes_tips/
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable"; 
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11"; #TODO: Remove unused
-    nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
-    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
+    #nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11"; #TODO: Remove unused
+    #nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
+    #chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
 
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -85,7 +85,7 @@
 # Outputs
 # =============================================================================
 
-  outputs = {self, nixpkgs, nixpkgs-master, nixpkgs-stable, nixpkgs-2411, sops-nix, home-manager, comin, nixos-hardware, peerix, oom-hardware, chaotic, stylix, affinity-nix, ... } @ inputs: 
+  outputs = {self, nixpkgs, nixpkgs-master, sops-nix, home-manager, comin, nixos-hardware, peerix, oom-hardware, stylix, affinity-nix, ... } @ inputs: 
   let
     #inherit (nixpkgs) lib;
     # Constants represent variables which are important for multiple hosts
@@ -105,19 +105,19 @@
           specialArgs.constants = constants;
           modules = [ 
             ./hosts/graphical/${host} 
-            inputs.chaotic.nixosModules.default
+            #inputs.chaotic.nixosModules.default
           ];
         };
       }) (builtins.attrNames (builtins.readDir ./hosts/graphical))) 
       ++
       (map (host: {
         name = host;
-        value = nixpkgs-master.lib.nixosSystem {
+        value = nixpkgs.lib.nixosSystem {
           specialArgs.inputs = inputs;
           specialArgs.constants = constants;
           modules = [ 
             ./hosts/headless/${host} 
-            inputs.chaotic.nixosModules.default
+            #inputs.chaotic.nixosModules.default
           ];
         };
       }) (builtins.attrNames (builtins.readDir ./hosts/headless)))
