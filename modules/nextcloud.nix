@@ -31,7 +31,7 @@
       home = "/mnt/filen/services/nextcloud";
       hostName = "nextcloud.kauderwels.ch";
       # Need to manually increment with every major upgrade.
-      package = pkgs.nextcloud31;
+      package = pkgs.nextcloud32;
       # Let NixOS install and configure the database automatically.
       database.createLocally = true;
       # Let NixOS install and configure Redis caching automatically.
