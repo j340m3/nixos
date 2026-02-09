@@ -52,6 +52,7 @@
           tasks
           cookbook
           qownnotesapi
+          uppush
           ;
         # Custom app example.
         /*
