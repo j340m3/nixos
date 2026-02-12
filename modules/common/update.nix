@@ -182,7 +182,7 @@
     systemd.oomd.enableRootSlice = true;
     systemd.oomd.enableSystemSlice = true;
     systemd.oomd.enableUserSlices = true; */
-    zramSwap.enable = true;
+    zramSwap.enable = lib.mkDefault true;
 
 
     # BUGFIX: Too many open files
