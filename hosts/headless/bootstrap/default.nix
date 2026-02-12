@@ -203,7 +203,7 @@
                 type = "filesystem";
                 format = "btrfs";
                 mountpoint = "/";
-                mountOptions = ["compress-force=zstd" "nosuid" "nodev"];
+                mountOptions = ["compress=lzo" "nosuid" "nodev"];
               };
             };
           };
@@ -215,7 +215,7 @@
   fileSystems."/" = {
     device = "/dev/vda3";
     fsType = "btrfs";
-    options = ["compress-force=zstd:15" "nosuid" "nodev"];
+    options = ["compress=lzo" "nosuid" "nodev"];
   };
 
   fileSystems."/boot" = {
