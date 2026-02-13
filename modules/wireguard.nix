@@ -1,6 +1,9 @@
 { config, pkgs, ... }:
 
 {
+  networking.nat.enable = true;
+  networking.nat.externalInterface = "eth0";
+  networking.nat.internalInterfaces = [ "wg0" "nebula.mesh" ];
   networking.firewall.allowedUDPPorts = [ 55025 ];
   sops.secrets."wireguard/private" = {
     sopsFile = ../secrets/services/wireguard/secrets.yaml;
