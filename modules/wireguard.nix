@@ -75,7 +75,7 @@
     };
   };
 
-  systemd = {
+  /* systemd = {
     network = {
       config = {
         networkConfig = {
@@ -84,5 +84,5 @@
         };
       };
     };
-  };
+  }; */
 }
