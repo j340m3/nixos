@@ -20,6 +20,7 @@
       ../../../modules/nebula.nix
       #../../../modules/zabbix.nix
       ../../../modules/minecraft-bedrock.nix
+      ../../../modules/wireguard.nix
       #../../../modules/minecraft-java.nix
       #../../../modules/remote-builder.nix
       #../../../modules/matrix3.nix
