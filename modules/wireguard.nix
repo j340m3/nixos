@@ -1,6 +1,7 @@
 { config, pkgs, ... }:
 
 {
+  networking.firewall.allowedUDPPorts = [ 55025 ];
   sops.secrets."wireguard/private" = {
     sopsFile = ../secrets/services/wireguard/secrets.yaml;
   };
