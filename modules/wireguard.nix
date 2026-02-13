@@ -9,6 +9,10 @@
     sopsFile = ../secrets/services/wireguard/secrets.yaml;
   };
 
+  sops.secrets."wireguard/peer/ks273fb" = {
+    sopsFile = ../secrets/services/wireguard/secrets.yaml;
+  };
+
   # Enable Wireguard
   networking.wireguard.interfaces = {
     # "wg0" is the network interface name. You can name the interface arbitrarily.
@@ -64,6 +68,17 @@
           persistentKeepalive = 25;
         }
       ];
+    };
+  };
+
+  systemd = {
+    network = {
+      config = {
+        networkConfig = {
+          IPv4Forwarding = true;
+          IPv6Forwarding = true;
+        };
+      };
     };
   };
 }
