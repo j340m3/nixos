@@ -18,6 +18,10 @@
     sopsFile = ../secrets/services/wireguard/secrets.yaml;
   };
 
+  sops.secrets."wireguard/peer/giusi" = {
+    sopsFile = ../secrets/services/wireguard/secrets.yaml;
+  };
+
   # Enable Wireguard
   networking.wireguard.interfaces = {
     # "wg0" is the network interface name. You can name the interface arbitrarily.
