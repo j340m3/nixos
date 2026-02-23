@@ -2,33 +2,39 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, modulesPath, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  modulesPath,
+  ...
+}:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      #../bootstrap
-      (modulesPath + "/profiles/minimal.nix")
-      (modulesPath + "/profiles/headless.nix")
-      ../../../modules/hardening.nix
-      #../../modules/swap.nix
-      ../../../modules/common 
-      ../../../users/donquezz.nix
-      ../../../modules/logging.nix
-      ../../../modules/persistence.nix
-      ../../../modules/nebula.nix
-      #../../../modules/zabbix.nix
-      ../../../modules/minecraft-bedrock.nix
-      ../../../modules/wireguard.nix
-      #../../../modules/minecraft-java.nix
-      #../../../modules/remote-builder.nix
-      #../../../modules/matrix3.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    #../bootstrap
+    (modulesPath + "/profiles/minimal.nix")
+    (modulesPath + "/profiles/headless.nix")
+    ../../../modules/hardening.nix
+    #../../modules/swap.nix
+    ../../../modules/common
+    ../../../users/donquezz.nix
+    ../../../modules/logging.nix
+    ../../../modules/persistence.nix
+    ../../../modules/nebula.nix
+    #../../../modules/zabbix.nix
+    ../../../modules/minecraft-bedrock.nix
+    ../../../modules/wireguard.nix
+    #../../../modules/minecraft-java.nix
+    ../../../modules/remote-builder.nix
+    #../../../modules/matrix3.nix
+  ];
 
   #system.autoUpgrade.dates = lib.mkForce "daily";
   #nix.gc.dates = lib.mkForce "daily";
-  
+
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
   # boot.loader.grub.efiSupport = true;
@@ -63,9 +69,6 @@
 
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
-
-
-  
 
   # Configure keymap in X11
   # services.xserver.xkb.layout = "us";
