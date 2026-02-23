@@ -72,6 +72,23 @@
           # Send keepalives every 25 seconds. Important to keep NAT tables alive.
           persistentKeepalive = 25;
         }
+        {
+          # Public key of the server (not a file path).
+          publicKey = "2yqKN0Uvapedp1SQEPwmzeVXTcb0yWhK5rB1IqGUUVY=";
+
+          # List of IPs assigned to this peer within the tunnel subnet. Used to configure routing.
+          # For a server peer this should be the whole subnet.
+          allowedIPs = [
+            "10.66.66.10/32"
+            "fd42:42:42::10/128"
+          ];
+
+          presharedKeyFile = config.sops.secrets."wireguard/peer/giusi".path;
+          name = "giusi";
+
+          # Send keepalives every 25 seconds. Important to keep NAT tables alive.
+          persistentKeepalive = 25;
+        }
       ];
     };
   };
