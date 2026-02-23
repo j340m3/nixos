@@ -19,14 +19,14 @@
       package = pkgs.nerd-fonts.victor-mono;
       name = "VictorMono Nerd Font Mono";
     };
-    sansSerif = {
-      package = inputs.apple-fonts.packages.${pkgs.system}.sf-pro-nerd;
-      name = "SFProDisplay Nerd Font";
-    };
-    serif = {
-      package = inputs.apple-fonts.packages.${pkgs.system}.sf-pro-nerd;
-      name = "SFProDisplay Nerd Font";
-    };
+    # sansSerif = {
+    #   package = inputs.apple-fonts.packages.${pkgs.system}.sf-pro-nerd;
+    #   name = "SFProDisplay Nerd Font";
+    # };
+    # serif = {
+    #   package = inputs.apple-fonts.packages.${pkgs.system}.sf-pro-nerd;
+    #   name = "SFProDisplay Nerd Font";
+    # };
     emoji = {
       package = pkgs.noto-fonts-color-emoji;
       name = "Noto Color Emoji";
