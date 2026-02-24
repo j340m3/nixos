@@ -21,7 +21,7 @@
     #./wifi.nix
     ./secops.nix
     ./fonts.nix
-    ./update.nix
+    #./update.nix
     ../../../modules/common
     ../../../modules/nebula.nix
   ];
