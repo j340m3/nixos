@@ -16,6 +16,7 @@
       ./secops.nix
       ./fonts.nix
       ./update.nix
+      ../../../modules/common
     ];
 
   # Use the systemd-boot EFI boot loader.
