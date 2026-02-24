@@ -2,22 +2,29 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p51
-      inputs.impermanence.nixosModules.impermanence
-      ./gaming.nix
-      ./fingerprint.nix
-      #./wifi.nix
-      ./secops.nix
-      ./fonts.nix
-      ./update.nix
-      ../../../modules/common
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p51
+    inputs.impermanence.nixosModules.impermanence
+    ./gaming.nix
+    ./fingerprint.nix
+    #./wifi.nix
+    ./secops.nix
+    ./fonts.nix
+    ./update.nix
+    ../../../modules/common
+    ../../../modules/nebula.nix
+  ];
 
   # Use the systemd-boot EFI boot loader.
   #boot.loader.systemd-boot.enable = true;
@@ -26,24 +33,24 @@
   networking.hostName = "zurg"; # Define your hostname.
   # Pick only one of the below networking options.
   #networking.wireless.enable = false;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
-  
+  networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
+
   boot.loader.grub = {
     enable = true;
     efiSupport = true;
     mirroredBoots = [
       {
-        devices = ["nodev"];
+        devices = [ "nodev" ];
         path = "/boot-fallback";
       }
       {
-        devices = ["nodev"];
+        devices = [ "nodev" ];
         path = "/boot";
       }
 
     ];
   };
-  
+
   boot.swraid.enable = true;
   boot.swraid.mdadmConf = ''
     HOMEHOST zurg
@@ -60,25 +67,25 @@
   i18n.defaultLocale = "de_DE.UTF-8";
   console = {
     font = "Lat2-Terminus16";
-  #  keyMap = "de";
+    #  keyMap = "de";
     useXkbConfig = true; # use xkb.options in tty.
   };
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
-
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
-  
 
   # Configure keymap in X11
   services.xserver.xkb.layout = "de";
   # services.xserver.xkb.options = "eurosign:e,caps:escape";
-  
 
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
   # Enable CUPS to print documents.
   # services.printing.enable = true;
 
@@ -95,46 +102,51 @@
   users.mutableUsers = false;
   users.users.jeromeb = {
     isNormalUser = true;
-    extraGroups = [ 
-	"wheel" 
-	"networkmanager" 
-	"vboxusers"
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+      "vboxusers"
     ];
     hashedPassword = "$6$uT1lJkmEB26nRxwe$30NmQk6/m9P8HvK/xglPmmXyoY3HKqxoTONUpRUXX51ja2XiWGKHqKnSPWKlkF/mMWTPFHj/h0/WzxyXNAfTd/";
     packages = with pkgs; [
-       undervolt
-       btop
-       signal-desktop
-       telegram-desktop
-       spotify
-       librewolf
-       seclists
-       wireguard-tools
-       ffuf
-       gobuster
-       dig
-       nmap
-       whois
-       trufflehog
-       git
-       pciutils
-       wget
-       obsidian
-       lshw
-       tcpdump
-       luanti
-       traceroute
-       libreoffice
-	#vmware-workstation
+      undervolt
+      btop
+      signal-desktop
+      telegram-desktop
+      spotify
+      librewolf
+      seclists
+      wireguard-tools
+      ffuf
+      gobuster
+      dig
+      nmap
+      whois
+      trufflehog
+      git
+      pciutils
+      wget
+      obsidian
+      lshw
+      tcpdump
+      luanti
+      traceroute
+      libreoffice
+      #vmware-workstation
     ];
   };
   programs.flashprog.enable = true;
   environment.systemPackages = [
-  	(pkgs.wordlists.override { lists = with pkgs; [ rockyou seclists ]; })
-        
+    (pkgs.wordlists.override {
+      lists = with pkgs; [
+        rockyou
+        seclists
+      ];
+    })
+
   ];
-  
-#  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
+
+  #  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
   environment.persistence."/nix/persist" = {
     hideMounts = true;
     directories = [
@@ -147,7 +159,7 @@
       "/etc/machine-id"
     ];
     users.jeromeb = {
-    directories = [
+      directories = [
         "Bilder"
         "Dokumente"
         "Downloads"
@@ -159,7 +171,7 @@
         ".local/share/Steam"
         ".local/share/keyrings"
         ".config"
-	"VirtualBox VMs"
+        "VirtualBox VMs"
       ];
     };
   };
@@ -220,4 +232,3 @@
   system.stateVersion = "25.05"; # Did you read the comment?
 
 }
-
