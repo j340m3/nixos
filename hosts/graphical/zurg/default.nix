@@ -147,6 +147,7 @@
 
   ];
 
+  allowReboot = false;
   #  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
   environment.persistence."/nix/persist" = {
     hideMounts = true;
