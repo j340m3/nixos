@@ -12,75 +12,75 @@ keys:
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-    - age:
-        - *admin_jerome
-        - *server_woody
-        - *server_woody_ssh
-        - *server_pricklepants
-        - *server_rex
-        - *server_rex_ssh
-        - *server_buzz
-        - *server_lenny
-        - *server_jessie
-        - *server_slinky
+      - age:
+          - *admin_jerome
+          - *server_woody
+          - *server_woody_ssh
+          - *server_pricklepants
+          - *server_rex
+          - *server_rex_ssh
+          - *server_buzz
+          - *server_lenny
+          - *server_jessie
+          - *server_slinky
   - path_regex: secrets/hosts/woody/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-    - age:
-        - *admin_jerome
-        - *server_woody
-        - *server_woody_ssh
+      - age:
+          - *admin_jerome
+          - *server_woody
+          - *server_woody_ssh
   - path_regex: secrets/hosts/pricklepants/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-    - age:
-        - *admin_jerome
-        - *server_pricklepants
+      - age:
+          - *admin_jerome
+          - *server_pricklepants
   - path_regex: secrets/hosts/rex/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-    - age:
-        - *admin_jerome
-        - *server_rex
-        - *server_rex_ssh
+      - age:
+          - *admin_jerome
+          - *server_rex
+          - *server_rex_ssh
   - path_regex: secrets/hosts/buzz/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-    - age:
-        - *admin_jerome
-        - *server_buzz
+      - age:
+          - *admin_jerome
+          - *server_buzz
   - path_regex: secrets/hosts/jessie/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-    - age:
-        - *admin_jerome
-        - *server_jessie
+      - age:
+          - *admin_jerome
+          - *server_jessie
   - path_regex: secrets/hosts/lenny/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-    - age:
-        - *admin_jerome
-        - *server_lenny
+      - age:
+          - *admin_jerome
+          - *server_lenny
   - path_regex: secrets/hosts/slinky/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-    - age:
-        - *admin_jerome
-        - *server_slinky
-  - path_regex: secrets/hosts/slinky/[^/]+\.(yaml|json|env|ini)$
+      - age:
+          - *admin_jerome
+          - *server_slinky
+  - path_regex: secrets/hosts/zurg/[^/]+\.(yaml|json|env|ini)$
     key_groups:
-    - age:
-        - *admin_jerome
-        - *server_slinky
+      - age:
+          - *admin_jerome
+          #- *server_slinky
   - path_regex: secrets/users/.+\.(yaml|json|env|ini)$
     key_groups:
-    - age:
-        - *admin_jerome
-        - *server_woody
-        - *server_woody_ssh
-        - *server_rex
-        - *server_rex_ssh
-        - *server_lenny
-        - *server_slinky
+      - age:
+          - *admin_jerome
+          - *server_woody
+          - *server_woody_ssh
+          - *server_rex
+          - *server_rex_ssh
+          - *server_lenny
+          - *server_slinky
   - path_regex: secrets/services/.+\.(yaml|json|env|ini)$
     key_groups:
-    - age:
-        - *admin_jerome
-        - *server_woody
-        - *server_woody_ssh
-        - *server_pricklepants
-        - *server_buzz
-        - *server_jessie
+      - age:
+          - *admin_jerome
+          - *server_woody
+          - *server_woody_ssh
+          - *server_pricklepants
+          - *server_buzz
+          - *server_jessie
