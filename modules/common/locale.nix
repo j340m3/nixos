@@ -22,5 +22,5 @@
     LC_TIME = lib.mkDefault "de_DE.UTF-8";
   };
 
-  console.keyMap = "de";
+  console.keyMap = lib.mkDefault "de";
 }
