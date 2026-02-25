@@ -24,7 +24,7 @@
     #./update.nix
     ../../../modules/common
     ../../../modules/nebula.nix
-    ../../../modules/persistance.nix
+    ../../../modules/persistence.nix
   ];
 
   # Use the systemd-boot EFI boot loader.
