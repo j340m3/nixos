@@ -149,34 +149,7 @@
 
   allowReboot = false;
   #  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
-  environment.persistence."/nix/persist" = {
-    hideMounts = true;
-    directories = [
-      "/var/lib/bluetooth"
-      "/var/lib/nixos"
-      "/var/lib/systemd/coredump"
-      "/etc/NetworkManager/system-connections"
-    ];
-    files = [
-      "/etc/machine-id"
-    ];
-    users.jeromeb = {
-      directories = [
-        "Bilder"
-        "Dokumente"
-        "Downloads"
-        "Musik"
-        "Öffentlich"
-        "Schreibtisch"
-        "Videos"
-        "Vorlagen"
-        ".local/share/Steam"
-        ".local/share/keyrings"
-        ".config"
-        "VirtualBox VMs"
-      ];
-    };
-  };
+  
 
   systemd.targets.sleep.enable = false;
   systemd.targets.suspend.enable = false;

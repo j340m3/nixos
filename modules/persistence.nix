@@ -3,19 +3,36 @@
   imports = [
     inputs.impermanence.nixosModules.impermanence
   ];
+
   environment.persistence."/nix/persist" = {
     hideMounts = true;
     directories = [
-      "/srv"       # service data
-      "/var/lib"   # system service persistent data
-      "/var/log"   # the place that journald dumps it logs to
-      #"/run/secrets.d" # sops-nix
-      #"/run/secrets"
+      "/var/lib/bluetooth"
+      "/var/lib/nixos"
+      "/var/lib/systemd/coredump"
+      "/etc/NetworkManager/system-connections"
     ];
     files = [
       "/etc/machine-id"
     ];
+    users.jeromeb = {
+      directories = [
+        "Bilder"
+        "Dokumente"
+        "Downloads"
+        "Musik"
+        "Öffentlich"
+        "Schreibtisch"
+        "Videos"
+        "Vorlagen"
+        ".local/share/Steam"
+        ".local/share/keyrings"
+        ".config"
+        "VirtualBox VMs"
+      ];
+    };
   };
+
   environment.etc."ssh/ssh_host_rsa_key".source
     = "/nix/persist/etc/ssh/ssh_host_rsa_key";
   environment.etc."ssh/ssh_host_rsa_key.pub".source
