@@ -7,23 +7,23 @@
   pkgs,
   inputs,
   ...
-}: {
-  imports =
-    [
-      # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      # Include uConsole settings
-      inputs.nixos-hardware.nixosModules.raspberry-pi-4
-      inputs.oom-hardware.nixosModules.uconsole
-      ./uConsole.nix
-      ../../../modules/common 
-      ../../../modules/vscodium.nix
-      ../../../modules/logging.nix
-      ../../../modules/nebula.nix
-      ../../../modules/zabbix.nix
-      ../../../modules/wifi.nix
-    ]
-    ++ lib.optional (builtins.pathExists ./local.nix) ./local.nix;
+}:
+{
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    # Include uConsole settings
+    inputs.nixos-hardware.nixosModules.raspberry-pi-4
+    inputs.oom-hardware.nixosModules.uconsole
+    ./uConsole.nix
+    ../../../modules/common
+    ../../../modules/vscodium.nix
+    ../../../modules/logging.nix
+    ../../../modules/nebula.nix
+    ../../../modules/zabbix.nix
+    ../../../modules/wifi.nix
+  ]
+  ++ lib.optional (builtins.pathExists ./local.nix) ./local.nix;
 
   # Use the extlinux boot loader. (NixOS wants to enable GRUB by default)
   boot.loader.grub.enable = false;
@@ -33,7 +33,7 @@
   networking.hostName = "slinky"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
 
   # Set your time zone.
   time.timeZone = "Europe/Berlin";
@@ -90,10 +90,10 @@
   #   ];
   # };
 
- # programs.hyprland = { 
- #   enable = true;
- #   xwayland.enable = true;
- # };
+  # programs.hyprland = {
+  #   enable = true;
+  #   xwayland.enable = true;
+  # };
 
   programs.waybar.enable = true;
   # List packages installed in system profile. To search, run:
@@ -109,7 +109,7 @@
     kitty
     libnotify
     networkmanagerapplet
-    rofi-wayland
+    rofi
     swww
     waybar
     thonny
@@ -120,14 +120,13 @@
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
   };
-  
+
   fonts.packages = with pkgs; [
     font-awesome
     nerd-fonts.monoid
     nerd-fonts.victor-mono
     nerd-fonts.comic-shanns-mono
   ];
-  
 
   xdg.portal.enable = true;
   xdg.portal.extraPortals = with pkgs; [
@@ -183,50 +182,51 @@
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "25.05"; # Did you read the comment?
 
-  /* programs.ccache = {
-    enable = true;
-    packageNames = [ "linux_rpi4" ];
-  };
-  nix.sandboxPaths = [ (toString config.programs.ccache.cacheDir) ];   */
-  
-  
-
-  /* nixpkgs.overlays = [
-  (self: super: {
-    ccacheWrapper = super.ccacheWrapper.override {
-      extraConfig = ''
-        export CCACHE_DEBUG=1
-        export CCACHE_COMPRESS=1
-        export CCACHE_DIR="${config.programs.ccache.cacheDir}"
-        export CCACHE_UMASK=007
-        export CCACHE_SLOPPINESS=random_seed
-        export KBUILD_BUILD_TIMESTAMP=""
-        if [ ! -d "$CCACHE_DIR" ]; then
-          echo "====="
-          echo "Directory '$CCACHE_DIR' does not exist"
-          echo "Please create it with:"
-          echo "  sudo mkdir -m0770 '$CCACHE_DIR'"
-          echo "  sudo chown root:nixbld '$CCACHE_DIR'"
-          echo "====="
-          exit 1
-        fi
-        if [ ! -w "$CCACHE_DIR" ]; then
-          echo "====="
-          echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
-          echo "Please verify its access permissions"
-          echo "====="
-          exit 1
-        fi
-      '';
+  /*
+    programs.ccache = {
+      enable = true;
+      packageNames = [ "linux_rpi4" ];
     };
-  })
-  (self: super: {
-      linux = super.linux.overrideAttrs (oldAttrs: {
-          depsBuildBuild = oldAttrs.depsBuildBuild // [ super.ccacheStdenv ];
-      });
-    })
-]; */
-  
+    nix.sandboxPaths = [ (toString config.programs.ccache.cacheDir) ];
+  */
+
+  /*
+    nixpkgs.overlays = [
+      (self: super: {
+        ccacheWrapper = super.ccacheWrapper.override {
+          extraConfig = ''
+            export CCACHE_DEBUG=1
+            export CCACHE_COMPRESS=1
+            export CCACHE_DIR="${config.programs.ccache.cacheDir}"
+            export CCACHE_UMASK=007
+            export CCACHE_SLOPPINESS=random_seed
+            export KBUILD_BUILD_TIMESTAMP=""
+            if [ ! -d "$CCACHE_DIR" ]; then
+              echo "====="
+              echo "Directory '$CCACHE_DIR' does not exist"
+              echo "Please create it with:"
+              echo "  sudo mkdir -m0770 '$CCACHE_DIR'"
+              echo "  sudo chown root:nixbld '$CCACHE_DIR'"
+              echo "====="
+              exit 1
+            fi
+            if [ ! -w "$CCACHE_DIR" ]; then
+              echo "====="
+              echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
+              echo "Please verify its access permissions"
+              echo "====="
+              exit 1
+            fi
+          '';
+        };
+      })
+      (self: super: {
+          linux = super.linux.overrideAttrs (oldAttrs: {
+              depsBuildBuild = oldAttrs.depsBuildBuild // [ super.ccacheStdenv ];
+          });
+        })
+    ];
+  */
 
   nix.settings.max-jobs = 1;
   nix.settings.cores = 1;
@@ -237,11 +237,19 @@
       hostName = "builder-local";
       #sshUser = "remotebuild";
       #sshKey = "/root/.ssh/remotebuild";
-      systems = [ "x86_64-linux" "aarch64-linux" ];
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
       #system = pkgs.stdenv.hostPlatform.system;
       speedFactor = 100;
       protocol = "ssh-ng";
-      supportedFeatures = [ "nixos-test" "big-parallel" "kvm" "benchmark" ];
+      supportedFeatures = [
+        "nixos-test"
+        "big-parallel"
+        "kvm"
+        "benchmark"
+      ];
     }
   ];
 
