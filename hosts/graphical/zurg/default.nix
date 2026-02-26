@@ -25,6 +25,7 @@
     ../../../modules/common
     ../../../modules/nebula.nix
     ../../../modules/persistence.nix
+    ../../../modules/remote-builder.nix
   ];
 
   # Use the systemd-boot EFI boot loader.
