@@ -9,6 +9,7 @@ keys:
   - &server_lenny age1epwzgq42tx30zp99sep75qd7wy9ppgrl7k2gdualqq8aq8fhde8qu99nku
   - &server_jessie age1ryu9sln638lryj3yupm3p9swtqm986h3g84ezw43c9pqe8pw0g4qy7j2gt
   - &server_slinky age1zkm0j83lzkekgetkj9mlatmtg5p8dqqc6g0sf24pnw9dwkrytejq8t0sfc
+  - &server_zurg age1wudmk6vrkdadznx92tdqa3s9sds6fyrw9xr5thu48k5h2qr3fd5qd0xy20
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
@@ -23,6 +24,7 @@ creation_rules:
           - *server_lenny
           - *server_jessie
           - *server_slinky
+          - *server_zurg
   - path_regex: secrets/hosts/woody/[^/]+\.(yaml|json|env|ini)$
     key_groups:
       - age:
@@ -64,7 +66,7 @@ creation_rules:
     key_groups:
       - age:
           - *admin_jerome
-          #- *server_slinky
+          - *server_zurg
   - path_regex: secrets/users/.+\.(yaml|json|env|ini)$
     key_groups:
       - age:
@@ -75,6 +77,7 @@ creation_rules:
           - *server_rex_ssh
           - *server_lenny
           - *server_slinky
+          - *server_zurg
   - path_regex: secrets/services/.+\.(yaml|json|env|ini)$
     key_groups:
       - age:
@@ -84,3 +87,4 @@ creation_rules:
           - *server_pricklepants
           - *server_buzz
           - *server_jessie
+          - *server_zurg
