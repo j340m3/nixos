@@ -15,7 +15,7 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p51
-    inputs.impermanence.nixosModules.impermanence
+    #inputs.impermanence.nixosModules.impermanence
     ./gaming.nix
     ./fingerprint.nix
     #./wifi.nix
