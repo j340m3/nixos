@@ -8,34 +8,67 @@
       hostName = "builder1";
       #sshUser = "remotebuild";
       #sshKey = "/root/.ssh/remotebuild";
-      systems = [ "x86_64-linux" "aarch64-linux" ];
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
       #system = pkgs.stdenv.hostPlatform.system;
-      speedFactor = 100;
+      speedFactor = 10;
       protocol = "ssh-ng";
-      supportedFeatures = [ "nixos-test" "big-parallel" "kvm" "benchmark" ];
+      supportedFeatures = [
+        "nixos-test"
+        "big-parallel"
+        "kvm"
+        "benchmark"
+      ];
       maxJobs = 6;
     }
     {
       hostName = "builder2";
       #sshUser = "remotebuild";
       #sshKey = "/root/.ssh/remotebuild";
-      systems = [ "x86_64-linux" "aarch64-linux" ];
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
       #system = pkgs.stdenv.hostPlatform.system;
       speedFactor = 1;
       protocol = "ssh-ng";
-      supportedFeatures = [];
+      supportedFeatures = [ ];
       maxJobs = 2;
     }
     {
       hostName = "builder3";
       #sshUser = "remotebuild";
       #sshKey = "/root/.ssh/remotebuild";
-      systems = [ "x86_64-linux" "aarch64-linux" ];
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
       #system = pkgs.stdenv.hostPlatform.system;
       speedFactor = 1;
       protocol = "ssh-ng";
-      supportedFeatures = [];
+      supportedFeatures = [ ];
       maxJobs = 6;
+    }
+    {
+      hostName = "builder4";
+      #sshUser = "remotebuild";
+      #sshKey = "/root/.ssh/remotebuild";
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+      #system = pkgs.stdenv.hostPlatform.system;
+      speedFactor = 100;
+      protocol = "ssh-ng";
+      supportedFeatures = [
+        "nixos-test"
+        "big-parallel"
+        "kvm"
+        "benchmark"
+      ];
+      maxJobs = 20;
     }
   ];
   programs.ssh.extraConfig = ''
@@ -53,6 +86,12 @@
       IdentityFile /root/.ssh/remotebuild
     Host builder3
       HostName woody.fritz.box
+      Port 42069
+      User remotebuild
+      IdentitiesOnly yes
+      IdentityFile /root/.ssh/remotebuild
+    Host builder4
+      HostName 10.0.0.10
       Port 42069
       User remotebuild
       IdentitiesOnly yes
