@@ -7,6 +7,15 @@
   ...
 }:
 {
+  sops.secrets."nextcloud/secrets.json" = {
+    format = "json";
+    sopsFile = ../secrets/services/nextcloud/secrets.json;
+    #restartUnits = ["nebula@mesh.service"];
+    owner = "nextcloud";
+    group = "nextcloud";
+    #path = "/etc/nebula/self.key";
+    key = "";
+  };
 
   users.users.nextcloud.uid = 989;
   users.groups.nextcloud.gid = 987;
@@ -40,7 +49,8 @@
       # Let NixOS install and configure Redis caching automatically.
       configureRedis = true;
       # Increase the maximum file upload size.
-      maxUploadSize = "16G";
+      maxUploadSize = "1G";
+      secretFile = config.sops.secrets."nextcloud/secrets.json".path;
       https = true;
       autoUpdateApps.enable = true;
       extraAppsEnable = true;
