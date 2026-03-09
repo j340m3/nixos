@@ -106,3 +106,18 @@ creation_rules:
           - *server_buzz
           - *server_jessie
           - *server_zurg
+  - path_regex: secrets/services/postgres/rclone.ini$
+    key_groups:
+      - age:
+          - *admin_jerome
+          - *bw_jerome
+          - *server_woody
+          - *server_woody_ssh
+          - *server_pricklepants
+          - *server_rex
+          - *server_rex_ssh
+          - *server_buzz
+          - *server_lenny
+          - *server_jessie
+          - *server_slinky
+          - *server_zurg
