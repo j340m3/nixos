@@ -7,7 +7,7 @@
 
   sops.secrets."filen/postgres.conf" = {
     format = "ini";
-    sopsFile = ../secrets/services/postgres/rclone.ini;
+    sopsFile = ../../secrets/services/postgres/rclone.ini;
     #restartUnits = ["nebula@mesh.service"];
     owner = "postgres";
     group = "postgres";
