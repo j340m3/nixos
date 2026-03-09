@@ -5,10 +5,11 @@
     location = "/mnt/filen/services/postgres/backups/${config.networking.hostName}";
   };
 
-  systemd.tmpfiles.rules = [
-    "d /mnt/filen/services/postgres/backups 1750 postgres postgres -"
-    "d /mnt/filen/services/postgres/backups/${config.networking.hostName} 1750 postgres postgres -"
-  ];
+  # Skipped because detected autofs mount point
+  #systemd.tmpfiles.rules = [
+  #  "d /mnt/filen/services/postgres/backups 1750 postgres postgres -"
+  #  "d /mnt/filen/services/postgres/backups/${config.networking.hostName} 1750 postgres postgres -"
+  #];
 
   sops.secrets."filen/postgres.conf" = {
     format = "ini";
