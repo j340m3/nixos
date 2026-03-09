@@ -29,7 +29,7 @@
     ../../../modules/logging.nix
     ../../../modules/nextcloud.nix
     #../../../modules/persistence.nix
-    ../../../modules/zabbix.nix
+    #../../../modules/zabbix.nix
     ../../../modules/wireguard.nix
     #../../../modules/radicle-seed.nix
     #../../modules/nebula.nix
