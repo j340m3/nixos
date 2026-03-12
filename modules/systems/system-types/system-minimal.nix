@@ -5,7 +5,7 @@
 {
   # default settings needed for all nixosConfigurations
 
-  flake.modules.nixos.minimal =
+  flake.modules.nixos.system-minimal =
     { pkgs, ... }:
     {
       nixpkgs.overlays = [
