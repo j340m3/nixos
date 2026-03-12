@@ -12,6 +12,7 @@
         system-minimal
         home-manager
         secrets
+        donquezz
       ]
       ++ (with inputs.self.modules.generic; [
         systemConstants

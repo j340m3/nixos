@@ -1,5 +1,6 @@
 {
   inputs,
+  lib,
   ...
 }:
 let
@@ -10,9 +11,29 @@ in
     { pkgs, ... }:
     {
       imports = with inputs.self.modules.homeManager; [
-        #system-desktop
+        system-default
         # messaging
       ];
       home.username = "${username}";
+
+      home.packages = with pkgs; [
+        btop
+        git
+        wezterm
+        spotify
+        signal-desktop
+        telegram-desktop
+        element-desktop
+        radicle-desktop
+        radicle-node
+        sops
+        bitwarden-desktop
+      ];
+      nixpkgs.config.allowUnfreePredicate =
+        pkg:
+        builtins.elem (lib.getName pkg) [
+          "spotify"
+          "apple_cursor"
+        ];
     };
 }
