@@ -7,7 +7,7 @@
 
   flake.modules.nixos.system-virtual = {
     imports = with inputs.self.modules.nixos; [
-      system-minimal
+      system-default
     ];
     virtualisation.diskSize = "auto";
     virtualisation.virtualbox.guest.enable = true;
