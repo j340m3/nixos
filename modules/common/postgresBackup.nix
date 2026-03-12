@@ -1,5 +1,4 @@
 { pkgs, config, lib,... }:{
-config = lib.mkIf config.users.users.postgres {
 
   services.postgresqlBackup = {
     enable = true;
@@ -61,5 +60,4 @@ config = lib.mkIf config.users.users.postgres {
       "dir-perms=0770"
     ];
   };
-};
 }

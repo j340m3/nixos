@@ -12,6 +12,5 @@
     ./ntp.nix
     ./ulimit.nix
     ../../users/donquezz.nix
-    ./postgresBackup.nix
   ];
 }

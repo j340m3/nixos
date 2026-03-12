@@ -7,6 +7,9 @@
   ...
 }:
 {
+  imports = [
+    ./common/postgresBackup.nix
+  ];
   sops.secrets."nextcloud/secrets.json" = {
     format = "json";
     sopsFile = ../secrets/services/nextcloud/secrets.json;
