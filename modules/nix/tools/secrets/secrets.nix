@@ -7,7 +7,8 @@
   flake.modules.nixos.secrets =
     { pkgs, ... }:
     {
-      sops.defaultSopsFile = ../../secrets/example.yaml;
+      imports = [ inputs.sops-nix.nixosModules.sops ];
+      sops.defaultSopsFile = ../../../secrets/example.yaml;
       # imports = [
       #   inputs.agenix.nixosModules.default
       # ];
@@ -17,7 +18,8 @@
   flake.modules.darwin.secrets =
     { pkgs, ... }:
     {
-      sops.defaultSopsFile = ../../secrets/example.yaml;
+      imports = [ inputs.sops-nix.nixosModules.sops ];
+      sops.defaultSopsFile = ../../../secrets/example.yaml;
       # imports = [
       #   inputs.agenix.darwinModules.default
       # ];
@@ -27,6 +29,7 @@
   flake.modules.homeManager.secrets =
     { pkgs, ... }:
     {
+      imports = [ inputs.sops-nix.homeManagerModules.sops ];
       # imports = [
       #   inputs.agenix.homeManagerModules.default
       # ];
