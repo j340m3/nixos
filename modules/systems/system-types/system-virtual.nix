@@ -5,9 +5,9 @@
 {
   # expansion of default system with basic system settings & cli-tools
 
-  flake.modules.nixos.virtual = {
+  flake.modules.nixos.system-virtual = {
     imports = with inputs.self.modules.nixos; [
-      minimal
+      system-minimal
     ];
     virtualisation.diskSize = "auto";
     virtualisation.virtualbox.guest.enable = true;
