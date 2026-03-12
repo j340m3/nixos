@@ -1,4 +1,5 @@
-{pkgs, config, ...}:{
+{ pkgs, config, ... }:
+{
 
   services.postgresqlBackup = {
     enable = true;
@@ -24,6 +25,9 @@
   environment.systemPackages = with pkgs; [
     rclone
   ];
+
+  users.users.nextcloud.uid = 989;
+  users.groups.nextcloud.gid = 987;
 
   fileSystems."/mnt/filen/services/postgres" = {
     device = "filen:services/postgres";
