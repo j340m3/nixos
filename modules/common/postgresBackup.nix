@@ -61,5 +61,5 @@ config = lib.mkIf config.users.user.postgres {
       "dir-perms=0770"
     ];
   };
-}
+};
 }
