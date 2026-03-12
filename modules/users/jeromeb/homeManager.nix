@@ -10,7 +10,7 @@ in
     { pkgs, ... }:
     {
       imports = with inputs.self.modules.homeManager; [
-        system-desktop
+        #system-desktop
         # messaging
       ];
       home.username = "${username}";
