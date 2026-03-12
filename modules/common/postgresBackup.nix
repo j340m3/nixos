@@ -1,5 +1,5 @@
 { pkgs, config, lib,... }:{
-config = lib.mkIf config.users.user.postgres {
+config = lib.mkIf config.users.users.postgres {
 
   services.postgresqlBackup = {
     enable = true;
