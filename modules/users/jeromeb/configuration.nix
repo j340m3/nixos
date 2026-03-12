@@ -34,5 +34,12 @@ in
         shell = pkgs.zsh;
       };
       programs.zsh.enable = true;
+
+      nixpkgs.config.allowUnfreePredicate =
+        pkg:
+        builtins.elem (lib.getName pkg) [
+          "spotify"
+          "apple_cursor"
+        ];
     };
 }
