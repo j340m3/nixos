@@ -1,5 +1,7 @@
 {
-  inputs, config, lib,
+  inputs,
+  config,
+  lib,
   ...
 }:
 {
@@ -11,9 +13,10 @@
     ];
     virtualisation.diskSize = "auto";
     virtualisation.virtualbox.guest.enable = true;
-    boot.extraModulePackages = with config.boot.kernelPackages; [ virtualboxGuestAdditions ];
+    # FIXME
+    #boot.extraModulePackages = with config.boot.kernelPackages; [ virtualboxGuestAdditions ];
     systemd.services."virtualboxClientDragAndDrop" = {
-      wantedBy = lib.mkForce [ ]; #Disable Drag and Drop
+      wantedBy = lib.mkForce [ ]; # Disable Drag and Drop
       #execStart=lib.mkForce [""];
     };
   };
