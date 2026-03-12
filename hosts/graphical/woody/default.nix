@@ -512,10 +512,10 @@ let
   };
 
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 80 443 8080 10051];
-  services.zabbixServer ={
-    enable = true;
-    package = pkgs.zabbix74.server;
-  };
+  #services.zabbixServer ={
+  #  enable = true;
+  #  package = pkgs.zabbix74.server;
+  #};
 
   services.zabbixWeb = {
     enable = true;

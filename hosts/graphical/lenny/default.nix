@@ -16,7 +16,7 @@ in */
       ../../../modules/common 
       ../../../modules/logging.nix
       ../../../modules/nebula.nix
-      ../../../modules/zabbix.nix
+      #../../../modules/zabbix.nix
       ../../../modules/wifi.nix
       ./jeromeb
       ./lilly
