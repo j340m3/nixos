@@ -8,7 +8,6 @@
       system-virtual
       systemd-boot
       xfce
-      vscode
     ];
   };
   ###

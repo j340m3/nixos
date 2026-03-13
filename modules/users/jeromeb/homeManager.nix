@@ -12,6 +12,7 @@ in
     {
       imports = with inputs.self.modules.homeManager; [
         system-default
+        vscode
         # messaging
       ];
       home.username = "${username}";
@@ -28,6 +29,9 @@ in
         radicle-node
         sops
         bitwarden-desktop
+        nh
+        powerline-fonts
+        powerline-symbols
       ];
     };
 }
