@@ -43,6 +43,7 @@
       [
         system-minimal
         secrets
+        locale
       ]
       ++ [ inputs.self.modules.generic.systemConstants ];
   };

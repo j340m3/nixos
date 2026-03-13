@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.kde = {
+  flake.modules.homeManager.vscode = 
     { pkgs
 , lib
 , ...
@@ -119,7 +119,7 @@
       };
     };
   };
-}
+
 
   };
 }
