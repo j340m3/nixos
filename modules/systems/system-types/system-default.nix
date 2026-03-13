@@ -10,6 +10,7 @@
       with inputs.self.modules.nixos;
       [
         system-minimal
+        nix-settings
         home-manager
         secrets
         donquezz
@@ -28,6 +29,7 @@
         home-manager
         homebrew
         secrets
+        locale
       ]
       ++ (with inputs.self.modules.generic; [
         systemConstants
@@ -43,7 +45,6 @@
       [
         system-minimal
         secrets
-        locale
       ]
       ++ [ inputs.self.modules.generic.systemConstants ];
   };
