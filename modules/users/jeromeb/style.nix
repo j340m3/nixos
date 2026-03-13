@@ -36,5 +36,5 @@
   };
 
   stylix.targets.firefox.profileNames = [ "personal" ];
-  }:
+  };
 }
