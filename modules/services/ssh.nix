@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.ssh = {...}:{
+  flake.modules.nixos.ssh = {lib,...}:{
     services.fail2ban = {
       enable = lib.mkDefault true;
       daemonSettings = {
