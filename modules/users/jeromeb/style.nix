@@ -21,7 +21,7 @@
     # };
     emoji = {
       package = pkgs.noto-fonts-color-emoji;
-      name = "Noto Color Emoji";
+      name = "Noto Color Emoji"; 
     };
   };
   stylix.cursor = {

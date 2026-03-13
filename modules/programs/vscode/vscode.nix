@@ -46,7 +46,7 @@
           "git.enableSmartCommit" = true;
           "git.confirmSync" = false;
           "git.autofetch" = true;
-          "files.autoSave" = "afterDelay";
+          "files.autoSave" = "onFocusChange";
 
           "editor.fontFamily" = "VictorMono Nerd Font Mono";
           "editor.snippetSuggestions" = "none";
@@ -122,4 +122,12 @@
 
 
   };
+
+
+  flake.modules.nixos.vscode = 
+    { pkgs, ... }:
+{
+  environment.systemPackages = [ pkgs.nixfmt ];
+};
+  
 }
