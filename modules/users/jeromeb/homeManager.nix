@@ -14,6 +14,7 @@ in
         system-default
         vscode
         librewolf
+        jeromeb-style
         # messaging
       ];
       home.username = "${username}";

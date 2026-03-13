@@ -15,5 +15,11 @@
       inputs.stylix.homeModules.stylix
     ];
   };
+
+  flake.modules.nixos.stylix = {
+    imports = [
+      inputs.stylix.nixosModules.stylix
+    ];
+  };
   #imports = [ inputs.home-manager.flakeModules.home-manager ];
 }
