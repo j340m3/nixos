@@ -56,7 +56,7 @@
               config.services.nebula.networks.mesh.enable) 
       [
         {
-          cidr = config.systemConstants.nebula.cidr;;
+          cidr = config.systemConstants.nebula.cidr;
           port = 42069;
           proto = "any";
         }
