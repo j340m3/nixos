@@ -19,18 +19,26 @@ in
 
       imports = with inputs.self.modules.nixos; [
         yubikey
+        stylix
         # developmentEnvironment
       ];
 
       home-manager.users."${username}" = {
         imports = [
           inputs.self.modules.homeManager."${username}"
+          inputs.self.modules.homeManager.stylix
         ];
       };
 
       users.users."${username}" = {
         isNormalUser = true;
-        initialPassword = "changeme";
+        #initialPassword = "changeme";
+        description = "Jerome";
+        extraGroups = [
+          "networkmanager"
+          "wheel"
+          "docker"
+        ];
         shell = pkgs.zsh;
       };
       programs.zsh.enable = true;

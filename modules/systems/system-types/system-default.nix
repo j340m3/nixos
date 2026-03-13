@@ -16,6 +16,7 @@
         donquezz
         networking
         locale
+        stylix
       ]
       ++ (with inputs.self.modules.generic; [
         systemConstants
