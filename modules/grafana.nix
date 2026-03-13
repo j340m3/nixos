@@ -11,6 +11,7 @@
     domain = "grafana.kauderwels.ch";
     port = 2342;
     addr = "0.0.0.0";
+    # FIXME
     settings.security.secret_key = "SW2YcwTIb9zpOOhoPsMm";
   };
   services.nginx.virtualHosts.${config.services.grafana.domain} = {
