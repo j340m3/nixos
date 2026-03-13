@@ -14,6 +14,8 @@
         home-manager
         secrets
         donquezz
+        networking
+        locale
       ]
       ++ (with inputs.self.modules.generic; [
         systemConstants

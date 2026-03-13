@@ -16,13 +16,13 @@
       };
     in 
   {
-    imports = [
-      inputs.stylix.homeModules.stylix
-    ];
-    stylix.targets.librewolf = {
-      colorTheme.enable = true;
-      profileNames = [ "personal" ];
-    };
+    imports = with inputs.self.modules.homeManager; [
+        #stylix
+      ];
+    #stylix.targets.librewolf = {
+    #  colorTheme.enable = true;
+    #  profileNames = [ "personal" ];
+    #y};
 
     home.sessionVariables =  {
       DEFAULT_BROWSER = lib.getExe pkgs.librewolf;

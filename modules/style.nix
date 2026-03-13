@@ -9,6 +9,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  
-  imports = [ inputs.home-manager.flakeModules.home-manager ];
+
+  flake.modules.homeManager.stylix = {
+    imports = [
+      inputs.stylix.homeModules.stylix
+    ];
+  };
+  #imports = [ inputs.home-manager.flakeModules.home-manager ];
 }
