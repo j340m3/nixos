@@ -6,7 +6,6 @@
       stylix.autoEnable = true;
       stylix.enable = true;
       # FIXME
-      #stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
       stylix.base16Scheme = "${inputs.tinted-schemes}/base16/catppuccin-frappe.yaml";
       #stylix.polarity = "light";
       stylix.fonts = {

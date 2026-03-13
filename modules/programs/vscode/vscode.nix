@@ -129,5 +129,4 @@
     {
       environment.systemPackages = [ pkgs.nixfmt ];
     };
-
 }
