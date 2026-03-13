@@ -20,6 +20,7 @@ in
       imports = with inputs.self.modules.nixos; [
         yubikey
         stylix
+        vscode
         # developmentEnvironment
       ];
 
@@ -50,4 +51,5 @@ in
           "apple_cursor"
         ];
     };
+
 }
