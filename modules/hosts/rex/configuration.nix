@@ -7,6 +7,8 @@
     imports = with inputs.self.modules.nixos; [
       system-virtual
       systemd-boot
+      xfce
+      vscode
     ];
   };
   ###
