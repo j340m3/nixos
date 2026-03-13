@@ -2,55 +2,61 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, constants, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  constants,
+  ...
+}:
 
 let
-    lock-false = {
-      Value = false;
-      Status = "locked";
-    };
-    lock-true = {
-      Value = true;
-      Status = "locked";
-    };
-    lock-empty-string = {
-      Value = "";
-      Status = "locked";
-    };
+  lock-false = {
+    Value = false;
+    Status = "locked";
+  };
+  lock-true = {
+    Value = true;
+    Status = "locked";
+  };
+  lock-empty-string = {
+    Value = "";
+    Status = "locked";
+  };
 
-  in 
+in
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      ../../../modules/common 
-      ../../../users/donquezz.nix
-      ../../../modules/loghost.nix
-      ../../../modules/borg-server.nix
-      ../../../modules/remote-builder.nix
-      #../../../modules/peerix.nix
-      ../../../modules/reticulum.nix
-      ../../../desktop-environments/kde.nix
-      #../../../desktop-environments/mate.nix
-      ../../../modules/wifi.nix
-      ../../../modules/immich.nix
-      ../../../modules/paperless.nix
-      ../../../modules/harmonia.nix
-      ../../../modules/nfs-fee.nix
-      ../../../modules/nebula.nix
-      ../../../modules/technitium.nix
-      ../../../modules/prometheus.nix
-      ../../../modules/grafana.nix
-      ../../../modules/fritz-exporter.nix
-      # ./firefox.nix
-      #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
-      #<home-manager/nixos>
-    ];
-  
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    ../../../modules/common
+    ../../../users/donquezz.nix
+    ../../../modules/loghost.nix
+    ../../../modules/borg-server.nix
+    ../../../modules/remote-builder.nix
+    #../../../modules/peerix.nix
+    ../../../modules/reticulum.nix
+    ../../../desktop-environments/kde.nix
+    #../../../desktop-environments/mate.nix
+    ../../../modules/wifi.nix
+    ../../../modules/immich.nix
+    ../../../modules/paperless.nix
+    ../../../modules/harmonia.nix
+    ../../../modules/nfs-fee.nix
+    ../../../modules/nebula.nix
+    ../../../modules/technitium.nix
+    ../../../modules/prometheus.nix
+    ../../../modules/grafana.nix
+    ../../../modules/fritz-exporter.nix
+    # ./firefox.nix
+    #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
+    #<home-manager/nixos>
+  ];
+
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
-  
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -130,12 +136,16 @@ let
   nix.settings.cores = 6;
   nix.distributedBuilds = lib.mkForce false;
 
-  users.groups.plugdev = {};
+  users.groups.plugdev = { };
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.jeromeb = {
     isNormalUser = true;
     description = "Jerome Bergmann";
-    extraGroups = [ "networkmanager" "wheel" "plugdev" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "plugdev"
+    ];
     packages = with pkgs; [
       #goose-cli
       htop
@@ -147,27 +157,29 @@ let
           bbenoist.nix
         ];
       })
-    #  thunderbird
+      #  thunderbird
     ];
   };
   #users.users.eve.isNormalUser = true;
-  /* home-manager.users.jeromeb = { pkgs, ... }: {
-    home.packages = [ pkgs.atool pkgs.httpie ];
-    programs.bash.enable = true;
+  /*
+    home-manager.users.jeromeb = { pkgs, ... }: {
+      home.packages = [ pkgs.atool pkgs.httpie ];
+      programs.bash.enable = true;
 
-    # The state version is required and should stay at the version you
-    # originally installed.
-    home.stateVersion = "24.11";
-    programs.home-manager.enable = true;
-    programs.neovim.plugins = [ pkgs.vimPlugins.parinfer-rust ];
+      # The state version is required and should stay at the version you
+      # originally installed.
+      home.stateVersion = "24.11";
+      programs.home-manager.enable = true;
+      programs.neovim.plugins = [ pkgs.vimPlugins.parinfer-rust ];
 
-  };
-  home-manager.backupFileExtension = "backup.hm"; */
+    };
+    home-manager.backupFileExtension = "backup.hm";
+  */
 
   # Install firefox.
   # programs.firefox.enable = true;
   # Install firefox.
-  
+
   programs.firefox = {
     enable = true;
     package = pkgs.firefox-esr;
@@ -184,11 +196,11 @@ let
       DontCheckDefaultBrowser = true;
       DisablePocket = true;
       EnableTrackingProtection = {
-          "Value" = true;
-          "Locked" = true;
-          "Cryptomining" = true;
-          "Fingerprinting" = true;
-          "Exceptions" = [];
+        "Value" = true;
+        "Locked" = true;
+        "Cryptomining" = true;
+        "Fingerprinting" = true;
+        "Exceptions" = [ ];
       };
 
       OfferToSaveLogins = false;
@@ -260,8 +272,8 @@ let
       };
 
       WebsiteFilter = {
-        Block = ["https://9gag.com/"];
-        Exceptions = [];
+        Block = [ "https://9gag.com/" ];
+        Exceptions = [ ];
       };
     };
   };
@@ -291,8 +303,8 @@ let
     elmPackages.elm-upgrade
     mate.caja-with-extensions
     rclone
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
+    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    #  wget
   ];
   services.yubikey-agent.enable = true;
   # Some programs need SUID wrappers, can be configured further or are
@@ -325,7 +337,7 @@ let
 
   system.autoUpgrade = {
     #enable = true;
-   # allowReboot  = true;
+    # allowReboot  = true;
     dates = "hourly";
   };
   #useComin = true;
@@ -337,22 +349,24 @@ let
   };
 
   # Please do upgrades in Background
-  /* nix = {
-    package = pkgs.nix;
-    settings.experimental-features = [ "nix-command" "flakes" ];
-    settings.auto-optimise-store = true;
-    settings.max-jobs = 1;
-    settings.cores = 1;
-    daemonIOSchedClass = lib.mkDefault "idle";
-    daemonCPUSchedPolicy = lib.mkDefault "idle";
-  };
-  systemd.services.nix-daemon.serviceConfig.Slice = "-.slice";
-  # always use the daemon, even executed  with root
-  environment.variables.NIX_REMOTE = "daemon";
-  systemd.services.nix-daemon.serviceConfig = {
-    MemoryHigh = "800M";
-    MemoryMax = "1G";
-  }; */
+  /*
+    nix = {
+      package = pkgs.nix;
+      settings.experimental-features = [ "nix-command" "flakes" ];
+      settings.auto-optimise-store = true;
+      settings.max-jobs = 1;
+      settings.cores = 1;
+      daemonIOSchedClass = lib.mkDefault "idle";
+      daemonCPUSchedPolicy = lib.mkDefault "idle";
+    };
+    systemd.services.nix-daemon.serviceConfig.Slice = "-.slice";
+    # always use the daemon, even executed  with root
+    environment.variables.NIX_REMOTE = "daemon";
+    systemd.services.nix-daemon.serviceConfig = {
+      MemoryHigh = "800M";
+      MemoryMax = "1G";
+    };
+  */
 
   services.xrdp.enable = true;
   #services.xrdp.defaultWindowManager = "mate-session";
@@ -360,9 +374,8 @@ let
   services.xrdp.openFirewall = true;
   #services.xrdp.extraConfDirCommands = "substituteInPlace $out/sesman.ini --replace-fail '#SessionSockdirGroup=xrdp' 'SessionSockdirGroup=xrdp'";
 
-  
   services.home-assistant = {
-    enable = false; #doesn't build!?
+    enable = false; # doesn't build!?
     extraComponents = [
       # Components required to complete the onboarding
       "esphome"
@@ -377,12 +390,16 @@ let
     config = {
       # Includes dependencies for a basic setup
       # https://www.home-assistant.io/integrations/default_config/
-      default_config = {};
+      default_config = { };
       mqtt = {
         climate = [
           {
             name = "Emelies Heizung";
-            modes = ["off" "heat" "auto"];
+            modes = [
+              "off"
+              "heat"
+              "auto"
+            ];
             min_temp = 5;
             max_temp = 26;
             temp_step = 0.5;
@@ -411,7 +428,7 @@ let
       };
     };
   };
-  networking.firewall.allowedTCPPorts = [ 
+  networking.firewall.allowedTCPPorts = [
     8123 # Home Assistant
     1883 # Mosquitto
   ];
@@ -422,70 +439,78 @@ let
     listeners = [
       {
         users.root = {
-          acl = [ 
+          acl = [
             "readwrite #"
-            #"topic write tasmota/discovery/#" 
+            #"topic write tasmota/discovery/#"
           ];
           #omitPasswordAuth = true;
           password = "root123";
           #settings.allow_anonymous = true;
         };
       }
-#      {
-#        users.DVES_USER = {
-#          acl = [
-#            "readwrite #"
-#          ];
-#          #omitPasswordAuth = true;
-#          password = "root123";
-#          #settings.allow_anonymous = true;
-#        };
-#      }
+      #      {
+      #        users.DVES_USER = {
+      #          acl = [
+      #            "readwrite #"
+      #          ];
+      #          #omitPasswordAuth = true;
+      #          password = "root123";
+      #          #settings.allow_anonymous = true;
+      #        };
+      #      }
     ];
   };
 
-  
   # For mount.cifs, required unless domain name resolution is not needed.
   # environment.systemPackages = [ pkgs.cifs-utils ];
   fileSystems."/mnt/share" = {
     device = "//bergmannnas/home";
     fsType = "cifs";
-    options = let
-      # this line prevents hanging on network split
-      automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s";
+    options =
+      let
+        # this line prevents hanging on network split
+        automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s";
 
-    in ["${automount_opts},credentials=/etc/nixos/smb-secrets,uid=${toString config.users.users.jeromeb.uid},gid=${toString config.users.groups.users.gid}"];
+      in
+      [
+        "${automount_opts},credentials=/etc/nixos/smb-secrets,uid=${toString config.users.users.jeromeb.uid},gid=${toString config.users.groups.users.gid}"
+      ];
   };
   services.gvfs.enable = true;
 
-  
-#  systemd.services.monitoring = {
-#    path = with pkgs; [
-#      bc
-#      ipcalc
-#      curl
-#      procps
-#      gawk
-#      coreutils
-#      iproute2
-#    ];
-#    script = ''
-#      ${pkgs.bash}/bin/bash /root/system-monitoring.sh --NAME "NixOS-GB" --LA1 --LA5 --LA15 --CPU 80 --RAM 80 --DISK 80 --SSH-LOGIN --SFTP-MONITOR --REBOOT 2>&1 >> /var/log/monitoring/monitoring.log
-#    '';
-#    wantedBy = [ "multi-user.target" ];
-#  };
+  #  systemd.services.monitoring = {
+  #    path = with pkgs; [
+  #      bc
+  #      ipcalc
+  #      curl
+  #      procps
+  #      gawk
+  #      coreutils
+  #      iproute2
+  #    ];
+  #    script = ''
+  #      ${pkgs.bash}/bin/bash /root/system-monitoring.sh --NAME "NixOS-GB" --LA1 --LA5 --LA15 --CPU 80 --RAM 80 --DISK 80 --SSH-LOGIN --SFTP-MONITOR --REBOOT 2>&1 >> /var/log/monitoring/monitoring.log
+  #    '';
+  #    wantedBy = [ "multi-user.target" ];
+  #  };
 
   services.nebula.networks.mesh = {
     listen.host = "[::]";
     enable = true;
     isLighthouse = false;
-    lighthouses = [ "10.0.0.1" "10.0.0.5"];
-    relays = [ "10.0.0.1" "10.0.0.5"];
+    lighthouses = [
+      "10.0.0.1"
+      "10.0.0.5"
+    ];
+    relays = [
+      "10.0.0.1"
+      "10.0.0.5"
+    ];
     settings = {
-        cipher= "aes";
-        punchy.punch=true;
-        punchy.respond=true;
-        };
+      cipher = "aes";
+      punchy.punch = true;
+      punchy.respond = true;
+    };
     # cert = lib.mkForce "/etc/nebula/woody.crt";
     # key = lib.mkForce "/etc/nebula/woody.key";
     # ca = lib.mkForce "/etc/nebula/ca.crt";
@@ -508,10 +533,15 @@ let
         proto = "icmp";
         port = "any";
       }
-    ]; 
+    ];
   };
 
-  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 80 443 8080 10051];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [
+    80
+    443
+    8080
+    10051
+  ];
   #services.zabbixServer ={
   #  enable = true;
   #  package = pkgs.zabbix74.server;
@@ -519,39 +549,39 @@ let
 
   services.zabbixWeb = {
     enable = true;
-#    server.port = 8080;
+    #    server.port = 8080;
     frontend = "nginx";
     package = pkgs.zabbix74.web;
     nginx.virtualHost = {
       #hostName = "woody";
       #adminAddr = "webmaster@localhost";
       listen = [
-          {
-            addr = "0.0.0.0";
-            port = 80;
-            ssl = false;
-          }
-        ];
+        {
+          addr = "0.0.0.0";
+          port = 80;
+          ssl = false;
+        }
+      ];
     };
   };
-  
+
   services.zabbixAgent = {
     enable = true;
     server = "localhost";
     package = pkgs.zabbix74.agent;
-#    settings = {
-#      Plugins.MQTT.Session.iot = {
-#        User = "root";
-#        Password = "root123";
-#        Topic = "#";
-#      };
-#    };
+    #    settings = {
+    #      Plugins.MQTT.Session.iot = {
+    #        User = "root";
+    #        Password = "root123";
+    #        Topic = "#";
+    #      };
+    #    };
   };
-  
+
   #services.vscode-server.enable = true;
   services.udev.packages = [ pkgs.libfido2 ];
   #services.udev.packages = [ pkgs.yubikey-personalization ];
-  
+
   #services.udev.extraRules = ''
   #  # this udev file should be used with udev 188 and newer
   #  ACTION!="add|change", GOTO="u2f_end"
@@ -562,18 +592,17 @@ let
   #  LABEL="u2f_end"
   #'';
 
-  
-#  programs.gnupg.agent = {
-#    enable = true;
-#    enableSSHSupport = true;
-#  };
+  #  programs.gnupg.agent = {
+  #    enable = true;
+  #    enableSSHSupport = true;
+  #  };
 
   # This is on by default, making auto-cpufreq unable to work
   services.power-profiles-daemon.enable = false;
-  
+
   powerManagement.enable = true;
   powerManagement.cpuFreqGovernor = "powersave";
-  powerManagement.powertop.enable = true;   
+  powerManagement.powertop.enable = true;
   services.thermald.enable = true;
   services.auto-cpufreq.enable = true;
   services.auto-cpufreq.settings = {
@@ -586,11 +615,9 @@ let
       turbo = "auto";
       energy_performance_preference = "balance_power";
       energy_perf_bias = "balance_power";
+    };
+
   };
-
-  
-
-}; 
   # services.ollama = {
   #   enable = true;
   #   acceleration = false;
@@ -599,27 +626,41 @@ let
   #   };
   # };
 
+  environment.etc."rclone-mnt.conf" = {
+    text = ''
+      [immich]
+      type = sftp
+      host = bergmannnas.fritz.box
+      user = borg
+      key_file = /root/.ssh/id_rsa
 
-environment.etc."rclone-mnt.conf" = {
-  text = ''
-    [immich]
-    type = sftp
-    host = bergmannnas.fritz.box
-    user = borg
-    key_file = /root/.ssh/id_rsa
+      [rsyslog]
+      type = sftp
+      host = bergmannnas.fritz.box
+      user = borg
+      key_file = /root/.ssh/id_rsa
 
-    [rsyslog]
-    type = sftp
-    host = bergmannnas.fritz.box
-    user = borg
-    key_file = /root/.ssh/id_rsa
+      [paperless]
+      type = sftp
+      host = bergmannnas.fritz.box
+      user = borg
+      key_file = /root/.ssh/id_rsa
+    '';
+    mode = "755";
+  };
 
-    [paperless]
-    type = sftp
-    host = bergmannnas.fritz.box
-    user = borg
-    key_file = /root/.ssh/id_rsa
-  '';
-  mode = "755";
-};
+  security.pam.loginLimits = [
+    {
+      domain = "*";
+      type = "soft";
+      item = "nofile";
+      value = "65536";
+    }
+    {
+      domain = "*";
+      type = "hard";
+      item = "nofile";
+      value = "1048576";
+    }
+  ];
 }
