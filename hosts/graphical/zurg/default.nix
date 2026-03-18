@@ -134,6 +134,9 @@
       luanti
       traceroute
       libreoffice
+      undervolt
+      s-tui
+      stress
       #vmware-workstation
     ];
   };
@@ -150,7 +153,6 @@
 
   allowReboot = false;
   #  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
-  
 
   systemd.targets.sleep.enable = false;
   systemd.targets.suspend.enable = false;
