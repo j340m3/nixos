@@ -650,7 +650,7 @@ in
   };
 
   systemd.settings.Manager = {
-    DefaultLimitNOFILE = "1024:1048576";
+    DefaultLimitNOFILE = lib.mkForce "65536:1048576";
   };
   security.pam.loginLimits = [
     {
