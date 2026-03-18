@@ -651,7 +651,7 @@ in
 
   systemd.settings.Manager = {
     DefaultLimitNOFILE = "1024:1048576";
-  }
+  };
   security.pam.loginLimits = [
     {
       domain = "*";
