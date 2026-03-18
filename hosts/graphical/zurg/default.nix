@@ -134,7 +134,7 @@
       luanti
       traceroute
       libreoffice
-      undervolt
+      intel-undervolt
       s-tui
       stress
       #vmware-workstation
