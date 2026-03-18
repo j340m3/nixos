@@ -649,7 +649,9 @@ in
     mode = "755";
   };
 
-  systemd.extraConfig = "DefaultLimitNOFILE=1024:1048576";
+  systemd.settings.Manager = {
+    DefaultLimitNOFILE = "1024:1048576";
+  }
   security.pam.loginLimits = [
     {
       domain = "*";
