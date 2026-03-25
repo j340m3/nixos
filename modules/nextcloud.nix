@@ -26,22 +26,22 @@ in
   users.users.nextcloud.uid = 989;
   users.groups.nextcloud.gid = 987;
   # Based on https://carjorvaz.com/posts/the-holy-grail-nextcloud-setup-made-easy-by-nixos/
-  services = {
-    nginx.virtualHosts = {
-      "nextcloud.kauderwels.ch" = {
-        forceSSL = true;
-        enableACME = true;
-        #sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
-        #sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
-        listen = [
-          {
-            addr = "0.0.0.0";
-            port = 443;
-            ssl = true;
-          }
-        ];
-      };
-    };
+  #services = {
+  #  nginx.virtualHosts = {
+  #    "nextcloud.kauderwels.ch" = {
+  #      forceSSL = true;
+  #      enableACME = true;
+  #      #sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
+  #      #sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+  #      listen = [
+  #        {
+  #          addr = "0.0.0.0";
+  #          port = 443;
+  #          ssl = true;
+  #        }
+  #      ];
+  #    };
+  #  };
     #
     nextcloud = {
       enable = true;
