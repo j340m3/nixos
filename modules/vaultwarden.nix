@@ -27,7 +27,7 @@ in
     virtualHosts."vaultwarden.kauderwels.ch" = {
       forceSSL = true;
       enableACME = true;
-      useACMEHost = domainName;
+      #useACMEHost = domainName;
       locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
       locations."/" = {
         proxyPass = "http://127.0.0.1:${toString config.services.vaultwarden.config.ROCKET_PORT}";
