@@ -27,6 +27,8 @@ in
     virtualHosts."vaultwarden.kauderwels.ch" = {
       forceSSL = true;
       enableACME = true;
+      useACMEHost = domainName;
+      locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
       locations."/" = {
         proxyPass = "http://127.0.0.1:${toString config.services.vaultwarden.config.ROCKET_PORT}";
       };
@@ -52,16 +54,6 @@ in
 
   # for acme plain http challenge
   # networking.firewall.allowedTCPPorts = [ 80 ];
-
-  # webserver for http challenge
-  services.nginx = {
-    enable = true;
-    virtualHosts.${domainName} = {
-      forceSSL = true;
-      useACMEHost = domainName;
-      locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
-    };
-  };
 
   services.fail2ban.jails."vaultwarden".settings = {
     enabled = true;
