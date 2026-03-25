@@ -6,6 +6,9 @@
   inputs,
   ...
 }:
+let 
+  domainName = "nextcloud.kauderwels.ch";
+in
 {
   imports = [
     ./common/postgresBackup.nix
@@ -103,13 +106,33 @@
       acceptTerms = true;
       defaults = {
         email = "jerome.bergmann@posteo.de";
+        webroot = "/var/lib/acme/acme-challenge/";
         #dnsProvider = "cloudflare";
         # location of your CLOUDFLARE_DNS_API_TOKEN=[value]
         # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#EnvironmentFile=
         #environmentFile = "/REPLACE/WITH/YOUR/PATH";
       };
+      certs.${domainName}.group = config.services.nginx.group;
     };
+  security.acme = {
+    defaults.
+    # We are using nginx as webserver, therefore set correct key permissions
+    certs.${domainName}.group = config.services.nginx.group;
+  };
 
+  # for acme plain http challenge
+  # networking.firewall.allowedTCPPorts = [ 80 ];
+
+  # webserver for http challenge
+  services.nginx = {
+    enable = true;
+    virtualHosts.${domainName} = {
+      forceSSL = true;
+      useACMEHost = domainName;
+      locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
+    };
+  };
+  
   services.fail2ban.jails."nextcloud".settings = {
     enabled = true;
     filter = "nextcloud";
@@ -123,7 +146,7 @@
     findtime = 43200;
   };
 
-  networking.firewall.allowedTCPPorts = [ 443 ];
+  networking.firewall.allowedTCPPorts = [ 80 443 ];
 
   environment.etc."fail2ban/filter.d/nextcloud.local".text = ''
     [Definition]
