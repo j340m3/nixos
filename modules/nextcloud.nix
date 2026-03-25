@@ -114,11 +114,6 @@ in
       };
       certs.${domainName}.group = config.services.nginx.group;
     };
-  security.acme = {
-    defaults.
-    # We are using nginx as webserver, therefore set correct key permissions
-    certs.${domainName}.group = config.services.nginx.group;
-  };
 
   # for acme plain http challenge
   # networking.firewall.allowedTCPPorts = [ 80 ];
