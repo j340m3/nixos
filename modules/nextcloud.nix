@@ -27,8 +27,9 @@
     nginx.virtualHosts = {
       "nextcloud.kauderwels.ch" = {
         forceSSL = true;
-        sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
-        sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+        enableACME = true;
+        #sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
+        #sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
         listen = [
           {
             addr = "0.0.0.0";
