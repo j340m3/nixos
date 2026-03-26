@@ -27,30 +27,30 @@ in
     virtualHosts."vaultwarden.kauderwels.ch" = {
       forceSSL = true;
       #enableACME = true;
-      useACMEHost = domainName;
-      locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
+      #useACMEHost = domainName;
+      #locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
       locations."/" = {
         proxyPass = "http://127.0.0.1:${toString config.services.vaultwarden.config.ROCKET_PORT}";
       };
       # sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
-      #sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
-      #sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+      sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
+      sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
     };
   };
   networking.firewall.allowedTCPPorts = [ 443 80 ];
   
-  security.acme = {
-      acceptTerms = true;
-      defaults = {
-        email = "jerome.bergmann@posteo.de";
-        webroot = "/var/lib/acme/acme-challenge/";
-        #dnsProvider = "cloudflare";
-        # location of your CLOUDFLARE_DNS_API_TOKEN=[value]
-        # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#EnvironmentFile=
-        #environmentFile = "/REPLACE/WITH/YOUR/PATH";
-      };
-      certs.${domainName}.group = config.services.nginx.group;
-    };
+  #security.acme = {
+  #    acceptTerms = true;
+  #    defaults = {
+  #      email = "jerome.bergmann@posteo.de";
+  #      webroot = "/var/lib/acme/acme-challenge/";
+  #      #dnsProvider = "cloudflare";
+  #      # location of your CLOUDFLARE_DNS_API_TOKEN=[value]
+  #      # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#EnvironmentFile=
+  #      #environmentFile = "/REPLACE/WITH/YOUR/PATH";
+  #    };
+  #    certs.${domainName}.group = config.services.nginx.group;
+  #  };
 
   # for acme plain http challenge
   # networking.firewall.allowedTCPPorts = [ 80 ];
