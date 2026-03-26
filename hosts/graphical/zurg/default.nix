@@ -100,6 +100,9 @@
   #   pulse.enable = true;
   # };
 
+  # 2026-03-26 - Firmware updates
+  services.fwupd.enable = true;
+
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
   users.mutableUsers = false;
@@ -138,6 +141,7 @@
       intel-undervolt
       s-tui
       stress
+      bitwarden-desktop
       #vmware-workstation
     ];
   };
