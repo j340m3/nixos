@@ -142,6 +142,7 @@
       s-tui
       stress
       bitwarden-desktop
+      sops
       #vmware-workstation
     ];
   };
