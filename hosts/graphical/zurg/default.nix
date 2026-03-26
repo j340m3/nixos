@@ -158,7 +158,7 @@
 
   environment.sessionVariables = {
     SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock";
-  }
+  };
   system.autoUpgrade.dates = lib.mkForce "*-*-* 0:45:00";
   allowReboot = false;
   #  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
