@@ -10,7 +10,7 @@
       tipp10
       libreoffice-qt
       anki
-      jetbrains.pycharm-community
+      jetbrains.pycharm-oss
       pinta
       krita
       arduino
