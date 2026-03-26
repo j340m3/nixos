@@ -15,22 +15,25 @@
     files = [
       "/etc/machine-id"
     ];
-    users.jeromeb = {
-      directories = [
-        "Bilder"
-        "Dokumente"
-        "Downloads"
-        "Musik"
-        "Öffentlich"
-        "Schreibtisch"
-        "Videos"
-        "Vorlagen"
-        ".local/share/Steam"
-        ".local/share/keyrings"
-        ".config"
-        "VirtualBox VMs"
-      ];
-    };
+    
+    users = if config.users ? "jeromeb" then {
+      jeromeb = {
+        directories = [
+          "Bilder"
+          "Dokumente"
+          "Downloads"
+          "Musik"
+          "Öffentlich"
+          "Schreibtisch"
+          "Videos"
+          "Vorlagen"
+          ".local/share/Steam"
+          ".local/share/keyrings"
+          ".config"
+          "VirtualBox VMs"
+        ]
+      };
+    } else {};
   };
 
   environment.etc."ssh/ssh_host_rsa_key".source
