@@ -143,6 +143,8 @@
       stress
       bitwarden-desktop
       sops
+      rbw
+      pinentry-gnome3
       #vmware-workstation
     ];
   };
