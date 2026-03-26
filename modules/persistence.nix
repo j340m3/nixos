@@ -31,7 +31,7 @@
           ".local/share/keyrings"
           ".config"
           "VirtualBox VMs"
-        ]
+        ];
       };
     } else {};
   };
