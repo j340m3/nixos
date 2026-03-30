@@ -31,6 +31,7 @@
     ../../../modules/remote-builder.nix
     #../../../modules/matrix3.nix
     ../../../modules/acme.nix
+    ../../../modules/radicle-seed.nix
   ];
 
   #system.autoUpgrade.dates = lib.mkForce "daily";
@@ -41,7 +42,7 @@
   # boot.loader.grub.efiSupport = true;
   # boot.loader.grub.efiInstallAsRemovable = true;
   # boot.loader.efi.efiSysMountPoint = "/boot/efi";
-  # Define on which hard drive you want to install Grub.
+  # Define on which hard drive you want to install Grub.ü
   # boot.loader.grub.device = "/dev/sda"; # or "nodev" for efi only
   security.sudo.extraConfig = ''
     # rollback results in sudo lectures after each reboot
