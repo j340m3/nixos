@@ -35,14 +35,16 @@
     sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
   };
 
-  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ config.services.radicle.port ];
-  networking.firewall.allowedTCPPorts = [ config.services.radicle.port ];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [
+    config.services.radicle.node.listenPort
+  ];
+  networking.firewall.allowedTCPPorts = [ config.services.radicle.node.listenPort ];
   services.nebula.networks.mesh.firewall.inbound =
     lib.mkIf (config.services.radicle.enable && config.services.nebula.networks.mesh.enable)
       [
         {
           cidr = constants.nebula.cidr;
-          port = config.services.radicle.port;
+          port = config.services.radicle.node.listenPort;
           proto = "any";
         }
       ];
