@@ -7,7 +7,7 @@
 {
   services.radicle = {
     enable = true;
-    privateKeyFile = config.sops.secrets."radicle/private".path;
+    privateKey = config.sops.secrets."radicle/private".path;
     publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINQqjSkV3STF+guLHa3kKZnkj3VHI8kk1Ppzo42s2ArO jerome@kauderwels.ch";
     node = {
       openFirewall = true;
