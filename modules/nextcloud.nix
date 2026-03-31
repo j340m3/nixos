@@ -71,6 +71,7 @@ in
           onlyoffice
           tasks
           cookbook
+          phonetrack
           qownnotesapi
           uppush
           ;
