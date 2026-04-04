@@ -15,12 +15,13 @@ in
     config = {
       ROCKET_ADDRESS = "127.0.0.1";
       ROCKET_PORT = 8222;
+      DOMAIN = "https://${domainName}";
     };
     backupDir = "/var/backup/vaultwarden";
-  }; 
+  };
   services.nginx = {
     enable = true;
-    
+
     # Use recommended settings
     recommendedGzipSettings = true;
 
@@ -37,8 +38,11 @@ in
       sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
     };
   };
-  networking.firewall.allowedTCPPorts = [ 443 80 ];
-  
+  networking.firewall.allowedTCPPorts = [
+    443
+    80
+  ];
+
   #security.acme = {
   #    acceptTerms = true;
   #    defaults = {
@@ -60,7 +64,7 @@ in
     filter = "vaultwarden";
     logpath = "/var/log/syslog";
     port = "80,443,8081";
-    banaction = "%(banaction_allports)s"; 
+    banaction = "%(banaction_allports)s";
     maxretry = 3;
     bantime = 14400;
     findtime = 14400;
@@ -73,5 +77,5 @@ in
     [Definition]
     failregex = ^.*?Username or password is incorrect\. Try again\. IP: <ADDR>\. Username:.*$
     ignoreregex =
-    '';
+  '';
 }
