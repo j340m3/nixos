@@ -8,9 +8,6 @@
   # expansion of default system with basic system settings & cli-tools
 
   flake.modules.nixos.system-virtual = {
-    imports = with inputs.self.modules.nixos; [
-      system-default
-    ];
     virtualisation.diskSize = "auto";
     virtualisation.virtualbox.guest.enable = true;
     # FIXME

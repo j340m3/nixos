@@ -8,6 +8,7 @@
   flake.modules.nixos.system-minimal =
     { pkgs, ... }:
     {
+
       nixpkgs.overlays = [
         (final: _prev: {
           unstable = import inputs.nixpkgs {
