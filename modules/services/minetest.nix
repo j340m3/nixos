@@ -37,7 +37,7 @@
       networking.firewall.allowedUDPPorts = [ 30000 ];
 
       sops.secrets."borg/luanti" = {
-        sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
+        sopsFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
       };
 
       services.borgbackup.jobs.minetest = {

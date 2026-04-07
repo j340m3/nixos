@@ -8,6 +8,7 @@
       system-headless
       minetest
       vaultwarden
+      nebula-lighthouse
     ];
   };
   ###

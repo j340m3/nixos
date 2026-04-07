@@ -9,6 +9,7 @@
       system-graphical
       systemd-boot
       xfce
+      nebula
     ];
   };
   ###

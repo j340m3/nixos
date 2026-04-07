@@ -8,7 +8,7 @@
     { pkgs, ... }:
     {
       imports = [ inputs.sops-nix.nixosModules.sops ];
-      sops.defaultSopsFile = ../../../secrets/example.yaml;
+      sops.defaultSopsFile = ../../../../secrets/example.yaml;
       # imports = [
       #   inputs.agenix.nixosModules.default
       # ];
@@ -19,7 +19,7 @@
     { pkgs, ... }:
     {
       imports = [ inputs.sops-nix.nixosModules.sops ];
-      sops.defaultSopsFile = ../../../secrets/example.yaml;
+      sops.defaultSopsFile = ../../../../secrets/example.yaml;
       # imports = [
       #   inputs.agenix.darwinModules.default
       # ];
