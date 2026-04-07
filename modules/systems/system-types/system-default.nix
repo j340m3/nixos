@@ -16,6 +16,7 @@
         donquezz
         networking
         locale
+        ssh
       ]
       ++ (with inputs.self.modules.generic; [
         systemConstants

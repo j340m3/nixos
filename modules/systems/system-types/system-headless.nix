@@ -11,7 +11,7 @@
     { modulesPath, ... }:
     {
       imports = with inputs.self.modules.nixos; [
-        system-minimal
+        system-default
         (modulesPath + "/profiles/minimal.nix")
         (modulesPath + "/profiles/headless.nix")
       ];
