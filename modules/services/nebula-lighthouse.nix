@@ -1,6 +1,6 @@
 {
   flake.modules.nixos.nebula-lighthouse =
-    { config }:
+    { config, ... }:
     {
       services.nebula.networks.mesh = {
         enable = true;
