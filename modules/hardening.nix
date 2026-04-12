@@ -23,7 +23,7 @@ with lib;
     ];
   };
 
-  boot.kernelPackages = mkDefault pkgs.linuxPackages_hardened;
+  # boot.kernelPackages = mkDefault pkgs.linuxPackages_hardened;
 
   nix.settings.allowed-users = mkDefault [ "@users" ];
 
@@ -124,26 +124,28 @@ with lib;
   boot.kernel.sysctl."net.ipv4.conf.default.send_redirects" = mkDefault false;
 
   networking.firewall.enable = true;
-  
-  /* security.auditd.enable = true;
-  security.audit.enable = true;
-  security.audit.rules = [
-    "-a exit,always -F arch=b64 -S execve"
-  ];
-  environment.etc."audit/auditd.conf".text = ''
-    num_logs = 5
-    max_log_file = 50
-    max_log_file_action = ROTATE
-    space_left = 500
-    admin_space_left = 250
-  ''; */ #TODO: Queue always full
+
+  /*
+    security.auditd.enable = true;
+    security.audit.enable = true;
+    security.audit.rules = [
+      "-a exit,always -F arch=b64 -S execve"
+    ];
+    environment.etc."audit/auditd.conf".text = ''
+      num_logs = 5
+      max_log_file = 50
+      max_log_file_action = ROTATE
+      space_left = 500
+      admin_space_left = 250
+    '';
+  */
+  #TODO: Queue always full
   #############################
   # Lynis
   #############################
 
   # AUTH-9230
   security.loginDefs.settings.SHA_CRYPT_MIN_ROUNDS = 5000;
-  
 
   # HRDN-7230
   #services.clamav = {
