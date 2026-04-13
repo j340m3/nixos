@@ -10,6 +10,11 @@
       [
         {
           cidr = constants.nebula.cidr;
+          port = 53;
+          proto = "any";
+        }
+        {
+          cidr = constants.nebula.cidr;
           port = 5380;
           proto = "any";
         }
