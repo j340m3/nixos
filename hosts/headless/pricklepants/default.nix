@@ -23,6 +23,7 @@ in
     #../../../modules/dns-tunnel.nix
     #../../../modules/immich-proxy.nix
     ../../../modules/common
+    ../../../modules/wireguard.nix
   ];
   #swapDevices = [ { device = "/swapfile"; size = 512; } ];
   boot.tmp.cleanOnBoot = true;
