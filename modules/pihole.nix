@@ -34,7 +34,7 @@
       cache_enabled = true;
       cache_optimistic = true;
       tls = {
-        enabled = true;
+        enabled = false;
         server_name = "frei.kauderwels.ch";
       };
       dhcp.enabled = false;
