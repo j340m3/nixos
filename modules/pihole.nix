@@ -42,11 +42,11 @@
       };
       dhcp.enabled = false;
       filters = [
-        #{
-        #  enabled = false;
-        #  url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt";
-        #  id = 1;
-        #}
+        {
+          enabled = true;
+          url = "https://raw.githubusercontent.com/j340m3/anti-parental-lists/refs/heads/main/family-link.txt";
+          id = 1;
+        }
       ];
     };
   };
