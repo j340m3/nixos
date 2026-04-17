@@ -31,6 +31,7 @@
     #../../../modules/persistence.nix
     #../../../modules/zabbix.nix
     ../../../modules/wireguard.nix
+    ../../../modules/pihole.nix
     #../../../modules/radicle-seed.nix
     #../../modules/nebula.nix
   ];
