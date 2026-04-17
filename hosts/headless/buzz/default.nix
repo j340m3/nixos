@@ -172,7 +172,7 @@
     };
     settings = {
       lighthouse = {
-        serve_dns = true;
+        serve_dns = false;
         dns = {
           host = "0.0.0.0";
           port = 53;
