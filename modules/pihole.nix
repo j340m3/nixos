@@ -35,7 +35,7 @@
       cache_optimistic = true;
       tls = {
         enabled = true;
-        server_name = "bye.kauderwels.ch";
+        server_name = "frei.kauderwels.ch";
       };
     };
   };
