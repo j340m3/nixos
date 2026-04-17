@@ -7,7 +7,7 @@
         "0.0.0.0"
       ];
       anonymize_client_ip = true;
-      filtering_enabled = true;
+      #filtering_enabled = true;
       upstream_dns = [
         "tls://dns3.digitalcourage.de"
         "tls://dot.ffmuc.net"
