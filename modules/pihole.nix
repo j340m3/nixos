@@ -17,7 +17,6 @@
           "https://dns.digitale-gesellschaft.ch/dns-query"
         ];
         bootstrap_dns = [
-          "5.9.164.112" # Digitalcourage
           "5.1.66.255" # FFMUC
           "1.1.1.1"
           "1.0.0.1"
