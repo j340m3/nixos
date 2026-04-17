@@ -41,7 +41,13 @@
         server_name = "frei.kauderwels.ch";
       };
       dhcp.enabled = false;
-      filtering.filters = [];
+      filtering.filters = [
+        {
+          enabled = false;
+          url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt";
+          id = 1;
+        }
+      ];
     };
   };
 
