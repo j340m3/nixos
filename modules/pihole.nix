@@ -41,6 +41,7 @@
         server_name = "frei.kauderwels.ch";
       };
       dhcp.enabled = false;
+      filtering.filters = [];
     };
   };
 
