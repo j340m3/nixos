@@ -47,6 +47,11 @@
           id = 1;
         }
       ];
+      log = {
+        verbose = true;
+        compress = true;
+        file = "/tmp/ahglog.txt";
+      };
     };
   };
 
