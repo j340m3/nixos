@@ -28,7 +28,7 @@
           "https://unfiltered.adguard-dns.com/dns-query"
           "tls://dns.njal.la"
         ];
-        upstream_mode = "fastest_addr";
+        upstream_mode = "parallel";
         use_http3_upstreams = true;
         use_dns64 = true;
         cache_enabled = true;
