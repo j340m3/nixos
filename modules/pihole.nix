@@ -33,6 +33,7 @@
         use_dns64 = true;
         cache_enabled = true;
         cache_optimistic = true;
+        cache_size = 1048576;
       };
 
       tls = {
