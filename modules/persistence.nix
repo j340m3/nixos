@@ -16,7 +16,7 @@
       "/etc/machine-id"
     ];
     
-    users = if config.users ? "jeromeb" then {
+    users = if config.users.users ? "jeromeb" then {
       jeromeb = {
         directories = [
           "Bilder"

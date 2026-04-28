@@ -103,6 +103,9 @@ in
       startAt = "*-*-* 01:15:00";
     };
   };
+
+  systemd.services.nextcloud-setup.after = [ "mnt-filen-services-nextcloud.mount" ];
+
   security.acme = {
       acceptTerms = true;
       defaults = {
