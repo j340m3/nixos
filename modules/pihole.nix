@@ -40,6 +40,10 @@
         enabled = false;
         server_name = "frei.kauderwels.ch";
       };
+      querylog = {
+        file_enabled = false;
+        interval = "48h";
+      };
       dhcp.enabled = false;
       filters = [
         {
