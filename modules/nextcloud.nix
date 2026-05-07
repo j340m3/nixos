@@ -112,8 +112,8 @@ in
     "mnt-filen-services-nextcloud.mount"
     "systemd-tempfiles-resetup.service"
   ];
-  systemd.services.systemd-tempfiles-resetup.after = [ "mnt-filen-services-nextcloud.mount" ];
-  systemd.services.systemd-tempfiles-resetup.requires = [ "mnt-filen-services-nextcloud.mount" ];
+  systemd.services.systemd-tempfiles-setup.after = [ "mnt-filen-services-nextcloud.mount" ];
+  systemd.services.systemd-tempfiles-setup.requires = [ "mnt-filen-services-nextcloud.mount" ];
 
   security.acme = {
     acceptTerms = true;
