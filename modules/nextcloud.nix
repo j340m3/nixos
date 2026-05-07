@@ -6,7 +6,7 @@
   inputs,
   ...
 }:
-let 
+let
   domainName = "nextcloud.kauderwels.ch";
 in
 {
@@ -27,21 +27,21 @@ in
   users.groups.nextcloud.gid = 987;
   # Based on https://carjorvaz.com/posts/the-holy-grail-nextcloud-setup-made-easy-by-nixos/
   services = {
-  #  nginx.virtualHosts = {
-  #    "nextcloud.kauderwels.ch" = {
-  #      forceSSL = true;
-  #      enableACME = true;
-  #      #sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
-  #      #sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
-  #      listen = [
-  #        {
-  #          addr = "0.0.0.0";
-  #          port = 443;
-  #          ssl = true;
-  #        }
-  #      ];
-  #    };
-  #  };
+    #  nginx.virtualHosts = {
+    #    "nextcloud.kauderwels.ch" = {
+    #      forceSSL = true;
+    #      enableACME = true;
+    #      #sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
+    #      #sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+    #      listen = [
+    #        {
+    #          addr = "0.0.0.0";
+    #          port = 443;
+    #          ssl = true;
+    #        }
+    #      ];
+    #    };
+    #  };
     #
     nextcloud = {
       enable = true;
@@ -104,20 +104,29 @@ in
     };
   };
 
-  systemd.services.nextcloud-setup.after = [ "mnt-filen-services-nextcloud.mount" ];
+  systemd.services.nextcloud-setup.after = [
+    "mnt-filen-services-nextcloud.mount"
+    "systemd-tempfiles-resetup.service"
+  ];
+  systemd.services.nextcloud-setup.requires = [
+    "mnt-filen-services-nextcloud.mount"
+    "systemd-tempfiles-resetup.service"
+  ];
+  systemd.services.systemd-tempfiles-resetup.after = [ "mnt-filen-services-nextcloud.mount" ];
+  systemd.services.systemd-tempfiles-resetup.requires = [ "mnt-filen-services-nextcloud.mount" ];
 
   security.acme = {
-      acceptTerms = true;
-      defaults = {
-        email = "jerome.bergmann@posteo.de";
-        webroot = "/var/lib/acme/acme-challenge/";
-        #dnsProvider = "cloudflare";
-        # location of your CLOUDFLARE_DNS_API_TOKEN=[value]
-        # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#EnvironmentFile=
-        #environmentFile = "/REPLACE/WITH/YOUR/PATH";
-      };
-      certs.${domainName}.group = config.services.nginx.group;
+    acceptTerms = true;
+    defaults = {
+      email = "jerome.bergmann@posteo.de";
+      webroot = "/var/lib/acme/acme-challenge/";
+      #dnsProvider = "cloudflare";
+      # location of your CLOUDFLARE_DNS_API_TOKEN=[value]
+      # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#EnvironmentFile=
+      #environmentFile = "/REPLACE/WITH/YOUR/PATH";
     };
+    certs.${domainName}.group = config.services.nginx.group;
+  };
 
   # for acme plain http challenge
   # networking.firewall.allowedTCPPorts = [ 80 ];
@@ -131,7 +140,7 @@ in
       locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
     };
   };
-  
+
   services.fail2ban.jails."nextcloud".settings = {
     enabled = true;
     filter = "nextcloud";
@@ -145,7 +154,10 @@ in
     findtime = 43200;
   };
 
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+  ];
 
   environment.etc."fail2ban/filter.d/nextcloud.local".text = ''
     [Definition]
