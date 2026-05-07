@@ -106,11 +106,11 @@ in
 
   systemd.services.nextcloud-setup.after = [
     "mnt-filen-services-nextcloud.mount"
-    "systemd-tempfiles-setup.service"
+    #"systemd-tempfiles-setup.service"
   ];
   systemd.services.nextcloud-setup.requires = [
     "mnt-filen-services-nextcloud.mount"
-    "systemd-tempfiles-setup.service"
+    #"systemd-tempfiles-setup.service"
   ];
   systemd.services.systemd-tempfiles-setup.after = [ "mnt-filen-services-nextcloud.mount" ];
   systemd.services.systemd-tempfiles-setup.requires = [ "mnt-filen-services-nextcloud.mount" ];
