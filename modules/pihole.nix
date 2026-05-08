@@ -63,7 +63,10 @@
   */
 
   networking.firewall = {
-    allowedTCPPorts = [ 53 853];
+    allowedTCPPorts = [
+      53
+      853
+    ];
     allowedUDPPorts = [ 53 ];
   };
 
@@ -72,6 +75,7 @@
     extraConfig = ''
       -- addLocal("0.0.0.0:53")
       addLocal("[::]:53")
+      addTLSLocal('[::]', '/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer', '/etc/ssl/certs/_.kauderwels.ch_private_key.key')
       addTLSLocal('0.0.0.0', '/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer', '/etc/ssl/certs/_.kauderwels.ch_private_key.key')
       newServer("1.1.1.1")
       setACL({'0.0.0.0/0', '[::]/0'})
