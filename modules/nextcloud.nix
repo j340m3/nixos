@@ -105,11 +105,11 @@ in
   };
 
   systemd.services.nextcloud-setup.after = [
-    #"mnt-filen-services-nextcloud.mount"
+    "mnt-filen-services-nextcloud.mount"
     "systemd-tempfiles-resetup.service"
   ];
   systemd.services.nextcloud-setup.requires = [
-    #"mnt-filen-services-nextcloud.mount"
+    "mnt-filen-services-nextcloud.mount"
     "systemd-tempfiles-resetup.service"
   ];
   #systemd.services."mnt-filen-services-nextcloud.mount".wantedBy = [ "systemd-tempfiles-resetup" ];
