@@ -105,14 +105,14 @@ in
   };
 
   systemd.services.mnt-filen-services-nextcloud-tmpfiles-resetup = {
-    script="systemd-tmpfiles --create --remove --prefix=/mnt/filen/services/nextcloud";
+    script = "systemd-tmpfiles --create --remove --prefix=/mnt/filen/services/nextcloud";
     serviceConfig = {
-      Type="oneshot";
-      RemainAfterExit=true;
+      Type = "oneshot";
+      RemainAfterExit = true;
     };
-    after = ["mnt-filen-services-nextcloud.mount"];
-    requires = ["mnt-filen-services-nextcloud.mount"];
-    before = ["nextcloud-setup.service"];
+    after = [ "mnt-filen-services-nextcloud.mount" ];
+    requires = [ "mnt-filen-services-nextcloud.mount" ];
+    before = [ "nextcloud-setup.service" ];
   };
 
   systemd.services.nextcloud-setup.after = [
