@@ -70,7 +70,7 @@
   services.dnsdist = {
     enable = true;
     extraConfig = ''
-      addLocal("0.0.0.0:53")
+      -- addLocal("0.0.0.0:53")
       addLocal("[::]:53")
       newServer("1.1.1.1")
       pc = newPacketCache(100000)
