@@ -111,16 +111,17 @@ in
       RemainAfterExit=true;
     };
     after = ["mnt-filen-services-nextcloud.mount"];
+    requires = ["mnt-filen-services-nextcloud.mount"];
     before = ["nextcloud-setup.service"];
   };
 
   systemd.services.nextcloud-setup.after = [
     "mnt-filen-services-nextcloud.mount"
-    #"systemd-tempfiles-resetup.service"
+    "mnt-filen-services-nextcloud-tmpfiles-resetup.service"
   ];
   systemd.services.nextcloud-setup.requires = [
     "mnt-filen-services-nextcloud.mount"
-    #"systemd-tempfiles-resetup.service"
+    "mnt-filen-services-nextcloud-tmpfiles-resetup.service"
   ];
   #systemd.services."mnt-filen-services-nextcloud.mount".wantedBy = [ "systemd-tempfiles-resetup" ];
   #systemd.services.systemd-tempfiles-resetup.requires = [ "mnt-filen-services-nextcloud.mount" ];
@@ -224,7 +225,7 @@ in
       "config=${config.sops.secrets."filen/nextcloud.conf".path}"
       "x-systemd.requires=network-online.target"
       "x-systemd.after=network-online.target" # only after network came up
-      #"x-systemd.onSuccess=systemd-tempfiles-resetup.service"
+      "x-systemd.onSuccess=mnt-filen-services-nextcloud-tmpfiles-resetup.service"
       "uid=${toString config.users.users.nextcloud.uid}"
       "gid=${toString config.users.groups.nextcloud.gid}"
       "dir-perms=0770"
