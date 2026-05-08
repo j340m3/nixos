@@ -111,7 +111,7 @@ in
       RemainAfterExit=true;
     };
     after = ["mnt-filen-services-nextcloud.mount"];
-    before = ["nextcloud-setup.service"]
+    before = ["nextcloud-setup.service"];
   };
 
   systemd.services.nextcloud-setup.after = [
