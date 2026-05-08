@@ -73,6 +73,7 @@
       -- addLocal("0.0.0.0:53")
       addLocal("[::]:53")
       newServer("1.1.1.1")
+      setACL({'0.0.0.0/0', '[::]/0'})
       pc = newPacketCache(100000)
       getPool(""):setCache(pc)
     '';
