@@ -50,6 +50,15 @@
   '';
   networking.hostName = "jessie"; # Define your hostname.
   zramSwap.enable = false;
+  services.swapspace.enable = true;
+  services.swapspace.settings = {
+    swappath="/nix/swapfile";
+    lower_freelimit=50;
+    upper_freelimit=70;
+    freetarget=60;
+    buffer_elasticity=100;
+    cache_elasticity=100;
+  };
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   # networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
