@@ -81,7 +81,7 @@
       setACL({'0.0.0.0/0', '[::]/0'})
       pc = newPacketCache(100000)
       getPool(""):setCache(pc)
-      addAction(RegexRule("dns\.google"), SpoofCNAMEAction("frei.kauderwels.ch"))
+      addAction(RegexRule("dns\\.google"), SpoofCNAMEAction("frei.kauderwels.ch"))
     '';
   };
 }
