@@ -77,7 +77,7 @@
       addLocal("[::]:53")
       addTLSLocal('[::]', '/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer', '/etc/ssl/certs/_.kauderwels.ch_private_key.key')
       addTLSLocal('0.0.0.0', '/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer', '/etc/ssl/certs/_.kauderwels.ch_private_key.key')
-      newServer({address="[2a01:4f8:251:554::2]:853", tls="openssl", subject_name="dns3.digitalcourage.de", validateCertificates=true})
+      newServer({address="[2a01:4f8:251:554::2]:853", tls="openssl", subjectName="dns3.digitalcourage.de", validateCertificates=true})
       -- FFMUC
       newServer("5.1.66.255")
       setACL({'0.0.0.0/0', '[::]/0'})
