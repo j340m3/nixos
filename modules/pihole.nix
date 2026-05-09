@@ -86,7 +86,7 @@
       addAction(RegexRule("dns\\.google"), SpoofAction({"194.164.54.40","2a01:239:27f:fd00::1"}))
       addAction(RegexRule("history\\.google\\.com"), SpoofAction({"0.0.0.0", "[::]"}))
       addAction(RegexRule("kidsmanagement-pa\\.googleapis\\.com"), SpoofAction({"0.0.0.0", "[::]"}))
-      addAction(RegexRule("kidsmanagement-pa\\.clients6\\.google\\.com"), SpoofAction({"0.0.0.0", "[::]"}))
+      addAction(RegexRule("kidsmanagement-pa\\.clients6\\.googleapis\\.com"), SpoofAction({"0.0.0.0", "[::]"}))
       addAction(RegexRule("families\\.google\\.com"), SpoofAction({"0.0.0.0", "[::]"}))
       addAction(RegexRule("parenttools\\.google\\.com"), SpoofAction({"0.0.0.0", "[::]"}))
       addAction(RegexRule("mtalk-europe\\.google\\.com"), SpoofAction({"0.0.0.0", "[::]"}))
