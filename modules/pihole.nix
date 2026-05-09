@@ -81,7 +81,7 @@
       -- FFMUC
       newServer("5.1.66.255")
       setACL({'0.0.0.0/0', '[::]/0'})
-      pc = newPacketCache(100000)
+      pc = newPacketCache(100000,{keepStaleData=true, shuffle=true})
       getPool(""):setCache(pc)
       addAction(RegexRule("dns\\.google"), SpoofAction({"194.164.54.40","2a01:239:27f:fd00::1"}))
     '';
