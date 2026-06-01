@@ -193,7 +193,9 @@ in
   environment.systemPackages = with pkgs; [
     rclone
   ];
-
+  environment.variables = {
+    GOGC=20;
+  };
   fileSystems."/mnt/filen/services/nextcloud" = {
     device = "filen:services/nextcloud";
     fsType = "rclone";
@@ -212,7 +214,8 @@ in
       "vfs-cache-min-free-space=2G"
       "vfs-fast-fingerprint"
       "vfs-links"
-      "transfers=16"
+      "transfers=1"
+      "checkers=1"
       "vfs-write-back=1h" # write changes after one hour
       "vfs-cache-max-age=24h" # Retain cached files for up to 24 hours
       "vfs-read-chunk-size=32M" # Start with 32MB chunks for faster initial reads
