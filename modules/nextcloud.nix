@@ -223,7 +223,7 @@ in
       #"vfs-cache-poll-interval=30s"
       "tpslimit=16"
       "tpslimit-burst=32"
-      "log-level=WARN"
+      "log-level=WARNING"
       #"log-file=/var/log/rclone/filen/nextcloud.log"
       "config=${config.sops.secrets."filen/nextcloud.conf".path}"
       "x-systemd.requires=network-online.target"
