@@ -216,7 +216,6 @@ in
       "vfs-fast-fingerprint"
       "vfs-links"
       "transfers=1"
-      "checkers=1"
       "vfs-write-back=1h" # write changes after one hour
       "vfs-cache-max-age=24h" # Retain cached files for up to 24 hours
       "vfs-read-chunk-size=32M" # Start with 32MB chunks for faster initial reads
@@ -225,7 +224,7 @@ in
       "tpslimit=16"
       "tpslimit-burst=32"
       "log-level=INFO"
-      "log-file=/var/log/rclone/filen/nextcloud.log"
+      #"log-file=/var/log/rclone/filen/nextcloud.log"
       "config=${config.sops.secrets."filen/nextcloud.conf".path}"
       "x-systemd.requires=network-online.target"
       "x-systemd.after=network-online.target" # only after network came up
