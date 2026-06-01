@@ -194,7 +194,7 @@ in
     rclone
   ];
   environment.variables = {
-    GOGC=20;
+    GOGC = 20;
   };
   fileSystems."/mnt/filen/services/nextcloud" = {
     device = "filen:services/nextcloud";
@@ -206,6 +206,7 @@ in
       #"auto"
       "allow_other"
       "args2env"
+      "syslog"
       #"x-systemd.automount"
       "cache_dir=/var/cache/rclone"
       #"dir-cache-time=24h"
