@@ -3,4 +3,5 @@
     pkgs.zed-editor
   ];
   nixGL.vulkan.enable = true;
+
 }

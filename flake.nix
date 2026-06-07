@@ -6,9 +6,9 @@
   inputs = {
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
     #nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    # Shallow cloning 
+    # Shallow cloning
     # Source: https://tsawyer87.github.io/posts/nix_flakes_tips/
-    nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable"; 
+    nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
     #nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11"; #TODO: Remove unused
     #nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
     #chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
@@ -79,13 +79,16 @@
 
     affinity-nix.url = "github:mrshmllow/affinity-nix";
     affinity-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
   };
+
 
 # =============================================================================
 # Outputs
 # =============================================================================
 
-  outputs = {self, nixpkgs, nixpkgs-master, sops-nix, home-manager, comin, nixos-hardware, peerix, oom-hardware, stylix, affinity-nix, ... } @ inputs: 
+  outputs = {self, nixpkgs, nixpkgs-master, sops-nix, home-manager, comin, nixos-hardware, peerix, oom-hardware, stylix, affinity-nix, nixos-wsl, ... } @ inputs:
   let
     #inherit (nixpkgs) lib;
     # Constants represent variables which are important for multiple hosts
@@ -95,7 +98,7 @@
 
 # -----------------------------------------------------------------------------
 # NixOS Hosts - Each folder in ./hosts is one host-config
-# ----------------------------------------------------------------------------- 
+# -----------------------------------------------------------------------------
 
     nixosConfigurations = builtins.listToAttrs (
       (map (host: {
@@ -103,20 +106,20 @@
         value = nixpkgs.lib.nixosSystem {
           specialArgs.inputs = inputs;
           specialArgs.constants = constants;
-          modules = [ 
-            ./hosts/graphical/${host} 
+          modules = [
+            ./hosts/graphical/${host}
             #inputs.chaotic.nixosModules.default
           ];
         };
-      }) (builtins.attrNames (builtins.readDir ./hosts/graphical))) 
+      }) (builtins.attrNames (builtins.readDir ./hosts/graphical)))
       ++
       (map (host: {
         name = host;
         value = nixpkgs.lib.nixosSystem {
           specialArgs.inputs = inputs;
           specialArgs.constants = constants;
-          modules = [ 
-            ./hosts/headless/${host} 
+          modules = [
+            ./hosts/headless/${host}
             #inputs.chaotic.nixosModules.default
           ];
         };
