@@ -32,7 +32,7 @@
     radicle-desktop
     radicle-node
     sops
-    bitwarden-desktop
+    #bitwarden-desktop
     nh
   ];
   nixpkgs.config.allowUnfreePredicate =
