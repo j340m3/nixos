@@ -34,7 +34,12 @@
     sops
     #bitwarden-desktop
     nh
+    nix-du
   ];
+
+  programs.rbw = {
+    enable = true;
+  };
   nixpkgs.config.allowUnfreePredicate =
     pkg:
     builtins.elem (lib.getName pkg) [
