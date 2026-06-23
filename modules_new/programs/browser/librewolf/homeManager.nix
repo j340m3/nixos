@@ -1,5 +1,5 @@
 {
-  flake.modules.homeManager.librewolf =
+  flake.modules.homeManager.firefox =
     {
       pkgs,
       lib,
@@ -25,28 +25,28 @@
         # stylix
       ];
 
-      stylix.targets.librewolf = {
+      stylix.targets.firefox = {
         colorTheme.enable = true;
         profileNames = [ "personal" ];
       };
 
       home.sessionVariables = {
-        DEFAULT_BROWSER = lib.getExe pkgs.librewolf;
-        BROWSER = lib.getExe pkgs.librewolf;
+        DEFAULT_BROWSER = lib.getExe pkgs.firefox;
+        BROWSER = lib.getExe pkgs.firefox;
       };
 
       xdg.mimeApps.defaultApplications = {
-        "application/pdf" = "librewolf.desktop";
-        "text/html" = "librewolf.desktop";
-        "x-scheme-handler/http" = "librewolf.desktop";
-        "x-scheme-handler/https" = "librewolf.desktop";
-        "x-scheme-handler/about" = "librewolf.desktop";
-        "x-scheme-handler/unknown" = "librewolf.desktop";
+        "application/pdf" = "firefox.desktop";
+        "text/html" = "firefox.desktop";
+        "x-scheme-handler/http" = "firefox.desktop";
+        "x-scheme-handler/https" = "firefox.desktop";
+        "x-scheme-handler/about" = "firefox.desktop";
+        "x-scheme-handler/unknown" = "firefox.desktop";
       };
 
       programs.firefox = {
         enable = true;
-        package = pkgs.librewolf;
+        package = pkgs.firefox;
         policies = {
           Cookies = {
             "Locked" = true;

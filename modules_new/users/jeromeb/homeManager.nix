@@ -13,7 +13,7 @@ in
       imports = with inputs.self.modules.homeManager; [
         system-default
         vscode
-        librewolf
+        firefox
         jeromeb-style
         # messaging
       ];

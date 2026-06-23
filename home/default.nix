@@ -7,6 +7,7 @@
 {
   imports = [
     inputs.stylix.homeModules.stylix
+    inputs.sops-nix.homeManagerModules.sops
     ./style.nix
     ./vscode.nix
     ./browser.nix
@@ -35,15 +36,22 @@
     #bitwarden-desktop
     nh
     nix-du
+    pinentry-curses
   ];
 
   programs.rbw = {
     enable = true;
   };
+
+  home.sessionVariables = {
+    SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/rbw/ssh-agent-socket";
+  };
+
   nixpkgs.config.allowUnfreePredicate =
     pkg:
     builtins.elem (lib.getName pkg) [
       "spotify"
       "apple_cursor"
     ];
+  
 }

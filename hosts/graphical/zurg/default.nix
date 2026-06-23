@@ -120,7 +120,7 @@
       signal-desktop
       telegram-desktop
       spotify
-      librewolf
+      firefox
       seclists
       wireguard-tools
       ffuf
