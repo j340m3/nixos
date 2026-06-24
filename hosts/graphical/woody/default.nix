@@ -49,6 +49,7 @@ in
     ../../../modules/prometheus.nix
     ../../../modules/grafana.nix
     ../../../modules/fritz-exporter.nix
+    ../../../modules/yggdrasil.nix
     # ./firefox.nix
     #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
     #<home-manager/nixos>
