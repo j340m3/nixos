@@ -8,8 +8,8 @@
     ./zram.nix
     ./domain.nix
     ./distributed-builds.nix
-    ./lockup.nix
-    ./ntp.nix
+    #./lockup.nix
+    #./ntp.nix
     ./ulimit.nix
     ../../users/donquezz.nix
   ];
