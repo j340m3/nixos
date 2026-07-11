@@ -17,6 +17,7 @@
     ./disk-config.nix
     ../../../modules/common
     ../../../users/donquezz.nix
+    ../../../modules/nebula.nix
 
   ];
   boot.loader.grub = {
