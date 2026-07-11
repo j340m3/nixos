@@ -11,7 +11,13 @@
     inputs.nixos-facter-modules.nixosModules.facter
     (modulesPath + "/installer/scan/not-detected.nix")
     (modulesPath + "/profiles/qemu-guest.nix")
+    (modulesPath + "/profiles/minimal.nix")
+    (modulesPath + "/profiles/headless.nix")
+
     ./disk-config.nix
+    ../../../modules/common
+    ../../../users/donquezz.nix
+
   ];
   boot.loader.grub = {
     # no need to set devices, disko will add all devices that have a EF02 partition to the list already
@@ -38,6 +44,7 @@
   ]
   ++ (args.extraPublicKeys or [ ]); # this is used for unit-testing this module and can be removed if not needed
 
+  networking.hostName = "mrpotatohead";
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   system.stateVersion = "24.05";
 }
