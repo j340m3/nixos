@@ -29,5 +29,6 @@
   ]
   ++ (args.extraPublicKeys or [ ]); # this is used for unit-testing this module and can be removed if not needed
 
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   system.stateVersion = "24.05";
 }
