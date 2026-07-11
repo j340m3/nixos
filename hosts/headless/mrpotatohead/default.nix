@@ -2,10 +2,13 @@
   modulesPath,
   lib,
   pkgs,
+  inputs,
   ...
 }@args:
 {
   imports = [
+    inputs.disko.nixosModules.disko
+    inputs.nixos-facter-modules.nixosModules.facter
     (modulesPath + "/installer/scan/not-detected.nix")
     (modulesPath + "/profiles/qemu-guest.nix")
     ./disk-config.nix
@@ -17,6 +20,12 @@
     efiInstallAsRemovable = true;
   };
   services.openssh.enable = true;
+
+  config.facter.reportPath =
+              if builtins.pathExists ./facter.json then
+                ./facter.json
+              else
+                throw "Have you forgotten to run nixos-anywhere with `--generate-hardware-config nixos-facter ./facter.json`?";
 
   environment.systemPackages = map lib.lowPrio [
     pkgs.curl
