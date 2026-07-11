@@ -18,6 +18,8 @@
     ../../../modules/common
     ../../../users/donquezz.nix
     ../../../modules/nebula.nix
+    ../../../modules/logging.nix
+    ../../../modules/nextcloud.nix
 
   ];
   boot.loader.grub = {
