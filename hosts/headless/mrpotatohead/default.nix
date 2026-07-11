@@ -22,6 +22,7 @@
     ../../../modules/nextcloud.nix
 
   ];
+
   boot.loader.grub = {
     # no need to set devices, disko will add all devices that have a EF02 partition to the list already
     # devices = [ ];
@@ -47,6 +48,7 @@
   ]
   ++ (args.extraPublicKeys or [ ]); # this is used for unit-testing this module and can be removed if not needed
 
+  networking.firewall.enable = true;
   networking.hostName = "mrpotatohead";
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   system.stateVersion = "24.05";
