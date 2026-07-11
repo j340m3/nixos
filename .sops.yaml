@@ -12,6 +12,7 @@ keys:
   - &server_jessie age1ryu9sln638lryj3yupm3p9swtqm986h3g84ezw43c9pqe8pw0g4qy7j2gt
   - &server_slinky age1zkm0j83lzkekgetkj9mlatmtg5p8dqqc6g0sf24pnw9dwkrytejq8t0sfc
   - &server_zurg age1wudmk6vrkdadznx92tdqa3s9sds6fyrw9xr5thu48k5h2qr3fd5qd0xy20
+  - &server_mrpotatohead age1zl33f985km96pzkna9auqzr4yd22n2wkf6pkm7hv92lztwc6ndvsze9rgj
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
@@ -29,6 +30,7 @@ creation_rules:
           - *server_jessie
           - *server_slinky
           - *server_zurg
+          - *server_mrpotatohead
   - path_regex: secrets/hosts/woody/[^/]+\.(yaml|json|env|ini)$
     key_groups:
       - age:
@@ -94,6 +96,13 @@ creation_rules:
           - *bw_jerome
           - *bw_age_jerome
           - *server_zurg
+  - path_regex: secrets/hosts/mrpotatohead/[^/]+\.(yaml|json|env|ini)$
+    key_groups:
+      - age:
+          - *admin_jerome
+          - *bw_jerome
+          - *bw_age_jerome
+          - *server_mrpotatohead
   - path_regex: secrets/users/.+\.(yaml|json|env|ini)$
     key_groups:
       - age:
@@ -119,6 +128,7 @@ creation_rules:
           - *server_buzz
           - *server_jessie
           - *server_zurg
+          - *server_mrpotatohead
   - path_regex: secrets/services/postgres/rclone.ini$
     key_groups:
       - age:
@@ -135,3 +145,4 @@ creation_rules:
           - *server_jessie
           - *server_slinky
           - *server_zurg
+          - *server_mrpotatohead
