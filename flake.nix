@@ -1,7 +1,7 @@
 {
-# =============================================================================
-# Inputs
-# =============================================================================
+  # =============================================================================
+  # Inputs
+  # =============================================================================
 
   inputs = {
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
@@ -9,14 +9,14 @@
     # Shallow cloning
     # Source: https://tsawyer87.github.io/posts/nix_flakes_tips/
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
-    #nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11"; #TODO: Remove unused
+    #nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11"; # TODO: Remove unused
     #nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
     #chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
 
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-     # kde
+    # kde
     plasma-manager = {
       url = "github:nix-community/plasma-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -26,10 +26,12 @@
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
-    /* conduwuit = {
-      url = "github:girlbossceo/conduwuit";
-      inputs.nixpkgs.follows = "nixpkgs";
-    }; */
+    /*
+      conduwuit = {
+        url = "github:girlbossceo/conduwuit";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+    */
     peerix = {
       url = "github:j340m3/peerix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -46,7 +48,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    oom-hardware ={
+    oom-hardware = {
       url = "github:j340m3/oom-hardware";
       #url = "github:robertjakub/oom-hardware";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -83,63 +85,76 @@
     nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
   };
 
+  # =============================================================================
+  # Outputs
+  # =============================================================================
 
-# =============================================================================
-# Outputs
-# =============================================================================
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nixpkgs-master,
+      sops-nix,
+      home-manager,
+      comin,
+      nixos-hardware,
+      peerix,
+      oom-hardware,
+      stylix,
+      affinity-nix,
+      nixos-wsl,
+      ...
+    }@inputs:
+    let
+      #inherit (nixpkgs) lib;
+      # Constants represent variables which are important for multiple hosts
+      constants = (import ./global/constants.nix);
+    in
+    {
 
-  outputs = {self, nixpkgs, nixpkgs-master, sops-nix, home-manager, comin, nixos-hardware, peerix, oom-hardware, stylix, affinity-nix, nixos-wsl, ... } @ inputs:
-  let
-    #inherit (nixpkgs) lib;
-    # Constants represent variables which are important for multiple hosts
-    constants = (import ./global/constants.nix);
-  in
-  {
+      # -----------------------------------------------------------------------------
+      # NixOS Hosts - Each folder in ./hosts is one host-config
+      # -----------------------------------------------------------------------------
 
-# -----------------------------------------------------------------------------
-# NixOS Hosts - Each folder in ./hosts is one host-config
-# -----------------------------------------------------------------------------
-
-    nixosConfigurations = builtins.listToAttrs (
-      (map (host: {
-        name = host;
-        value = nixpkgs.lib.nixosSystem {
-          specialArgs.inputs = inputs;
-          specialArgs.constants = constants;
+      nixosConfigurations = builtins.listToAttrs (
+        (map (host: {
+          name = host;
+          value = nixpkgs.lib.nixosSystem {
+            specialArgs.inputs = inputs;
+            specialArgs.constants = constants;
+            modules = [
+              ./hosts/graphical/${host}
+              #inputs.chaotic.nixosModules.default
+            ];
+          };
+        }) (builtins.attrNames (builtins.readDir ./hosts/graphical)))
+        ++ (map (host: {
+          name = host;
+          value = nixpkgs.lib.nixosSystem {
+            specialArgs.inputs = inputs;
+            specialArgs.constants = constants;
+            modules = [
+              ./hosts/headless/${host}
+              #inputs.chaotic.nixosModules.default
+            ];
+          };
+        }) (builtins.attrNames (builtins.readDir ./hosts/headless)))
+      );
+      # -----------------------------------------------------------------------------
+      # home-manager configurations
+      # -----------------------------------------------------------------------------
+      homeConfigurations = {
+        "jeromeb" = home-manager.lib.homeManagerConfiguration {
+          pkgs = import nixpkgs { system = "x86_64-linux"; };
+          extraSpecialArgs = { inherit inputs; };
           modules = [
-            ./hosts/graphical/${host}
-            #inputs.chaotic.nixosModules.default
+            ./home
           ];
         };
-      }) (builtins.attrNames (builtins.readDir ./hosts/graphical)))
-      ++
-      (map (host: {
-        name = host;
-        value = nixpkgs.lib.nixosSystem {
-          specialArgs.inputs = inputs;
-          specialArgs.constants = constants;
-          modules = [
-            ./hosts/headless/${host}
-            #inputs.chaotic.nixosModules.default
-          ];
-        };
-      }) (builtins.attrNames (builtins.readDir ./hosts/headless)))
-    );
-# -----------------------------------------------------------------------------
-# home-manager configurations
-# -----------------------------------------------------------------------------
-    homeConfigurations = {
-      "jeromeb" = home-manager.lib.homeManagerConfiguration {
-        pkgs = import nixpkgs {system = "x86_64-linux";};
-        extraSpecialArgs = {inherit inputs; };
-        modules = [
-          ./home
-        ];
+      };
+      packages.x86_64-linux = {
+        image = self.nixosConfigurations.bootstrap.config.system.build.diskoImages;
+        image-impermanent = self.nixosConfigurations.bootstrap-impermanent.config.system.build.diskoImages;
       };
     };
-    packages.x86_64-linux = {
-      image = self.nixosConfigurations.bootstrap.config.system.build.diskoImages;
-      image-impermanent = self.nixosConfigurations.bootstrap-impermanent.config.system.build.diskoImages;
-    };
-  };
 }
