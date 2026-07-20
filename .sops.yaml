@@ -12,7 +12,7 @@ keys:
   - &server_jessie age1ryu9sln638lryj3yupm3p9swtqm986h3g84ezw43c9pqe8pw0g4qy7j2gt
   - &server_slinky age1zkm0j83lzkekgetkj9mlatmtg5p8dqqc6g0sf24pnw9dwkrytejq8t0sfc
   - &server_zurg age1wudmk6vrkdadznx92tdqa3s9sds6fyrw9xr5thu48k5h2qr3fd5qd0xy20
-  - &server_mrpotatohead age1zl33f985km96pzkna9auqzr4yd22n2wkf6pkm7hv92lztwc6ndvsze9rgj
+  - &server_mrpotatohead age1sewca4hq0pycrt5w3rv6vdjylll5hxpwkyp7wr2xgqm6gah775cqpkzru0
 
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
