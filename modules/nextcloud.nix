@@ -28,6 +28,7 @@ in
     sopsFile = ../secrets/services/nextcloud/secrets.yaml;
     owner = "nextcloud";
     group = "nextcloud";
+    path = "/etc/nextcloud-admin-pass";
   };
 
   users.users.nextcloud.uid = 989;
