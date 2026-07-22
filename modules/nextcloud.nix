@@ -96,6 +96,10 @@ in
       settings = {
         overwriteProtocol = "https";
         default_phone_region = "DE";
+        trusted_domains = [
+          "nextcloud.kauderwels.ch"
+          "files.dabergmann.de"
+        ];
       };
       config = {
         dbtype = "pgsql";
