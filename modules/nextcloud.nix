@@ -152,6 +152,7 @@ in
       #environmentFile = "/REPLACE/WITH/YOUR/PATH";
     };
     certs.${domainName}.group = config.services.nginx.group;
+    certs."files.dabergmann.de".group = config.services.nginx.group;
   };
 
   # for acme plain http challenge
@@ -165,6 +166,11 @@ in
       useACMEHost = domainName;
       locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
     };
+    #virtualHosts."files.dabergmann.de" = {
+    #  forceSSL = true;
+    #  useACMEHost = "files.dabergmann.de";
+    #  locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
+    #};
   };
 
   services.fail2ban.jails."nextcloud".settings = {
