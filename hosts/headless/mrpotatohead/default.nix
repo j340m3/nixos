@@ -62,6 +62,7 @@
   # ---- Advanced Configuration
   #
 
+  # --- More Memory
   swapDevices = [
     {
       device = "/swapfile";
@@ -70,4 +71,17 @@
   ];
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
+
+  # --- More space
+  services.beesd.filesystems = {
+    root = {
+      hashTableSizeMB = 64;
+      spec = "/";
+      verbosity = "crit";
+      extraOptions = [
+        "--loadavg-target"
+        "5.0"
+      ];
+    };
+  };
 }
