@@ -99,6 +99,7 @@ in
     };
     # Nightly database backups.
     postgresqlBackup = {
+      databases = [ "nextcloud" ];
       enable = true;
       startAt = "*-*-* 01:15:00";
     };
