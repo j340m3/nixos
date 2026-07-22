@@ -45,7 +45,7 @@ in
     ../../../modules/harmonia.nix
     ../../../modules/nfs-fee.nix
     ../../../modules/nebula.nix
-    ../../../modules/technitium.nix
+    #../../../modules/technitium.nix
     ../../../modules/prometheus.nix
     ../../../modules/grafana.nix
     ../../../modules/fritz-exporter.nix
