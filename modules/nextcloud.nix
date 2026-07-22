@@ -13,6 +13,7 @@ in
   imports = [
     ./common/postgresBackup.nix
   ];
+
   sops.secrets."nextcloud/secrets.json" = {
     format = "json";
     sopsFile = ../secrets/services/nextcloud/secrets.json;
@@ -21,6 +22,12 @@ in
     group = "nextcloud";
     #path = "/etc/nebula/self.key";
     key = "";
+  };
+
+  sops.secrets."nextcloud-admin-pass" = {
+    sopsFile = ../secrets/services/nextcloud/secrets.yaml;
+    owner = "nextcloud";
+    group = "nextcloud";
   };
 
   users.users.nextcloud.uid = 989;
@@ -92,7 +99,7 @@ in
       config = {
         dbtype = "pgsql";
         adminuser = "admin";
-        adminpassFile = "/etc/nextcloud-admin-pass";
+        adminpassFile = config.sops.secrets."nextcloud-admin-pass".path;
       };
       # Suggested by Nextcloud's health check.
       phpOptions."opcache.interned_strings_buffer" = "16";
