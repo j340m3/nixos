@@ -58,4 +58,16 @@
   networking.hostName = "mrpotatohead";
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   system.stateVersion = "24.05";
+
+  # ---- Advanced Configuration
+  #
+
+  swapDevices = [
+    {
+      device = "/swapfile";
+      size = 4096;
+    }
+  ];
+  boot.tmp.cleanOnBoot = true;
+  zramSwap.enable = true;
 }
