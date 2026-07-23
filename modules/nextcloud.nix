@@ -166,11 +166,11 @@ in
       useACMEHost = domainName;
       locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
     };
-    #virtualHosts."files.dabergmann.de" = {
-    #  forceSSL = true;
-    #  useACMEHost = "files.dabergmann.de";
-    #  locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
-    #};
+    virtualHosts."files.dabergmann.de" = {
+      forceSSL = true;
+      useACMEHost = "files.dabergmann.de";
+      locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
+    };
   };
 
   services.fail2ban.jails."nextcloud".settings = {
