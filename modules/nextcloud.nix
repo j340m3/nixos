@@ -175,6 +175,10 @@ in
       forceSSL = true;
       useACMEHost = "files.dabergmann.de";
       locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
+      locations."/" = {
+        proxyPass = "https://nextcloud.kauderwels.ch";
+        proxyWebsockets = true;
+      };
     };
   };
 
