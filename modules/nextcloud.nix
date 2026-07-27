@@ -151,8 +151,13 @@ in
       # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#EnvironmentFile=
       #environmentFile = "/REPLACE/WITH/YOUR/PATH";
     };
-    certs.${domainName}.group = config.services.nginx.group;
-    certs."files.dabergmann.de".group = config.services.nginx.group;
+    certs.${domainName} = {
+      group = config.services.nginx.group;
+      extraDomainNames = [
+        "files.dabergmann.de"
+      ];
+    };
+    #certs."files.dabergmann.de".group = config.services.nginx.group;
   };
 
   # for acme plain http challenge
