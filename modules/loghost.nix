@@ -8,10 +8,11 @@
     rsyslog
   ];
   networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 514 ];
-  services.journald.extraConfig = ''
-		MaxRetentionSec=1week
-		ForwardToSyslog=yes
-	'';
+  #  Has no effect anymore
+  #services.journald.extraConfig = ''
+	#	MaxRetentionSec=1week
+	#	ForwardToSyslog=yes
+	#'';
   services.rsyslogd = {
 		enable = true;
 		defaultConfig = ''
@@ -38,7 +39,7 @@
     compress = true;
 		copytruncate = true;
     olddir = "/mnt/nas/rsyslog";
-	}; 
+	};
 
   fileSystems."/mnt/nas/rsyslog" = {
   device = "rsyslog:rsyslog";
@@ -61,7 +62,7 @@
     "vfs-cache-max-age=24h"                    # Retain cached files for up to 24 hours
     "vfs-read-chunk-size=32M"                  # Start with 32MB chunks for faster initial reads
     "vfs-read-chunk-size-limit=1G"             # Allow chunk size to grow up to 1GB for large files
-    "vfs-cache-poll-interval=30s" 
+    "vfs-cache-poll-interval=30s"
     "tpslimit=8"
     "tpslimit-burst=16"
     "bwlimit=1K"
