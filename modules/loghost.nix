@@ -3,41 +3,41 @@
   lib,
   pkgs,
   ...
-} : {
+}:
+{
   environment.systemPackages = with pkgs; [
     rsyslog
   ];
   networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 514 ];
-  #  Has no effect anymore
-  #services.journald.extraConfig = ''
-	#	MaxRetentionSec=1week
-	#	ForwardToSyslog=yes
-	#'';
+  services.journald.settings.Journal = ''
+    		MaxRetentionSec=1week
+    		ForwardToSyslog=yes
+    	'';
   services.rsyslogd = {
-		enable = true;
-		defaultConfig = ''
-        #module(load="imtcp")
-        #input(type="imtcp" port="514")
+    enable = true;
+    defaultConfig = ''
+      #module(load="imtcp")
+      #input(type="imtcp" port="514")
 
-        module(load="imudp")
-        input(type="imudp" port="514")
-        $PreserveFQDN on
-        $LocalHostName ${config.networking.hostName}
+      module(load="imudp")
+      input(type="imudp" port="514")
+      $PreserveFQDN on
+      $LocalHostName ${config.networking.hostName}
 
-        $template RemoteLogs,"/persist/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"
-        #$template RemoteLogs,"/persist/rsyslog/%FROMHOST-IP%/%PROGRAMNAME%.log"
-        ?RemoteLogs
+      $template RemoteLogs,"/persist/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"
+      #$template RemoteLogs,"/persist/rsyslog/%FROMHOST-IP%/%PROGRAMNAME%.log"
+      ?RemoteLogs
 
-        $template RemoteLogs2,"/persist/rsyslog/%HOSTNAME%/messages.log"
-        #$template RemoteLogs2,"/persist/rsyslog/%FROMHOST-IP%/messages.log"
-        ?RemoteLogs2
-      '';
-	};
+      $template RemoteLogs2,"/persist/rsyslog/%HOSTNAME%/messages.log"
+      #$template RemoteLogs2,"/persist/rsyslog/%FROMHOST-IP%/messages.log"
+      ?RemoteLogs2
+    '';
+  };
   services.logrotate.settings."/persist/rsyslog/*/*.log" = {
-		frequency = "weekly";
-		rotate = 8;
+    frequency = "weekly";
+    rotate = 8;
     compress = true;
-		copytruncate = true;
+    copytruncate = true;
     olddir = "/mnt/nas/rsyslog";
 	};
 
