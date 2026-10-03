@@ -131,15 +131,25 @@
     systemd.services."notify-telegram@" = {
       enable = true;
       environment.SERVICE_ID = "%i";
+      # the journal holds the actual error, systemctl status the process
+      # context, so send both. everything is url-encoded: a raw -d text= loses
+      # the body, because status output has spaces and newlines in it.
       script = ''
-        TEMPFILE=$(mktemp)
-        echo -e "\nGot an error with $SERVICE_ID\n\n" >> $TEMPFILE
-        set +e
-        systemctl status $SERVICE_ID >> $TEMPFILE
-        set -e
-        export GROUP_ID="$(cat ${config.sops.secrets."telegram/group_id".path})"
-        export BOT_TOKEN="$(cat ${config.sops.secrets."telegram/bot_token".path})"
-        ${pkgs.curl}/bin/curl -s -X POST https://api.telegram.org/bot$BOT_TOKEN/sendMessage -d chat_id=$GROUP_ID -d text="${config.networking.hostName}: $(cat $TEMPFILE)" > /dev/null
+        GROUP_ID=$(cat ${config.sops.secrets."telegram/group_id".path})
+        BOT_TOKEN=$(cat ${config.sops.secrets."telegram/bot_token".path})
+        EXIT_CODE=$(systemctl show -p ExecMainStatus --value "$SERVICE_ID")
+        # cap the body first and prepend the header after, because capping the
+        # whole message keeps its end and would eat the header, which is the
+        # only line naming the host and the unit.
+        BODY="$({
+          systemctl status "$SERVICE_ID" --no-pager | tail -n 12
+          journalctl -u "$SERVICE_ID" -n 15 --no-pager -o short-iso
+        } | tail -c 3200)"
+        MESSAGE="$(printf '%s: %s failed, exit %s\n\n' \
+          "${config.networking.hostName}" "$SERVICE_ID" "$EXIT_CODE")$BODY"
+        ${pkgs.curl}/bin/curl -sf --data-urlencode "chat_id=$GROUP_ID" \
+          --data-urlencode "text=$MESSAGE" \
+          "https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
       '';
     };
 
