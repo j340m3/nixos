@@ -130,7 +130,7 @@ in
       ExecStartPre = ''
         timeout 300 sh -c 'until ${pkgs.rclone}/bin/rclone lsd filen:services/nextcloud --config ${
           config.sops.secrets."filen/nextcloud.conf".path
-        } > /dev/null 2>&1; do sleep 5; done'
+        }; do sleep 5; done'
       '';
       Restart = "on-failure";
       RestartSec = 30;
@@ -228,6 +228,10 @@ in
     group = "nextcloud";
     #path = "/etc/nebula/self.key";
     key = "";
+    # the resetup unit only makes sense once the config it passes to rclone
+    # exists, and it is not running at that point, so try-restart is the only
+    # thing that helps here
+    restartUnits = [ "mnt-filen-services-nextcloud-tmpfiles-resetup.service" ];
   };
 
   environment.systemPackages = with pkgs; [
