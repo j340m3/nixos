@@ -142,6 +142,20 @@ in
     before = [ "nextcloud-setup.service" ];
   };
 
+  # flake.lock is not committed, so a glibc bump arrives with any nixpkgs
+  # update and postgres then reports a collation version mismatch on every occ
+  # call. rebuild the indexes once per change instead of by hand.
+  systemd.services.nextcloud-setup.postStart = lib.mkAfter "${pkgs.writeShellScript "nextcloud-refresh-collation" ''
+    set -eu
+    psql=${config.services.postgresql.package}/bin/psql
+    current=$("$psql" -tAc "select datcollversion from pg_database where datname = 'nextcloud'" || true)
+    [ -n "$current" ] || exit 0
+    if [ "$current" != "${pkgs.glibc.version}" ]; then
+      "$psql" -d nextcloud -c 'REINDEX DATABASE nextcloud;'
+      "$psql" -d nextcloud -c 'ALTER DATABASE nextcloud REFRESH COLLATION VERSION;'
+    fi
+  ''}/bin/nextcloud-refresh-collation";
+
   systemd.services.nextcloud-setup.after = [
     "mnt-filen-services-nextcloud.mount"
     "mnt-filen-services-nextcloud-tmpfiles-resetup.service"
