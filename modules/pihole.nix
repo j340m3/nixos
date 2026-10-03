@@ -1,5 +1,20 @@
-{ ... }:
+{ config, ... }:
+
+let
+  domainName = "dns.kauderwels.ch";
+  certDir = config.security.acme.certs.${domainName}.directory;
+in
 {
+  # nginx serves the challenge and dnsdist reads the key, so it has to be
+  # readable by both
+  security.acme.certs.${domainName}.group = config.services.nginx.group;
+  users.users.dnsdist.extraGroups = [ config.services.nginx.group ];
+
+  # buzz already runs nginx for nextcloud, this only serves the challenge
+  services.nginx.virtualHosts.${domainName} = {
+    enableACME = true;
+  };
+
   /*
     services.adguardhome = {
       enable = true;
@@ -75,8 +90,8 @@
     extraConfig = ''
       -- addLocal("0.0.0.0:53")
       addLocal("[::]:53")
-      addTLSLocal('[::]', '/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer', '/etc/ssl/certs/_.kauderwels.ch_private_key.key')
-      addTLSLocal('0.0.0.0', '/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer', '/etc/ssl/certs/_.kauderwels.ch_private_key.key')
+      addTLSLocal('[::]', '${certDir}/fullchain.pem', '${certDir}/key.pem')
+      addTLSLocal('0.0.0.0', '${certDir}/fullchain.pem', '${certDir}/key.pem')
       newServer({address="[2a01:4f8:251:554::2]:853", tls="openssl", subjectName="dns3.digitalcourage.de", validateCertificates=true})
       -- FFMUC
       newServer("5.1.66.255")

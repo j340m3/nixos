@@ -24,6 +24,7 @@
     (modulesPath + "/profiles/headless.nix")
     #../../../modules/hardening.nix
     #../../../modules/swap.nix
+    ../../../modules/acme.nix
     ../../../modules/common
     ../../../users/donquezz.nix
     ../../../modules/logging.nix

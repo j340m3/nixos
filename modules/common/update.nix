@@ -95,7 +95,7 @@
       settings = {
         substituters = [
           "https://cache.nixos.org"
-          #"https://cache.kauderwels.ch:5000"
+          #"https://cache.kauderwels.ch"
           "https://nix-community.cachix.org"
         ];
         trusted-public-keys = [

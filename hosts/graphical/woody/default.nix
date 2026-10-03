@@ -30,6 +30,7 @@ in
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    ../../../modules/acme.nix
     ../../../modules/common
     ../../../users/donquezz.nix
     ../../../modules/loghost.nix

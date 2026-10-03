@@ -22,6 +22,7 @@ in
     #../../../modules/zabbix.nix
     #../../../modules/dns-tunnel.nix
     #../../../modules/immich-proxy.nix
+    ../../../modules/acme.nix
     ../../../modules/common
     ../../../modules/wireguard.nix
   ];

@@ -7,9 +7,8 @@
 
   services.nginx.virtualHosts = {
       "immich.kauderwels.ch" = {
+        enableACME = true;
         forceSSL = true;
-        sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
-        sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString config.services.immich-public-proxy.port}";
         };

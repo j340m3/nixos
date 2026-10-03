@@ -1,20 +1,11 @@
-{ ... }:
-let
-  domainName = "kauderwels.ch";
-in
+# Shared ACME setup. Certificates are issued per service, so every module that
+# terminates TLS declares its own cert and imports this for the defaults.
 {
   security.acme = {
     acceptTerms = true;
     defaults = {
       email = "jerome.bergmann@posteo.de";
-      dnsProvider = "ionos";
-      # location of your CLOUDFLARE_DNS_API_TOKEN=[value]
-      # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#EnvironmentFile=
-      environmentFile = "/var/lib/acme/api_key";
+      webroot = "/var/lib/acme/acme-challenge/";
     };
-    certs.${domainName}.extraDomainNames = [
-      "vaultwarden.kauderwels.ch"
-      "nextcloud.kauderwels.ch"
-    ];
   };
 }

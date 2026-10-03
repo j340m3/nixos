@@ -1,23 +1,44 @@
 { config, lib, constants, ... }:
 
+let
+  domainName = "cache.kauderwels.ch";
+in
 {
   services.harmonia.enable = true;
   services.harmonia.signKeyPaths = [ "/var/lib/secrets/harmonia.secret" ];
-  services.harmonia.settings.tls_cert_path = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
-  services.harmonia.settings.tls_key_path = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+  # no tls_cert_path/tls_key_path: harmonia runs as a DynamicUser with
+  # PrivateUsers and cannot read the acme key. nginx terminates TLS and talks
+  # to it over localhost instead.
+  services.harmonia.settings.bind = "127.0.0.1:5000";
+
+  security.acme.certs.${domainName}.group = config.services.nginx.group;
+
+  services.nginx = {
+    enable = true;
+    recommendedProxySettings = true;
+    recommendedTlsSettings = true;
+    virtualHosts.${domainName} = {
+      useACMEHost = domainName;
+      forceSSL = true;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:5000";
+        proxyWebsockets = true;
+        extraConfig = ''
+          proxy_set_header Host $host;
+          proxy_redirect http:// https://;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        '';
+      };
+    };
+  };
 
   nix.settings.allowed-users = [ "harmonia" ];
-  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 443 80 5000];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 443 80 ];
 
   services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
               (config.services.harmonia.enable && 
               config.services.nebula.networks.mesh.enable) 
       [
-        {
-          cidr = constants.nebula.cidr;
-          port = 5000;
-          proto = "tcp";
-        }
         {
           cidr = constants.nebula.cidr;
           port = 443;
@@ -29,24 +50,4 @@
           proto = "tcp";
         }
       ];
-  # TODO: Can this go?
-  
-  /* services.nginx = {
-    enable = true;
-    #forceSSL = true;
-    recommendedTlsSettings = true;
-    virtualHosts."cache.kauderwels.ch" = {
-      sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
-      sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
-      locations."/".extraConfig = ''
-        proxy_pass http://127.0.0.1:5000;
-        proxy_set_header Host $host;
-        proxy_redirect http:// https://;
-        proxy_http_version 1.1;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade;
-      '';
-    };
-  }; */
 }

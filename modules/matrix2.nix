@@ -13,9 +13,6 @@ let
   # machine, some tweaks will need to be made if this is not the case.
   matrix_hostname = "matrix.${server_name}";
 
-  # An admin email for TLS certificate notifications
-  admin_email = "admin@${server_name}";
-
   # Build a dervation that stores the content of `${server_name}/.well-known/matrix/server`
   well_known_server = pkgs.writeText "well-known-matrix-server" ''
     {
@@ -56,23 +53,16 @@ in
         };
     };
     settings.tls = {
-      certs = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
-      key = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+      certs = "${config.security.acme.certs.${matrix_hostname}.directory}/fullchain.pem";
+      key = "${config.security.acme.certs.${matrix_hostname}.directory}/key.pem";
     };
   };
 
-  # Configure automated TLS acquisition/renewal
-  #security.acme = {
-  #  acceptTerms = true;
-  #  defaults = {
-  #    email = admin_email;
-  #  };
-  #};
-
-  # ACME data must be readable by the NGINX user
-  #users.users.nginx.extraGroups = [
-  #  "acme"
-  #];
+  # conduit claims the apex as its server name, so the cert covers both
+  security.acme.certs.${matrix_hostname} = {
+    group = config.services.nginx.group;
+    extraDomainNames = [ server_name ];
+  };
 
   # Configure NGINX as a reverse proxy
   services.nginx = {
@@ -81,10 +71,8 @@ in
 
     virtualHosts = {
       "${matrix_hostname}" = {
+        enableACME = true;
         forceSSL = true;
-        sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
-        sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
-        #enableACME = true;
 
         listen = [
           {
