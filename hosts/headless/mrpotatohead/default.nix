@@ -99,6 +99,10 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   system.stateVersion = "24.05";
 
+  # rolls this host back to the previous generation and reboots it when systemd
+  # reports a failed unit one settle delay after switch-to-configuration
+  upgradeHealth.enable = true;
+
   # ---- Advanced Configuration
   #
 
