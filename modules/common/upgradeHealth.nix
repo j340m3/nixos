@@ -31,11 +31,13 @@
         AccuracySec = "1min";
         Persistent = false;
       };
+      description = "Runs the upgrade health check one settle delay after switch-to-configuration.service goes active, which covers both a boot and a nixos-rebuild switch.";
     };
 
     systemd.services.nixos-upgrade-health = {
       # no wantedBy: the timer is what starts this
       serviceConfig.Type = "oneshot";
+      description = "Rolls the host back to the previous generation and reboots when systemd reports a failed unit. A host already sitting on its fallback generation refuses, so one broken unit cannot make it roll back generation after generation.";
       script = ''
         guard=/var/lib/nixos-upgrade-health
         ${pkgs.coreutils}/bin/install -d -m 0755 "$guard"
@@ -44,16 +46,35 @@
           echo "upgrade-health: no failed units, nothing to do"
           exit 0
         fi
-        unit=$(printf '%s\n' "$failed" | ${pkgs.coreutils}/bin/head -n 1 | ${pkgs.coreutils}/bin/cut -d' ' -f1)
-        echo "upgrade-health: $unit failed, rolling back"
-        ${pkgs.systemd}/bin/systemctl start --no-block "notify-telegram@$unit.service"
+        # the unit name is the first word of the first line. expand it instead of
+        # piping through head and cut: a pipeline that stops reading early can
+        # raise SIGPIPE, and systemd.enableStrictShellChecks turns that into a
+        # failed unit.
+        nl='
+        '
+        first=''${failed%%"$nl"*}
+        unit=''${first%% *}
+        echo "upgrade-health: $unit failed"
+        # notify before deciding, so the guard refusal below is reported too,
+        # and never let a missing or failing notification block the rollback
+        ${pkgs.systemd}/bin/systemctl start --no-block "notify-telegram@$unit.service" ||
+          echo "upgrade-health: notification for $unit failed, continuing with the rollback"
         generation=$(${pkgs.coreutils}/bin/readlink /nix/var/nix/profiles/system)
-        if [ "$(cat "$guard/rolled-back-from" 2>/dev/null || true)" = "$generation" ]; then
+        if [ "$(${pkgs.coreutils}/bin/cat "$guard/rolled-back-from" 2>/dev/null || true)" = "$generation" ]; then
           echo "upgrade-health: already rolled back from $generation, not rolling back again"
           exit 1
         fi
+        # record the attempt first, so a rollback that itself fails is not
+        # retried every settle delay
         printf '%s\n' "$generation" > "$guard/rolled-back-from"
         ${pkgs.nixos-rebuild}/bin/nixos-rebuild rollback
+        # then record the generation we now sit on. a host on its fallback
+        # generation therefore refuses, which is what stops the cascade when
+        # the failed unit was already broken before the upgrade and a rollback
+        # cannot fix it.
+        fallback=$(${pkgs.coreutils}/bin/readlink /nix/var/nix/profiles/system)
+        printf '%s\n' "$fallback" > "$guard/rolled-back-from"
+        echo "upgrade-health: rolled back to $fallback, rebooting"
         ${pkgs.systemd}/bin/systemctl reboot
       '';
     };
