@@ -1,6 +1,7 @@
 {
   imports = [
     ./update.nix
+    ./upgradeHealth.nix
     ./ssh.nix
     ./locale.nix
     ./sops.nix
