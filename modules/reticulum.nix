@@ -28,7 +28,7 @@ in
       RestartSec = "3s";
     };
   };
-  
+
   systemd.services.lxmf = {
     script = ''
       ${rnspython}/bin/lxmd --service --verbose

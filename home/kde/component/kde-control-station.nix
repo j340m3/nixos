@@ -1,4 +1,5 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   kde-control-station = pkgs.stdenvNoCC.mkDerivation rec {
     pname = "kde-control-station";
     version = "latest";
@@ -28,8 +29,9 @@
       runHook postInstall
     '';
 
-    passthru.updateScript = pkgs.nix-update-script {};
+    passthru.updateScript = pkgs.nix-update-script { };
   };
-in {
-  home.packages = [kde-control-station];
+in
+{
+  home.packages = [ kde-control-station ];
 }

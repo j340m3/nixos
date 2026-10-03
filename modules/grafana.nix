@@ -22,7 +22,9 @@
       proxyWebsockets = true;
     };
   };
-  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ config.services.grafana.settings.server.http_port ];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [
+    config.services.grafana.settings.server.http_port
+  ];
   services.nebula.networks.mesh.firewall.inbound =
     lib.mkIf (config.services.grafana.enable && config.services.nebula.networks.mesh.enable)
       [

@@ -1,4 +1,10 @@
-{ pkgs, config, lib,... }:{
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
+{
 
   services.postgresqlBackup = {
     enable = true;

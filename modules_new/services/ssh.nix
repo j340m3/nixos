@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.ssh = {lib,config,...}:{
+  flake.modules.nixos.ssh = { lib, config, ... }: {
     services.fail2ban = {
       enable = lib.mkDefault true;
       daemonSettings = {
@@ -10,30 +10,36 @@
           dbfile = "/var/lib/fail2ban/fail2ban.sqlite3";
         };
       };
-      ignoreIP = ["10.0.0.0/8"];  
+      ignoreIP = [ "10.0.0.0/8" ];
     };
-    /* security.pam.services = {
-      login.googleAuthenticator.enable = true;
-      # https://github.com/NixOS/nixpkgs/issues/115044#issuecomment-2065409087
-      sshd.text = ''
-          account required pam_unix.so # unix (order 10900)
+    /*
+      security.pam.services = {
+        login.googleAuthenticator.enable = true;
+        # https://github.com/NixOS/nixpkgs/issues/115044#issuecomment-2065409087
+        sshd.text = ''
+            account required pam_unix.so # unix (order 10900)
 
-          auth required ${pkgs.google-authenticator}/lib/security/pam_google_authenticator.so nullok no_increment_hotp # google_authenticator (order 12500)
-          auth sufficient pam_permit.so
+            auth required ${pkgs.google-authenticator}/lib/security/pam_google_authenticator.so nullok no_increment_hotp # google_authenticator (order 12500)
+            auth sufficient pam_permit.so
 
-          session required pam_env.so conffile=/etc/pam/environment readenv=0 # env (order 10100)
-          session required pam_unix.so # unix (order 10200)
-          session required pam_loginuid.so # loginuid (order 10300)
-          session optional ${pkgs.systemd}/lib/security/pam_systemd.so # systemd (order 12000)
-        '';
-    }; */
+            session required pam_env.so conffile=/etc/pam/environment readenv=0 # env (order 10100)
+            session required pam_unix.so # unix (order 10200)
+            session required pam_loginuid.so # loginuid (order 10300)
+            session optional ${pkgs.systemd}/lib/security/pam_systemd.so # systemd (order 12000)
+          '';
+      };
+    */
     services.openssh = {
-      ports = [42069];
+      ports = [ 42069 ];
       enable = true;
       settings.PasswordAuthentication = false;
       settings.KbdInteractiveAuthentication = false;
       settings.PermitRootLogin = "no";
-      settings.AllowGroups = [ "wheel" "remotebuild" "borg"];
+      settings.AllowGroups = [
+        "wheel"
+        "remotebuild"
+        "borg"
+      ];
       settings.AllowTcpForwarding = "no";
       settings.ClientAliveCountMax = 2;
       settings.MaxAuthTries = 3;
@@ -43,23 +49,22 @@
       settings.AuthenticationMethods = "publickey";
       #settings.AuthenticationMethods = "publickey,keyboard-interactive:pam";
     };
-    
+
     services.endlessh = {
       enable = true;
       port = 22;
       openFirewall = true;
     };
 
-    networking.firewall.allowedTCPPorts = [42069];
-    services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
-              (config.services.openssh.enable && 
-              config.services.nebula.networks.mesh.enable) 
-      [
-        {
-          cidr = config.systemConstants.nebula.cidr;
-          port = 42069;
-          proto = "any";
-        }
-      ];
+    networking.firewall.allowedTCPPorts = [ 42069 ];
+    services.nebula.networks.mesh.firewall.inbound =
+      lib.mkIf (config.services.openssh.enable && config.services.nebula.networks.mesh.enable)
+        [
+          {
+            cidr = config.systemConstants.nebula.cidr;
+            port = 42069;
+            proto = "any";
+          }
+        ];
   };
 }

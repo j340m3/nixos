@@ -1,5 +1,14 @@
-{ self, inputs, config, lib, pkgs,
-  host, repo, user, network, machine,
+{
+  self,
+  inputs,
+  config,
+  lib,
+  pkgs,
+  host,
+  repo,
+  user,
+  network,
+  machine,
   ...
 }:
 let
@@ -48,9 +57,9 @@ in
       #package = inputs.conduwuit;
       package = pkgs.matrix-conduit;
       well_known = {
-          client = "https://${matrix_hostname}";
-          server = "${matrix_hostname}:443";
-        };
+        client = "https://${matrix_hostname}";
+        server = "${matrix_hostname}:443";
+      };
     };
     settings.tls = {
       certs = "${config.security.acme.certs.${matrix_hostname}.directory}/fullchain.pem";
@@ -131,37 +140,39 @@ in
         };
       };
 
-     /*  "${server_name}" = {
-        forceSSL = true;
-        sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
-        sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
-        #enableACME = true;
+      /*
+        "${server_name}" = {
+          forceSSL = true;
+          sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate.cer";
+          sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+          #enableACME = true;
 
-        locations."=/.well-known/matrix/server" = {
-          # Use the contents of the derivation built previously
-          alias = "${well_known_server}";
+          locations."=/.well-known/matrix/server" = {
+            # Use the contents of the derivation built previously
+            alias = "${well_known_server}";
 
-          extraConfig = ''
-            # Set the header since by default NGINX thinks it's just bytes
-            default_type application/json;
-          '';
+            extraConfig = ''
+              # Set the header since by default NGINX thinks it's just bytes
+              default_type application/json;
+            '';
+          };
+
+          locations."=/.well-known/matrix/client" = {
+            # Use the contents of the derivation built previously
+            alias = "${well_known_client}";
+
+            extraConfig = ''
+              # Set the header since by default NGINX thinks it's just bytes
+              default_type application/json;
+
+              # https://matrix.org/docs/spec/client_server/r0.4.0#web-browser-clients
+              add_header Access-Control-Allow-Origin "*";
+            '';
+          };
         };
-
-        locations."=/.well-known/matrix/client" = {
-          # Use the contents of the derivation built previously
-          alias = "${well_known_client}";
-
-          extraConfig = ''
-            # Set the header since by default NGINX thinks it's just bytes
-            default_type application/json;
-
-            # https://matrix.org/docs/spec/client_server/r0.4.0#web-browser-clients
-            add_header Access-Control-Allow-Origin "*";
-          '';
-        };
-      }; */
+      */
     };
-    
+
     upstreams = {
       "backend_conduit" = {
         servers."localhost:${toString config.services.matrix-conduit.settings.global.port}" = { };
@@ -170,9 +181,16 @@ in
   };
 
   # Open firewall ports for HTTP, HTTPS, and Matrix federation
-  networking.firewall.allowedTCPPorts = [ 80 443 8448 ];
-  networking.firewall.allowedUDPPorts = [ 80 443 8448 ];
-  
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+    8448
+  ];
+  networking.firewall.allowedUDPPorts = [
+    80
+    443
+    8448
+  ];
 
   services.fail2ban.jails."matrix".settings = {
     enabled = true;
@@ -201,13 +219,13 @@ in
     # Values:  TEXT
     #
     ignoreregex =
-    '';
+  '';
 
-    sops.secrets."borg/matrix" = {
-      sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
-    };
+  sops.secrets."borg/matrix" = {
+    sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
+  };
 
-    services.borgbackup.jobs.matrix = {
+  services.borgbackup.jobs.matrix = {
     paths = "${config.services.matrix-conduit.settings.global.database_path}";
     encryption.mode = "none";
     environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/matrix".path}";
@@ -219,7 +237,7 @@ in
   };
 
   # Send an email whenever auto upgrade fails
-    systemd.services."borgbackup-job-matrix".onFailure =
-      lib.mkIf config.systemd.services."notify-telegram@".enable
+  systemd.services."borgbackup-job-matrix".onFailure =
+    lib.mkIf config.systemd.services."notify-telegram@".enable
       [ "notify-telegram@%i.service" ];
 }

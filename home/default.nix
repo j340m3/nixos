@@ -57,5 +57,5 @@
       "spotify"
       "apple_cursor"
     ];
-  
+
 }

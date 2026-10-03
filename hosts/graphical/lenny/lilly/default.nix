@@ -1,11 +1,14 @@
-{pkgs,...}:{
+{ pkgs, ... }: {
   system.nixos.tags = [ "lilly" ];
   users.users.lilly = {
     hashedPassword = "$y$j9T$9nhgpZ1ZGEPdJW.NDaBZN/$Gpo9WnS8B8zGj9Ax19PRa2IdZSIxrkBKYLISRNsvd53";
     uid = 1001;
     isNormalUser = true;
     description = "Lilly Bergmann";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
     packages = with pkgs; [
       tipp10
       libreoffice-qt
@@ -15,7 +18,7 @@
       krita
       arduino
       lynx
-    #  kdenlive
+      #  kdenlive
       signal-cli
       signal-desktop
       #(makeAutostartItem { name = "signal"; package = signal-desktop; }) #TODO: makeAutostartItem is not reachable
@@ -26,9 +29,9 @@
       stockfish
       luanti
       flatpak
-    #  kalk
-    #  kate
-    #  thunderbird
+      #  kalk
+      #  kate
+      #  thunderbird
     ];
   };
   services.flatpak.enable = true;

@@ -1,4 +1,5 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   applet-window-title = pkgs.stdenvNoCC.mkDerivation rec {
     pname = "applet-window-title";
     version = "v0.9.0";
@@ -10,7 +11,7 @@
       sha256 = "sha256-pFXVySorHq5EpgsBz01vZQ0sLAy2UrF4VADMjyz2YLs=";
     };
 
-    propagatedUserEnvPkgs = with pkgs.kdePackages; [kconfig];
+    propagatedUserEnvPkgs = with pkgs.kdePackages; [ kconfig ];
 
     dontWrapQtApps = true;
 
@@ -21,9 +22,10 @@
       runHook postInstall
     '';
 
-    passthru.updateScript = pkgs.nix-update-script {};
+    passthru.updateScript = pkgs.nix-update-script { };
   };
-in {
+in
+{
   home.packages = [
     applet-window-title
   ];

@@ -1,4 +1,5 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   plasma-darwer = pkgs.stdenvNoCC.mkDerivation rec {
     name = "plasma-darwer";
     version = "2.0.1";
@@ -8,12 +9,12 @@
       hash = "sha256-MY7LWu2nqOvznVD6NdFlIz1YF6YVFG0RkZqsPkRa6UU=";
     };
 
-    nativeBuildInputs = [pkgs.unzip];
+    nativeBuildInputs = [ pkgs.unzip ];
     unpackPhase = ''
       echo "Skippiong unpackPhase"
     '';
 
-    propagatedUserEnvPkgs = with pkgs.kdePackages; [kconfig];
+    propagatedUserEnvPkgs = with pkgs.kdePackages; [ kconfig ];
     dontWrapQtApps = true;
 
     installPhase = ''
@@ -28,6 +29,7 @@
       runHook postInstall
     '';
   };
-in {
-  home.packages = [plasma-darwer];
+in
+{
+  home.packages = [ plasma-darwer ];
 }

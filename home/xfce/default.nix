@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   gtk = {
@@ -29,7 +34,7 @@
   home.sessionVariables.GTK_THEME = "WhiteSur-Dark";
 
   stylix.targets.xfce.enable = true;
-  
+
   programs.gpg.enable = true;
 
   services.gpg-agent.enable = true;
@@ -63,6 +68,6 @@
     modes = [
       "rofi"
     ];
-    theme = lib.mkForce "launchpad";    
+    theme = lib.mkForce "launchpad";
   };
 }

@@ -4,7 +4,8 @@
   pkgs,
   ...
 }:
-{ sops.secrets."wifi/phone/ssid" = {
+{
+  sops.secrets."wifi/phone/ssid" = {
   };
 
   sops.secrets."wifi/phone/psk" = {

@@ -4,13 +4,13 @@
   lib,
   inputs,
   ...
-}: 
+}:
 {
   imports = [
     inputs.sops-nix.nixosModules.sops
   ];
   nix = {
-    extraOptions = ''!include ${config.sops.secrets.nixAccessTokens.path}'';
+    extraOptions = "!include ${config.sops.secrets.nixAccessTokens.path}";
   };
 
   sops.secrets.nixAccessTokens = {

@@ -1,5 +1,4 @@
-{config,...}:{
-  
+{ config, ... }: {
 
   fileSystems."/mnt/filen/users/jeromeb" = {
     device = "jeromeb:jeromeb";
@@ -19,10 +18,10 @@
       "vfs-cache-min-free-space=10G"
       "vfs-fast-fingerprint"
       "vfs-write-back=1m" # write changes after one hour
-      "vfs-cache-max-age=24h"                    # Retain cached files for up to 24 hours
-      "vfs-read-chunk-size=32M"                  # Start with 32MB chunks for faster initial reads
-      "vfs-read-chunk-size-limit=1G"             # Allow chunk size to grow up to 1GB for large files
-      "vfs-cache-poll-interval=30s" 
+      "vfs-cache-max-age=24h" # Retain cached files for up to 24 hours
+      "vfs-read-chunk-size=32M" # Start with 32MB chunks for faster initial reads
+      "vfs-read-chunk-size-limit=1G" # Allow chunk size to grow up to 1GB for large files
+      "vfs-cache-poll-interval=30s"
       "tpslimit=16"
       "tpslimit-burst=32"
       "log-level=INFO"

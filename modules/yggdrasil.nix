@@ -16,7 +16,7 @@
       #    "Priority" = 0;
       #  }
       #];
-      "AllowedPublicKeys" = [];
+      "AllowedPublicKeys" = [ ];
       "IfName" = "auto";
       "IfMTU" = 65535;
       #"NodeInfoPrivacy" = false;

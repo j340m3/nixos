@@ -1,4 +1,5 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   resources-monitor = pkgs.stdenvNoCC.mkDerivation rec {
     pname = "resources-monitor";
     version = "v3.0.1";
@@ -25,8 +26,9 @@
       runHook postInstall
     '';
 
-    passthru.updateScript = pkgs.nix-update-script {};
+    passthru.updateScript = pkgs.nix-update-script { };
   };
-in {
-  home.packages = [resources-monitor];
+in
+{
+  home.packages = [ resources-monitor ];
 }

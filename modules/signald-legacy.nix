@@ -1,8 +1,13 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   virtualisation.containers.enable = true;
-  virtualisation.podman = { 
+  virtualisation.podman = {
     enable = true;
     autoPrune = {
       enable = true;
@@ -12,7 +17,7 @@
   virtualisation.oci-containers.backend = "podman";
   virtualisation.oci-containers.containers = {
     signald = {
-      
+
     };
   };
 
@@ -27,13 +32,15 @@
   systemd.services.update-containers = {
     serviceConfig = {
       Type = "oneshot";
-      ExecStart = lib.getExe (pkgs.writeShellScriptBin "update-containers" ''
-        images=$(${pkgs.podman}/bin/podman ps -a --format="{{.Image}}" | sort -u)
+      ExecStart = lib.getExe (
+        pkgs.writeShellScriptBin "update-containers" ''
+          images=$(${pkgs.podman}/bin/podman ps -a --format="{{.Image}}" | sort -u)
 
-        for image in $images; do
-          ${pkgs.podman}/bin/podman pull "$image"
-        done
-      '');
+          for image in $images; do
+            ${pkgs.podman}/bin/podman pull "$image"
+          done
+        ''
+      );
     };
   };
 }

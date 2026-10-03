@@ -9,7 +9,8 @@
 let
   server_name = "kauderwels.ch";
   matrix_hostname = "matrix.${server_name}";
-in {
+in
+{
   services.matrix-conduit = {
     enable = true;
     #package = pkgs.conduwuit_git;
@@ -85,7 +86,7 @@ in {
     upstreams = {
       "backend_conduit" = {
         servers = {
-          "[::1]:${toString config.services.matrix-conduit.settings.global.port}" = {};
+          "[::1]:${toString config.services.matrix-conduit.settings.global.port}" = { };
         };
       };
     };
@@ -93,8 +94,16 @@ in {
   };
 
   networking.firewall = {
-    allowedTCPPorts = [80 443 8448];
-    allowedUDPPorts = [80 443 8448];
+    allowedTCPPorts = [
+      80
+      443
+      8448
+    ];
+    allowedUDPPorts = [
+      80
+      443
+      8448
+    ];
   };
 
   services.xserver.enable = true;

@@ -3,7 +3,8 @@
   lib,
   pkgs,
   ...
-} : { 
+}:
+{
   environment.systemPackages = [ pkgs.rclone ];
   # environment.etc."rclone-mnt.conf".text = ''
   #   [myremote]

@@ -9,16 +9,18 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
   };
 
-  outputs = { self, nixpkgs, ... }@inputs: {
-    nixosConfigurations.zurg = nixpkgs.lib.nixosSystem {
-      modules = [
-        # Import the previous configuration.nix we used,
-        # so the old configuration file still takes effect
-        ./configuration.nix
-        #inputs.chaotic.nixosModules.default
-        inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p51
-        inputs.impermanence.nixosModules.impermanence
-      ];
+  outputs =
+    { self, nixpkgs, ... }@inputs:
+    {
+      nixosConfigurations.zurg = nixpkgs.lib.nixosSystem {
+        modules = [
+          # Import the previous configuration.nix we used,
+          # so the old configuration file still takes effect
+          ./configuration.nix
+          #inputs.chaotic.nixosModules.default
+          inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p51
+          inputs.impermanence.nixosModules.impermanence
+        ];
+      };
     };
-  };
 }

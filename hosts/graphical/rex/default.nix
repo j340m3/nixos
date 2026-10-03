@@ -1,35 +1,41 @@
-{ config, pkgs, lib, inputs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 
 # -----------------------------------------------------------------------------
 # Rex - My laptop at work
 # -----------------------------------------------------------------------------
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      ../../../users/jeromeb.nix
-      ../../../desktop-environments/xfce.nix
-      #./hardened.nix
-      ../../../modules/common 
-      ../../../modules/logging.nix
-      ../../../modules/nebula.nix
-      #../../../modules/zabbix.nix
-      ../../../modules/k3s.nix
-      #../../modules/peerix.nix
-      #../../modules/cool-shell.nix
-      ../../../modules/google-drive.nix
-      inputs.home-manager.nixosModules.home-manager
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    ../../../users/jeromeb.nix
+    ../../../desktop-environments/xfce.nix
+    #./hardened.nix
+    ../../../modules/common
+    ../../../modules/logging.nix
+    ../../../modules/nebula.nix
+    #../../../modules/zabbix.nix
+    ../../../modules/k3s.nix
+    #../../modules/peerix.nix
+    #../../modules/cool-shell.nix
+    ../../../modules/google-drive.nix
+    inputs.home-manager.nixosModules.home-manager
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  
+
   # boot.kernelPackages = pkgs.linuxPackages_zen;
   boot.extraModulePackages = with config.boot.kernelPackages; [ virtualboxGuestAdditions ];
   systemd.services."virtualboxClientDragAndDrop" = {
-    wantedBy = lib.mkForce [ ]; #Disable Drag and Drop
+    wantedBy = lib.mkForce [ ]; # Disable Drag and Drop
     #execStart=lib.mkForce [""];
   };
   #boot.kernelPackages = pkgs.linuxPackages_cachyos;
@@ -87,7 +93,7 @@
   #services.xserver.desktopManager.mate.enableWaylandSession = true;
 
   #services.xserver.desktopManager.mate.extraPanelApplets = [];
-  
+
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "de";
@@ -124,111 +130,114 @@
   #useComin = true;
   virtualisation.docker.enable = true;
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  /* users.users.jeromeb = {
-    isNormalUser = true;
-    description = "Jerome";
-    extraGroups = [ "networkmanager" "wheel" "docker"];
-    shell = pkgs.zsh;
-  };
-  programs.zsh.enable = true;
-  services.yubikey-agent.enable = true;
-  services.udev.packages = [ pkgs.libfido2 ];
-  # Install firefox.
-  home-manager.backupFileExtension = "hmbackup";
-  home-manager.users.jeromeb = import ../../../home;
-  home-manager.extraSpecialArgs = {inherit inputs; }; */
+  /*
+    users.users.jeromeb = {
+      isNormalUser = true;
+      description = "Jerome";
+      extraGroups = [ "networkmanager" "wheel" "docker"];
+      shell = pkgs.zsh;
+    };
+    programs.zsh.enable = true;
+    services.yubikey-agent.enable = true;
+    services.udev.packages = [ pkgs.libfido2 ];
+    # Install firefox.
+    home-manager.backupFileExtension = "hmbackup";
+    home-manager.users.jeromeb = import ../../../home;
+    home-manager.extraSpecialArgs = {inherit inputs; };
+  */
   #stylix.homeManagerIntegration.followSystem = false;
   #stylix.homeManagerIntegration.autoImport = false;
   # home-manager.useGlobalPkgs = true;
-/*   home-manager.users.jeromeb = {pkgs, ...} : {
-    nixpkgs.config.allowUnfreePredicate = pkg:
-    builtins.elem (lib.getName pkg) [
-      # Add additional package names here
-      "spotify"
-    ];
-    home.packages = with pkgs; [
-      btop
-      #acct
-      nix-index
-       #anytype
-       #gparted
-       nmap
-       #webex
-       signal-desktop
-       (makeAutostartItem { name = "signal"; package = signal-desktop; prependExtraArgs = [ "--start-in-tray" ];})
-       telegram-desktop
-       (makeAutostartItem { name = "telegram.desktop"; package = telegram-desktop; srcPrefix = "org.";})
-       #jetbrains.pycharm-professional
-       elmPackages.elm
-       /* python3Full
-       (python311.withPackages(ps: with ps; [ 
-          #(dontCheckPython numpy)
-          pytest
-          (dontCheckPython matplotlib)
-        ])) 
-       vulnix
-       git
-       zip
-       lynis
-       
-       #spotify
-       #nur.repos.rycee.firefox-addons.bitwarden
-       /* (vscode-with-extensions.override {
-         # When the extension is already available in the default extensions set.
-         vscodeExtensions = with vscode-extensions; [
-           jnoortheen.nix-ide
-           bbenoist.nix
-           elmtooling.elm-ls-vscode
-           # ms-python.python #TODO: FIXME Doesn't work currently
-           charliermarsh.ruff
-         ];
-         vscode = vscodium;
-       }) 
-       #(makeAutostartItem { name = "firefox"; package = firefox; })
-       #(makeAutostartItem { name = "spotify"; package = spotify; })
-       #mosh
-      #thunderbird
-       #libreoffice
-       #hunspell
-       #hunspellDicts.de_DE
-       #hunspellDicts.en_US
-       remmina
-       traceroute
-       statix
-       alejandra
-       age
-       wezterm
-    ];
-    home = {
-      username = "jeromeb";
-      homeDirectory = "/home/jeromeb";
-    };
-    home.stateVersion = "25.05";
-    programs.home-manager.enable = true;
-    programs.pay-respects.enable = true;
-  
-    programs.zsh = {
-      enable = true;
-      enableCompletion = true;
-      #autosuggestions.enable = true;
-      syntaxHighlighting.enable = true;
-      /* ohMyZsh = {
+  /*
+    home-manager.users.jeromeb = {pkgs, ...} : {
+      nixpkgs.config.allowUnfreePredicate = pkg:
+      builtins.elem (lib.getName pkg) [
+        # Add additional package names here
+        "spotify"
+      ];
+      home.packages = with pkgs; [
+        btop
+        #acct
+        nix-index
+         #anytype
+         #gparted
+         nmap
+         #webex
+         signal-desktop
+         (makeAutostartItem { name = "signal"; package = signal-desktop; prependExtraArgs = [ "--start-in-tray" ];})
+         telegram-desktop
+         (makeAutostartItem { name = "telegram.desktop"; package = telegram-desktop; srcPrefix = "org.";})
+         #jetbrains.pycharm-professional
+         elmPackages.elm
+         /* python3Full
+         (python311.withPackages(ps: with ps; [
+            #(dontCheckPython numpy)
+            pytest
+            (dontCheckPython matplotlib)
+          ]))
+         vulnix
+         git
+         zip
+         lynis
+
+         #spotify
+         #nur.repos.rycee.firefox-addons.bitwarden
+         /* (vscode-with-extensions.override {
+           # When the extension is already available in the default extensions set.
+           vscodeExtensions = with vscode-extensions; [
+             jnoortheen.nix-ide
+             bbenoist.nix
+             elmtooling.elm-ls-vscode
+             # ms-python.python #TODO: FIXME Doesn't work currently
+             charliermarsh.ruff
+           ];
+           vscode = vscodium;
+         })
+         #(makeAutostartItem { name = "firefox"; package = firefox; })
+         #(makeAutostartItem { name = "spotify"; package = spotify; })
+         #mosh
+        #thunderbird
+         #libreoffice
+         #hunspell
+         #hunspellDicts.de_DE
+         #hunspellDicts.en_US
+         remmina
+         traceroute
+         statix
+         alejandra
+         age
+         wezterm
+      ];
+      home = {
+        username = "jeromeb";
+        homeDirectory = "/home/jeromeb";
+      };
+      home.stateVersion = "25.05";
+      programs.home-manager.enable = true;
+      programs.pay-respects.enable = true;
+
+      programs.zsh = {
         enable = true;
-        plugins = [ "git" "sudo" ];
-        theme = "frisk";
-      }; 
+        enableCompletion = true;
+        #autosuggestions.enable = true;
+        syntaxHighlighting.enable = true;
+        /* ohMyZsh = {
+          enable = true;
+          plugins = [ "git" "sudo" ];
+          theme = "frisk";
+        };
+      };
     };
-  }; */
-  
-  
+  */
+
   # Allow unfree packages
   #nixpkgs.config.allowUnfree = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
+    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    #  wget
     #powerline #TODO: Powerline is broken currently
     powerline-fonts
     powerline-symbols
@@ -268,41 +277,50 @@
 
   nix.settings.auto-optimise-store = true;
 
-  /* services.ollama = {
-    enable = true;
-    acceleration = false;
-  }; */
-  
-  
+  /*
+    services.ollama = {
+      enable = true;
+      acceleration = false;
+    };
+  */
 
   #nixpkgs.config.packageOverrides = pkgs: {
   #  nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {
   #    inherit pkgs;
   #  };
   #};
-  /* services.zabbixServer.enable = true;
-  services.zabbixWeb = {
-    enable = true;
-    virtualHost = {
-      hostName = "zabbix.localhost";
-      adminAddr = "webmaster@localhost";
+  /*
+    services.zabbixServer.enable = true;
+    services.zabbixWeb = {
+      enable = true;
+      virtualHost = {
+        hostName = "zabbix.localhost";
+        adminAddr = "webmaster@localhost";
+      };
     };
-  };
-  
-  services.zabbixAgent = {
-    enable = true;
-    server = "localhost";
-  }; */
 
-  /* services.zabbixAgent = {
-    enable = true;
-    openFirewall = true;
-    server = "10.0.0.0/24";
-    settings = {
-      Hostname = "rex";
+    services.zabbixAgent = {
+      enable = true;
+      server = "localhost";
     };
-  }; */
+  */
 
-  networking.nameservers = [ "10.0.0.3" "1.1.1.1" "8.8.8.8" "9.9.9.9" ];
+  /*
+    services.zabbixAgent = {
+      enable = true;
+      openFirewall = true;
+      server = "10.0.0.0/24";
+      settings = {
+        Hostname = "rex";
+      };
+    };
+  */
+
+  networking.nameservers = [
+    "10.0.0.3"
+    "1.1.1.1"
+    "8.8.8.8"
+    "9.9.9.9"
+  ];
   networking.useDHCP = lib.mkForce true;
 }

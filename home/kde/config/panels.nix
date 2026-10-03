@@ -7,7 +7,7 @@
     alignment = "center"; # 居中
     opacity = "adaptive"; # 自适应
     screen = null; # 屏幕编号0123或者all
-    widgets = []; # 自定义面板
+    widgets = [ ]; # 自定义面板
   };
 
   xdg.configFile."plasma-org.kde.plasma.desktop-appletsrc" = {

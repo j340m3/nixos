@@ -4,12 +4,13 @@
   pkgs,
   inputs,
   ...
-} : {
+}:
+{
   users.users.peerix = {
     isSystemUser = true;
     group = "peerix";
   };
-  users.groups.peerix = {};
+  users.groups.peerix = { };
 
   services.peerix = {
     enable = true;

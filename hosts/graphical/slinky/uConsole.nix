@@ -1,13 +1,12 @@
-{pkgs, inputs, ...}: {
+{ pkgs, inputs, ... }: {
   nixpkgs.overlays = [
     (final: super: {
-      makeModulesClosure = x:
-        super.makeModulesClosure (x // {allowMissing = true;});
+      makeModulesClosure = x: super.makeModulesClosure (x // { allowMissing = true; });
     })
   ];
 
   environment.systemPackages = [
-    (pkgs.callPackage "${inputs.oom-hardware}/raspberry-pi/packages/rpi-utils" {})
+    (pkgs.callPackage "${inputs.oom-hardware}/raspberry-pi/packages/rpi-utils" { })
   ];
 
   users.groups.spi = { };
@@ -18,7 +17,7 @@
   console = {
     earlySetup = true;
     font = "ter-v32n";
-    packages = with pkgs; [terminus_font];
+    packages = with pkgs; [ terminus_font ];
   };
 
   boot.kernelParams = [
@@ -77,11 +76,15 @@
       }
       {
         name = "cpu-revision";
-        params = {cm4-8 = "on";};
+        params = {
+          cm4-8 = "on";
+        };
       }
       {
         name = "audremap";
-        params = {pins_12_13 = "on";};
+        params = {
+          pins_12_13 = "on";
+        };
       }
       {
         name = "vc4-kms-v3d";
@@ -93,4 +96,3 @@
     ];
   };
 }
-

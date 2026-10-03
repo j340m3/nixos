@@ -32,7 +32,7 @@
           ];
         };
       };
-      
+
       node = {
         enable = true;
         port = 9000;
@@ -40,7 +40,7 @@
         # - Flake-based: nix run nixpkgs#prometheus-node-exporter -- --help
         # - Classic: nix-shell -p prometheus-node-exporter --run "node_exporter --help"
         # enabledCollectors = [
-        #   "fritz"   
+        #   "fritz"
         # ];
         # You can pass extra options to the exporter using `extraFlags`, e.g.
         # to configure collectors or disable those enabled by default.
@@ -53,21 +53,21 @@
 
   sops.secrets."prometheus/fritz/router" = {
     sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
-    restartUnits = ["prometheus-fritz-exporter.service"];
+    restartUnits = [ "prometheus-fritz-exporter.service" ];
     owner = "fritz-exporter";
     group = "fritz-exporter";
   };
 
   sops.secrets."prometheus/fritz/fritz-rep1" = {
     sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
-    restartUnits = ["prometheus-fritz-exporter.service"];
+    restartUnits = [ "prometheus-fritz-exporter.service" ];
     owner = "fritz-exporter";
     group = "fritz-exporter";
   };
 
   sops.secrets."prometheus/fritz/kueche" = {
     sopsFile = ../secrets/hosts/${config.networking.hostName}/secrets.yaml;
-    restartUnits = ["prometheus-fritz-exporter.service"];
+    restartUnits = [ "prometheus-fritz-exporter.service" ];
     owner = "fritz-exporter";
     group = "fritz-exporter";
   };

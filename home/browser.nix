@@ -1,28 +1,29 @@
-{ pkgs
-, lib
-, ...
-}: 
+{
+  pkgs,
+  lib,
+  ...
+}:
 let
-    lock-false = {
-      Value = false;
-      Status = "locked";
-    };
-    lock-true = {
-      Value = true;
-      Status = "locked";
-    };
-    lock-empty-string = {
-      Value = "";
-      Status = "locked";
-    };
-  in 
+  lock-false = {
+    Value = false;
+    Status = "locked";
+  };
+  lock-true = {
+    Value = true;
+    Status = "locked";
+  };
+  lock-empty-string = {
+    Value = "";
+    Status = "locked";
+  };
+in
 {
   stylix.targets.firefox = {
     colorTheme.enable = true;
     profileNames = [ "personal" ];
   };
 
-  home.sessionVariables =  {
+  home.sessionVariables = {
     DEFAULT_BROWSER = lib.getExe pkgs.firefox;
     BROWSER = lib.getExe pkgs.firefox;
   };
@@ -35,7 +36,6 @@ let
     "x-scheme-handler/about" = "firefox.desktop";
     "x-scheme-handler/unknown" = "firefox.desktop";
   };
-
 
   programs.firefox = {
     enable = true;
@@ -54,11 +54,11 @@ let
       DontCheckDefaultBrowser = true;
       DisablePocket = true;
       EnableTrackingProtection = {
-          "Value" = true;
-          "Locked" = true;
-          "Cryptomining" = true;
-          "Fingerprinting" = true;
-          "Exceptions" = [];
+        "Value" = true;
+        "Locked" = true;
+        "Cryptomining" = true;
+        "Fingerprinting" = true;
+        "Exceptions" = [ ];
       };
 
       OfferToSaveLogins = false;
@@ -144,10 +144,10 @@ let
       };
 
       WebsiteFilter = {
-        Block = ["https://9gag.com/"];
-        Exceptions = [];
+        Block = [ "https://9gag.com/" ];
+        Exceptions = [ ];
       };
     };
-    
+
   };
 }

@@ -1,4 +1,5 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   net-speed = pkgs.stdenvNoCC.mkDerivation rec {
     pname = "net-speed";
     version = "v3.1";
@@ -20,8 +21,9 @@
       runHook postInstall
     '';
 
-    passthru.updateScript = pkgs.nix-update-script {};
+    passthru.updateScript = pkgs.nix-update-script { };
   };
-in {
-  home.packages = [net-speed];
+in
+{
+  home.packages = [ net-speed ];
 }

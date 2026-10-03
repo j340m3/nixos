@@ -2,31 +2,41 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, inputs, ... }:
-
-/* let 
-  mypkgs = pkgsUnstable;
-in */
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x230
-      #<nixos-hardware/lenovo/thinkpad/x230>
-      ./hardware-configuration.nix
-      ../../../modules/common 
-      ../../../modules/logging.nix
-      ../../../modules/nebula.nix
-      #../../../modules/zabbix.nix
-      ../../../modules/wifi.nix
-      ./jeromeb
-      ./lilly
-      ../../../desktop-environments/xfce.nix
-    ];
+  config,
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 
-  /* _module.args.pkgsUnstable = import inputs.nixpkgs-master {
-    inherit (pkgs.stdenv.hostPlatform) system;
-    inherit (config.nixpkgs) config;
-  }; */
+/*
+  let
+    mypkgs = pkgsUnstable;
+  in
+*/
+{
+  imports = [
+    # Include the results of the hardware scan.
+    inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x230
+    #<nixos-hardware/lenovo/thinkpad/x230>
+    ./hardware-configuration.nix
+    ../../../modules/common
+    ../../../modules/logging.nix
+    ../../../modules/nebula.nix
+    #../../../modules/zabbix.nix
+    ../../../modules/wifi.nix
+    ./jeromeb
+    ./lilly
+    ../../../desktop-environments/xfce.nix
+  ];
+
+  /*
+    _module.args.pkgsUnstable = import inputs.nixpkgs-master {
+      inherit (pkgs.stdenv.hostPlatform) system;
+      inherit (config.nixpkgs) config;
+    };
+  */
 
   # Bootloader.
   boot.loader.grub.enable = true;
@@ -36,10 +46,14 @@ in */
   #boot.kernelPackages = pkgs.linuxPackages_zen;
   #boot.kernelPackages = pkgs.linuxPackages_cachyos;
 
-  swapDevices = [ { device = "/swapfile"; size = 2048; } ];
+  swapDevices = [
+    {
+      device = "/swapfile";
+      size = 2048;
+    }
+  ];
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
-
 
   networking.hostName = "lenny"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -72,10 +86,9 @@ in */
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   xdg.portal.enable = true;
-  xdg.portal.extraPortals =[
+  xdg.portal.extraPortals = [
     pkgs.xdg-desktop-portal-gtk
-];
-  
+  ];
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -112,12 +125,14 @@ in */
   # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
- /*  specialisation = {
-    jeromeb = {
-      configuration = (import ./jeromeb);
+  /*
+    specialisation = {
+      jeromeb = {
+        configuration = (import ./jeromeb);
+      };
+      lilly.configuration = (import ./lilly);
     };
-    lilly.configuration = (import ./lilly);
-  }; */
+  */
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -128,19 +143,21 @@ in */
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
+    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    #  wget
     pkgs.hunspell
     pkgs.hunspellDicts.de_DE
-    /* pkgs.python3Full
-    pkgs.python3Packages.pip
-    pkgs.python3Packages.setuptools */
+    /*
+      pkgs.python3Full
+      pkgs.python3Packages.pip
+      pkgs.python3Packages.setuptools
+    */
     pkgs.cifs-utils
     #pkgs-2411.signaldctl
     pkgs.htop
     pkgs.kdePackages.discover
   ];
-  
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
@@ -169,33 +186,35 @@ in */
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.11"; # Did you read the comment?
 
-  /* services.signald = {
-    enable = true;
-    user = "lilly";
-  }; */
+  /*
+    services.signald = {
+      enable = true;
+      user = "lilly";
+    };
+  */
   services.clamav.daemon.enable = true;
   services.clamav.updater.enable = true;
 
   fileSystems."/mnt/share" = {
-      device = "//bergmannnas/home";
-      fsType = "cifs";
-      #label = "NAS";
-      options = let
+    device = "//bergmannnas/home";
+    fsType = "cifs";
+    #label = "NAS";
+    options =
+      let
         # this line prevents hanging on network split
         automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s";
 
-      in ["${automount_opts},credentials=/etc/nixos/smb-secrets,uid=1001,gid=100"];
+      in
+      [ "${automount_opts},credentials=/etc/nixos/smb-secrets,uid=1001,gid=100" ];
   };
-
 
   # 2024-08-11 Garbage Collection
   nix.gc.automatic = true;
   nix.gc.dates = "daily";
   nix.gc.options = "--delete-older-than 20d";
   nix.extraOptions = ''
-                      min-free = ${toString (100 * 1024 * 1024)}
-                      max-free = ${toString (1024 * 1024 * 1024)}
-                     '';
+    min-free = ${toString (100 * 1024 * 1024)}
+    max-free = ${toString (1024 * 1024 * 1024)}
+  '';
 
-  
 }

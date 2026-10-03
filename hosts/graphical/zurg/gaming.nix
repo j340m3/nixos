@@ -1,7 +1,7 @@
-{lib, pkgs, ...}:{
+{ lib, pkgs, ... }: {
   hardware.graphics.enable = true;
   hardware.graphics.enable32Bit = true;
-  services.xserver.videoDrivers = ["nvidia"];
+  services.xserver.videoDrivers = [ "nvidia" ];
   hardware.nvidia.modesetting.enable = true;
   #hardware.nvidia.open = true;
   #nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
@@ -9,7 +9,7 @@
   #           "nvidia-settings"
   #         ];
   nixpkgs.config.allowUnfree = true;
-  hardware.enableRedistributableFirmware = true;         
+  hardware.enableRedistributableFirmware = true;
   programs.steam = {
     enable = true;
   };
@@ -18,5 +18,11 @@
   #environment.systemPackages = [ (pkgs.writeShellScriptBin "reboot-kexec" (builtins.readFile ./reboot-kexec.sh)) ];
   programs.steam.gamescopeSession.enable = true;
   programs.gamemode.enable = true;
-  environment.systemPackages = with pkgs; [mangohud protonup-qt lutris bottles heroic];
+  environment.systemPackages = with pkgs; [
+    mangohud
+    protonup-qt
+    lutris
+    bottles
+    heroic
+  ];
 }

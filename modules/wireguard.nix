@@ -3,7 +3,10 @@
 {
   networking.nat.enable = true;
   networking.nat.externalInterface = "eth0";
-  networking.nat.internalInterfaces = [ "wg0" "nebula.mesh" ];
+  networking.nat.internalInterfaces = [
+    "wg0"
+    "nebula.mesh"
+  ];
   networking.nat.enableIPv6 = true;
   networking.firewall.allowedUDPPorts = [ 55025 ];
   sops.secrets."wireguard/private" = {
@@ -97,14 +100,16 @@
     };
   };
 
-  /* systemd = {
-    network = {
-      config = {
-        networkConfig = {
-          IPv4Forwarding = true;
-          IPv6Forwarding = true;
+  /*
+    systemd = {
+      network = {
+        config = {
+          networkConfig = {
+            IPv4Forwarding = true;
+            IPv6Forwarding = true;
+          };
         };
       };
     };
-  }; */
+  */
 }

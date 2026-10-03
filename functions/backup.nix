@@ -1,4 +1,5 @@
-domain: server: path: config: {
+domain: server: path: config:
+{
   encryption.mode = "none";
   environment.BORG_RSH = "ssh -i /run/secrets/borg_ssh_key";
   repo = "ssh://borg@nas.net.${domain}/mnt/backup/borg/${server}/${path}";
@@ -9,4 +10,5 @@ domain: server: path: config: {
     weekly = 4;
     monthly = 6;
   };
-} // config
+}
+// config

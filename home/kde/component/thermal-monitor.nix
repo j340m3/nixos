@@ -1,4 +1,5 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   thermal-monitor = pkgs.stdenvNoCC.mkDerivation rec {
     pname = "thermal-monitor";
     version = "v0.2.5";
@@ -20,8 +21,9 @@
       runHook postInstall
     '';
 
-    passthru.updateScript = pkgs.nix-update-script {};
+    passthru.updateScript = pkgs.nix-update-script { };
   };
-in {
-  home.packages = [thermal-monitor];
+in
+{
+  home.packages = [ thermal-monitor ];
 }

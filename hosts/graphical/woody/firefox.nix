@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
-# Install firefox.
-  
+  # Install firefox.
+
   programs.firefox = {
     enable = true;
     package = pkgs.firefox-esr;
@@ -18,11 +18,11 @@
       DontCheckDefaultBrowser = true;
       DisablePocket = true;
       EnableTrackingProtection = {
-          "Value" = true;
-          "Locked" = true;
-          "Cryptomining" = true;
-          "Fingerprinting" = true;
-          "Exceptions" = [];
+        "Value" = true;
+        "Locked" = true;
+        "Cryptomining" = true;
+        "Fingerprinting" = true;
+        "Exceptions" = [ ];
       };
 
       OfferToSaveLogins = false;
@@ -94,8 +94,8 @@
       };
 
       WebsiteFilter = {
-        Block = ["https://9gag.com/"];
-        Exceptions = [];
+        Block = [ "https://9gag.com/" ];
+        Exceptions = [ ];
       };
     };
   };

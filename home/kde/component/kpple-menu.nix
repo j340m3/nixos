@@ -1,4 +1,5 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   kpple-menu = pkgs.stdenvNoCC.mkDerivation rec {
     pname = "kppleMenu";
     version = "6.0.0";
@@ -10,7 +11,7 @@
       sha256 = "sha256-TLLvjZdGdT/8zVpPGwnRofr1NZVDvBUIUpp/kwk3kR4=";
     };
 
-    propagatedUserEnvPkgs = with pkgs.kdePackages; [kconfig];
+    propagatedUserEnvPkgs = with pkgs.kdePackages; [ kconfig ];
 
     dontWrapQtApps = true;
 
@@ -21,9 +22,10 @@
       runHook postInstall
     '';
 
-    passthru.updateScript = pkgs.nix-update-script {};
+    passthru.updateScript = pkgs.nix-update-script { };
   };
-in {
+in
+{
   home.packages = [
     kpple-menu
   ];

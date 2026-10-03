@@ -1,34 +1,36 @@
 {
-  flake.modules.nixos.locale = {
+  flake.modules.nixos.locale =
+    {
 
-  config,
-  pkgs,
-  lib,
-  ...
-}: {
-  # Set your time zone.
-  time.timeZone = lib.mkDefault "Europe/Berlin";
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
+    {
+      # Set your time zone.
+      time.timeZone = lib.mkDefault "Europe/Berlin";
 
-  # Select internationalisation properties.
-  i18n.defaultLocale = "de_DE.UTF-8";
+      # Select internationalisation properties.
+      i18n.defaultLocale = "de_DE.UTF-8";
 
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "de_DE.UTF-8";
-    LC_IDENTIFICATION = "de_DE.UTF-8";
-    LC_MEASUREMENT = "de_DE.UTF-8";
-    LC_MONETARY = "de_DE.UTF-8";
-    LC_NAME = "de_DE.UTF-8";
-    LC_NUMERIC = "de_DE.UTF-8";
-    LC_PAPER = "de_DE.UTF-8";
-    LC_TELEPHONE = "de_DE.UTF-8";
-    LC_TIME = "de_DE.UTF-8";
-  };
+      i18n.extraLocaleSettings = {
+        LC_ADDRESS = "de_DE.UTF-8";
+        LC_IDENTIFICATION = "de_DE.UTF-8";
+        LC_MEASUREMENT = "de_DE.UTF-8";
+        LC_MONETARY = "de_DE.UTF-8";
+        LC_NAME = "de_DE.UTF-8";
+        LC_NUMERIC = "de_DE.UTF-8";
+        LC_PAPER = "de_DE.UTF-8";
+        LC_TELEPHONE = "de_DE.UTF-8";
+        LC_TIME = "de_DE.UTF-8";
+      };
 
-  services.xserver.xkb = {
-    layout = "de";
-    variant = "";
-  };
+      services.xserver.xkb = {
+        layout = "de";
+        variant = "";
+      };
 
-  console.keyMap = "de";
-};
+      console.keyMap = "de";
+    };
 }

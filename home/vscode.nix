@@ -1,12 +1,14 @@
-{ pkgs
-, lib
-, ...
-}: {
-  home.packages = with pkgs; [ 
+{
+  pkgs,
+  lib,
+  ...
+}:
+{
+  home.packages = with pkgs; [
     nixfmt-rfc-style
     nil
   ];
-  
+
   programs.vscode = {
     enable = true;
     package = pkgs.vscodium;
@@ -34,7 +36,7 @@
           "nix.serverSettings" = {
             "nil" = {
               "formatting" = {
-                "command" = ["nixfmt"];
+                "command" = [ "nixfmt" ];
               };
             };
           };

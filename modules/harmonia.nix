@@ -1,4 +1,9 @@
-{ config, lib, constants, ... }:
+{
+  config,
+  lib,
+  constants,
+  ...
+}:
 
 let
   domainName = "cache.kauderwels.ch";
@@ -33,11 +38,13 @@ in
   };
 
   nix.settings.allowed-users = [ "harmonia" ];
-  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 443 80 ];
+  networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [
+    443
+    80
+  ];
 
-  services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
-              (config.services.harmonia.cache.enable && 
-              config.services.nebula.networks.mesh.enable) 
+  services.nebula.networks.mesh.firewall.inbound =
+    lib.mkIf (config.services.harmonia.cache.enable && config.services.nebula.networks.mesh.enable)
       [
         {
           cidr = constants.nebula.cidr;
