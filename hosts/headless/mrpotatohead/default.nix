@@ -35,7 +35,20 @@
     # devices = [ ];
     efiSupport = true;
     efiInstallAsRemovable = true;
+    # menu has to be reachable on the provider console long enough to pick the
+    # previous generation when a new kernel does not come up
+    extraConfig = ''
+      serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
+      terminal_input --append serial
+      terminal_output --append serial
+    '';
   };
+  boot.loader.timeout = 15;
+  # headless.nix keeps the kernel on the vga text console, this adds serial
+  boot.kernelParams = [
+    "console=tty0"
+    "console=ttyS0,115200n8"
+  ];
   services.openssh.enable = true;
 
   facter.reportPath =
