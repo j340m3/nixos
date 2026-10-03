@@ -128,7 +128,7 @@ in
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStartPre = ''
-        timeout 300 sh -c 'until ${pkgs.rclone}/bin/rclone lsd filen:services/nextcloud --config ${
+        sh -c 'until ${pkgs.rclone}/bin/rclone lsd filen:services/nextcloud --config ${
           config.sops.secrets."filen/nextcloud.conf".path
         }; do sleep 5; done'
       '';
