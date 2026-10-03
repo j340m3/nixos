@@ -150,4 +150,8 @@
   #
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "25.05"; # Did you read the comment?
+
+  # rolls this host back to the previous generation and reboots it when systemd
+  # reports a failed unit one settle delay after switch-to-configuration
+  upgradeHealth.enable = true;
 }

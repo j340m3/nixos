@@ -251,4 +251,8 @@
     group = "nebula-mesh";
     path = "/nix/persist/etc/nebula/self.key";
   };
+
+  # rolls this host back to the previous generation and reboots it when systemd
+  # reports a failed unit one settle delay after switch-to-configuration
+  upgradeHealth.enable = true;
 }

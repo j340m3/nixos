@@ -234,4 +234,8 @@ in
 
   # open the systems firewall for DNS only on the nebula interface
   networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 53 ];
+
+  # rolls this host back to the previous generation and reboots it when systemd
+  # reports a failed unit one settle delay after switch-to-configuration
+  upgradeHealth.enable = true;
 }
