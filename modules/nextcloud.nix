@@ -118,10 +118,22 @@ in
   };
 
   systemd.services.mnt-filen-services-nextcloud-tmpfiles-resetup = {
-    script = "systemd-tmpfiles --create --remove --prefix=/mnt/filen/services/nextcloud";
+    # no --remove: this runs on a network filesystem, and tmpfiles age based
+    # removal there can delete directories that still hold remote data
+    script = "systemd-tmpfiles --create --prefix=/mnt/filen/services/nextcloud";
+    # the mount can come up before the sops secret and the remote are usable.
+    # creating rules too early writes them into the rclone cache, where a
+    # reboot loses them, so wait for the remote and retry until it answers.
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
+      ExecStartPre = ''
+        timeout 300 sh -c 'until ${pkgs.rclone}/bin/rclone lsd filen:services/nextcloud --config ${
+          config.sops.secrets."filen/nextcloud.conf".path
+        } > /dev/null 2>&1; do sleep 5; done'
+      '';
+      Restart = "on-failure";
+      RestartSec = 30;
     };
     after = [ "mnt-filen-services-nextcloud.mount" ];
     requires = [ "mnt-filen-services-nextcloud.mount" ];
