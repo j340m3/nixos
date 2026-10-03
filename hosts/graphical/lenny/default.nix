@@ -121,6 +121,9 @@ in */
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.permittedInsecurePackages = [
+    "pycharm-oss-2025.3.3"
+  ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget

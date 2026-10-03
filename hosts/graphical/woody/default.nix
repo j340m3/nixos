@@ -296,7 +296,7 @@ in
     vulnix
     git
     elmPackages.elm
-    elmPackages.elm-analyse
+    #elmPackages.elm-analyse
     #elmPackages.elm-coverage
     elmPackages.elm-format
     elmPackages.elm-json

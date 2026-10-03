@@ -9,10 +9,10 @@
     rsyslog
   ];
   networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 514 ];
-  services.journald.settings.Journal = ''
-    		MaxRetentionSec=1week
-    		ForwardToSyslog=yes
-    	'';
+  services.journald.settings.Journal = {
+    MaxRetentionSec = "1week";
+    ForwardToSyslog = true;
+  };
   services.rsyslogd = {
     enable = true;
     defaultConfig = ''

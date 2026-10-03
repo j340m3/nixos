@@ -10,10 +10,10 @@
     rsyslog
   ];
 
-  services.journald.settings.Journal = ''
-      MaxRetentionSec=1week
-    	ForwardToSyslog=yes
-  '';
+  services.journald.settings.Journal = {
+    MaxRetentionSec = "1week";
+    ForwardToSyslog = true;
+  };
   services.rsyslogd = {
     enable = true;
     /*

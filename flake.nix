@@ -145,7 +145,12 @@
       # -----------------------------------------------------------------------------
       homeConfigurations = {
         "jeromeb" = home-manager.lib.homeManagerConfiguration {
-          pkgs = import nixpkgs { system = "x86_64-linux"; };
+          pkgs = import nixpkgs {
+            system = "x86_64-linux";
+            config.permittedInsecurePackages = [
+              "radicle-node-1.10.3"
+            ];
+          };
           extraSpecialArgs = { inherit inputs; };
           modules = [
             ./home

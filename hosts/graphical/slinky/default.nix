@@ -14,7 +14,12 @@
     ./hardware-configuration.nix
     # Include uConsole settings
     inputs.nixos-hardware.nixosModules.raspberry-pi-4
-    inputs.oom-hardware.nixosModules.uconsole
+    # oom-hardware's uconsole module still sets hardware.raspberry-pi.4.dwc2,
+    # which nixos-hardware removed, so import its parts directly
+    "${inputs.oom-hardware}/uconsole/kernel"
+    "${inputs.oom-hardware}/raspberry-pi/overlays"
+    "${inputs.oom-hardware}/raspberry-pi/apply-overlays"
+    "${inputs.oom-hardware}/uconsole/module-4g.nix"
     ./uConsole.nix
     ../../../modules/common
     ../../../modules/vscodium.nix
@@ -24,6 +29,13 @@
     ../../../modules/wifi.nix
   ]
   ++ lib.optional (builtins.pathExists ./local.nix) ./local.nix;
+
+  # oom-hardware builds its kernel from linux_rpi4, which nixpkgs dropped.
+  boot.kernelPackages = lib.mkForce (
+    pkgs.linuxPackagesFor (
+      pkgs.callPackage "${inputs.nixos-hardware}/raspberry-pi/common/kernel.nix" { rpiVersion = 4; }
+    )
+  );
 
   # Use the extlinux boot loader. (NixOS wants to enable GRUB by default)
   boot.loader.grub.enable = false;

@@ -4,6 +4,9 @@
     ../../../../desktop-environments/xfce.nix
     inputs.home-manager.nixosModules.home-manager
   ];
+  nixpkgs.overlays = [
+    inputs.affinity-nix.overlays.default
+  ];
   users.mutableUsers = false;
   system.nixos.tags = [ "jeromeb" ];
   users.users.jeromeb = {
@@ -17,7 +20,7 @@
     uid = 1002;
     packages = with pkgs; [
       firefox
-      inputs.affinity-nix.packages.${pkgs.stdenv.system}.v3
+      affinity-v3
       #  kate
       #  thunderbird
     ];

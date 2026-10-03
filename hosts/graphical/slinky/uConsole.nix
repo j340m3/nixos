@@ -1,17 +1,19 @@
-{pkgs, ...}: {
-  imports = [
-    #"${builtins.fetchGit {url = "https://github.com/NixOS/nixos-hardware.git";}}/raspberry-pi/4"
-    #"${builtins.fetchGit {url = "https://github.com/robertjakub/oom-hardware.git";}}/uconsole/kernel"
-    #"${builtins.fetchGit {url = "https://github.com/robertjakub/oom-hardware.git";}}/raspberry-pi/overlays"
-    #"${builtins.fetchGit {url = "https://github.com/robertjakub/oom-hardware.git";}}/raspberry-pi/apply-overlays"
-  ];
-
+{pkgs, inputs, ...}: {
   nixpkgs.overlays = [
     (final: super: {
       makeModulesClosure = x:
         super.makeModulesClosure (x // {allowMissing = true;});
     })
   ];
+
+  environment.systemPackages = [
+    (pkgs.callPackage "${inputs.oom-hardware}/raspberry-pi/packages/rpi-utils" {})
+  ];
+
+  users.groups.spi = { };
+  services.udev.extraRules = ''
+    SUBSYSTEM=="spidev", KERNEL=="spidev0.0", GROUP="spi", MODE="0660"
+  '';
 
   console = {
     earlySetup = true;
@@ -36,8 +38,6 @@
 
   hardware.raspberry-pi."4" = {
     xhci.enable = false;
-    dwc2.enable = true;
-    dwc2.dr_mode = "host";
     overlays = {
       cpu-revision.enable = true;
       audremap.enable = true;
@@ -49,6 +49,17 @@
       cpi-spi4.enable = false;
       cpi-bluetooth.enable = true;
     };
+  };
+
+  # dwc2 moved out of hardware.raspberry-pi.4 into the firmware config
+  boot.loader.generic-extlinux-compatible.useGenerationDeviceTree = false;
+  hardware.raspberry-pi.configtxt = {
+    settings.cm4.otg_mode = null;
+    deviceTreeOverlays.cm4 = [
+      {
+        dwc2.dr_mode = "host";
+      }
+    ];
   };
 
   hardware.deviceTree = {

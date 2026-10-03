@@ -2,6 +2,6 @@
   environment.systemPackages = [
     pkgs.zed-editor
   ];
-  nixGL.vulkan.enable = true;
+  hardware.graphics.enable = true;
 
 }

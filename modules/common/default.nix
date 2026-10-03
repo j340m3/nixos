@@ -13,4 +13,9 @@
     ./ulimit.nix
     ../../users/donquezz.nix
   ];
+
+  # radicle-node is marked insecure in nixpkgs (unencrypted node traffic)
+  nixpkgs.config.permittedInsecurePackages = [
+    "radicle-node-1.10.3"
+  ];
 }

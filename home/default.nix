@@ -15,6 +15,10 @@
     ./xfce
   ];
   home.username = "jeromeb";
+  # radicle-desktop pulls in radicle-node, which nixpkgs marks insecure
+  nixpkgs.config.permittedInsecurePackages = [
+    "radicle-node-1.10.3"
+  ];
   home.homeDirectory = "/home/jeromeb";
   home.stateVersion = "25.11"; # Comment out for error with "latest" version
   #stylix.homeManagerIntegration.autoImport = false;

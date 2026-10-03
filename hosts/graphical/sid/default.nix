@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   imports = [
@@ -14,6 +14,7 @@
   ];
 
   networking.hostName = "sid";
+  nixpkgs.hostPlatform = "x86_64-linux";
   wsl.enable = true;
   wsl.defaultUser = "nixos";
   wsl.useWindowsDriver = true;
