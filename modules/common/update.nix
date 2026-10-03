@@ -64,8 +64,10 @@
     system.autoUpgrade = {
       enable = !config.useComin;
       #flake = "/etc/nixos#nixos-gb";
-      #flake = "github:j340m3/nixos";
-      flake = inputs.self.outPath;
+      # inputs.self.outPath would pin autoUpgrade to an immutable snapshot of
+      # the repo, so it can never see new commits and fails forever on whatever
+      # broke first
+      flake = "github:j340m3/nixos";
       flags = [
         # "--update-input" "nixpkgs"
         # "--update-all-inputs"

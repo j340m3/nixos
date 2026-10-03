@@ -14,6 +14,7 @@
     (modulesPath + "/profiles/qemu-guest.nix")
     (modulesPath + "/profiles/minimal.nix")
     (modulesPath + "/profiles/headless.nix")
+    ../../../modules/hardening.nix
 
     ./disk-config.nix
     ../../../modules/common
@@ -53,6 +54,32 @@
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHFzPnlj9Bwq47kDwdNrapGZInlvZYqYFE/HYcdZWLzv"
   ]
   ++ (args.extraPublicKeys or [ ]); # this is used for unit-testing this module and can be removed if not needed
+
+  # modules/hardening.nix minus two settings that are unsafe on this VPS.
+  # forcePageTableIsolation adds pti=on, which panics the boot on a CPU that
+  # does not report PTI; this AMD EPYC guest reports smep/smap but no pti.
+  # killUnconfinedConfinables kills unconfined processes that enter a confined
+  # profile, which is the nginx/php-fpm path nextcloud runs on.
+  security.forcePageTableIsolation = false;
+  security.apparmor.killUnconfinedConfinables = false;
+
+  # modules/hardening.nix asks for strict reverse path filtering (1), which
+  # also drops packets that arrive on a different interface than the route to
+  # their source suggests, e.g. over nebula. Loose (2) still rejects spoofed
+  # sources. Set both to 1 to go strict.
+  boot.kernel.sysctl = {
+    "net.ipv4.conf.all.rp_filter" = 2;
+    "net.ipv4.conf.default.rp_filter" = 2;
+  };
+
+  # logs process execs and writes to privilege files, so a compromised service
+  # leaves a trail. failureMode stays printk, no -e 2: nothing to test here.
+  security.auditd.enable = true;
+  security.audit.rules = [
+    "-a exit,always -F arch=b64 -S execve"
+    "-w /etc/sudoers -p wa -k identity"
+    "-w /etc/ssh/sshd_config -p wa -k identity"
+  ];
 
   networking.firewall.enable = true;
   networking.hostName = "mrpotatohead";
