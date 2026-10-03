@@ -119,19 +119,21 @@ in
 
   systemd.services.mnt-filen-services-nextcloud-tmpfiles-resetup = {
     # no --remove: this runs on a network filesystem, and tmpfiles age based
-    # removal there can delete directories that still hold remote data
-    script = "systemd-tmpfiles --create --prefix=/mnt/filen/services/nextcloud";
-    # the mount can come up before the sops secret and the remote are usable.
-    # creating rules too early writes them into the rclone cache, where a
-    # reboot loses them, so wait for the remote and retry until it answers.
+    # removal there can delete directories that still hold remote data.
+    # the mount can come up before the sops secret and the remote are usable,
+    # and creating rules too early writes them into the rclone cache, where a
+    # reboot loses them, so probe first and let Restart=on-failure retry. the
+    # probe lives in the script because this unit has no /bin in PATH.
+    script = ''
+      set -e
+      ${pkgs.rclone}/bin/rclone lsd filen:services/nextcloud --config ${
+        config.sops.secrets."filen/nextcloud.conf".path
+      }
+      systemd-tmpfiles --create --prefix=/mnt/filen/services/nextcloud
+    '';
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = ''
-        sh -c 'until ${pkgs.rclone}/bin/rclone lsd filen:services/nextcloud --config ${
-          config.sops.secrets."filen/nextcloud.conf".path
-        }; do sleep 5; done'
-      '';
       Restart = "on-failure";
       RestartSec = 30;
     };
