@@ -4,12 +4,12 @@ let
   domainName = "cache.kauderwels.ch";
 in
 {
-  services.harmonia.enable = true;
-  services.harmonia.signKeyPaths = [ "/var/lib/secrets/harmonia.secret" ];
+  services.harmonia.cache.enable = true;
+  services.harmonia.cache.signKeyPaths = [ "/var/lib/secrets/harmonia.secret" ];
   # no tls_cert_path/tls_key_path: harmonia runs as a DynamicUser with
   # PrivateUsers and cannot read the acme key. nginx terminates TLS and talks
   # to it over localhost instead.
-  services.harmonia.settings.bind = "127.0.0.1:5000";
+  services.harmonia.cache.settings.bind = "127.0.0.1:5000";
 
   security.acme.certs.${domainName}.group = config.services.nginx.group;
 
@@ -36,7 +36,7 @@ in
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ 443 80 ];
 
   services.nebula.networks.mesh.firewall.inbound = lib.mkIf 
-              (config.services.harmonia.enable && 
+              (config.services.harmonia.cache.enable && 
               config.services.nebula.networks.mesh.enable) 
       [
         {
