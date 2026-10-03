@@ -42,6 +42,14 @@
         guard=/var/lib/nixos-upgrade-health
         ${pkgs.coreutils}/bin/install -d -m 0755 "$guard"
         failed=$(${pkgs.systemd}/bin/systemctl --failed --plain --no-legend)
+        # never act on our own past failure. a failed unit survives a
+        # nixos-rebuild switch, so on a later good generation this service would
+        # find itself listed and roll back a perfectly healthy host. errors from
+        # this script stay in its own journal.
+        # grep reads the whole list, so nothing here closes the pipe early, and
+        # the `|| true` covers only grep exiting 1 with an empty result: a
+        # failing systemctl above is still fatal under set -e.
+        failed=$(printf '%s\n' "$failed" | ${pkgs.coreutils}/bin/grep -v '^nixos-upgrade-health\.service ' || true)
         if [ -z "$failed" ]; then
           echo "upgrade-health: no failed units, nothing to do"
           exit 0
