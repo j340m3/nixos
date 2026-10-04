@@ -4,22 +4,41 @@
 
 **Goal:** A headless NixOS host detects its own broken state (`systemd` reports failed units) after an upgrade or on boot, notifies over Telegram, and returns to the previous generation by itself.
 
-**Architecture:** One new opt-in module, `modules/common/upgradeHealth.nix`, defines a timer bound to `switch-to-configuration.service` — which goes active on every boot *and* after every `nixos-rebuild switch` — plus a oneshot that checks `systemctl --failed` after a settle delay. On failure it fires the existing `notify-telegram@<unit>.service`, records the current generation in a guard file, then runs `nixos-rebuild rollback` and reboots. The guard file stops a rollback that did not help from repeating. Delivery is unchanged: floating lock, hourly autoUpgrade on `switch`.
+**Architecture:** One new opt-in module, `modules/common/upgradeHealth.nix`, defines a oneshot that checks `systemctl --failed` after a settle delay. It is triggered two ways: `wantedBy = [ "multi-user.target" ]` covers boot, and `systemd.services.nixos-upgrade.onSuccess = [ "nixos-upgrade-health.service" ]` covers a successful unattended upgrade. The settle delay is an `ExecStartPre` inside the service, so both windows get exactly one delay. On failure it fires the existing `notify-telegram@<unit>.service`, writes the filtered failed-unit list to a guard file, then runs `nixos-rebuild rollback` and reboots. The guard, keyed on that list, stops a rollback that did not help from repeating. Delivery is unchanged: floating lock, hourly autoUpgrade on `switch`.
 
-**Tech Stack:** NixOS modules, systemd (timer, oneshot, `OnUnitActiveSec`), POSIX shell in a systemd `script`, sops-nix secrets (consumed via the existing notify unit).
+**Tech Stack:** NixOS modules, systemd (oneshot, `wantedBy`, `onSuccess`, `ExecStartPre`), POSIX shell in a systemd `script`, sops-nix secrets (consumed via the existing notify unit).
 
 **Spec:** `docs/superpowers/specs/2026-10-03-upgrade-health-auto-rollback-design.md`
 
 **Testing note:** this repo has no test framework and this feature is systemd units, so the checkable result is the generated unit text plus live behavior on a real host. Every task therefore ends in an explicit command with the output that means it passed. Do not add a test harness for this.
 
+**Live-host checklist — the check must actually run, not merely exist.**
+`config.systemd.units` lists a unit whether or not anything activates it, and
+`systemctl list-unit-files` likewise only proves the file is installed. Every live-host step
+below therefore asserts a *trigger* or an *observed execution*:
+
+- boot window: `systemctl is-enabled nixos-upgrade-health.service` is `enabled`
+  (the `multi-user.target.wants` symlink exists), and the unit appears in
+  `journalctl -u nixos-upgrade-health` after a boot with no manual `systemctl start`.
+- upgrade window: `systemctl show -p OnSuccess nixos-upgrade.service` is
+  `nixos-upgrade-health.service`, and the health check's journal shows an entry roughly
+  `settleDelay` *after* the matching `nixos-upgrade` entry.
+- settle delay present: the journal's healthy line lands ~5min after the start, not
+  instantly. An instant line means the delay was dropped, which would judge the host
+  while activation is still settling.
+- no stale trigger: `systemctl is-active nixos-upgrade-health.timer` reports no such
+  unit. If a timer reappears, the check is inert again, because
+  `timerConfig.Unit` names the unit the timer activates, not one it waits for.
+
 ## Global Constraints
 
 - Delivery model does not change: `flake.lock` stays gitignored, `--no-write-lock-file` stays, `autoUpgrade` stays on `switch`, never `boot`.
-- Enabled only on `mrpotatohead`, `buzz`, `pricklepants`, `jessie`, `bootstrap`. Never on `bootstrap-impermanent` (impermanence makes `/var/lib` tmpfs, so the guard file is lost every boot and the host could loop). Never on graphical hosts.
+- Enabled only on `mrpotatohead`, `buzz`, `pricklepants` and `jessie`. Never on `bootstrap`: it does not import `modules/common`, so the option does not exist there, and adding that import would switch on `system.autoUpgrade` and its sops secrets. Never on `bootstrap-impermanent` (impermanence makes `/var/lib` tmpfs, so the guard file is lost every boot and the host could loop). Never on graphical hosts.
 - Health signal is exactly the set of failed systemd units. No HTTP probes, no per-host probe lists, no health endpoints.
-- Guard path is exactly `/var/lib/nixos-upgrade-health/rolled-back-from`, holding the output of `readlink /nix/var/nix/profiles/system` from the first rollback attempt on that generation.
-- Every binary is referenced by absolute store path: `${pkgs.systemd}/bin/systemctl`, `${pkgs.coreutils}/bin/readlink`, `${pkgs.coreutils}/bin/install`, `${pkgs.nixos-rebuild}/bin/nixos-rebuild`. A unit's `PATH` is not a shell's; this repo has already shipped three units that failed on exactly this.
-- `settleDelay` defaults to `"5min"` and is used as `OnUnitActiveSec`.
+- Guard path is exactly `/var/lib/nixos-upgrade-health/rolled-back-from`, holding the filtered failed-unit list from the last rollback attempt. Not the generation: hourly `autoUpgrade` mints a new profile link every time even when the store path is unchanged, so a generation key never matches and a broken unit rolls the host back and reboots it every hour.
+- Every binary is referenced by absolute store path: `${pkgs.systemd}/bin/systemctl`, `${pkgs.coreutils}/bin/{install,grep,rm,cat}`, `${pkgs.nixos-rebuild}/bin/nixos-rebuild`. A unit's `PATH` is not a shell's; this repo has already shipped three units that failed on exactly this.
+- `settleDelay` defaults to `"5min"` and is used as the service's `ExecStartPre`.
+- The check is triggered by `multi-user.target` on boot and by `nixos-upgrade.onSuccess` on upgrade. There is no timer: `timerConfig.Unit` names the unit the timer activates, not one it waits for, and `switch-to-configuration.service` does not exist at the pinned nixpkgs revision.
 - The rollback must not respect the 22:00-08:00 `autoUpgrade` reboot window. It is a repair.
 - If the check itself cannot run, roll nothing back and fail the unit.
 - If `nixos-rebuild rollback` fails, do not reboot.
@@ -50,14 +69,14 @@ Five input classes the spec implies that no step above naturally exercises. Each
 - Produces:
   - option `upgradeHealth.enable` (bool, default `false`)
   - option `upgradeHealth.settleDelay` (string, default `"5min"`)
-  - when enabled: `systemd.timers.nixos-upgrade-health` and `systemd.services.nixos-upgrade-health`
-  - when disabled: neither unit exists at all, on any host
+  - when enabled: `systemd.services.nixos-upgrade-health` and `systemd.services.nixos-upgrade.onSuccess`
+  - when disabled: neither exists at all, on any host
 
 - [ ] **Step 1: Create `modules/common/upgradeHealth.nix`**
 
-Module signature `{ config, lib, pkgs, ... }:`. `enable` is `lib.mkEnableOption "roll back the host when systemd reports failed units"`. `settleDelay` is `lib.types.str`, default `"5min"`, described as the wait between `switch-to-configuration.service` becoming active and judging the host.
+Module signature `{ config, lib, pkgs, ... }:`. `enable` is `lib.mkEnableOption "roll back the host when systemd reports failed units"`. `settleDelay` is `lib.types.str`, default `"5min"`, described as how long to wait after the check is triggered before judging the host.
 
-Both units live under `config = lib.mkIf config.upgradeHealth.enable { ... }`. Timer: `wantedBy = [ "timers.target" ]`, `timerConfig = { Unit = "switch-to-configuration.service"; OnUnitActiveSec = config.upgradeHealth.settleDelay; AccuracySec = "1min"; Persistent = false; }`. Service: `Type = "oneshot"` via `serviceConfig`, no `wantedBy` (the timer starts it).
+Both definitions live under `config = lib.mkIf config.upgradeHealth.enable { ... }`. Service: `wantedBy = [ "multi-user.target" ]` (the boot window), `Type = "oneshot"` via `serviceConfig`, and `preStart = "${pkgs.coreutils}/bin/sleep ${config.upgradeHealth.settleDelay}"` (the single settle delay). Upgrade window: `systemd.services.nixos-upgrade.onSuccess = [ "nixos-upgrade-health.service" ]`, guarded with `lib.mkIf config.system.autoUpgrade.enable` so it cannot conjure a stub unit on a host without autoUpgrade.
 
 The `script`, verbatim:
 
@@ -65,29 +84,38 @@ The `script`, verbatim:
 guard=/var/lib/nixos-upgrade-health
 ${pkgs.coreutils}/bin/install -d -m 0755 "$guard"
 failed=$(${pkgs.systemd}/bin/systemctl --failed --plain --no-legend)
+failed=$(printf '%s\n' "$failed" | ${pkgs.coreutils}/bin/grep -E -v '^(nixos-upgrade-health\.service|notify-telegram@[^ ]+) ' || true)
 if [ -z "$failed" ]; then
+  ${pkgs.coreutils}/bin/rm -f "$guard/rolled-back-from"
   echo "upgrade-health: no failed units, nothing to do"
   exit 0
 fi
-unit=$(printf '%s\n' "$failed" | ${pkgs.coreutils}/bin/head -n 1 | ${pkgs.coreutils}/bin/cut -d' ' -f1)
-echo "upgrade-health: $unit failed, rolling back"
-${pkgs.systemd}/bin/systemctl start --no-block "notify-telegram@$unit.service"
-generation=$(${pkgs.coreutils}/bin/readlink /nix/var/nix/profiles/system)
-if [ "$(cat "$guard/rolled-back-from" 2>/dev/null || true)" = "$generation" ]; then
-  echo "upgrade-health: already rolled back from $generation, not rolling back again"
+nl='
+'
+first=${failed%%"$nl"*}
+unit=${first%% *}
+echo "upgrade-health: $unit failed"
+${pkgs.systemd}/bin/systemctl start --no-block "notify-telegram@$unit.service" ||
+  echo "upgrade-health: notification for $unit failed, continuing with the rollback"
+if [ "$(${pkgs.coreutils}/bin/cat "$guard/rolled-back-from" 2>/dev/null || true)" = "$failed" ]; then
+  echo "upgrade-health: already rolled back from this same set of failed units, not rolling back again"
   exit 1
 fi
-printf '%s\n' "$generation" > "$guard/rolled-back-from"
+printf '%s\n' "$failed" > "$guard/rolled-back-from"
 ${pkgs.nixos-rebuild}/bin/nixos-rebuild rollback
+echo "upgrade-health: rolled back, rebooting"
 ${pkgs.systemd}/bin/systemctl reboot
 ```
 
 Decisions the script body fixes, so do not re-derive them:
 
 - The spec says `systemctl --failed --quiet`. This script uses the list form instead, because one call then also yields the unit name, and `--quiet`'s exit code 1 for "nothing failed" would abort a `set -e` script.
-- `--plain --no-legend` is what keeps `head -n 1 | cut -d' ' -f1` returning a verbatim unit name.
+- The self-filter excludes this service and every `notify-telegram@<unit>.service`, anchored at the start of the line so `notify-telegram-daemon.service` is not caught. A failed unit survives a switch, and a host without its sops telegram secrets fails the notify units permanently; neither is a reason to roll back.
+- The unit name is taken by parameter expansion rather than `head -n 1 | cut -d' ' -f1`: a pipeline that stops reading early can raise SIGPIPE, which `systemd.enableStrictShellChecks` turns into a failed unit.
+- The guard holds the filtered failed-unit list, not the generation. Keyed on the generation, hourly `autoUpgrade` mints a fresh `system-<n>-link` every hour even when the store path is unchanged, so the guard never matches and a persistently broken unit rolls the host back and reboots it every hour, with a Telegram message each time.
+- A healthy run deletes the guard file, so a later unrelated failure can roll back.
 - The guard read tolerates a missing file (`|| true`) so the first run cannot abort under `set -e`.
-- Notification is started before the guard check and without `--no-block` omitted, so a slow or failing Telegram call cannot delay or block the rollback.
+- Notification is started before the guard check and with `--no-block`, so a slow or failing Telegram call cannot delay or block the rollback. It carries `|| echo`, so a missing notification never blocks either.
 - `install -d` runs first, so the guard directory always exists for the write.
 - No `set +e` anywhere: a failure of any command must leave the unit failed rather than continue into a reboot.
 
@@ -117,11 +145,10 @@ Then confirm the units are absent while disabled, and that `settleDelay` is a re
 nix eval --impure --json --expr '
   let c = (builtins.getFlake "git+file:///home/jeromeb/code/github/nixos").nixosConfigurations.mrpotatohead.config;
   in { enable = c.upgradeHealth.enable; settleDelay = c.upgradeHealth.settleDelay;
-       timerExists = c.systemd.timers ? nixos-upgrade-health;
        serviceExists = c.systemd.services ? nixos-upgrade-health; }'
 ```
 
-Expected: `{"enable":false,"settleDelay":"5min","timerExists":false,"serviceExists":false}`. This is what pins Review Focus item 5: `settleDelay` resolves through the option, so a host can raise it.
+Expected: `{"enable":false,"settleDelay":"5min","serviceExists":false}`. This is what pins Review Focus item 5: `settleDelay` resolves through the option, so a host can raise it.
 
 - [ ] **Step 4: Commit**
 
@@ -140,7 +167,7 @@ git push
 
 **Interfaces:**
 - Consumes: `upgradeHealth.enable`, `upgradeHealth.settleDelay`, and the two unit names from Task 1.
-- Produces: on `mrpotatohead` only, `nixos-upgrade-health.timer` is active and its script is verified against Review Focus items 1-4.
+- Produces: on `mrpotatohead` only, the check is triggered on boot and after an upgrade, and its script is verified against Review Focus items 1-4.
 
 - [ ] **Step 1: Enable the option**
 
@@ -159,16 +186,35 @@ nix eval --no-write-lock-file --raw ".#nixosConfigurations.mrpotatohead.config.s
 
 Expected: a store path, exit 0.
 
-- [ ] **Step 3: Inspect the generated script and timer**
+- [ ] **Step 3: Assert the triggers, not the unit's existence**
+
+`systemd.units` lists a unit whether or not anything activates it, so its presence
+proves nothing. Assert the trigger data instead:
 
 ```bash
 nix eval --impure --json --expr '
   let c = (builtins.getFlake "git+file:///home/jeromeb/code/github/nixos").nixosConfigurations.mrpotatohead.config;
-  in { script = c.systemd.services.nixos-upgrade-health.script;
-       timer = c.systemd.timers.nixos-upgrade-health.timerConfig; }' | python3 -m json.tool
+  in { bootTrigger = c.systemd.services."nixos-upgrade-health".wantedBy;
+       upgradeTrigger = c.systemd.services.nixos-upgrade.onSuccess;
+       settleDelay = c.systemd.services."nixos-upgrade-health".preStart;
+       timerGone = !(c.systemd.timers ? nixos-upgrade-health); }' | python3 -m json.tool
 ```
 
-Expected: `timer` contains `"Unit": "switch-to-configuration.service"` and `"OnUnitActiveSec": "5min"`. In `script`, every occurrence of `systemctl`, `readlink`, `install`, `nixos-rebuild` must be preceded by `/nix/store/`. If any is bare, stop and fix Task 1's script before continuing.
+Expected: `bootTrigger` contains `"multi-user.target"`, `upgradeTrigger` contains
+`"nixos-upgrade-health.service"`, `settleDelay` ends in `sleep 5min`, and `timerGone` is
+`true`.
+
+Then check the script's store paths and build the unit, because `enableStrictShellChecks`
+wraps the script in a shellcheck pass that an eval cannot reach:
+
+```bash
+nix build --no-link --impure --expr \
+  '(builtins.getFlake "git+file:///home/jeromeb/code/github/nixos").nixosConfigurations.mrpotatohead.config.systemd.units."nixos-upgrade-health.service".unit'
+```
+
+Expected: exit 0. In `script`, every occurrence of `systemctl`, `install`, `grep`, `rm`,
+`cat` and `nixos-rebuild` must be preceded by `/nix/store/`. If any is bare, or if the
+build fails, stop and fix Task 1's script before continuing.
 
 - [ ] **Step 4: Commit and push**
 
@@ -182,12 +228,22 @@ git push
 
 ```bash
 sudo nixos-rebuild switch --flake 'github:j340m3/nixos' --no-write-lock-file
-systemctl list-timers nixos-upgrade-health.timer --no-pager
+systemctl is-enabled nixos-upgrade-health.service
+systemctl is-active nixos-upgrade-health.timer 2>&1 | head -1   # expect: inactive / no such
 sudo systemctl start nixos-upgrade-health.service
 echo "exit=$?"
+journalctl -u nixos-upgrade-health -n 5 --no-pager
+ls -l /var/lib/nixos-upgrade-health/rolled-back-from 2>&1   # expect: no such file
 ```
 
-Expected: the timer is listed with `NEXT` roughly 5 minutes out; `systemctl start` returns `exit=0`; `journalctl -u nixos-upgrade-health -n 5` shows `upgrade-health: no failed units, nothing to do`. Record the boot time before continuing:
+Expected: the service is `enabled` (the `multi-user.target` symlink exists), there is no
+`nixos-upgrade-health.timer` at all, `systemctl start` returns `exit=0`,
+`journalctl` shows `upgrade-health: no failed units, nothing to do` about five minutes
+after the start (that gap is the `ExecStartPre` settle delay — if it returns instantly,
+the delay is not wired in), and the guard file does not exist, because a healthy run
+deletes it.
+
+Record the boot time before continuing:
 
 ```bash
 who -b
@@ -195,28 +251,35 @@ who -b
 
 - [ ] **Step 6: Prove the unhealthy path without letting it roll back**
 
-Pre-seed the guard with the current generation, which is exactly what makes the script take the "already rolled back" branch and stop before `nixos-rebuild rollback`:
+The guard holds the failed-unit list, not the generation, so pre-seeding it means running
+the check once against the throwaway unit and letting the first run write the guard. The
+first run does reach `nixos-rebuild rollback`, which is destructive, so do this on a host
+you are willing to roll back; the second run is the safe one that proves the guard.
 
 ```bash
 sudo mkdir -p /var/lib/nixos-upgrade-health
-readlink /nix/var/nix/profiles/system | sudo tee /var/lib/nixos-upgrade-health/rolled-back-from
 sudo systemd-run --unit=health-test-fail.service --property=Type=oneshot /bin/false
 sleep 2
 systemctl --failed --plain --no-legend
+sudo systemctl start nixos-upgrade-health.service; echo "exit=$?"   # first run: may roll back
+cat /var/lib/nixos-upgrade-health/rolled-back-from
+# second run, with the guard already holding this exact failed-unit list
 sudo systemctl start nixos-upgrade-health.service; echo "exit=$?"
 journalctl -u nixos-upgrade-health -n 10 --no-pager
 systemctl status "notify-telegram@health-test-fail.service" --no-pager | head -5
 who -b
 ```
 
-Expected, and this is what pins Review Focus items 1, 3 and 4:
+Expected, on the **second** run, and this is what pins Review Focus items 1, 3 and 4:
 
 - `systemctl --failed --plain --no-legend` lists `health-test-fail.service` and no `\x2d` escaping.
-- The journal shows `upgrade-health: health-test-fail.service failed, rolling back`, then `upgrade-health: already rolled back from /nix/var/nix/profiles/system-<n>-link, not rolling back again`.
+- The journal shows `upgrade-health: health-test-fail.service failed`, then `upgrade-health: already rolled back from this same set of failed units, not rolling back again`.
 - `exit=1`.
 - A Telegram message arrived naming `health-test-fail.service` with its exit code and journal line.
-- `who -b` is unchanged: **no reboot happened**.
-- Re-running the check does not create a second message or another attempt.
+- `who -b` is unchanged across the second run: **no reboot happened**.
+- Re-running the check does not roll back or reboot again. It does send another message,
+  because notification is deliberately attempted before the guard check so that a guard
+  refusal is still reported.
 
 Then clean up:
 
@@ -246,15 +309,18 @@ Do not attempt this by renaming or removing a store path. An inconsistent store 
 - Modify: `hosts/headless/buzz/default.nix`
 - Modify: `hosts/headless/pricklepants/default.nix`
 - Modify: `hosts/headless/jessie/default.nix`
-- Modify: `hosts/headless/bootstrap/default.nix`
+
+`bootstrap` is deliberately not in this list: it does not import `modules/common`, so the
+`upgradeHealth` option does not exist there. Adding the import would switch on
+`system.autoUpgrade` and its sops secrets, which is far outside this feature.
 
 **Interfaces:**
 - Consumes: `upgradeHealth.enable` from Task 1.
-- Produces: the option enabled on all five intended headless hosts, none on graphical hosts or `bootstrap-impermanent`.
+- Produces: the option enabled on all four intended headless hosts, none on graphical hosts or `bootstrap-impermanent`.
 
-- [ ] **Step 1: Enable the option on the four remaining hosts**
+- [ ] **Step 1: Enable the option on the three remaining hosts**
 
-Add this line to each of the four files above, at the same nesting level as in Task 2:
+Add this line to each of the three files above, at the same nesting level as in Task 2:
 
 ```nix
 upgradeHealth.enable = true;
@@ -264,7 +330,7 @@ upgradeHealth.enable = true;
 
 ```bash
 cd /home/jeromeb/code/github/nixos
-nixfmt hosts/headless/{buzz,pricklepants,jessie,bootstrap}/default.nix
+nixfmt hosts/headless/{buzz,pricklepants,jessie}/default.nix
 for h in buzz pricklepants jessie bootstrap woody rex sid slinky lenny zurg bootstrap-impermanent; do
   printf '%-22s ' "$h"
   nix eval --no-write-lock-file --raw ".#nixosConfigurations.$h.config.system.build.toplevel.drvPath" >/dev/null \
@@ -272,49 +338,61 @@ for h in buzz pricklepants jessie bootstrap woody rex sid slinky lenny zurg boot
 done
 ```
 
-Expected: `OK` for all 11.
+Expected: `OK` for all 11. `slinky` is expected to fail, because it needs an aarch64
+builder this workspace does not have; that is pre-existing and unrelated.
 
-- [ ] **Step 3: Confirm the enabled set is exactly the intended five**
+- [ ] **Step 3: Confirm the enabled set is exactly the intended four**
 
 ```bash
 nix eval --impure --json --expr '
   let f = builtins.getFlake "git+file:///home/jeromeb/code/github/nixos";
-  in builtins.mapAttrs (_: c: c.upgradeHealth.enable) f.nixosConfigurations'
+  in builtins.mapAttrs
+       (_: c: if c ? upgradeHealth then c.upgradeHealth.enable else "option absent")
+       f.nixosConfigurations'
 ```
 
-Expected: `buzz`, `pricklepants`, `jessie`, `mrpotatohead`, `bootstrap` are `true`; every graphical host and `bootstrap-impermanent` are `false`. If `bootstrap-impermanent` is `true`, stop: its tmpfs root makes the guard file vanish every boot.
+Expected: `buzz`, `pricklepants`, `jessie` and `mrpotatohead` are `true`;
+`bootstrap-impermanent` is `false`; every graphical host is `false`; `bootstrap` reports
+`"option absent"`. If `bootstrap-impermanent` is `true`, stop: its tmpfs root makes the
+guard file vanish every boot.
 
 Then confirm no enabled host can lose its rollback target, which the spec requires:
 
 ```bash
 nix eval --impure --json --expr '
   let f = builtins.getFlake "git+file:///home/jeromeb/code/github/nixos";
-  in builtins.mapAttrs (_: c: if c.upgradeHealth.enable then c.boot.loader.grub.configurationLimit else null)
+  in builtins.mapAttrs (_: c:
+       if c ? upgradeHealth && c.upgradeHealth.enable
+       then c.boot.loader.grub.configurationLimit else null)
        f.nixosConfigurations'
 ```
 
-Expected: for the five enabled hosts, no value is `1`. `pricklepants` is already `2`, which is the tightest acceptable value; the others inherit the NixOS default of `100`. A `1` means that host can never roll back and the option must be raised there.
+Expected: for the four enabled hosts, no value is `1`. `pricklepants` is already `2`, which is the tightest acceptable value; the others inherit the NixOS default of `100`. A `1` means that host can never roll back and the option must be raised there.
 
 - [ ] **Step 4: Commit and push**
 
 ```bash
-git add hosts/headless/{buzz,pricklepants,jessie,bootstrap}/default.nix
+git add hosts/headless/{buzz,pricklepants,jessie}/default.nix
 git commit -m "Enable the upgrade health check on the remaining headless hosts"
 git push
 ```
 
 - [ ] **Step 5: Deploy and verify each host**
 
-On each of `buzz`, `pricklepants`, `jessie`, then `bootstrap` last:
+On each of `buzz`, `pricklepants` and `jessie`:
 
 ```bash
 sudo nixos-rebuild switch --flake 'github:j340m3/nixos' --no-write-lock-file
-systemctl list-timers nixos-upgrade-health.timer --no-pager
+systemctl is-enabled nixos-upgrade-health.service
+systemctl is-active nixos-upgrade-health.timer 2>&1 | head -1   # expect: no such unit
 sudo systemctl start nixos-upgrade-health.service; echo "exit=$?"
 journalctl -u nixos-upgrade-health -n 5 --no-pager
 ```
 
-Expected on each: `exit=0` and `upgrade-health: no failed units, nothing to do`.
+Expected on each: the service is `enabled`, there is no `nixos-upgrade-health.timer`,
+`exit=0` and `upgrade-health: no failed units, nothing to do` about five minutes after the
+start. That gap is the settle delay; if the journal line appears instantly, the delay is
+not wired in on that host.
 
 - [ ] **Step 6: Watch one automatic upgrade cycle per host**
 
@@ -325,4 +403,11 @@ journalctl -u nixos-upgrade-health --since "26 hours ago" --no-pager
 journalctl -u nixos-upgrade --since "26 hours ago" --no-pager | tail -20
 ```
 
-Expected: the health check logged the healthy line and `nixos-upgrade` completed. If a rollback fired, the Telegram message names the unit that died and the journal shows `nixos-rebuild rollback` running — that is the design working, and the unit it names is the bug to fix next.
+Expected: the health check logged the healthy line and `nixos-upgrade` completed. Confirm
+the upgrade path actually ran the check, not only the boot path: the health check's
+journal must show an entry roughly `settleDelay` *after* the `nixos-upgrade` entry from the
+same cycle. If a rollback fired, the Telegram message names the unit that died and the
+journal shows `nixos-rebuild rollback` running — that is the design working, and the unit
+it names is the bug to fix next. A single rollback for a persistent failure, followed by
+`already rolled back from this same set of failed units` on every later trigger, is the
+guard working; a rollback and reboot every hour is the guard not working.
