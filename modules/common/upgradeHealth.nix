@@ -26,7 +26,7 @@
   config = lib.mkIf config.upgradeHealth.enable {
     systemd.services.nixos-upgrade-health = {
       # boot window. multi-user.target wants this, so the check runs on every
-      # boot: the same pattern NixOS's own activation unit uses. there is no
+      # boot, the same way a manually activated oneshot would be. there is no
       # timer: a timer with `Unit = foo.service` activates foo.service when it
       # elapses, it does not wait for it, so it can never wait out the settle
       # delay in another unit.
