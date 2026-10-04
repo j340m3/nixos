@@ -173,8 +173,12 @@ and a rollback that cannot run is worse than no rollback at all.
 The repo has no test framework, so verification is manual on a host:
 
 1. Evaluate every headless host: `nix eval .#nixosConfigurations.<host>.config.system.build.toplevel.drvPath`.
-2. Build the unit, not just evaluate it, so the generated shell is actually run through
-   shellcheck: `nix build --no-link --impure --expr '(builtins.getFlake "git+file:///home/jeromeb/code/github/nixos").nixosConfigurations.mrpotatohead.config.systemd.units."nixos-upgrade-health.service".unit'`.
+2. Build the unit, not just evaluate it, so the generated script is proven to compile:
+   `nix build --no-link --impure --expr '(builtins.getFlake "git+file:///home/jeromeb/code/github/nixos").nixosConfigurations.mrpotatohead.config.systemd.units."nixos-upgrade-health.service".unit'`.
+   This does not shellcheck the script on these hosts, because
+   `systemd.enableStrictShellChecks` is false here; to get that coverage, build the
+   evaluated `script` through `pkgs.writeShellApplication` instead of enabling the
+   option globally.
    `systemd.units` lists units whether or not anything activates them, so this proves the
    script compiles, not that the check runs.
 3. Assert the triggers, not the unit's existence:

@@ -204,8 +204,11 @@ Expected: `bootTrigger` contains `"multi-user.target"`, `upgradeTrigger` contain
 `"nixos-upgrade-health.service"`, `settleDelay` ends in `sleep 5min`, and `timerGone` is
 `true`.
 
-Then check the script's store paths and build the unit, because `enableStrictShellChecks`
-wraps the script in a shellcheck pass that an eval cannot reach:
+Then check the script's store paths and build the unit, because a build is what proves the
+generated script compiles, which an eval cannot reach. Note that this does not shellcheck
+the script on these hosts: `systemd.enableStrictShellChecks` is false here, so for that
+coverage build the evaluated `script` through `pkgs.writeShellApplication` rather than
+turning the option on globally.
 
 ```bash
 nix build --no-link --impure --expr \
