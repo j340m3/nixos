@@ -65,9 +65,14 @@
         first=''${failed%%"$nl"*}
         unit=''${first%% *}
         echo "upgrade-health: $unit failed"
-        # notify before deciding, so the guard refusal below is reported too,
-        # and never let a missing or failing notification block the rollback
-        ${pkgs.systemd}/bin/systemctl start --no-block "notify-telegram@$unit.service" ||
+        # notify before deciding, so the guard refusal below is reported too.
+        # this waits for the notification rather than queueing it: we reboot
+        # immediately after the rollback, and systemd stops starting queued jobs
+        # during shutdown, so a queued alert is the one alert most likely to be
+        # lost. a failing notification is tolerated by the ||, and a hanging one
+        # is bounded by its own DefaultTimeoutStartSec, so it cannot hold up the
+        # rollback indefinitely.
+        ${pkgs.systemd}/bin/systemctl start "notify-telegram@$unit.service" ||
           echo "upgrade-health: notification for $unit failed, continuing with the rollback"
         # the guard is keyed on the failure, not on the generation: an hourly
         # autoUpgrade mints a new profile link every time even when the store
