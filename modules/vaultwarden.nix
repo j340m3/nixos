@@ -16,20 +16,33 @@ in
       ROCKET_ADDRESS = "127.0.0.1";
       ROCKET_PORT = 8222;
       DOMAIN = "https://${domainName}";
-      # this is a password vault with a handful of family accounts, not a
-      # public signup service. invitations stay open so an existing admin can
-      # add someone by email; open registration would let anyone on the
-      # internet create an account on it.
+      # Family-only password vault, not a public signup service. Close open
+      # registration.
       #
-      # the key is SIGNUPS_ALLOWED. DISABLE_USER_REGISTRATION, which this used to
-      # set, does not exist in vaultwarden 1.37.3: it is absent from the binary's
-      # config keys, so it was accepted by the environment and ignored, and
-      # registration stayed open the whole time. checked rather than assumed:
-      #   /api/config -> "disableUserRegistration":false
-      # INVITATIONS_ALLOWED is honoured, and the two together mean an admin can
-      # still add a family member by email.
+      # The key is SIGNUPS_ALLOWED (bool). DISABLE_USER_REGISTRATION has no
+      # equivalent in vaultwarden 1.37.3 -- absent from the binary's config keys,
+      # so an env var of that name was parsed and silently ignored, and
+      # registration stayed open. Verified against the binary strings and the
+      # 1.37.3 source: /api/config returns
+      #   "disableUserRegistration": CONFIG.is_signup_disabled()
+      # and is_signup_disabled() is
+      #   (!signups_allowed && whitelist.is_empty()
+      #       && (mail_enabled || !invitations_allowed))
+      #   || (sso_enabled && sso_only)
+      # So SIGNUPS_ALLOWED=false alone is not enough for clients to be told
+      # registration is disabled: that requires (mail_enabled OR
+      # invitations_allowed=false) too. The account-creation endpoint itself is
+      # rejected the moment signups_allowed is false, so closing signups is
+      # already enforced and secure -- this only governs the clients'
+      # "Create Account" UI hint, which is why it stayed false.
+      #
+      # No SMTP is configured here, so invitation emails cannot be sent and
+      # INVITATIONS_ALLOWED=true would only keep that flag false. Set it false so
+      # the signup button is hidden honestly. To invite family by email later,
+      # add SMTP and set INVITATIONS_ALLOWED=true -- that makes mail_enabled true
+      # and flips the flag back to true while letting invites actually send.
       SIGNUPS_ALLOWED = false;
-      INVITATIONS_ALLOWED = true;
+      INVITATIONS_ALLOWED = false;
     };
     backupDir = "/var/backup/vaultwarden";
   };
