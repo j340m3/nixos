@@ -68,9 +68,15 @@ in
   # fail2ban-regex returned 0 hits for the shipped filter against its own log,
   # and 4 for the pattern below. that is why the override exists, and why
   # deleting it in 7777ee9 left the jail silently counting nothing.
+  # filter = "vaultwarden" so fail2ban reads filter.d/vaultwarden.conf and then
+  # filter.d/vaultwarden.local, and the .local overrides the shipped failregex.
+  # the override must keep the same name as the filter it shadows: naming it
+  # something else, or pointing filter at a dash name while the file is
+  # vaultwarden.local, leaves fail2ban looking for a file that does not exist and
+  # it skips the jail with "Found no accessible config files".
   services.fail2ban.jails."vaultwarden".settings = {
     enabled = true;
-    filter = "vaultwarden-local";
+    filter = "vaultwarden";
     backend = "systemd";
     journalmatch = "_SYSTEMD_UNIT=vaultwarden.service";
     # 443 only: vaultwarden is behind nginx, and 8081 was never a port this
