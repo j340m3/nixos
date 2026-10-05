@@ -50,15 +50,22 @@
     devices = [ "/dev/vda" ];
   };
 
+  # / used to be a 4G tmpfs. that tmpfs filled up completely (4.0G used, 0
+  # available), because /var/log/journal and rsyslog's files both land under
+  # /var/log, which is tmpfs pages: unswappable ram with no swap configured.
+  # root is now a subvolume of the same btrfs that holds /nix, so / survives a
+  # reboot and logs live on disk. the subvolume has to exist once, by hand:
+  #   sudo btrfs subvolume create /nix/@root
+  # mount /nix is the top level of the same device, and systemd orders it after
+  # / via RequiresMountsFor, so the two mounts of one device are fine.
   fileSystems."/" = {
-    device = "tmpfs";
-    fsType = "tmpfs";
+    device = "/dev/vda3";
+    fsType = "btrfs";
     options = [
-      "relatime"
-      "mode=755"
+      "subvol=@root"
+      "compress-force=zstd"
       "nosuid"
       "nodev"
-      "size=4G"
     ];
   };
 
