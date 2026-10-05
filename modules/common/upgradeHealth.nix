@@ -48,7 +48,12 @@
         # grep reads the whole list, so nothing here closes the pipe early, and
         # the `|| true` covers only grep exiting 1 with an empty result: a
         # failing systemctl above is still fatal under set -e.
-        failed=$(printf '%s\n' "$failed" | ${pkgs.coreutils}/bin/grep -E -v '^(nixos-upgrade-health\.service|notify-telegram@[^ ]+) ' || true)
+        # `grep` is not part of coreutils: it is its own package, so coreutils'
+        # bin/grep names a store path that resolves but holds no such file. The
+        # `|| true` below then swallows that failure, $failed comes out empty and
+        # this script reports a healthy host no matter what is broken. gnugrep is
+        # the package that actually has bin/grep.
+        failed=$(printf '%s\n' "$failed" | ${pkgs.gnugrep}/bin/grep -E -v '^(nixos-upgrade-health\.service|notify-telegram@[^ ]+) ' || true)
         if [ -z "$failed" ]; then
           # healthy: clear the guard, so a later unrelated failure can roll back
           # again instead of being mistaken for the one already handled
