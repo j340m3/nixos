@@ -25,16 +25,16 @@
   # opts in
   config = lib.mkIf config.upgradeHealth.enable {
     systemd.services.nixos-upgrade-health = {
-      # boot window. multi-user.target wants this, so the check runs on every
-      # boot, the same way a manually activated oneshot would be. there is no
-      # timer: a timer with `Unit = foo.service` activates foo.service when it
-      # elapses, it does not wait for it, so it can never wait out the settle
-      # delay in another unit.
-      wantedBy = [ "multi-user.target" ];
       serviceConfig.Type = "oneshot";
-      # the one settle delay, covering both windows
-      preStart = "${pkgs.coreutils}/bin/sleep ${config.upgradeHealth.settleDelay}";
       description = "Rolls the host back to the previous generation and reboots when systemd reports a failed unit. The guard file holds the failed-unit list of the last rollback, so one broken unit causes one rollback rather than one per hour.";
+      # no preStart sleep here, deliberately: this unit used to carry the settle
+      # delay and hang off multi-user.target, so every interactive rebuild
+      # blocked for the whole delay. switch-to-configuration starts
+      # multi-user.target, a oneshot with a blocking preStart must finish before
+      # its target is reached, and --wait waits for that. observed on
+      # pricklepants as a five minute rebuild "stuck" after "restarting
+      # sysinit-reactivation.target". the delay belongs to the scheduler below,
+      # which returns immediately.
       script = ''
         guard=/var/lib/nixos-upgrade-health
         ${pkgs.coreutils}/bin/install -d -m 0755 "$guard"
@@ -103,12 +103,37 @@
       '';
     };
 
+    # the settle delay, and both windows. this unit does nothing but arm a
+    # transient timer, so it returns immediately and nothing downstream waits on
+    # the delay: multi-user.target is released as soon as systemd-run returns,
+    # and onSuccess is off the rebuild's critical path. both windows use it, so
+    # one delay still covers both.
+    #
+    # a transient timer rather than a static systemd.timers entry, because the
+    # two windows have to re-arm: a static timer with OnBootSec fires once per
+    # boot and an upgrade inside that window would be missed. no --unit is given
+    # to systemd-run so it generates a fresh name per trigger, otherwise the
+    # second trigger in a boot fails on the name already existing.
+    # AccuracySec is 1s because the default is 1min, which would let a 5m delay
+    # land up to a minute late on every host.
+    systemd.services.nixos-upgrade-health-schedule = {
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig.Type = "oneshot";
+      description = "Arms the upgrade health check to run once after the settle delay.";
+      script = ''
+        ${pkgs.systemd}/bin/systemd-run \
+          --on-active=${config.upgradeHealth.settleDelay} \
+          --timer-property=AccuracySec=1s \
+          ${pkgs.systemd}/bin/systemctl start nixos-upgrade-health.service
+      '';
+    };
+
     # upgrade window. onSuccess is the native way to be activated when
     # nixos-upgrade.service succeeds, which covers `nixos-rebuild switch` and
     # the reboot it may schedule. running the check twice in one boot is
     # harmless: it is idempotent.
     systemd.services.nixos-upgrade.onSuccess = lib.mkIf config.system.autoUpgrade.enable [
-      "nixos-upgrade-health.service"
+      "nixos-upgrade-health-schedule.service"
     ];
   };
 }
