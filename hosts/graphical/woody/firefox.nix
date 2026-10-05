@@ -1,5 +1,20 @@
 { pkgs, ... }:
+
+# These mirror the Status="locked" Firefox policy objects. Defined here
+# instead of relying on woody/default.nix's `let` so this module is portable
+# and evaluates on its own if imported elsewhere.
+let
+  lock-false = {
+    Value = false;
+    Status = "locked";
+  };
+  lock-empty-string = {
+    Value = "";
+    Status = "locked";
+  };
+in
 {
+
   # Install firefox.
 
   programs.firefox = {
