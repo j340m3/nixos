@@ -92,12 +92,17 @@ persistent path.
 2. `ExecStartPre` sleeps `settleDelay`. This is the only delay in the design.
 3. The script creates `/var/lib/nixos-upgrade-health` first, so the guard read in step 4
    never meets a missing directory under `set -e`.
-4. The check runs `systemctl --failed --plain --no-legend`, then drops this feature's
-   own units from the result: `nixos-upgrade-health.service` and every
-   `notify-telegram@<unit>.service`. A failed unit survives a `nixos-rebuild switch`,
-   so on a later good generation this service would otherwise find itself listed and
-   roll back a perfectly healthy host; and a host missing its sops telegram secrets
-   fails the notify units permanently, which by itself is not a reason to roll back.
+4. The check runs `systemctl --failed --plain --no-legend`, then drops four kinds of unit
+   from the result: `nixos-upgrade-health.service`, every `notify-telegram@<unit>.service`,
+   `nixos-upgrade.service` and `nixos-rebuild-switch-to-configuration.service`.
+   The first two are this feature failing at the reporting stage: a failed unit survives a
+   `nixos-rebuild switch`, so on a later good generation this service would otherwise find
+   itself listed and roll back a perfectly healthy host; and a host missing its sops telegram
+   secrets fails the notify units permanently, which by itself is not a reason to roll back.
+   The last two are the *upgrade* failing rather than the host: they exit non-zero when an
+   upgrade did not apply, which leaves the host on its previous, working generation, so
+   rolling back would move it one generation further back and fix nothing. Only units that
+   say the running system is broken are worth undoing a generation over.
    The match is anchored at the start of the line, so a unit merely named
    `notify-telegram-daemon.service` is not excluded.
    If the list is now empty, delete the guard file, log one line and exit 0. This is
