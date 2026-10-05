@@ -55,13 +55,22 @@ in
 
   # fail2ban reads the journal, not a file: this host runs no rsyslog, so the
   # logpath this used to name (/var/log/syslog) never existed and the jail saw
-  # no log lines at all. filter = "vaultwarden" resolves to the filter fail2ban
-  # ships, which matches the current log format and also catches invalid admin
-  # tokens and TOTP codes; the hand-written override it replaced matched an
-  # older message this version no longer emits.
+  # no log lines at all.
+  #
+  # the filter fail2ban ships cannot work here either. its regex is anchored at
+  # the start of the line and expects [vaultwarden::api::...] there, with no
+  # %(__prefix_line)s in front of it, but a journal line begins with the host
+  # name and timestamp:
+  #
+  #   pricklepants vaultwarden[159140]: [2026-10-05 12:31:26.841][vaultwarden::...
+  #
+  # so it can never match, on either -o short or -o cat. checked on this host:
+  # fail2ban-regex returned 0 hits for the shipped filter against its own log,
+  # and 4 for the pattern below. that is why the override exists, and why
+  # deleting it in 7777ee9 left the jail silently counting nothing.
   services.fail2ban.jails."vaultwarden".settings = {
     enabled = true;
-    filter = "vaultwarden";
+    filter = "vaultwarden-local";
     backend = "systemd";
     journalmatch = "_SYSTEMD_UNIT=vaultwarden.service";
     # 443 only: vaultwarden is behind nginx, and 8081 was never a port this
@@ -75,4 +84,18 @@ in
     bantime = 3600;
     findtime = 600;
   };
+
+  # %(__prefix_line)s would normally absorb the host name and timestamp, but the
+  # shipped filter uses a bare ^ instead and so never fires here. matching from
+  # ^.* keeps the same intent. anchored on "IP: <HOST>." rather than <HOST>
+  # alone: \S+ would otherwise swallow the trailing period and fail2ban would
+  # ban "92.208.27.155." instead of the address.
+  environment.etc."fail2ban/filter.d/vaultwarden.local".text = ''
+    [INCLUDES]
+    before = common.conf
+
+    [Definition]
+    failregex = ^.*Username or password is incorrect\. Try again\. IP: <HOST>\. Username:.*$
+    ignoreregex =
+  '';
 }
