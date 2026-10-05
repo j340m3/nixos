@@ -3,6 +3,7 @@
     ./update.nix
     ./upgradeHealth.nix
     ./ssh.nix
+    ./ssh-identities.nix
     ./locale.nix
     ./sops.nix
     ./rate_limiting_avoidance.nix
