@@ -30,7 +30,7 @@
         #OPS = "2535414708374553,2535448442672198"
         #ALLOW_LIST_USERS = "adyxax:2535470760215402,pseudo2:XXXXXXX,pseudo3:YYYYYYY";
       };
-      image = "itzg/minecraft-bedrock-server";
+      image = "docker.io/itzg/minecraft-bedrock-server";
       ports = [
         "19132:19132/udp"
         "[::]:19132:19132/udp"
@@ -80,7 +80,11 @@
           images=$(${pkgs.podman}/bin/podman ps -a --format="{{.Image}}" | sort -u)
 
           for image in $images; do
-            ${pkgs.podman}/bin/podman pull "$image"
+            # a failed image refresh must not fail this unit: a failed unit makes
+            # nixos-upgrade-health roll the host back a whole OS generation over
+            # a container tag that did not resolve this once.
+            ${pkgs.podman}/bin/podman pull "$image" ||
+              echo "update-containers: pull failed for $image"
           done
         ''
       );
