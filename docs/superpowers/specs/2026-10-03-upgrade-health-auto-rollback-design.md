@@ -49,7 +49,7 @@ it does nothing unless the host opts in.
 Options:
 
 - `upgradeHealth.enable` (bool, default `false`)
-- `upgradeHealth.settleDelay` (string, default `"5min"`)
+- `upgradeHealth.settleDelay` (string, default `"5m"`)
 
 Units:
 
@@ -164,7 +164,7 @@ and a rollback that cannot run is worse than no rollback at all.
   enabled.
 - `nix.gc` with `--delete-older-than 7d` does not remove the current or previous system
   profile links, so the rollback target survives garbage collection.
-- `settleDelay` defaults to `5min`, which is longer than the slowest activation observed
+- `settleDelay` defaults to `5m`, which is longer than the slowest activation observed
   so far, but a slow activation such as a database reindex can exceed it. Raise the
   option on a host that needs more time.
 
@@ -184,7 +184,7 @@ The repo has no test framework, so verification is manual on a host:
 3. Assert the triggers, not the unit's existence:
    `nix eval --impure --json --expr 'let c = (builtins.getFlake "git+file:///home/jeromeb/code/github/nixos").nixosConfigurations.mrpotatohead.config; in { boot = c.systemd.services."nixos-upgrade-health".wantedBy; upgrade = c.systemd.services.nixos-upgrade.onSuccess; delay = c.systemd.services."nixos-upgrade-health".preStart; }'`
    Expect `boot = ["multi-user.target"]`, `upgrade = ["nixos-upgrade-health.service"]` and
-   `delay` ending in `sleep 5min`.
+   `delay` ending in `sleep 5m`.
 4. Healthy path: `systemctl start nixos-upgrade-health.service`. Expect exit 0 and one
    log line, and `/var/lib/nixos-upgrade-health/rolled-back-from` to be absent afterwards.
 5. Unhealthy path without a real rollback: create a throwaway failed unit, run the check

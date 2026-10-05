@@ -11,7 +11,7 @@
 
     settleDelay = lib.mkOption {
       type = lib.types.str;
-      default = "5min";
+      default = "5m";
       description = ''
         How long to wait after the check is triggered before judging the host.
         The trigger is either boot or a successful `nixos-upgrade.service`, so

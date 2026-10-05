@@ -37,7 +37,7 @@ below therefore asserts a *trigger* or an *observed execution*:
 - Health signal is exactly the set of failed systemd units. No HTTP probes, no per-host probe lists, no health endpoints.
 - Guard path is exactly `/var/lib/nixos-upgrade-health/rolled-back-from`, holding the filtered failed-unit list from the last rollback attempt. Not the generation: hourly `autoUpgrade` mints a new profile link every time even when the store path is unchanged, so a generation key never matches and a broken unit rolls the host back and reboots it every hour.
 - Every binary is referenced by absolute store path: `${pkgs.systemd}/bin/systemctl`, `${pkgs.coreutils}/bin/{install,grep,rm,cat}`, `${pkgs.nixos-rebuild}/bin/nixos-rebuild`. A unit's `PATH` is not a shell's; this repo has already shipped three units that failed on exactly this.
-- `settleDelay` defaults to `"5min"` and is used as the service's `ExecStartPre`.
+- `settleDelay` defaults to `"5m"` and is used as the service's `ExecStartPre`.
 - The check is triggered by `multi-user.target` on boot and by `nixos-upgrade.onSuccess` on upgrade. There is no timer: `timerConfig.Unit` names the unit the timer activates, not one it waits for, and `switch-to-configuration.service` does not exist at the pinned nixpkgs revision.
 - The rollback must not respect the 22:00-08:00 `autoUpgrade` reboot window. It is a repair.
 - If the check itself cannot run, roll nothing back and fail the unit.
@@ -68,13 +68,13 @@ Five input classes the spec implies that no step above naturally exercises. Each
 - Consumes: nothing from earlier tasks.
 - Produces:
   - option `upgradeHealth.enable` (bool, default `false`)
-  - option `upgradeHealth.settleDelay` (string, default `"5min"`)
+  - option `upgradeHealth.settleDelay` (string, default `"5m"`)
   - when enabled: `systemd.services.nixos-upgrade-health` and `systemd.services.nixos-upgrade.onSuccess`
   - when disabled: neither exists at all, on any host
 
 - [ ] **Step 1: Create `modules/common/upgradeHealth.nix`**
 
-Module signature `{ config, lib, pkgs, ... }:`. `enable` is `lib.mkEnableOption "roll back the host when systemd reports failed units"`. `settleDelay` is `lib.types.str`, default `"5min"`, described as how long to wait after the check is triggered before judging the host.
+Module signature `{ config, lib, pkgs, ... }:`. `enable` is `lib.mkEnableOption "roll back the host when systemd reports failed units"`. `settleDelay` is `lib.types.str`, default `"5m"`, described as how long to wait after the check is triggered before judging the host.
 
 Both definitions live under `config = lib.mkIf config.upgradeHealth.enable { ... }`. Service: `wantedBy = [ "multi-user.target" ]` (the boot window), `Type = "oneshot"` via `serviceConfig`, and `preStart = "${pkgs.coreutils}/bin/sleep ${config.upgradeHealth.settleDelay}"` (the single settle delay). Upgrade window: `systemd.services.nixos-upgrade.onSuccess = [ "nixos-upgrade-health.service" ]`, guarded with `lib.mkIf config.system.autoUpgrade.enable` so it cannot conjure a stub unit on a host without autoUpgrade.
 
@@ -148,7 +148,7 @@ nix eval --impure --json --expr '
        serviceExists = c.systemd.services ? nixos-upgrade-health; }'
 ```
 
-Expected: `{"enable":false,"settleDelay":"5min","serviceExists":false}`. This is what pins Review Focus item 5: `settleDelay` resolves through the option, so a host can raise it.
+Expected: `{"enable":false,"settleDelay":"5m","serviceExists":false}`. This is what pins Review Focus item 5: `settleDelay` resolves through the option, so a host can raise it.
 
 - [ ] **Step 4: Commit**
 
@@ -201,7 +201,7 @@ nix eval --impure --json --expr '
 ```
 
 Expected: `bootTrigger` contains `"multi-user.target"`, `upgradeTrigger` contains
-`"nixos-upgrade-health.service"`, `settleDelay` ends in `sleep 5min`, and `timerGone` is
+`"nixos-upgrade-health.service"`, `settleDelay` ends in `sleep 5m`, and `timerGone` is
 `true`.
 
 Then check the script's store paths and build the unit, because a build is what proves the
