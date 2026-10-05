@@ -44,6 +44,12 @@
         # find itself listed and roll back a perfectly healthy host. the notify
         # units go too: a host without its telegram secrets fails them
         # permanently, and that alone is not a reason to roll back.
+        # nixos-upgrade.service and nixos-rebuild-switch-to-configuration.service
+        # go for the opposite reason: they fail when an upgrade did not apply,
+        # which means the host is still running its previous, working
+        # generation. rolling back there moves it one generation further back
+        # and fixes nothing. only units that say the running system is broken
+        # are worth undoing a generation over.
         # errors from this script stay in its own journal.
         # grep reads the whole list, so nothing here closes the pipe early, and
         # the `|| true` covers only grep exiting 1 with an empty result: a
@@ -53,7 +59,7 @@
         # `|| true` below then swallows that failure, $failed comes out empty and
         # this script reports a healthy host no matter what is broken. gnugrep is
         # the package that actually has bin/grep.
-        failed=$(printf '%s\n' "$failed" | ${pkgs.gnugrep}/bin/grep -E -v '^(nixos-upgrade-health\.service|notify-telegram@[^ ]+) ' || true)
+        failed=$(printf '%s\n' "$failed" | ${pkgs.gnugrep}/bin/grep -E -v '^(nixos-upgrade-health\.service|notify-telegram@[^ ]+|nixos-upgrade\.service|nixos-rebuild-switch-to-configuration\.service) ' || true)
         if [ -z "$failed" ]; then
           # healthy: clear the guard, so a later unrelated failure can roll back
           # again instead of being mistaken for the one already handled
