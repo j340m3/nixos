@@ -21,7 +21,14 @@
     "virtio_blk"
   ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" ];
+  boot.kernelModules = [
+    "kvm-amd"
+    # netavark builds the podman network bridge with a netlink RTM_NEWLINK, and
+    # the kernel answers EOPNOTSUPP unless CONFIG_BRIDGE is loaded. It has to be
+    # in this list rather than modprobed on demand: kernel.modules_disabled is
+    # 1 on this host, so nothing can be inserted after boot.
+    "bridge"
+  ];
   boot.extraModulePackages = [ ];
 
   # Kernel parameters I use
