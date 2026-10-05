@@ -20,8 +20,16 @@ in
       # public signup service. invitations stay open so an existing admin can
       # add someone by email; open registration would let anyone on the
       # internet create an account on it.
-      DISABLE_USER_REGISTRATION = "true";
-      INVITATIONS_ALLOWED = "true";
+      #
+      # the key is SIGNUPS_ALLOWED. DISABLE_USER_REGISTRATION, which this used to
+      # set, does not exist in vaultwarden 1.37.3: it is absent from the binary's
+      # config keys, so it was accepted by the environment and ignored, and
+      # registration stayed open the whole time. checked rather than assumed:
+      #   /api/config -> "disableUserRegistration":false
+      # INVITATIONS_ALLOWED is honoured, and the two together mean an admin can
+      # still add a family member by email.
+      SIGNUPS_ALLOWED = false;
+      INVITATIONS_ALLOWED = true;
     };
     backupDir = "/var/backup/vaultwarden";
   };
