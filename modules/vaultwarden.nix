@@ -36,6 +36,15 @@ in
       forceSSL = true;
       locations."/" = {
         proxyPass = "http://127.0.0.1:${toString config.services.vaultwarden.config.ROCKET_PORT}";
+        # vaultwarden takes the client address from X-Real-IP, and this vhost set
+        # no proxy headers at all, so every request was logged as coming from
+        # nginx's own 127.0.0.1. that made the fail2ban jail useless: the filter
+        # matched, but the address was always localhost, which fail2ban ignores,
+        # so nothing could ever be banned. overwritten unconditionally, so a
+        # client cannot spoof its address by sending the header itself.
+        extraConfig = ''
+          proxy_set_header X-Real-IP $remote_addr;
+        '';
       };
     };
   };
