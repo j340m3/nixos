@@ -16,6 +16,12 @@ in
       ROCKET_ADDRESS = "127.0.0.1";
       ROCKET_PORT = 8222;
       DOMAIN = "https://${domainName}";
+      # this is a password vault with a handful of family accounts, not a
+      # public signup service. invitations stay open so an existing admin can
+      # add someone by email; open registration would let anyone on the
+      # internet create an account on it.
+      DISABLE_USER_REGISTRATION = "true";
+      INVITATIONS_ALLOWED = "true";
     };
     backupDir = "/var/backup/vaultwarden";
   };
@@ -38,23 +44,26 @@ in
     80
   ];
 
+  # fail2ban reads the journal, not a file: this host runs no rsyslog, so the
+  # logpath this used to name (/var/log/syslog) never existed and the jail saw
+  # no log lines at all. filter = "vaultwarden" resolves to the filter fail2ban
+  # ships, which matches the current log format and also catches invalid admin
+  # tokens and TOTP codes; the hand-written override it replaced matched an
+  # older message this version no longer emits.
   services.fail2ban.jails."vaultwarden".settings = {
     enabled = true;
     filter = "vaultwarden";
-    logpath = "/var/log/syslog";
-    port = "80,443,8081";
-    banaction = "%(banaction_allports)s";
-    maxretry = 3;
-    bantime = 14400;
-    findtime = 14400;
+    backend = "systemd";
+    journalmatch = "_SYSTEMD_UNIT=vaultwarden.service";
+    # 443 only: vaultwarden is behind nginx, and 8081 was never a port this
+    # host listened on. deliberately not banaction_allports, which would ban
+    # across every port including sshd: three wrong passwords here must not
+    # lock anyone out of the only way into this machine.
+    port = "443";
+    # three misses inside four hours used to earn a four hour ban, which locks
+    # out a family member who fumbles their password.
+    maxretry = 5;
+    bantime = 3600;
+    findtime = 600;
   };
-
-  environment.etc."fail2ban/filter.d/vaultwarden.local".text = ''
-    [INCLUDES]
-    before = common.conf
-
-    [Definition]
-    failregex = ^.*?Username or password is incorrect\. Try again\. IP: <ADDR>\. Username:.*$
-    ignoreregex =
-  '';
 }
