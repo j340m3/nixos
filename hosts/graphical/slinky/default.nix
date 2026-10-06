@@ -265,4 +265,13 @@
     }
   ];
 
+  programs.ssh.extraConfig = ''
+    Host builder-local
+      HostName localhost
+      Port 22
+      User root
+      IdentitiesOnly yes
+      IdentityFile /root/.ssh/remotebuild
+  '';
+
 }
