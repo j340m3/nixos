@@ -105,10 +105,11 @@ def obtain_priv(args) -> tuple[str, bool]:
         r = _run(cmd)
         if r.returncode != 0:
             sys.exit(f"ssh read of {SSH_HOST_KEY_PATH} on {args.from_ssh} failed: {r.stderr.strip()}")
-        fd = os.open(tempfile.mktemp(suffix=".key"), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-        with os.fdopen(fd, "w") as f:
-            f.write(r.stdout)
-        return f.name, True
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".key") as tmp:
+            tmp.write(r.stdout)
+            priv_path = tmp.name
+        os.chmod(priv_path, 0o600)
+        return priv_path, True
     if args.priv:
         return str(args.priv), False
     sys.exit("need --priv <file> or --from-ssh <target>")
