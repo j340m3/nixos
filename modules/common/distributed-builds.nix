@@ -1,102 +1,34 @@
-{ pkgs, config, ... }:
+{ pkgs, config, lib, constants, ... }:
+let
+  inventory = constants.buildHosts;
+  peers = lib.filterAttrs (h: _: h != config.networking.hostName && h != "woody") inventory;
+in
 {
   nix.distributedBuilds = true;
   nix.settings.builders-use-substitutes = true;
 
-  nix.buildMachines = [
-    {
-      hostName = "builder1";
-      #sshUser = "remotebuild";
-      #sshKey = "/root/.ssh/remotebuild";
-      systems = [
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
-      #system = pkgs.stdenv.hostPlatform.system;
-      speedFactor = 10;
-      protocol = "ssh-ng";
-      supportedFeatures = [
-        "nixos-test"
-        "big-parallel"
-        "kvm"
-        "benchmark"
-      ];
-      maxJobs = 6;
-    }
-    {
-      hostName = "builder2";
-      #sshUser = "remotebuild";
-      #sshKey = "/root/.ssh/remotebuild";
-      systems = [
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
-      #system = pkgs.stdenv.hostPlatform.system;
-      speedFactor = 1;
-      protocol = "ssh-ng";
-      supportedFeatures = [ ];
-      maxJobs = 2;
-    }
-    {
-      hostName = "builder3";
-      #sshUser = "remotebuild";
-      #sshKey = "/root/.ssh/remotebuild";
-      systems = [
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
-      #system = pkgs.stdenv.hostPlatform.system;
-      speedFactor = 1;
-      protocol = "ssh-ng";
-      supportedFeatures = [ ];
-      maxJobs = 6;
-    }
-    {
-      hostName = "builder4";
-      #sshUser = "remotebuild";
-      #sshKey = "/root/.ssh/remotebuild";
-      systems = [
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
-      #system = pkgs.stdenv.hostPlatform.system;
-      speedFactor = 100;
-      protocol = "ssh-ng";
-      supportedFeatures = [
-        "nixos-test"
-        "big-parallel"
-        "kvm"
-        "benchmark"
-      ];
-      maxJobs = 20;
-    }
-  ];
-  programs.ssh.extraConfig = ''
-    Host builder1
-      HostName 10.0.0.3
-      Port 42069
-      User remotebuild
+  nix.buildMachines = lib.mapAttrsToList (h: v: {
+    hostName = v.connect;
+    systems = v.systems or ["x86_64-linux"];
+    speedFactor = v.speedFactor or 1;
+    protocol = "ssh-ng";
+    supportedFeatures = v.supportedFeatures or [];
+    maxJobs = v.maxJobs or 4;
+  }) peers;
+
+  programs.ssh.extraConfig = lib.concatStringsSep "\n" (lib.mapAttrsToList (h: v: ''
+    Host ${h}
+      HostName ${v.connect}
+      Port ${toString v.port}
+      User ${v.user}
       IdentitiesOnly yes
       IdentityFile /root/.ssh/remotebuild
-    Host builder2
-      HostName 10.0.0.7
-      Port 42069
-      User remotebuild
-      IdentitiesOnly yes
-      IdentityFile /root/.ssh/remotebuild
-    Host builder3
-      HostName woody.fritz.box
-      Port 42069
-      User remotebuild
-      IdentitiesOnly yes
-      IdentityFile /root/.ssh/remotebuild
-    Host builder4
-      HostName 10.0.0.10
-      Port 42069
-      User remotebuild
-      IdentitiesOnly yes
-      IdentityFile /root/.ssh/remotebuild
-  '';
+  '') peers);
+
+  users.users.remotebuild = {
+    isNormalUser = false;
+    openssh.authorizedKeysFile = [ config.sops.secrets."remotebuild/pub".path ];
+  };
 
   sops.secrets."remotebuild/key" = {
     sopsFile = ../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
