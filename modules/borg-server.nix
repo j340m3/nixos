@@ -24,6 +24,12 @@
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM5Y64l29rfKiDBGrLDllN6rRzoDeMiyLCaoPN8LYpAH jessie"
       ];
     };
+    pricklepants = {
+      path = "/var/lib/borgbackup/pricklepants";
+      authorizedKeysAppendOnly = [
+        (builtins.readFile (../../secrets/common/ssh + "/pricklepants/borg:pricklepants.pub"))
+      ];
+    };
     # nextcloud = {
     #   path = "/var/lib/borgbackup/nextcloud";
     #   authorizedKeysAppendOnly = [];
