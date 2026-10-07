@@ -124,6 +124,7 @@ def main() -> int:
     src.add_argument("--priv", help="path to the host's ed25519 SSH private key")
     src.add_argument("--from-ssh", help="ssh target to read the host key from")
     ap.add_argument("--ssh-port", type=int, default=42069, help="ssh port for --from-ssh")
+    ap.add_argument("--label", default="ssh", help="label for pub file and sops key (e.g. borg:pricklepants)")
     ap.add_argument("--age-key", required=True, help="local copy of the host's sops age keyfile")
     ap.add_argument("--sops-file", help=f"override sops secrets.yaml path (default: secrets/hosts/<host>/secrets.yaml)")
     ap.add_argument("--pub-out", help=f"override pub output dir (default: secrets/common/ssh)")
@@ -145,30 +146,32 @@ def main() -> int:
         pub = ssh_keygen_pub(priv_path)
         pub_dir = pub_out / args.host
         pub_dir.mkdir(parents=True, exist_ok=True)
-        pub_file = pub_dir / "ssh.pub"
+        pub_file = pub_dir / args.label
         if pub_file.exists() and pub_file.read_text().strip() == pub:
             print(f"pub unchanged for {args.host}: {pub_file}")
         else:
             pub_file.write_text(pub + "\n")
             print(f"wrote {pub_file}")
 
-        # 2. Store the priv as ssh.key in the host's sops file (encrypted).
+        # 2. Store the priv under the label-derived key in the host's sops file (encrypted).
         if not sops_file.exists():
             sys.exit(f"sops file not found: {sops_file}")
         recipients = read_recipients(sops_file)
         plain = sops_decrypt(sops_file, age_key)
         data = yaml.safe_load(plain) or {}
-        existing = (data.get("ssh") or {}).get("key")
+        sops_key = args.label.replace(":", "/", 1)
+        top_key, sub_key = sops_key.split("/", 1)
+        existing = (data.get(top_key) or {}).get(sub_key)
         if existing == priv_text:
-            print(f"ssh.key already present for {args.host}; no-op")
+            print(f"{sops_key} already present for {args.host}; no-op")
             return 0
-        data.setdefault("ssh", {})["key"] = priv_text
+        data.setdefault(top_key, {})[sub_key] = priv_text
         new_plain = yaml.safe_dump(data, default_flow_style=False, sort_keys=False)
         enc = sops_encrypt(new_plain, recipients)
         tmp = sops_file.with_name(sops_file.name + ".tmp")
         tmp.write_text(enc)
         os.replace(tmp, sops_file)
-        print(f"re-encrypted {sops_file} with ssh.key for {args.host}")
+        print(f"re-encrypted {sops_file} with {sops_key} for {args.host}")
         return 0
     finally:
         if is_temp:

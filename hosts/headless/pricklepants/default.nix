@@ -98,6 +98,9 @@ in
     secrets = {
       "telegram/bot_token" = { };
       "telegram/group_id" = { };
+      "borg/pricklepants" = {
+        sopsFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
+      };
     };
   };
 
@@ -226,6 +229,19 @@ in
     group = "nebula-mesh";
     path = "/nix/persist/etc/nebula/self.key";
   };
+
+  services.borgbackup.jobs.pricklepants = {
+    paths = [ "/etc" "/var/lib/vaultwarden" ];
+    encryption.mode = "none";
+    environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/pricklepants".path}";
+    repo = "borg@10.0.0.3:pricklepants";
+    compression = "auto,lzma";
+    startAt = "daily";
+  };
+
+  systemd.services."borgbackup-job-pricklepants".onFailure =
+    lib.mkIf config.systemd.services."notify-telegram@".enable
+      [ "notify-telegram@%i.service" ];
 
   systemd.services."nebula@mesh".serviceConfig = {
     CapabilityBoundingSet = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
