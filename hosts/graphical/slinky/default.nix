@@ -247,8 +247,8 @@
   nix.buildMachines = [
     {
       hostName = "builder-local";
-      #sshUser = "remotebuild";
-      #sshKey = "/root/.ssh/remotebuild";
+      sshUser = "remotebuild";
+      sshKey = "/root/.ssh/remotebuild";
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -262,16 +262,7 @@
         "kvm"
         "benchmark"
       ];
+      maxJobs = 20;
     }
   ];
-
-  programs.ssh.extraConfig = ''
-    Host builder-local
-      HostName localhost
-      Port 22
-      User root
-      IdentitiesOnly yes
-      IdentityFile /root/.ssh/remotebuild
-  '';
-
 }
