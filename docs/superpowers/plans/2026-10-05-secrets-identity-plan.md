@@ -68,27 +68,27 @@
 ## Task 2: Bootstrap & publish host keys (one-off per host, idempotent)
 
 **Files:**
-- Create: `functions/publish-host-keys.sh`
-- Create: `secrets/common/ssh/<host>/ssh.pub` (for each builder host) — committed.
+- Create: `functions/publish-host-keys.py` (python3)
 
 **Interfaces:**
-- Consumes: live `/etc/ssh/ssh_host_ed25519_key` (+`.pub`) on the target host, that host's `secrets/hosts/<host>/secrets.yaml`.
+- Consumes: live `/etc/ssh/ssh_host_ed25519_key` (+`.pub`) on the target host (read via `ssh` or a local `--priv` file), that host's `secrets/hosts/<host>/secrets.yaml`, and a local copy of the host's age keyfile (`--age-key`).
 - Produces: a committed pub file at `secrets/common/ssh/<host>/ssh.pub`, and `ssh.key` (priv) stored encrypted in that host's sops file.
 
-- [ ] **Step 1: Write the script.** `functions/publish-host-keys.sh <host> <ssh-target>`:
-  1. `ssh <target> cat /etc/ssh/ssh_host_ed25519_key.pub > secrets/common/ssh/<host>/ssh.pub` (if missing).
-  2. `ssh <target> cat /etc/ssh/ssh_host_ed25519_key` → re-encrypt into `secrets/hosts/<host>/secrets.yaml` under key `ssh.key` (decrypt with current host age key, set `ssh.key`, re-encrypt).
-  3. Print: "rebuild <host> to pick up `security.ssh.hostKeys`."
-  - `git add secrets/common/ssh/<host>/ssh.pub` only (priv stays sops-only).
+- [ ] **Step 1: Write the script.** `functions/publish-host-keys.py <host>`:
+  - `--priv <file>` reads the host's ed25519 priv directly; OR `--from-ssh <target> [--ssh-port 42069]` runs `ssh -p <port> <target> cat /etc/ssh/ssh_host_ed25519_key` into a temp file.
+  - `--age-key <file>` = local copy of the host's sops age keyfile (NOT fetched over ssh).
+  - `--sops-file <path>` (default `secrets/hosts/<host>/secrets.yaml`) and `--pub-out <dir>` (default `secrets/common/ssh`) so tests run against `/tmp` without polluting the repo.
+  - Core: writes `<pub-out>/<host>/ssh.pub` = `ssh-keygen -y -f <priv>`; decrypts the sops file with `SOPS_AGE_KEY_FILE`, injects/replaces top-level `ssh.key` with the priv contents, re-encrypts with `sops -e` preserving recipients. Idempotent (no-op when the stored `ssh.key` already matches).
 
-- [ ] **Step 2: Run on canary builder host (zurg).** `functions/publish-host-keys.sh zurg zurg`. Expected: `secrets/common/ssh/zurg/ssh.pub` created + committed; `ssh.key` present in zurg's sops file.
+- [ ] **Step 2: Local dry-run acceptance test (NO live host).** With a temp ed25519 keypair + temp age key + a temp sops `secrets.yaml`:
+  1. run `publish-host-keys.py testhost --priv <h> --age-key <s> --sops-file /tmp/secrets.yaml --pub-out /tmp/pubtest`
+  2. assert `/tmp/pubtest/testhost/ssh.pub` == `ssh-keygen -y -f <h>`
+  3. assert `SOPS_AGE_KEY_FILE=<s> sops -d /tmp/secrets.yaml` yields a YAML whose `ssh.key` equals the priv file contents (recipients preserved).
 
-- [ ] **Step 3: Verify round-trip.** Run: `ssh-keygen -y -f <extracted priv from sops -d>` must equal `secrets/common/ssh/zurg/ssh.pub`. Expected: match.
-
-- [ ] **Step 4: Commit pubs**
+- [ ] **Step 3: Commit**
   ```bash
-  git add secrets/common/ssh/zurg/ssh.pub secrets/hosts/zurg/secrets.yaml functions/publish-host-keys.sh
-  git commit -m "secrets: publish zurg ssh host key pub; add publish-host-keys helper"
+  git add functions/publish-host-keys.py
+  git commit -m "functions/publish-host-keys: bootstrap declarative host identity (python3)"
   ```
 
 ## Task 3: Canary deploy — knownHosts + hostKeys on one host
