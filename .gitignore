@@ -1,3 +1,4 @@
 flake.lock
 .vscode/
 result
+.superpowers/
