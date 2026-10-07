@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Rotate sops age keys and identity keys for a host.
+"""Rotate sops age keys, identity keys, and nebula certs for a host.
 
-Two subcommands:
+Three subcommands:
   age-key <host> --age-key <current-keyfile>
     Generate a new age keypair, re-encrypt the host's secrets.yaml with only
     the new recipient, print a deploy checklist.
@@ -11,11 +11,18 @@ Two subcommands:
     (preserving all existing age recipients), write the pub to
     secrets/common/ssh/<host>/<label>.pub.
 
-Requires: python3, sops 3.x, ssh-keygen, nix-shell (for age-keygen).
+  nebula-cert <host> --ca-cert <path> --ca-key <path> --age-key <host-age-keyfile>
+    Generate a new nebula keypair, sign it with the CA, replace
+    nebula/self_key + nebula/self_crt in the host's sops file (preserving
+    existing age recipients). The CA cert+key are local copies supplied by
+    the operator (they live on the CA host, not this host).
+
+Requires: python3, sops 3.x, ssh-keygen, nix-shell (for age-keygen + nebula-cert).
 """
 
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -236,9 +243,82 @@ def cmd_identity(args) -> int:
     return 0
 
 
+def cmd_nebula_cert(args) -> int:
+    host = args.host
+    age_key_path = Path(args.age_key)
+    ca_cert = Path(args.ca_cert)
+    ca_key = Path(args.ca_key)
+    sops_file = (
+        Path(args.sops_file)
+        if args.sops_file
+        else REPO_ROOT / "secrets" / "hosts" / host / "secrets.yaml"
+    )
+    if not sops_file.exists():
+        sys.exit(f"sops file not found: {sops_file}")
+    if not age_key_path.exists():
+        sys.exit(f"age key not found: {age_key_path}")
+    if not ca_cert.exists():
+        sys.exit(f"CA cert not found: {ca_cert}")
+    if not ca_key.exists():
+        sys.exit(f"CA key not found: {ca_key}")
+
+    recipients = read_recipients(sops_file)
+    if not recipients:
+        sys.exit(f"no age recipients found in {sops_file}")
+
+    tmpdir = tempfile.mkdtemp(prefix="nebula-rotate-")
+    try:
+        new_key = os.path.join(tmpdir, "nebula-self.key")
+        new_pub = os.path.join(tmpdir, "nebula-self.pub")
+        new_cert = os.path.join(tmpdir, "nebula-self.crt")
+
+        # 1. Generate a new host keypair
+        r = _run(["nix-shell", "-p", "nebula", "--run",
+                  f"nebula-cert keygen -out-key {new_key} -out-pub {new_pub}"])
+        if r.returncode != 0:
+            sys.exit(f"nebula-cert keygen failed: {r.stderr.strip()}")
+
+        # 2. Sign it with the CA (name + networks required by nebula-cert sign)
+        r = _run(["nix-shell", "-p", "nebula", "--run",
+                  f"nebula-cert sign -ca-crt {ca_cert} -ca-key {ca_key} "
+                  f"-in-pub {new_pub} -out-crt {new_cert} "
+                  f"-name {host} -networks {args.networks}"])
+        if r.returncode != 0:
+            sys.exit(f"nebula-cert sign failed: {r.stderr.strip()}")
+
+        new_key_text = Path(new_key).read_text()
+        new_cert_text = Path(new_cert).read_text()
+
+        # 3. Replace nebula.self_key + nebula.self_crt in the host's sops file
+        #    (underscore convention, matching existing hosts' secrets.yaml)
+        plain = sops_decrypt(sops_file, age_key_path)
+        data = yaml.safe_load(plain) or {}
+        data.setdefault("nebula", {})["self_key"] = new_key_text
+        data.setdefault("nebula", {})["self_crt"] = new_cert_text
+        new_plain = yaml.safe_dump(data, default_flow_style=False, sort_keys=False)
+        enc = sops_encrypt(new_plain, recipients)
+        _write_atomic(sops_file, enc)
+        print(f"re-encrypted {sops_file} with new nebula cert + key")
+
+        # 4. Verify round-trip
+        verify = sops_decrypt(sops_file, age_key_path)
+        vdata = yaml.safe_load(verify) or {}
+        vneb = vdata.get("nebula") or {}
+        if vneb.get("self_key") != new_key_text or vneb.get("self_crt") != new_cert_text:
+            sys.exit("post-rotation verification failed: nebula cert/key mismatch")
+        print("post-rotation verification: nebula cert/key round-trip OK")
+
+        print(f"\nnebula cert rotated for {host}:")
+        print(f"  rebuild {host} to pick up the new cert + key.")
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
-        description="Rotate sops age keys and identity keys for a host"
+        description="Rotate sops age keys, identity keys, and nebula certs for a host"
     )
     sub = ap.add_subparsers(dest="command", required=True)
 
@@ -254,12 +334,23 @@ def main() -> int:
     p_id.add_argument("--sops-file", help="override sops secrets.yaml path")
     p_id.add_argument("--pub-out", help=f"override pub output dir (default: secrets/common/ssh)")
 
+    p_neb = sub.add_parser("nebula-cert", help="rotate a host's nebula cert + key")
+    p_neb.add_argument("host", help="nixos hostName")
+    p_neb.add_argument("--ca-cert", required=True, help="local copy of the CA cert (ca.crt)")
+    p_neb.add_argument("--ca-key", required=True, help="local copy of the CA key (ca.key)")
+    p_neb.add_argument("--age-key", required=True, help="local copy of the host's sops age keyfile")
+    p_neb.add_argument("--networks", default="10.0.0.0/24",
+                       help="CIDR network for the new cert (default: 10.0.0.0/24)")
+    p_neb.add_argument("--sops-file", help="override sops secrets.yaml path")
+
     args = ap.parse_args()
 
     if args.command == "age-key":
         return cmd_age_key(args)
     elif args.command == "identity":
         return cmd_identity(args)
+    elif args.command == "nebula-cert":
+        return cmd_nebula_cert(args)
 
     ap.print_help()
     return 1
