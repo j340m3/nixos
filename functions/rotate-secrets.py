@@ -99,6 +99,9 @@ def sops_encrypt(plaintext_yaml: str, recipients: list[str]) -> str:
         cfg_path = cfg.name
     try:
         env = {**os.environ, "SOPS_CONFIG": cfg_path}
+        # NamedTemporaryFile(delete=False) creates atomically with O_EXCL and
+        # mode 0o600 on POSIX, so the host's full secrets.yaml plaintext is
+        # never world-readable on /tmp.
         with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as tf:
             tf.write(plaintext_yaml)
             tmp_path = tf.name
