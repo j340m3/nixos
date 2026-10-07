@@ -141,10 +141,10 @@ works but scales poorly and couples rotation per-host. Two options:
 knownHosts (§3.2) + inventory (§4) wired. Flag 5a's "one key, all hosts" as the
 rotation-blast-radius note in §6.
 
-## 6. Rotation script: `functions/rotate-secrets.sh`
+## 6. Rotation script: `functions/rotate-secrets.py`
 
-Two operations, one script, host-scoped:
-`rotate-secrets.sh <host> [--identity <label>]`
+Three operations, one script, host-scoped:
+`rotate-secrets.py <subcommand> <host> [--age-key <path>]`
 
 ### 6.1 Rotate a genuine secret (sops age key for a host's file) — the hard case
 sops-nix reads each host's age private key from a host-local `keyFile`
@@ -184,8 +184,25 @@ Script contract (per host):
    `secrets/common/ssh/<host>/<label>.pub`;
 4. commit; redeploy host.
 
-### 6.3 Rotation cadence
-- Identity keys: on-demand per host (infrequent).
+### 6.3 Rotate a nebula cert + key
+Nebula certs are X.509, signed by a CA whose key lives on the CA host (not this
+host), so this subcommand takes local copies of the CA cert+key:
+
+```
+rotate-secrets.py nebula-cert <host> --ca-cert <ca.crt> --ca-key <ca.key> --age-key <host-age-keyfile>
+```
+1. `nix-shell -p nebula --run 'nebula-cert keygen -out-key <key> -out-pub <pub>'`
+2. `nix-shell -p nebula --run 'nebula-cert sign -ca-crt <ca.crt> -ca-key <ca.key> -in-pub <pub> -out-crt <crt> -name <host> -networks 10.0.0.0/24'`
+3. Replace `nebula.self_key` + `nebula.self_crt` in the host's sops file
+   (re-encrypt preserving existing age recipients).
+4. Print: "rebuild <host> to pick up the new cert + key."
+
+The CA cert itself (`nebula.ca_crt`) is shared and rarely rotates; if it does,
+that's a separate, heavier operation (regenerate CA → re-sign every host's
+cert → redistribute).
+
+### 6.4 Rotation cadence
+- Identity keys (SSH host/build/borg, nebula certs): on-demand per host (infrequent).
 - sops age key per host: quarterly (calendar) or on personnel/key compromise.
 
 ## 7. Borg (the original motivating bug) under the new schema
