@@ -27,7 +27,7 @@ in
 
   users.users.remotebuild = {
     isNormalUser = false;
-    openssh.authorizedKeysFile = [ config.sops.secrets."remotebuild/pub".path ];
+    openssh.authorizedKeys.keyFiles = [ config.sops.secrets."remotebuild/pub".path ];
   };
 
   sops.secrets."remotebuild/key" = {
