@@ -73,10 +73,10 @@
     };
 
     systemd.services.earlyoom.serviceConfig = {
-      # earlyoom needs to read /proc to score processes, which is
-      # normally blocked by ProtectSystem="strict".
-      ProtectSystem = "false";
-      ProtectProc = "invisible";
+      # earlyoom scores every process by reading /proc. the NixOS module
+      # defaults this to "strict", which is fine: /proc is a virtual
+      # filesystem and stays visible, and the notification goes over D-Bus,
+      # not the filesystem. nothing to override here.
     };
 
     # Swap-inflation sysctls. These only matter when the host is under
@@ -100,10 +100,9 @@
     # want on a 1 GB host -- a bounded kill inside one service instead
     # of an unbounded kill across the whole machine.
     #
-    # Only services that already declare a serviceConfig get a default
-    # here; services that set their own MemoryMax keep it, and
-    # lib.mkDefault leaves services that do not declare serviceConfig
-    # untouched.
+    # lib.mkDefault only fires when nothing else sets the option, so a
+    # service that declares its own MemoryMax keeps it and this module
+    # never overrides it. services that do not appear here get no cap.
     systemd.services = {
       "nix-daemon".serviceConfig = {
         MemoryHigh = lib.mkDefault "800M";
