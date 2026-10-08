@@ -10,6 +10,7 @@
     ./zram.nix
     ./domain.nix
     ./distributed-builds.nix
+    ./mem.nix
     #./lockup.nix
     #./ntp.nix
     ./ulimit.nix
