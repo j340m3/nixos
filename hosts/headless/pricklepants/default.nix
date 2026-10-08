@@ -254,4 +254,9 @@ in
   # rolls this host back to the previous generation and reboots it when systemd
   # reports a failed unit one settle delay after switch-to-configuration
   upgradeHealth.enable = true;
+
+  # 1 GB RAM, 10 GB disk: earlyoom as the OOM safety net, swap-inflation
+  # sysctls tuned for zram, and MemoryMax ceilings on every service so one
+  # runaway process cannot starve the rest of the machine.
+  commonMem.enable = true;
 }
