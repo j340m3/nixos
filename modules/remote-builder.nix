@@ -2,7 +2,7 @@
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
   users.users.remotebuild = {
-    isNormalUser = true;
+    isSystemUser = true;
     createHome = false;
     group = "remotebuild";
     openssh.authorizedKeys.keys = [
