@@ -26,9 +26,12 @@ in
   '') peers);
 
   users.users.remotebuild = {
-    isNormalUser = false;
+    isSystemUser = true;
+    group = "remotebuild";
     openssh.authorizedKeys.keyFiles = [ config.sops.secrets."remotebuild/pub".path ];
   };
+
+  users.groups.remotebuild = { };
 
   sops.secrets."remotebuild/key" = {
     sopsFile = ../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
