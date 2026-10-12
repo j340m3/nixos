@@ -85,12 +85,12 @@
     # zram.nix defaults; they are repeated here so a host that imports
     # this module but not zram.nix still gets them.
     boot.kernel.sysctl = {
-      "vm.swappiness" = 180;
-      "vm.watermark_boost_factor" = 0;
-      "vm.watermark_scale_factor" = 125;
-      "vm.page-cluster" = 0;
-      "vm.dirty_background_ratio" = 1;
-      "vm.vfs_cache_pressure" = 500;
+      "vm.swappiness" = lib.mkForce 180;
+      "vm.watermark_boost_factor" = lib.mkForce 0;
+      "vm.watermark_scale_factor" = lib.mkForce 125;
+      "vm.page-cluster" = lib.mkForce 0;
+      "vm.dirty_background_ratio" = lib.mkForce 1;
+      "vm.vfs_cache_pressure" = lib.mkForce 500;
     };
 
     # Cap every service at 800 MB. MemoryHigh is a soft limit: the

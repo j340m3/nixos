@@ -28,7 +28,8 @@ in
   users.users.remotebuild = {
     isSystemUser = true;
     group = "remotebuild";
-    openssh.authorizedKeys.keyFiles = [ config.sops.secrets."remotebuild/pub".path ];
+    openssh.authorizedKeys.keyFiles = lib.mkForce [ ];
+    openssh.authorizedKeys.keys = [ ];
   };
 
   users.groups.remotebuild = { };
