@@ -66,9 +66,9 @@
       reportInterval = 0;
       extraArgs = [
         "--prefer"
-        "''(^|/)(${builtins.concatStringsSep "|" config.commonMem.earlyoom.preferPatterns})$"
+        "(^|/)(${builtins.concatStringsSep "|" config.commonMem.earlyoom.preferPatterns})$"
         "--avoid"
-        "''(^|/)(${builtins.concatStringsSep "|" config.commonMem.earlyoom.avoidPatterns})$"
+        "(^|/)(${builtins.concatStringsSep "|" config.commonMem.earlyoom.avoidPatterns})$"
       ];
     };
 
@@ -119,6 +119,10 @@
       "nebula@mesh".serviceConfig = {
         MemoryHigh = lib.mkDefault "100M";
         MemoryMax = lib.mkDefault "128M";
+      };
+      "nginx".serviceConfig = {
+        MemoryHigh = lib.mkDefault "150M";
+        MemoryMax = lib.mkDefault "200M";
       };
     };
   };
