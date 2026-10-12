@@ -98,9 +98,6 @@ in
     secrets = {
       "telegram/bot_token" = { };
       "telegram/group_id" = { };
-      "borg/pricklepants" = {
-        sopsFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
-      };
     };
   };
 
@@ -233,7 +230,7 @@ in
   services.borgbackup.jobs.pricklepants = {
     paths = [ "/etc" "/var/lib/vaultwarden" ];
     encryption.mode = "none";
-    environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/pricklepants".path}";
+    environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/pricklepants".path or "/dev/null"}";
     repo = "borg@10.0.0.3:pricklepants";
     compression = "auto,lzma";
     startAt = "daily";
