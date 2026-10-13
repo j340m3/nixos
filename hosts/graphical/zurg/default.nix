@@ -2,32 +2,26 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{
-  config,
-  lib,
-  pkgs,
-  inputs,
-  ...
-}:
+{ config, lib, pkgs, inputs, ... }:
 
 {
-  imports = [
-    # Include the results of the hardware scan.
-    ./hardware-configuration.nix
-    inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p51
-    #inputs.impermanence.nixosModules.impermanence
-    ./gaming.nix
-    ./fingerprint.nix
-    #./wifi.nix
-    ./secops.nix
-    ./fonts.nix
-    #./update.nix
-    ../../../modules/common
-    ../../../modules/nebula.nix
-    ../../../modules/persistence.nix
-    ../../../modules/remote-builder.nix
-    ../../../modules/vscodium.nix
-  ];
+  imports =
+    [ # Include the results of the hardware scan.
+      ./hardware-configuration.nix
+      # Wired here (the repo flake does not add these globally, unlike the
+      # standalone /etc/nixos flake).
+      inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p51
+      inputs.stylix.nixosModules.stylix
+      ./gaming.nix
+      ./fingerprint.nix
+      #./wifi.nix
+      #./secops.nix
+      ./fonts.nix
+      ./update.nix
+      ./terminal.nix
+      ./de.nix
+      ./llm.nix
+    ];
 
   # Use the systemd-boot EFI boot loader.
   #boot.loader.systemd-boot.enable = true;
@@ -36,24 +30,25 @@
   networking.hostName = "zurg"; # Define your hostname.
   # Pick only one of the below networking options.
   #networking.wireless.enable = false;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
-
+  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  
   boot.loader.grub = {
     enable = true;
     efiSupport = true;
+    configurationLimit = 5;
     mirroredBoots = [
       {
-        devices = [ "nodev" ];
+        devices = ["nodev"];
         path = "/boot-fallback";
       }
       {
-        devices = [ "nodev" ];
+        devices = ["nodev"];
         path = "/boot";
       }
 
     ];
   };
-
+  
   boot.swraid.enable = true;
   boot.swraid.mdadmConf = ''
     HOMEHOST zurg
@@ -70,24 +65,35 @@
   i18n.defaultLocale = "de_DE.UTF-8";
   console = {
     font = "Lat2-Terminus16";
-    #  keyMap = "de";
+  #  keyMap = "de";
     useXkbConfig = true; # use xkb.options in tty.
   };
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
+
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
+  
 
   # Configure keymap in X11
   services.xserver.xkb.layout = "de";
   # services.xserver.xkb.options = "eurosign:e,caps:escape";
+  
 
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
+  nix.settings.experimental-features = ["nix-command" "flakes"];
+  # GNOME 50 clipboard regression is in GTK's content-type matching, not
+  # fixable from here. Use kitty (terminal.nix) as the default instead.
+  environment.variables.TERMINAL = "kitty";
+  programs.dconf.profiles.user.databases = [
+    {
+      settings."org/gnome/desktop/default-applications/terminal" = {
+        exec = "kitty";
+        "exec-arg" = "";
+      };
+    }
   ];
   # Enable CUPS to print documents.
   # services.printing.enable = true;
@@ -100,71 +106,62 @@
   #   pulse.enable = true;
   # };
 
-  # 2026-03-26 - Firmware updates
-  services.fwupd.enable = true;
-
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
   users.mutableUsers = false;
   users.users.jeromeb = {
     isNormalUser = true;
-    extraGroups = [
-      "wheel"
-      "networkmanager"
-      "vboxusers"
+    extraGroups = [ 
+	"wheel" 
+	"networkmanager" 
+	"vboxusers"
     ];
     hashedPassword = "$6$uT1lJkmEB26nRxwe$30NmQk6/m9P8HvK/xglPmmXyoY3HKqxoTONUpRUXX51ja2XiWGKHqKnSPWKlkF/mMWTPFHj/h0/WzxyXNAfTd/";
     packages = with pkgs; [
-      undervolt
-      btop
-      signal-desktop
-      telegram-desktop
-      spotify
-      firefox
-      seclists
-      wireguard-tools
-      ffuf
-      gobuster
-      dig
-      nmap
-      whois
-      trufflehog
-      git
-      pciutils
-      wget
-      obsidian
-      lshw
-      tcpdump
-      luanti
-      traceroute
-      libreoffice
-      intel-undervolt
-      s-tui
-      stress
-      bitwarden-desktop
-      sops
-      rbw
-      pinentry-gnome3
-      #vmware-workstation
+       pinentry-all
+       undervolt
+       btop
+       signal-desktop
+       telegram-desktop
+       spotify
+       #librewolf
+       seclists
+       wireguard-tools
+       ffuf
+       gobuster
+       dig
+       nmap
+       whois
+       trufflehog
+       git
+       pciutils
+       wget
+       obsidian
+       lshw
+       tcpdump
+       luanti
+       traceroute
+       libreoffice
+       #bitwarden-desktop
+       nh
+       zed-editor
+       firefox
+       rbw
+	#vmware-workstation
     ];
   };
   programs.flashprog.enable = true;
-  environment.systemPackages = [
-    (pkgs.wordlists.override {
-      lists = with pkgs; [
-        rockyou
-        seclists
-      ];
-    })
-
+  environment.systemPackages = with pkgs; [
+  	(wordlists.override { lists = [ rockyou seclists ]; })
+        efibootmgr
+        
   ];
+  
 
   environment.sessionVariables = {
-    SSH_AUTH_SOCK = "$HOME/.bitwarden-ssh-agent.sock";
-  };
-  system.autoUpgrade.dates = lib.mkForce "*-*-* 0:45:00";
-  allowReboot = false;
-  #  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
+    SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/rbw/ssh-agent-socket";
+  };  
+#  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
 
   systemd.targets.sleep.enable = false;
   systemd.targets.suspend.enable = false;
@@ -222,3 +219,4 @@
   system.stateVersion = "25.05"; # Did you read the comment?
 
 }
+
