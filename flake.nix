@@ -41,6 +41,9 @@
       url = "github:NixOS/nixos-hardware/master";
     };
 
+    # Pinned to the same rev as /etc/nixos (newer revs have a broken bun build).
+    opencode-dev.url = "github:anomalyco/opencode/88c6c7abc7f320b6aabed2634ac0b2d6e6ecea67";
+
     nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
     impermanence.url = "github:nix-community/impermanence";
     disko = {
