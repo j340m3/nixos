@@ -63,8 +63,8 @@
           persistentKeepalive = 25;
         }
         {
-          # Public key of the server (not a file path).
-          publicKey = "2yqKN0Uvapedp1SQEPwmzeVXTcb0yWhK5rB1IqGUUVY=";
+          # Public key of the ks273fb peer (not a file path).
+          publicKey = "esB7TUn2MVaNDNuLrQOyEJ0ahNj1Fcv+j/ijypmA5yg=";
 
           # List of IPs assigned to this peer within the tunnel subnet. Used to configure routing.
           # For a server peer this should be the whole subnet.
