@@ -1,8 +1,10 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
   networking.nat.enable = true;
-  networking.nat.externalInterface = "eth0";
+  # Hosts with `net.ifnames=0` expose their uplink as eth0 (jessie); the Ionos
+  # VPS hosts use ens6. Override per host where needed.
+  networking.nat.externalInterface = lib.mkDefault "eth0";
   networking.nat.internalInterfaces = [
     "wg0"
     "nebula.mesh"
@@ -71,6 +73,7 @@
           allowedIPs = [
             "10.66.66.4/32"
             "fd42:42:42::4/128"
+            "192.168.178.0/24"
           ];
 
           presharedKeyFile = config.sops.secrets."wireguard/peer/ks273fb".path;
