@@ -99,13 +99,15 @@ with lib;
   # Disable ftrace debugging
   boot.kernel.sysctl."kernel.ftrace_enabled" = mkDefault false;
 
-  # Enable strict reverse path filtering (that is, do not attempt to route
-  # packets that "obviously" do not belong to the iface's network; dropped
-  # packets are logged as martians).
+  # Loose reverse path filtering. Strict (1) is incompatible with the
+  # forwarding/VPN-gateway role: asymmetric return paths get dropped as
+  # martians. Loose (2) still rejects unroutable sources. `default` is set
+  # too because wg0/nebula.mesh are created after systemd-sysctl runs and
+  # inherit this value.
   boot.kernel.sysctl."net.ipv4.conf.all.log_martians" = mkDefault true;
-  boot.kernel.sysctl."net.ipv4.conf.all.rp_filter" = mkDefault "1";
+  boot.kernel.sysctl."net.ipv4.conf.all.rp_filter" = mkDefault "2";
   boot.kernel.sysctl."net.ipv4.conf.default.log_martians" = mkDefault true;
-  boot.kernel.sysctl."net.ipv4.conf.default.rp_filter" = mkDefault "1";
+  boot.kernel.sysctl."net.ipv4.conf.default.rp_filter" = mkDefault "2";
 
   # Ignore broadcast ICMP (mitigate SMURF)
   boot.kernel.sysctl."net.ipv4.icmp_echo_ignore_broadcasts" = mkDefault true;
