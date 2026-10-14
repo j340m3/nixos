@@ -2,3 +2,7 @@ flake.lock
 .vscode/
 result
 .superpowers/
+
+# Python
+__pycache__/
+*.py[cod]
