@@ -13,7 +13,8 @@
       http_port = 2342;
     };
     addr = "0.0.0.0";
-    # FIXME
+    # Grafana's public default (example) key. Generate a unique one and move
+    # it to a sops secret.
     settings.security.secret_key = "SW2YcwTIb9zpOOhoPsMm";
   };
   services.nginx.virtualHosts.${config.services.grafana.settings.server.domain} = {
