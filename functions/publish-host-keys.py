@@ -17,6 +17,14 @@ If the host's sops file carries MULTIPLE age recipients, --age-key must
 point to a keyfile containing ALL of them (concatenated age identities)
 so re-encryption preserves every recipient; otherwise sops drops the
 others. A single-recipient file needs only that one key.
+
+--age-key is optional: if omitted the script lets sops read the age key
+from $SOPS_AGE_KEY (raw content, set by the Justfile from
+`rbw get age-key-nixos`).
+
+--from-ssh reads /etc/ssh/ssh_host_ed25519_key over SSH, running the
+remote cat under `sudo` by default (the key is root-only; the password
+prompt reaches your terminal). Use --no-sudo to read as the SSH user.
 """
 
 import argparse
@@ -32,10 +40,15 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SSH_HOST_KEY_PATH = "/etc/ssh/ssh_host_ed25519_key"
 
 
-def _run(cmd, *, env=None, capture=True, stdin=None):
+def _run(cmd, *, env=None, capture=True, stdin=None, capture_stderr=True):
+    # capture_output=True would also pipe stderr, which would hide sudo's
+    # password prompt from the user. Pipe stdout always; stderr only when
+    # the caller wants it captured.
     r = subprocess.run(
         cmd,
-        capture_output=capture,
+        capture_output=False,
+        stdout=subprocess.PIPE if capture else None,
+        stderr=subprocess.PIPE if capture_stderr else None,
         text=True,
         env=env,
         input=stdin,
@@ -50,8 +63,10 @@ def ssh_keygen_pub(priv_path: str) -> str:
     return r.stdout.strip()
 
 
-def sops_decrypt(sops_file: Path, age_key: Path) -> str:
-    env = {**os.environ, "SOPS_AGE_KEY_FILE": str(age_key)}
+def sops_decrypt(sops_file: Path, age_key: Path | None = None) -> str:
+    env = dict(os.environ)
+    if age_key is not None:
+        env["SOPS_AGE_KEY_FILE"] = str(age_key)
     r = _run(["sops", "-d", str(sops_file)], env=env)
     if r.returncode != 0:
         sys.exit(f"sops -d failed for {sops_file}: {r.stderr.strip()}")
@@ -95,16 +110,24 @@ def read_recipients(sops_file: Path) -> list[str]:
 def obtain_priv(args) -> tuple[str, bool]:
     """Return (priv_path, is_temp)."""
     if args.from_ssh:
+        # /etc/ssh/ssh_host_ed25519_key is root-only. With --sudo the
+        # remote cat runs under `sudo`; the password prompt reaches the
+        # user's terminal because the ssh process inherits this process's
+        # stdin (subprocess.run leaves stdin alone when not passed). With
+        # capture_output=True stdout is still captured, so the key bytes
+        # never hit the terminal. --no-sudo reads as the SSH user.
+        prefix = "sudo " if args.sudo else ""
         cmd = [
             "ssh",
             "-p",
             str(args.ssh_port),
             args.from_ssh,
-            f"cat {SSH_HOST_KEY_PATH}",
+            f"{prefix}cat {SSH_HOST_KEY_PATH}",
         ]
-        r = _run(cmd)
+        r = _run(cmd, capture_stderr=False)
         if r.returncode != 0:
-            sys.exit(f"ssh read of {SSH_HOST_KEY_PATH} on {args.from_ssh} failed: {r.stderr.strip()}")
+            err = r.stderr or ""
+            sys.exit(f"ssh read of {SSH_HOST_KEY_PATH} on {args.from_ssh} failed: {err.strip()}")
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".key") as tmp:
             tmp.write(r.stdout)
             priv_path = tmp.name
@@ -124,8 +147,10 @@ def main() -> int:
     src.add_argument("--priv", help="path to the host's ed25519 SSH private key")
     src.add_argument("--from-ssh", help="ssh target to read the host key from")
     ap.add_argument("--ssh-port", type=int, default=42069, help="ssh port for --from-ssh")
+    ap.add_argument("--sudo", action=argparse.BooleanOptionalAction, default=True,
+                    help="run the remote cat under sudo (default: true); --no-sudo reads as the SSH user")
     ap.add_argument("--label", default="ssh", help="label for pub file and sops key (e.g. borg:pricklepants)")
-    ap.add_argument("--age-key", required=True, help="local copy of the host's sops age keyfile")
+    ap.add_argument("--age-key", help="local copy of the host's sops age keyfile; otherwise sops reads the age key from $SOPS_AGE_KEY (set by the Justfile from rbw)")
     ap.add_argument("--sops-file", help=f"override sops secrets.yaml path (default: secrets/hosts/<host>/secrets.yaml)")
     ap.add_argument("--pub-out", help=f"override pub output dir (default: secrets/common/ssh)")
     args = ap.parse_args()
@@ -136,7 +161,9 @@ def main() -> int:
         else REPO_ROOT / "secrets" / "hosts" / args.host / "secrets.yaml"
     )
     pub_out = Path(args.pub_out) if args.pub_out else REPO_ROOT / "secrets" / "common" / "ssh"
-    age_key = Path(args.age_key)
+    # --age-key overrides the keyfile path; otherwise sops reads the age key
+    # from $SOPS_AGE_KEY (raw content, set by the Justfile from rbw).
+    age_key = Path(args.age_key) if args.age_key else None
 
     priv_path, is_temp = obtain_priv(args)
     try:

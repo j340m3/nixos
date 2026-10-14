@@ -25,7 +25,7 @@
 
   ];
 
-  boot.kernelPackages = inputs.chaotic.packages.${pkgs.system}.linuxPackages_cachyos_lto;
+  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
 
   sops.age = {
     #keyFile = "/var/lib/sops-nix/key.txt";

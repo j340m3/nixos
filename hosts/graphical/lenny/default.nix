@@ -43,7 +43,7 @@
   boot.loader.grub.device = "/dev/sda";
   boot.loader.grub.useOSProber = true;
 
-  boot.kernelPackages = inputs.chaotic.packages.${pkgs.system}.linuxPackages_cachyos_lts_lto;
+  boot.kernelPackages = pkgs.linuxPackages_cachyos-lts;
 
   swapDevices = [
     {

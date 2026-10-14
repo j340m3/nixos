@@ -2,20 +2,25 @@
 """Rotate sops age keys, identity keys, and nebula certs for a host.
 
 Three subcommands:
-  age-key <host> --age-key <current-keyfile>
+  age-key <host> [--age-key <current-keyfile>]
     Generate a new age keypair, re-encrypt the host's secrets.yaml with only
     the new recipient, print a deploy checklist.
 
-  identity <host> <label> --age-key <host-age-keyfile>
+  identity <host> <label> [--age-key <host-age-keyfile>]
     Generate a new SSH keypair, replace <label>.key in the host's sops file
     (preserving all existing age recipients), write the pub to
     secrets/common/ssh/<host>/<label>.pub.
 
-  nebula-cert <host> --ca-cert <path> --ca-key <path> --age-key <host-age-keyfile>
+  nebula-cert <host> --ca-cert <path> --ca-key <path> [--age-key <host-age-keyfile>]
     Generate a new nebula keypair, sign it with the CA, replace
     nebula/self_key + nebula/self_crt in the host's sops file (preserving
     existing age recipients). The CA cert+key are local copies supplied by
     the operator (they live on the CA host, not this host).
+
+--age-key is optional on every subcommand: if omitted the script lets sops
+read the age key from $SOPS_AGE_KEY (raw content, set by the Justfile from
+`rbw get age-key-nixos`). The script never fetches the age key over the
+network.
 
 Requires: python3, sops 3.x, ssh-keygen, nix-shell (for age-keygen + nebula-cert).
 """
@@ -42,6 +47,19 @@ def _run(cmd, *, env=None, capture=True, stdin=None):
         input=stdin,
     )
     return r
+
+
+def _resolve_age_key(arg) -> Path | None:
+    """Resolve the host's sops age keyfile.
+
+    --age-key wins; otherwise the script lets sops read the age key from
+    $SOPS_AGE_KEY (raw content, set by the Justfile from
+    `rbw get age-key-nixos`). The script never fetches the age key over the
+    network.
+    """
+    if arg:
+        return Path(arg)
+    return None
 
 
 def _age_keygen(new_key_path: str) -> str:
@@ -81,8 +99,10 @@ def ssh_keygen_pub(priv_path: str) -> str:
     return r.stdout.strip()
 
 
-def sops_decrypt(sops_file: Path, age_key: Path) -> str:
-    env = {**os.environ, "SOPS_AGE_KEY_FILE": str(age_key)}
+def sops_decrypt(sops_file: Path, age_key: Path | None = None) -> str:
+    env = dict(os.environ)
+    if age_key is not None:
+        env["SOPS_AGE_KEY_FILE"] = str(age_key)
     r = _run(["sops", "-d", str(sops_file)], env=env)
     if r.returncode != 0:
         sys.exit(f"sops -d failed for {sops_file}: {r.stderr.strip()}")
@@ -136,7 +156,7 @@ def _label_key(label: str) -> str:
 
 def cmd_age_key(args) -> int:
     host = args.host
-    age_key_path = Path(args.age_key)
+    age_key_path = _resolve_age_key(args.age_key)
     sops_file = (
         Path(args.sops_file)
         if args.sops_file
@@ -144,7 +164,7 @@ def cmd_age_key(args) -> int:
     )
     if not sops_file.exists():
         sys.exit(f"sops file not found: {sops_file}")
-    if not age_key_path.exists():
+    if age_key_path is not None and not age_key_path.exists():
         sys.exit(f"age key not found: {age_key_path}")
 
     recipients = read_recipients(sops_file)
@@ -191,7 +211,7 @@ def cmd_age_key(args) -> int:
 def cmd_identity(args) -> int:
     host = args.host
     label = args.label
-    age_key_path = Path(args.age_key)
+    age_key_path = _resolve_age_key(args.age_key)
     sops_file = (
         Path(args.sops_file)
         if args.sops_file
@@ -200,7 +220,7 @@ def cmd_identity(args) -> int:
     pub_out = Path(args.pub_out) if args.pub_out else REPO_ROOT / "secrets" / "common" / "ssh"
     if not sops_file.exists():
         sys.exit(f"sops file not found: {sops_file}")
-    if not age_key_path.exists():
+    if age_key_path is not None and not age_key_path.exists():
         sys.exit(f"age key not found: {age_key_path}")
 
     recipients = read_recipients(sops_file)
@@ -248,7 +268,7 @@ def cmd_identity(args) -> int:
 
 def cmd_nebula_cert(args) -> int:
     host = args.host
-    age_key_path = Path(args.age_key)
+    age_key_path = _resolve_age_key(args.age_key)
     ca_cert = Path(args.ca_cert)
     ca_key = Path(args.ca_key)
     sops_file = (
@@ -258,7 +278,7 @@ def cmd_nebula_cert(args) -> int:
     )
     if not sops_file.exists():
         sys.exit(f"sops file not found: {sops_file}")
-    if not age_key_path.exists():
+    if age_key_path is not None and not age_key_path.exists():
         sys.exit(f"age key not found: {age_key_path}")
     if not ca_cert.exists():
         sys.exit(f"CA cert not found: {ca_cert}")
@@ -327,13 +347,13 @@ def main() -> int:
 
     p_age = sub.add_parser("age-key", help="rotate a host's sops age key")
     p_age.add_argument("host", help="nixos hostName")
-    p_age.add_argument("--age-key", required=True, help="local copy of the host's CURRENT sops age keyfile")
+    p_age.add_argument("--age-key", help="local copy of the host's CURRENT sops age keyfile; defaults to $SOPS_AGE_KEY_FILE")
     p_age.add_argument("--sops-file", help="override sops secrets.yaml path")
 
     p_id = sub.add_parser("identity", help="rotate an identity key (SSH etc.)")
     p_id.add_argument("host", help="nixos hostName")
     p_id.add_argument("label", help="identity label (e.g. ssh, build, borg:woody)")
-    p_id.add_argument("--age-key", required=True, help="local copy of the host's sops age keyfile")
+    p_id.add_argument("--age-key", help="local copy of the host's sops age keyfile; defaults to $SOPS_AGE_KEY_FILE")
     p_id.add_argument("--sops-file", help="override sops secrets.yaml path")
     p_id.add_argument("--pub-out", help=f"override pub output dir (default: secrets/common/ssh)")
 
@@ -341,7 +361,7 @@ def main() -> int:
     p_neb.add_argument("host", help="nixos hostName")
     p_neb.add_argument("--ca-cert", required=True, help="local copy of the CA cert (ca.crt)")
     p_neb.add_argument("--ca-key", required=True, help="local copy of the CA key (ca.key)")
-    p_neb.add_argument("--age-key", required=True, help="local copy of the host's sops age keyfile")
+    p_neb.add_argument("--age-key", help="local copy of the host's sops age keyfile; defaults to $SOPS_AGE_KEY_FILE")
     p_neb.add_argument("--networks", default="10.0.0.0/24",
                        help="CIDR network for the new cert (default: 10.0.0.0/24)")
     p_neb.add_argument("--sops-file", help="override sops secrets.yaml path")
