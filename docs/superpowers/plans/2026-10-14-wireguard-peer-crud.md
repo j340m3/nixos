@@ -113,7 +113,11 @@ in
 }
 ```
 
-- [ ] **Step 5: Verify eval parses and output is identical**
+- [ ] **Step 5: Stage the new file, then verify eval parses and output is identical**
+
+Flake evaluation only sees git-tracked files, so the new JSON must be staged first.
+
+Run: `git add global/wireguard-peers.json modules/wireguard.nix`
 
 Run: `nix-instantiate --parse modules/wireguard.nix`
 Expected: no error, prints one line.
@@ -209,6 +213,7 @@ git commit -m "feat(sops): admin-only recipients for wireguard clients.yaml"
   - `covered_networks(data: dict) -> list[ipaddress._BaseNetwork]`
   - `allocate_tunnel_ips(server: dict, peers: list[dict]) -> tuple[str, str]`  (returns `x/32`, `x/128`)
   - `split_allowed_ips(allowed_ips: list[str], server: dict) -> tuple[list[str], list[str]]`  (tunnel, routes)
+  - `build_allowed_ips(tunnel_ips: list[str], routes: list[str]) -> list[str]`  (tunnel IPs first, then routes)
   - `resolve_endpoint(endpoint: str | None, listen_port: int) -> str`
   - `render_client_conf(*, private_key: str, tunnel_ips: list[str], server: dict, psk: str, endpoint: str | None, dns: str | None) -> str`
   - `run_selftest() -> int`
@@ -239,10 +244,11 @@ def run_selftest() -> int:
     ]
     assert allocate_tunnel_ips(server, peers) == ("10.66.66.3/32", "fd42:42:42::3/128")
 
-    # containment, not equality: a /30 that swallows .7/.8/.9/.10 blocks them
-    peers2 = [{"name": "p", "allowed_ips": ["10.66.66.7/30"]}]
+    # containment, not equality: 10.66.66.0/29 covers .0-.7, so the first free
+    # v4 address is .8 (an equality-only check would wrongly return .2)
+    peers2 = [{"name": "p", "allowed_ips": ["10.66.66.0/29"]}]
     got = allocate_tunnel_ips(server, peers2)
-    assert got[0] == "10.66.66.2/32", got            # .2 not inside 10.66.66.7/30
+    assert got[0] == "10.66.66.8/32", got
 
     # equality still blocks the exact address
     peers3 = [{"name": "p", "allowed_ips": ["10.66.66.2/32"]}]
@@ -344,9 +350,12 @@ Extend `run_selftest()` (no sops needed):
 
     # first-write recipient selection is separate from the existing-file path
     assert sops_encrypt_new is not sops_encrypt_existing  # distinct call paths
+
+    # --routes are appended after the tunnel IPs
+    assert build_allowed_ips(["10.66.66.3/32"], ["10.9.9.0/24"]) == ["10.66.66.3/32", "10.9.9.0/24"]
 ```
 
-Also assert `resolve_endpoint("vpn.example.org:1234", 55025)` still returns the explicit port (guards the double-append review case) and that `add`'s plan (a pure `plan_add(data, name, tunnel_ips, routes) -> new_data` helper) puts `--routes` after the tunnel IPs.
+Also assert `resolve_endpoint("vpn.example.org:1234", 55025)` still returns the explicit port (guards the double-append review case).
 
 Run: `python3 functions/wireguard-peers.py --selftest`
 Expected: FAIL (`sops_encrypt_new` undefined).
