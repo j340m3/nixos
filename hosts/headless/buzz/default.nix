@@ -8,6 +8,7 @@
   pkgs,
   modulesPath,
   constants,
+  inputs,
   ...
 }:
 
@@ -47,6 +48,8 @@
   zramSwap.memoryPercent = 20;
   nix.gc.dates = lib.mkForce "hourly";
   nix.gc.options = lib.mkForce "-d";
+
+  boot.kernelPackages = inputs.chaotic.packages.${pkgs.system}.linuxPackages_cachyos_lto;
 
   security.sudo.extraConfig = ''
     # rollback results in sudo lectures after each reboot

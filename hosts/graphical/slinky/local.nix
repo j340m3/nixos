@@ -12,9 +12,18 @@ in
     # substituters = ["https://cache-nix.project2.xyz/uconsole"];
     # trusted-substituters = ["https://cache-nix.project2.xyz/uconsole"];
     # trusted-public-keys = ["uconsole:t2pv3NWEtXCYY0fgv9BB8r9tRdK+Tz7HYhGq9bXIIck="];
-    substituters = [ "https://cache-nix.project2.xyz/uconsole" ];
-    trusted-substituters = [ "https://cache-nix.project2.xyz/uconsole" ];
-    trusted-public-keys = [ "uconsole:vvqOLjqEwTJBUqv1xdndD1YHcdlMc/AnfAz4V9Hdxyk=" ];
+    substituters = [
+      "https://cache-nix.project2.xyz/uconsole"
+      "https://cache.chaotic.cx"
+    ];
+    trusted-substituters = [
+      "https://cache-nix.project2.xyz/uconsole"
+      "https://cache.chaotic.cx"
+    ];
+    trusted-public-keys = [
+      "uconsole:vvqOLjqEwTJBUqv1xdndD1YHcdlMc/AnfAz4V9Hdxyk="
+      "chaotic.cachix.org-1:Zf7C6GVRqJjU8B/ihd+psPVKp3/7Or/FSvOP3/9aB8Y="
+    ];
 
     experimental-features = [
       "nix-command"

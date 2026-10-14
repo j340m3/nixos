@@ -25,6 +25,8 @@
 
   ];
 
+  boot.kernelPackages = inputs.chaotic.packages.${pkgs.system}.linuxPackages_cachyos_lto;
+
   sops.age = {
     #keyFile = "/var/lib/sops-nix/key.txt";
     sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];

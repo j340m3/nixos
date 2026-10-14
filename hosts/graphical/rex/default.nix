@@ -32,7 +32,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # boot.kernelPackages = pkgs.linuxPackages_zen;
+  boot.kernelPackages = inputs.chaotic.packages.${pkgs.system}.linuxPackages_cachyos_lto;
   boot.extraModulePackages = with config.boot.kernelPackages; [ virtualboxGuestAdditions ];
   systemd.services."virtualboxClientDragAndDrop" = {
     wantedBy = lib.mkForce [ ]; # Disable Drag and Drop

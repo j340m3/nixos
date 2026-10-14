@@ -11,7 +11,7 @@
     nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
     #nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11"; # TODO: Remove unused
     #nixpkgs-2411.url = "github:NixOS/nixpkgs/nixos-24.11";
-    #chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
+    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
 
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -126,8 +126,8 @@
             specialArgs.inputs = inputs;
             specialArgs.constants = constants;
             modules = [
+              inputs.chaotic.nixosModules.default
               ./hosts/graphical/${host}
-              #inputs.chaotic.nixosModules.default
             ];
           };
         }) (builtins.attrNames (builtins.readDir ./hosts/graphical)))
@@ -137,8 +137,8 @@
             specialArgs.inputs = inputs;
             specialArgs.constants = constants;
             modules = [
+              inputs.chaotic.nixosModules.default
               ./hosts/headless/${host}
-              #inputs.chaotic.nixosModules.default
             ];
           };
         }) (builtins.attrNames (builtins.readDir ./hosts/headless)))
