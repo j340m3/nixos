@@ -116,6 +116,12 @@ creation_rules:
           - *server_lenny
           - *server_slinky
           - *server_zurg
+  - path_regex: secrets/services/wireguard/clients\.yaml$
+    key_groups:
+      - age:
+          - *admin_jerome
+          - *bw_jerome
+          - *bw_age_jerome
   - path_regex: secrets/services/.+\.(yaml|json|env|ini)$
     key_groups:
       - age:

@@ -1,5 +1,9 @@
 { config, lib, pkgs, ... }:
-
+let
+  wg = builtins.fromJSON (builtins.readFile ../global/wireguard-peers.json);
+  secretsFile = ../secrets/services/wireguard/secrets.yaml;
+  peerSecret = p: "wireguard/peer/${p.name}";
+in
 {
   networking.nat.enable = true;
   # Hosts with `net.ifnames=0` expose their uplink as eth0 (jessie); the Ionos
@@ -24,34 +28,25 @@
     iptables -w -t nat -A nixos-nat-post -m mark --mark 1 -o nebula.mesh -j MASQUERADE
     iptables -w -t filter -A nixos-filter-forward -i wg0 -o nebula.mesh -j ACCEPT
   '';
-  networking.firewall.allowedUDPPorts = [ 55025 ];
-  sops.secrets."wireguard/private" = {
-    sopsFile = ../secrets/services/wireguard/secrets.yaml;
-  };
+  networking.firewall.allowedUDPPorts = [ wg.server.listen_port ];
 
-  sops.secrets."wireguard/peer/test1" = {
-    sopsFile = ../secrets/services/wireguard/secrets.yaml;
-  };
-
-  sops.secrets."wireguard/peer/ks273fb" = {
-    sopsFile = ../secrets/services/wireguard/secrets.yaml;
-  };
-
-  sops.secrets."wireguard/peer/giusi" = {
-    sopsFile = ../secrets/services/wireguard/secrets.yaml;
-  };
+  sops.secrets = {
+    "wireguard/private" = {
+      sopsFile = secretsFile;
+    };
+  } // builtins.listToAttrs (map (p: {
+    name = peerSecret p;
+    value = { sopsFile = secretsFile; };
+  }) wg.peers);
 
   # Enable Wireguard
   networking.wireguard.interfaces = {
     # "wg0" is the network interface name. You can name the interface arbitrarily.
     wg0 = {
 
-      listenPort = 55025;
+      listenPort = wg.server.listen_port;
       # Determines the IP address and subnet of the client's end of the tunnel interface.
-      ips = [
-        "10.66.66.1/24"
-        "fd42:42:42::1/64"
-      ];
+      ips = wg.server.address;
 
       # Path to the private key file.
       #
@@ -60,60 +55,20 @@
       # recommended.
       privateKeyFile = config.sops.secrets."wireguard/private".path;
 
-      peers = [
-        {
-          # Public key of the server (not a file path).
-          publicKey = "zsHRKnTjUwQZqOdO0OhkJ9qdztLPjFoS7fMbjnvW71w=";
+      peers = map (p: {
+        # Public key of the server (not a file path).
+        publicKey = p.public_key;
 
-          # List of IPs assigned to this peer within the tunnel subnet. Used to configure routing.
-          # For a server peer this should be the whole subnet.
-          allowedIPs = [
-            "10.66.66.2/32"
-            "fd42:42:42::2/128"
-          ];
+        # List of IPs assigned to this peer within the tunnel subnet. Used to configure routing.
+        # For a server peer this should be the whole subnet.
+        allowedIPs = p.allowed_ips;
 
-          presharedKeyFile = config.sops.secrets."wireguard/peer/test1".path;
-          name = "test1";
+        presharedKeyFile = config.sops.secrets."${peerSecret p}".path;
+        name = p.name;
 
-          # Send keepalives every 25 seconds. Important to keep NAT tables alive.
-          persistentKeepalive = 25;
-        }
-        {
-          # Public key of the ks273fb peer (not a file path).
-          publicKey = "esB7TUn2MVaNDNuLrQOyEJ0ahNj1Fcv+j/ijypmA5yg=";
-
-          # List of IPs assigned to this peer within the tunnel subnet. Used to configure routing.
-          # For a server peer this should be the whole subnet.
-          allowedIPs = [
-            "10.66.66.4/32"
-            "fd42:42:42::4/128"
-            "192.168.178.0/24"
-          ];
-
-          presharedKeyFile = config.sops.secrets."wireguard/peer/ks273fb".path;
-          name = "ks273fb";
-
-          # Send keepalives every 25 seconds. Important to keep NAT tables alive.
-          persistentKeepalive = 25;
-        }
-        {
-          # Public key of the server (not a file path).
-          publicKey = "2yqKN0Uvapedp1SQEPwmzeVXTcb0yWhK5rB1IqGUUVY=";
-
-          # List of IPs assigned to this peer within the tunnel subnet. Used to configure routing.
-          # For a server peer this should be the whole subnet.
-          allowedIPs = [
-            "10.66.66.10/32"
-            "fd42:42:42::10/128"
-          ];
-
-          presharedKeyFile = config.sops.secrets."wireguard/peer/giusi".path;
-          name = "giusi";
-
-          # Send keepalives every 25 seconds. Important to keep NAT tables alive.
-          persistentKeepalive = 25;
-        }
-      ];
+        # Send keepalives every 25 seconds. Important to keep NAT tables alive.
+        persistentKeepalive = 25;
+      }) wg.peers;
     };
   };
 
