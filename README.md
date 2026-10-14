@@ -34,7 +34,7 @@ name is a `nixosConfiguration`). See [HOSTS.md](./HOSTS.md) for the host map.
 | `home/` | home-manager configuration for `jeromeb`. |
 | `global/constants.nix` | Cross-host constants (domain, nebula CIDR, build hosts). |
 | `secrets/` | sops-encrypted secrets + committed public keys. |
-| `functions/` | Host/service key + secret helper scripts. |
+| `scripts/` | Host/service key + secret helper scripts. |
 | `docs/` | Repo documentation (see [docs/README.md](./docs/README.md)). |
 | `Justfile` | Convenience recipes (`just`). |
 
@@ -42,7 +42,7 @@ name is a `nixosConfiguration`). See [HOSTS.md](./HOSTS.md) for the host map.
 
 ```bash
 just snano <path>          # sops edit a secret
-just py3 functions/...     # run a Python helper with pyyaml
+just py3 scripts/...     # run a Python helper with pyyaml
 just sops-refresh          # refresh sops metadata
 just rebuild <host>        # nixos-rebuild switch --use-remote-sudo --flake .#<host>
 just build <host>          # build without activating

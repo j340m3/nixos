@@ -13,10 +13,10 @@ existing age recipients). Replaces manual key copy+paste.
 
 ```bash
 # Read the host's live key via SSH
-python3 functions/publish-host-keys.py zurg --from-ssh zurg --age-key <local age key>
+python3 scripts/publish-host-keys.py zurg --from-ssh zurg --age-key <local age key>
 
 # Or read from a local priv file
-python3 functions/publish-host-keys.py pricklepants --priv /tmp/pricklepants-borg --age-key <local age key> --label borg:pricklepants
+python3 scripts/publish-host-keys.py pricklepants --priv /tmp/pricklepants-borg --age-key <local age key> --label borg:pricklepants
 ```
 
 ### Arguments
@@ -50,7 +50,7 @@ Rotate sops age keys, identity keys, and nebula certs for a host.
 ### age-key — rotate a host's sops age key
 
 ```bash
-python3 functions/rotate-secrets.py age-key pricklepants --age-key <current age key>
+python3 scripts/rotate-secrets.py age-key pricklepants --age-key <current age key>
 ```
 
 1. Generates a new age keypair
@@ -71,7 +71,7 @@ rm <new key path>
 ### identity — rotate an identity key (SSH host/build/borg key)
 
 ```bash
-python3 functions/rotate-secrets.py identity zurg ssh --age-key <host age key>
+python3 scripts/rotate-secrets.py identity zurg ssh --age-key <host age key>
 ```
 
 1. Generates a new SSH keypair
@@ -86,7 +86,7 @@ nixos-rebuild --use-remote-sudo -H zurg switch
 ### nebula-cert — rotate a host's nebula cert + key
 
 ```bash
-python3 functions/rotate-secrets.py nebula-cert pricklepants \
+python3 scripts/rotate-secrets.py nebula-cert pricklepants \
   --ca-cert <local ca.crt> --ca-key <local ca.key> \
   --age-key <host age key>
 ```

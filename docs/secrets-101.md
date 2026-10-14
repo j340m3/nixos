@@ -1,6 +1,6 @@
 # Secrets 101
 
-This repo uses [sops-nix](https://github.com/Mic92/sops-nix) with [age](https://github.com/FiloSottile/age) for secret management. The helper scripts live in `functions/` and are invoked via the `Justfile`.
+This repo uses [sops-nix](https://github.com/Mic92/sops-nix) with [age](https://github.com/FiloSottile/age) for secret management. The helper scripts live in `scripts/` and are invoked via the `Justfile`.
 
 ## Key concepts
 
@@ -15,17 +15,17 @@ The Justfile sets `SOPS_AGE_KEY` from `rbw get age-key-nixos` and `AGE_PUBLIC_KE
 
 ### Publish host SSH identity
 
-`functions/publish-host-keys.py` bootstraps a host's declarative SSH identity:
+`scripts/publish-host-keys.py` bootstraps a host's declarative SSH identity:
 - Writes the host's ed25519 SSH pub to `secrets/common/ssh/<host>/<label>.pub` (committed, consumed by `modules/common/ssh-identities.nix`).
 - Stores the matching priv as `<label>.key` in the host's `secrets/hosts/<host>/secrets.yaml` (encrypted). Default label is `ssh`.
 
 Usage examples (via Justfile):
 ```bash
 # Read live key via SSH (runs sudo remotely by default)
-just py3 functions/publish-host-keys.py zurg --from-ssh zurg
+just py3 scripts/publish-host-keys.py zurg --from-ssh zurg
 
 # Read from local priv file
-just py3 functions/publish-host-keys.py pricklepants --priv /tmp/pricklepants-borg --age-key /path/to/age-keys.txt --label borg:pricklepants
+just py3 scripts/publish-host-keys.py pricklepants --priv /tmp/pricklepants-borg --age-key /path/to/age-keys.txt --label borg:pricklepants
 ```
 
 Key args: `--from-ssh <target>`, `--priv <file>`, `--age-key <file>` (local copy; never fetched over SSH), `--label <label>`, `--sops-file <path>`, `--pub-out <dir>`, `--ssh-port <port>`, `--no-sudo`. If `--age-key` is omitted, `$SOPS_AGE_KEY` is used.
@@ -34,11 +34,11 @@ After running: rebuild the host to pick up `services.openssh.hostKeys` (e.g. `ni
 
 ### Rotate secrets/keys
 
-`functions/rotate-secrets.py` rotates age keys, identity keys, or nebula certs for a host.
+`scripts/rotate-secrets.py` rotates age keys, identity keys, or nebula certs for a host.
 
 **Rotate a host's sops age key:**
 ```bash
-just py3 functions/rotate-secrets.py age-key pricklepants --age-key <current age key>
+just py3 scripts/rotate-secrets.py age-key pricklepants --age-key <current age key>
 ```
 1. Generates a new age keypair.
 2. Re-encrypts the host's `secrets.yaml` with **only** the new recipient.
@@ -46,7 +46,7 @@ just py3 functions/rotate-secrets.py age-key pricklepants --age-key <current age
 
 **Rotate an identity key (SSH host/build/borg key):**
 ```bash
-just py3 functions/rotate-secrets.py identity zurg ssh --age-key <host age key>
+just py3 scripts/rotate-secrets.py identity zurg ssh --age-key <host age key>
 ```
 1. Generates a new SSH keypair.
 2. Replaces `<label>.key` in the host's sops file (preserving all existing age recipients).
