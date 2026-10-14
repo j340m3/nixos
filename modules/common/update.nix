@@ -128,7 +128,6 @@
       MemoryMax = lib.mkDefault "1G";
     };
 
-    # TODO: Change to Sops-nix secrets
     # Create an email notification service for failed jobs
     systemd.services."notify-telegram@" = {
       enable = true;

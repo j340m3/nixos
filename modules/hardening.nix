@@ -127,21 +127,6 @@ with lib;
 
   networking.firewall.enable = true;
 
-  /*
-    security.auditd.enable = true;
-    security.audit.enable = true;
-    security.audit.rules = [
-      "-a exit,always -F arch=b64 -S execve"
-    ];
-    environment.etc."audit/auditd.conf".text = ''
-      num_logs = 5
-      max_log_file = 50
-      max_log_file_action = ROTATE
-      space_left = 500
-      admin_space_left = 250
-    '';
-  */
-  #TODO: Queue always full
   #############################
   # Lynis
   #############################

@@ -182,17 +182,6 @@
 
          #spotify
          #nur.repos.rycee.firefox-addons.bitwarden
-         /* (vscode-with-extensions.override {
-           # When the extension is already available in the default extensions set.
-           vscodeExtensions = with vscode-extensions; [
-             jnoortheen.nix-ide
-             bbenoist.nix
-             elmtooling.elm-ls-vscode
-             # ms-python.python #TODO: FIXME Doesn't work currently
-             charliermarsh.ruff
-           ];
-           vscode = vscodium;
-         })
          #(makeAutostartItem { name = "firefox"; package = firefox; })
          #(makeAutostartItem { name = "spotify"; package = spotify; })
          #mosh
@@ -238,7 +227,6 @@
   environment.systemPackages = with pkgs; [
     #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     #  wget
-    #powerline #TODO: Powerline is broken currently
     powerline-fonts
     powerline-symbols
     nebula
