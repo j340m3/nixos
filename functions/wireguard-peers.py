@@ -162,11 +162,27 @@ def sops_decrypt(sops_file: Path, age_key: Path) -> str:
     return r.stdout
 
 
-def read_recipients(sops_file: Path) -> list[str]:
-    """Age recipients are public metadata in the encrypted file."""
-    data = yaml.safe_load(Path(sops_file).read_text()) or {}
+def read_recipients_from_text(text: str) -> list[str]:
+    """Age recipients are public metadata in the encrypted YAML text."""
+    data = yaml.safe_load(text) or {}
     age = (data.get("sops") or {}).get("age") or []
     return [entry["recipient"] for entry in age if entry.get("recipient")]
+
+
+def read_recipients(sops_file: Path) -> list[str]:
+    return read_recipients_from_text(Path(sops_file).read_text())
+
+
+def rule_recipients(rel_path: str, sops_config: Path = REPO_ROOT / ".sops.yaml") -> list[str]:
+    """Age recipients the first matching creation rule in .sops.yaml declares for rel_path."""
+    cfg = yaml.safe_load(sops_config.read_text()) or {}
+    for rule in cfg.get("creation_rules", []):
+        if re.search(rule["path_regex"], rel_path):
+            out = []
+            for grp in rule.get("key_groups", []):
+                out.extend(grp.get("age", []))
+            return out
+    return []
 
 
 def _sops_encrypt_with_recipients(plaintext: str, recipients: list[str]) -> str:
@@ -229,7 +245,13 @@ def sops_encrypt_new(plaintext: str, rel_path: str) -> str:
         os.unlink(tmp_path)
     if r.returncode != 0:
         sys.exit(f"sops -e (new) failed for {rel_path}: {r.stderr.strip()}")
-    return r.stdout
+    enc = r.stdout
+    expected = set(rule_recipients(rel_path))
+    produced = set(read_recipients_from_text(enc))
+    if not produced or produced != expected:
+        sys.exit(f"refusing to write {rel_path}: recipients {sorted(produced)} != "
+                 f"rule {sorted(expected)}")
+    return enc
 
 
 def save_sops(sops_file: Path, plaintext: str, age_key: Path) -> str:
@@ -364,7 +386,17 @@ def cmd_add(args) -> int:
         sys.exit(f"peer already exists: {name}")
 
     if args.tunnel_ip:
-        tunnel_ips = _validated_ips(args.tunnel_ip)
+        covered = covered_networks({"server": server, "peers": data.get("peers", [])})
+        tunnel_ips = []
+        for value in args.tunnel_ip:
+            try:
+                net = ipaddress.ip_network(value, strict=False)
+            except ValueError:
+                sys.exit(f"invalid tunnel IP: {value!r}")
+            host = net.network_address
+            if any(host.version == c.version and host in c for c in covered):
+                sys.exit(f"tunnel IP {value} is already in use")
+            tunnel_ips.append(f"{host}/32" if host.version == 4 else f"{host}/128")
     else:
         tunnel_ips = list(allocate_tunnel_ips(server, data.get("peers", [])))
     routes = _validated_ips(_parse_csv(args.routes))
@@ -459,7 +491,9 @@ def cmd_export(args) -> int:
         return 0
 
     age_key = _age_key(args)
-    entry = (_load_clients(age_key).get("clients") or {})[args.name]
+    entry = (_load_clients(age_key).get("clients") or {}).get(args.name)
+    if not entry or not entry.get("private_key"):
+        sys.exit(f"peer '{args.name}' has no stored client key; cannot export")
     psk = _psk_of(_decrypt_sops(PEER_SECRETS, age_key), args.name)
     tun, _ = split_allowed_ips(peer["allowed_ips"], server)
     conf = render_client_conf(private_key=entry["private_key"], tunnel_ips=tun,
@@ -647,6 +681,13 @@ def run_selftest() -> int:
     assert render_client_conf(
         private_key="PRIV=", tunnel_ips=["10.66.66.2/32", "fd42:42:42::2/128"],
         server=server, psk="PSK=", endpoint=None, dns=None).endswith("\n")
+
+    # first-write recipients come from the .sops.yaml rule, not the caller
+    assert set(rule_recipients("secrets/services/wireguard/clients.yaml")) == {
+        "age1yd27qq2ys4tyae08ncs09fqgma87asrd3kandkkyvdj0kgjn9v3qm3l0yu",
+        "age1ex3axxazzhsllzj0pqkdgjqnvzjmp8he2patv0k5wlzaacqwpfys8saxrq",
+        "age1f3fnr3dzn28xv52a3hht3d2ylpwrre3zghkh598syggaduq02dusfzsrmr",
+    }
 
     print("selftest OK")
     return 0
