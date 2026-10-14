@@ -1,8 +1,13 @@
-{pkgs,...}:{
+{
+  pkgs,
+  inputs,
+  ...
+}:
+{
   environment.systemPackages = [
     pkgs.kitty
     pkgs.gnomeExtensions.activate-linux
-  ]; 
+  ];
   stylix.enable = true;
-  stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/flexoki-light.yaml";
+  stylix.base16Scheme = "${inputs.tinted-schemes}/base16/flexoki-light.yaml";
 }
