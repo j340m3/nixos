@@ -75,6 +75,11 @@
     affinity-nix.inputs.nixpkgs.follows = "nixpkgs";
 
     nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
+
+    pre-commit-hooks = {
+      url = "github:cachix/pre-commit-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # =============================================================================
@@ -146,6 +151,24 @@
             lib,
             ...
           }:
+          let
+            # Lint staged files at commit time (installed into the devShell) and
+            # the whole tree via `checks.pre-commit`.
+            preCommit = inputs.pre-commit-hooks.lib.${system}.run {
+              src = ./.;
+              hooks = {
+                # NixOS/home-manager modules conventionally take unused args
+                # (`lib`, `config`); don't flag those.
+                deadnix = {
+                  enable = true;
+                  args = [ "--no-lambda-pattern-names" ];
+                };
+                statix.enable = true;
+                shellcheck.enable = true;
+                ruff.enable = true;
+              };
+            };
+          in
           {
             packages =
               let
@@ -182,18 +205,21 @@
             formatter = pkgs.nixfmt;
 
             devShells.default = pkgs.mkShell {
-              packages = with pkgs; [
-                age
-                deadnix
-                jq
-                just
-                nixfmt
-                nixos-rebuild
-                shellcheck
-                sops
-                statix
-                (python3.withPackages (ps: [ ps.pyyaml ]))
-              ];
+              packages =
+                (with pkgs; [
+                  age
+                  deadnix
+                  jq
+                  just
+                  nixfmt
+                  nixos-rebuild
+                  shellcheck
+                  sops
+                  statix
+                  (python3.withPackages (ps: [ ps.pyyaml ]))
+                ])
+                ++ preCommit.enabledPackages;
+              inherit (preCommit) shellHook;
             };
 
             # Evaluate (without building) every native NixOS configuration so
@@ -227,7 +253,10 @@
                   assert !(disabled.systemd.services ? nixos-upgrade-health-schedule);
                   pkgs.runCommand "upgrade-health-check" { } "touch $out";
               in
-              builtins.mapAttrs evalCheck native // { upgrade-health = upgradeHealthCheck; };
+              builtins.mapAttrs evalCheck native // {
+                upgrade-health = upgradeHealthCheck;
+                pre-commit = preCommit;
+              };
           };
       }
     );

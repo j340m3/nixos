@@ -1,0 +1,3 @@
+# House style here is dotted attribute paths (foo.bar = 1;). statix's
+# repeated_keys lint wants the opposite (foo = { bar = 1; };), so disable it.
+disabled = ["repeated_keys"]
