@@ -53,6 +53,8 @@
     Defaults lecture = never
   '';
   networking.hostName = "buzz"; # Define your hostname.
+  # Ionos uplink NIC is ens6 (not eth0), so the WireGuard NAT masquerade binds correctly.
+  networking.nat.externalInterface = "ens6";
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   # networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.

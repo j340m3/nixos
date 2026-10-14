@@ -51,6 +51,8 @@ in
   ];
 
   networking.hostName = "pricklepants";
+  # Ionos uplink NIC is ens6 (not eth0), so the WireGuard NAT masquerade binds correctly.
+  networking.nat.externalInterface = "ens6";
   #services.fail2ban.enable = true;
   services.openssh = {
     ports = [ 42069 ];
