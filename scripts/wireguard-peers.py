@@ -3,7 +3,7 @@
 
 The pure core (validation, allocation, rendering) has no sops/wg dependency.
 The CLI layer shells out to sops (directly) and to wg/qrencode (via nix-shell),
-mirroring functions/rotate-secrets.py.
+mirroring scripts/rotate-secrets.py.
 
 Usage:
   wireguard-peers.py list
@@ -140,7 +140,7 @@ def render_client_conf(*, private_key: str, tunnel_ips: list[str], server: dict,
 
 
 # ---------------------------------------------------------------------------
-# sops layer (called directly, like functions/rotate-secrets.py)
+# sops layer (called directly, like scripts/rotate-secrets.py)
 # ---------------------------------------------------------------------------
 
 def _run(cmd, *, env=None, stdin=None):

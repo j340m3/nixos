@@ -13,7 +13,7 @@ sops-refresh:
 
 # python3 + pyyaml, since the shell's python3 lacks yaml.
 # The age key is read from $SOPS_AGE_KEY (set above from rbw); --age-key optional.
-# Usage: just py3 functions/publish-host-keys.py zurg --from-ssh zurg
+# Usage: just py3 scripts/publish-host-keys.py zurg --from-ssh zurg
 py3 *args:
     nix-shell -p python3 python3Packages.pyyaml --run "python3 {{ args }}" 
 
