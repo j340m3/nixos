@@ -7,6 +7,7 @@
   lib,
   pkgs,
   modulesPath,
+  inputs,
   ...
 }:
 
@@ -36,6 +37,8 @@
 
   #system.autoUpgrade.dates = lib.mkForce "daily";
   #nix.gc.dates = lib.mkForce "daily";
+
+  boot.kernelPackages = inputs.chaotic.packages.${pkgs.system}.linuxPackages_cachyos_lto;
 
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;

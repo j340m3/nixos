@@ -4,6 +4,7 @@
   lib,
   constants,
   config,
+  inputs,
   ...
 }:
 let
@@ -31,7 +32,7 @@ in
   zramSwap.enable = true;
   nix.gc.dates = lib.mkForce "hourly";
   nix.gc.options = lib.mkForce "-d";
-  #boot.kernelPackages = pkgs.linuxPackages_zen;
+  boot.kernelPackages = inputs.chaotic.packages.${pkgs.system}.linuxPackages_cachyos_lts_lto;
 
   boot.loader.grub.configurationLimit = 2;
   #system.autoUpgrade.dates = lib.mkForce "daily";

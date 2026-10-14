@@ -161,7 +161,7 @@
   environment.sessionVariables = {
     SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/rbw/ssh-agent-socket";
   };  
-#  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
+  boot.kernelPackages = inputs.chaotic.packages.${pkgs.system}.linuxPackages_zen_lto;
 
   systemd.targets.sleep.enable = false;
   systemd.targets.suspend.enable = false;
