@@ -1,3 +1,7 @@
 flake.lock
 .vscode/
 result
+
+# Python
+__pycache__/
+*.py[cod]
