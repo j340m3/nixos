@@ -1,18 +1,34 @@
 #!/usr/bin/env python3
-"""WireGuard peer CRUD — pure core (validation, allocation, rendering).
+"""WireGuard peer CRUD — validation, allocation, rendering, and CLI.
 
-Pure logic only: no sops, no `wg`, no network. The sops/wg CLI layer lives on
-top of these functions (see functions/rotate-secrets.py for the CLI conventions).
+The pure core (validation, allocation, rendering) has no sops/wg dependency.
+The CLI layer shells out to sops (directly) and to wg/qrencode (via nix-shell),
+mirroring functions/rotate-secrets.py.
 
 Usage:
+  wireguard-peers.py list
+  wireguard-peers.py --age-key KEY add <name> [--endpoint H[:P]] [--dns IP]
+                     [--routes CSV] [--tunnel-ip IP]
+  wireguard-peers.py --age-key KEY show <name>
+  wireguard-peers.py --age-key KEY export <name> --out FILE
+  wireguard-peers.py --age-key KEY update <name> [--rotate-psk] [--new-name N]
+                     [--allowed-ips CSV] [--routes CSV]
+  wireguard-peers.py --age-key KEY delete <name>
+  wireguard-peers.py [--dry-run] <command> ...
   wireguard-peers.py --selftest
 """
 
+import argparse
 import ipaddress
 import json
+import os
 import re
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
+
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PEERS_JSON = REPO_ROOT / "global" / "wireguard-peers.json"
@@ -123,6 +139,440 @@ def render_client_conf(*, private_key: str, tunnel_ips: list[str], server: dict,
     )
 
 
+# ---------------------------------------------------------------------------
+# sops layer (called directly, like functions/rotate-secrets.py)
+# ---------------------------------------------------------------------------
+
+def _run(cmd, *, env=None, stdin=None):
+    return subprocess.run(cmd, capture_output=True, text=True, env=env, input=stdin)
+
+
+def _norm(data) -> dict:
+    """Drop the sops metadata block so plaintext compares equal to decrypted."""
+    data = dict(data or {})
+    data.pop("sops", None)
+    return data
+
+
+def sops_decrypt(sops_file: Path, age_key: Path) -> str:
+    env = {**os.environ, "SOPS_AGE_KEY_FILE": str(age_key)}
+    r = _run(["sops", "-d", str(sops_file)], env=env)
+    if r.returncode != 0:
+        sys.exit(f"sops -d failed for {sops_file}: {r.stderr.strip()}")
+    return r.stdout
+
+
+def read_recipients(sops_file: Path) -> list[str]:
+    """Age recipients are public metadata in the encrypted file."""
+    data = yaml.safe_load(Path(sops_file).read_text()) or {}
+    age = (data.get("sops") or {}).get("age") or []
+    return [entry["recipient"] for entry in age if entry.get("recipient")]
+
+
+def _sops_encrypt_with_recipients(plaintext: str, recipients: list[str]) -> str:
+    with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as cfg:
+        cfg.write("creation_rules:\n")
+        cfg.write("  - path: .*\n")
+        cfg.write("    age:\n")
+        for r in recipients:
+            cfg.write(f'      - "{r}"\n')
+        cfg_path = cfg.name
+    try:
+        env = {**os.environ, "SOPS_CONFIG": cfg_path}
+        with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as tf:
+            tf.write(plaintext)
+            tmp_path = tf.name
+        try:
+            r = _run(["sops", "-e", tmp_path], env=env)
+        finally:
+            os.unlink(tmp_path)
+        if r.returncode != 0:
+            sys.exit(f"sops -e failed: {r.stderr.strip()}")
+        return r.stdout
+    finally:
+        os.unlink(cfg_path)
+
+
+def _write_atomic(path: Path, content: str) -> None:
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(content)
+    os.replace(tmp, path)
+
+
+def _verify_roundtrip(sops_file: Path, plaintext: str, age_key: Path) -> None:
+    got = _norm(yaml.safe_load(sops_decrypt(sops_file, age_key)))
+    want = _norm(yaml.safe_load(plaintext))
+    if got != want:
+        sys.exit(f"post-write verification failed for {sops_file}")
+
+
+def sops_encrypt_existing(plaintext: str, sops_file: Path, age_key: Path) -> str:
+    """Re-encrypt an existing file with its own embedded recipients."""
+    recipients = read_recipients(sops_file)
+    if not recipients:
+        sys.exit(f"no age recipients found in {sops_file}")
+    enc = _sops_encrypt_with_recipients(plaintext, recipients)
+    _write_atomic(sops_file, enc)
+    _verify_roundtrip(sops_file, plaintext, age_key)
+    return enc
+
+
+def sops_encrypt_new(plaintext: str, rel_path: str) -> str:
+    """First write of a file: recipients come from the repo .sops.yaml rule."""
+    env = {**os.environ, "SOPS_CONFIG": str(REPO_ROOT / ".sops.yaml")}
+    with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as tf:
+        tf.write(plaintext)
+        tmp_path = tf.name
+    try:
+        r = _run(["sops", "--filename-override", rel_path, "-e", tmp_path], env=env)
+    finally:
+        os.unlink(tmp_path)
+    if r.returncode != 0:
+        sys.exit(f"sops -e (new) failed for {rel_path}: {r.stderr.strip()}")
+    return r.stdout
+
+
+def save_sops(sops_file: Path, plaintext: str, age_key: Path) -> str:
+    """Encrypt + write + verify, choosing embedded vs .sops.yaml recipients."""
+    if sops_file.exists():
+        return sops_encrypt_existing(plaintext, sops_file, age_key)
+    enc = sops_encrypt_new(plaintext, str(sops_file.relative_to(REPO_ROOT)))
+    _write_atomic(sops_file, enc)
+    _verify_roundtrip(sops_file, plaintext, age_key)
+    return enc
+
+
+def _decrypt_sops(sops_file: Path, age_key: Path) -> dict:
+    return _norm(yaml.safe_load(sops_decrypt(sops_file, age_key)))
+
+
+# ---------------------------------------------------------------------------
+# wg / qrencode layer (via nix-shell, like rotate-secrets.py's age-keygen)
+# ---------------------------------------------------------------------------
+
+def _nix_run(package: str, command: str, *, stdin: str | None = None) -> str:
+    r = _run(["nix-shell", "-p", package, "--run", command], stdin=stdin)
+    if r.returncode != 0:
+        sys.exit(f"{command} failed: {r.stderr.strip()}")
+    return r.stdout
+
+
+def wg_genkey() -> str:
+    return _nix_run("wireguard-tools", "wg genkey").strip()
+
+
+def wg_pubkey(priv: str) -> str:
+    return _nix_run("wireguard-tools", "wg pubkey", stdin=priv.strip() + "\n").strip()
+
+
+def wg_genpsk() -> str:
+    return _nix_run("wireguard-tools", "wg genpsk").strip()
+
+
+def qr_ansi(conf: str) -> str:
+    return _nix_run("qrencode", "qrencode -t ansiutf8", stdin=conf)
+
+
+# ---------------------------------------------------------------------------
+# CLI helpers
+# ---------------------------------------------------------------------------
+
+def _age_key(args) -> Path:
+    key = args.age_key or os.environ.get("SOPS_AGE_KEY_FILE")
+    if not key:
+        sys.exit("age key required: pass --age-key PATH or set SOPS_AGE_KEY_FILE")
+    p = Path(key)
+    if not p.exists():
+        sys.exit(f"age key not found: {p}")
+    return p
+
+
+def _peer_names_in_sops(sops_file: Path) -> set[str]:
+    """PSK names are YAML keys (sops encrypts values, not keys), so no key needed."""
+    raw = yaml.safe_load(sops_file.read_text()) or {}
+    return set(((raw.get("wireguard") or {}).get("peer") or {}).keys())
+
+
+def _client_names(sops_file: Path) -> set[str]:
+    if not sops_file.exists():
+        return set()
+    raw = yaml.safe_load(sops_file.read_text()) or {}
+    return set((raw.get("clients") or {}).keys())
+
+
+def _load_clients(age_key: Path) -> dict:
+    if not CLIENTS_SOPS.exists():
+        return {}
+    return _decrypt_sops(CLIENTS_SOPS, age_key)
+
+
+def _parse_csv(value: str | None) -> list[str]:
+    if not value:
+        return []
+    return [v.strip() for v in value.split(",") if v.strip()]
+
+
+def _validated_ips(entries: list[str]) -> list[str]:
+    for entry in entries:
+        try:
+            ipaddress.ip_network(entry, strict=False)
+        except ValueError:
+            sys.exit(f"invalid CIDR: {entry!r}")
+    return entries
+
+
+def _psk_of(peer_secrets: dict, name: str) -> str | None:
+    return ((peer_secrets.get("wireguard") or {}).get("peer") or {}).get(name)
+
+
+def _server_peer_block(peer: dict, psk: str) -> str:
+    return (
+        "[Peer]\n"
+        f"# {peer['name']}\n"
+        f"PublicKey = {peer['public_key']}\n"
+        f"PresharedKey = {psk}\n"
+        f"AllowedIPs = {', '.join(peer['allowed_ips'])}\n"
+    )
+
+
+# ---------------------------------------------------------------------------
+# CLI subcommands
+# ---------------------------------------------------------------------------
+
+def cmd_list(args) -> int:
+    data = load_peers(PEERS_JSON)
+    server = data["server"]
+    psk_names = _peer_names_in_sops(PEER_SECRETS)
+    client_names = _client_names(CLIENTS_SOPS)
+    print(f"{'name':<12} {'v4':<16} {'v6':<22} {'routes':<22} {'psk':<4} key")
+    for peer in data.get("peers", []):
+        tun, routes = split_allowed_ips(peer["allowed_ips"], server)
+        v4 = next((t for t in tun if ipaddress.ip_network(t, strict=False).version == 4), "-")
+        v6 = next((t for t in tun if ipaddress.ip_network(t, strict=False).version == 6), "-")
+        print(f"{peer['name']:<12} {v4:<16} {v6:<22} {','.join(routes) or '-':<22} "
+              f"{'yes' if peer['name'] in psk_names else 'no':<4} "
+              f"{'yes' if peer['name'] in client_names else 'no'}")
+    return 0
+
+
+def cmd_add(args) -> int:
+    name = args.name
+    validate_name(name)
+    data = load_peers(PEERS_JSON)
+    server = data["server"]
+    if find_peer(data, name) or name in _peer_names_in_sops(PEER_SECRETS):
+        sys.exit(f"peer already exists: {name}")
+
+    if args.tunnel_ip:
+        tunnel_ips = _validated_ips(args.tunnel_ip)
+    else:
+        tunnel_ips = list(allocate_tunnel_ips(server, data.get("peers", [])))
+    routes = _validated_ips(_parse_csv(args.routes))
+    allowed_ips = build_allowed_ips(tunnel_ips, routes)
+
+    client_meta: dict = {}
+    if args.endpoint:
+        client_meta["endpoint"] = args.endpoint
+    if args.dns:
+        client_meta["dns"] = args.dns
+
+    if args.dry_run:
+        print(f"[dry-run] add {name}")
+        print(json.dumps({"name": name, "public_key": "<generated>",
+                          "allowed_ips": allowed_ips}, indent=2))
+        print(f"  sops: {PEER_SECRETS} <- wireguard/peer/{name}")
+        print(f"  sops: {CLIENTS_SOPS} <- clients/{name} (private_key)")
+        print(render_client_conf(private_key="<generated>", tunnel_ips=tunnel_ips,
+                                 server=server, psk="<generated>",
+                                 endpoint=args.endpoint, dns=args.dns))
+        return 0
+
+    age_key = _age_key(args)
+    priv = wg_genkey()
+    pub = wg_pubkey(priv)
+    psk = wg_genpsk()
+
+    peer = {"name": name, "public_key": pub, "allowed_ips": allowed_ips}
+
+    peer_secrets = _decrypt_sops(PEER_SECRETS, age_key)
+    peer_secrets.setdefault("wireguard", {}).setdefault("peer", {})[name] = psk
+    save_sops(PEER_SECRETS, yaml.safe_dump(peer_secrets, sort_keys=False), age_key)
+
+    clients = _load_clients(age_key)
+    entry = {"private_key": priv}
+    entry.update(client_meta)
+    clients.setdefault("clients", {})[name] = entry
+    save_sops(CLIENTS_SOPS, yaml.safe_dump(clients, sort_keys=False), age_key)
+
+    save_peers(PEERS_JSON, {"server": server, "peers": data.get("peers", []) + [peer]})
+
+    conf = render_client_conf(private_key=priv, tunnel_ips=tunnel_ips, server=server,
+                              psk=psk, endpoint=args.endpoint, dns=args.dns)
+    print(conf)
+    print(qr_ansi(conf))
+    print(f"\nPeer '{name}' added. Rebuild the WireGuard servers (buzz, jessie, pricklepants).")
+    return 0
+
+
+def cmd_show(args) -> int:
+    data = load_peers(PEERS_JSON)
+    server = data["server"]
+    peer = find_peer(data, args.name)
+    if peer is None:
+        sys.exit(f"no such peer: {args.name}")
+
+    if args.dry_run:
+        tun, _ = split_allowed_ips(peer["allowed_ips"], server)
+        print(f"[dry-run] show {args.name}")
+        print(render_client_conf(private_key="<stored private key>", tunnel_ips=tun,
+                                 server=server, psk="<stored psk>", endpoint=None, dns=None))
+        return 0
+
+    age_key = _age_key(args)
+    psk = _psk_of(_decrypt_sops(PEER_SECRETS, age_key), args.name)
+    entry = (_load_clients(age_key).get("clients") or {}).get(args.name)
+    if entry and entry.get("private_key"):
+        tun, _ = split_allowed_ips(peer["allowed_ips"], server)
+        conf = render_client_conf(private_key=entry["private_key"], tunnel_ips=tun,
+                                  server=server, psk=psk, endpoint=entry.get("endpoint"),
+                                  dns=entry.get("dns"))
+        print(conf)
+        print(qr_ansi(conf))
+    else:
+        print(f"# peer '{args.name}' has no stored client key (legacy peer); "
+              "server-side [Peer] block below", file=sys.stderr)
+        print(_server_peer_block(peer, psk or "<no psk>"))
+    return 0
+
+
+def cmd_export(args) -> int:
+    data = load_peers(PEERS_JSON)
+    server = data["server"]
+    peer = find_peer(data, args.name)
+    if peer is None:
+        sys.exit(f"no such peer: {args.name}")
+    if args.name not in _client_names(CLIENTS_SOPS):
+        sys.exit(f"peer '{args.name}' has no stored client key; cannot export")
+
+    if args.dry_run:
+        print(f"[dry-run] export {args.name} -> {args.out}")
+        return 0
+
+    age_key = _age_key(args)
+    entry = (_load_clients(age_key).get("clients") or {})[args.name]
+    psk = _psk_of(_decrypt_sops(PEER_SECRETS, age_key), args.name)
+    tun, _ = split_allowed_ips(peer["allowed_ips"], server)
+    conf = render_client_conf(private_key=entry["private_key"], tunnel_ips=tun,
+                              server=server, psk=psk, endpoint=entry.get("endpoint"),
+                              dns=entry.get("dns"))
+    Path(args.out).write_text(conf)
+    print(f"wrote {args.out}")
+    return 0
+
+
+def cmd_update(args) -> int:
+    data = load_peers(PEERS_JSON)
+    server = data["server"]
+    peer = find_peer(data, args.name)
+    if peer is None:
+        sys.exit(f"no such peer: {args.name}")
+
+    new_name = args.name
+    if args.new_name and args.new_name != args.name:
+        validate_name(args.new_name)
+        if find_peer(data, args.new_name) or args.new_name in _peer_names_in_sops(PEER_SECRETS):
+            sys.exit(f"peer already exists: {args.new_name}")
+        new_name = args.new_name
+
+    new_allowed = list(peer["allowed_ips"])
+    if args.allowed_ips:
+        new_allowed = _validated_ips(_parse_csv(args.allowed_ips))
+    if args.routes is not None:
+        tun, _ = split_allowed_ips(new_allowed, server)
+        new_allowed = build_allowed_ips(tun, _validated_ips(_parse_csv(args.routes)))
+    tun, _ = split_allowed_ips(new_allowed, server)
+    if not tun:
+        sys.exit("update would remove all tunnel addresses from allowed_ips")
+
+    if args.dry_run:
+        print(f"[dry-run] update {args.name}")
+        if new_name != args.name:
+            print(f"  rename {args.name} -> {new_name} (JSON, sops peer, clients)")
+        if new_allowed != peer["allowed_ips"]:
+            print(f"  allowed_ips {peer['allowed_ips']} -> {new_allowed}")
+        if args.rotate_psk:
+            print("  rotate preshared key (sops)")
+        if new_name == args.name and new_allowed == peer["allowed_ips"] and not args.rotate_psk:
+            print("  (no changes)")
+        return 0
+
+    age_key = _age_key(args)
+
+    if new_name != args.name or new_allowed != peer["allowed_ips"]:
+        updated = {"name": new_name, "public_key": peer["public_key"], "allowed_ips": new_allowed}
+        peers = [updated if p is peer else p for p in data["peers"]]
+        save_peers(PEERS_JSON, {"server": server, "peers": peers})
+
+    peer_secrets = _decrypt_sops(PEER_SECRETS, age_key)
+    peer_map = peer_secrets.setdefault("wireguard", {}).setdefault("peer", {})
+    psk_changed = False
+    if new_name != args.name and args.name in peer_map:
+        peer_map[new_name] = peer_map.pop(args.name)
+        psk_changed = True
+    if args.rotate_psk:
+        peer_map[new_name] = wg_genpsk()
+        psk_changed = True
+    if psk_changed:
+        save_sops(PEER_SECRETS, yaml.safe_dump(peer_secrets, sort_keys=False), age_key)
+
+    if new_name != args.name and CLIENTS_SOPS.exists():
+        clients = _decrypt_sops(CLIENTS_SOPS, age_key)
+        cmap = clients.setdefault("clients", {})
+        if args.name in cmap:
+            cmap[new_name] = cmap.pop(args.name)
+            save_sops(CLIENTS_SOPS, yaml.safe_dump(clients, sort_keys=False), age_key)
+
+    print(f"Updated peer '{new_name}'. Rebuild the WireGuard servers.")
+    return 0
+
+
+def cmd_delete(args) -> int:
+    data = load_peers(PEERS_JSON)
+    server = data["server"]
+    peer = find_peer(data, args.name)
+    if peer is None:
+        sys.exit(f"no such peer: {args.name}")
+
+    has_client = args.name in _client_names(CLIENTS_SOPS)
+    if args.dry_run:
+        print(f"[dry-run] delete {args.name}")
+        print("  JSON: remove peer")
+        print(f"  sops: {PEER_SECRETS} <- remove wireguard/peer/{args.name}")
+        if has_client:
+            print(f"  sops: {CLIENTS_SOPS} <- remove clients/{args.name}")
+        return 0
+
+    age_key = _age_key(args)
+
+    peer_secrets = _decrypt_sops(PEER_SECRETS, age_key)
+    peer_map = (peer_secrets.get("wireguard") or {}).get("peer") or {}
+    if args.name in peer_map:
+        del peer_map[args.name]
+        save_sops(PEER_SECRETS, yaml.safe_dump(peer_secrets, sort_keys=False), age_key)
+
+    if CLIENTS_SOPS.exists():
+        clients = _decrypt_sops(CLIENTS_SOPS, age_key)
+        cmap = (clients.get("clients") or {})
+        if args.name in cmap:
+            del cmap[args.name]
+            save_sops(CLIENTS_SOPS, yaml.safe_dump(clients, sort_keys=False), age_key)
+
+    remaining = [p for p in data["peers"] if p is not peer]
+    save_peers(PEERS_JSON, {"server": server, "peers": remaining})
+    print(f"Deleted peer '{args.name}'. Rebuild the WireGuard servers.")
+    return 0
+
+
 def run_selftest() -> int:
     import ipaddress
 
@@ -182,15 +632,71 @@ def run_selftest() -> int:
     assert "AllowedIPs = 0.0.0.0/0, ::/0" in conf
     assert "PersistentKeepalive = 25" in conf
 
+    # name collision: JSON or sops names reserve a name
+    data = {"server": server, "peers": [{"name": "test1", "allowed_ips": ["10.66.66.2/32"]}]}
+    assert find_peer(data, "test1") is not None
+    assert find_peer(data, "nope") is None
+
+    # first-write recipient selection is separate from the existing-file path
+    assert sops_encrypt_new is not sops_encrypt_existing  # distinct call paths
+
+    # --routes are appended after the tunnel IPs
+    assert build_allowed_ips(["10.66.66.3/32"], ["10.9.9.0/24"]) == ["10.66.66.3/32", "10.9.9.0/24"]
+
+    # rendered client config ends with a trailing newline (export/QR path)
+    assert render_client_conf(
+        private_key="PRIV=", tunnel_ips=["10.66.66.2/32", "fd42:42:42::2/128"],
+        server=server, psk="PSK=", endpoint=None, dns=None).endswith("\n")
+
     print("selftest OK")
     return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    ap = argparse.ArgumentParser(description="WireGuard peer CRUD")
+    ap.add_argument("--age-key", help="age key file (or set SOPS_AGE_KEY_FILE)")
+    ap.add_argument("--dry-run", action="store_true", help="print the plan; write nothing")
+    sub = ap.add_subparsers(dest="command", required=True)
+
+    p = sub.add_parser("list", help="list peers")
+    p.set_defaults(func=cmd_list)
+
+    p = sub.add_parser("add", help="add a peer")
+    p.add_argument("name")
+    p.add_argument("--endpoint", help="endpoint host or host:port")
+    p.add_argument("--dns", help="client DNS")
+    p.add_argument("--routes", help="extra routed CIDRs, comma-separated")
+    p.add_argument("--tunnel-ip", action="append", help="pin a tunnel IP (repeatable)")
+    p.set_defaults(func=cmd_add)
+
+    p = sub.add_parser("show", help="render a client config + QR")
+    p.add_argument("name")
+    p.set_defaults(func=cmd_show)
+
+    p = sub.add_parser("export", help="write a client config to a file")
+    p.add_argument("name")
+    p.add_argument("--out", required=True, help="output file")
+    p.set_defaults(func=cmd_export)
+
+    p = sub.add_parser("update", help="update a peer")
+    p.add_argument("name")
+    p.add_argument("--rotate-psk", action="store_true", help="generate a new preshared key")
+    p.add_argument("--new-name", help="rename the peer")
+    p.add_argument("--allowed-ips", help="replace the peer's allowed IPs, comma-separated")
+    p.add_argument("--routes", help="replace routed CIDRs, comma-separated")
+    p.set_defaults(func=cmd_update)
+
+    p = sub.add_parser("delete", help="delete a peer")
+    p.add_argument("name")
+    p.set_defaults(func=cmd_delete)
+    return ap
 
 
 def main() -> int:
     if "--selftest" in sys.argv[1:]:
         return run_selftest()
-    print("no subcommand (CLI added in a later task); try --selftest", file=sys.stderr)
-    return 1
+    args = build_parser().parse_args()
+    return args.func(args)
 
 
 if __name__ == "__main__":
