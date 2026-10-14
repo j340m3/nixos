@@ -7,7 +7,7 @@ in
   nix.distributedBuilds = true;
   nix.settings.builders-use-substitutes = true;
 
-  nix.buildMachines = lib.mapAttrsToList (h: v: {
+  nix.buildMachines = lib.mapAttrsToList (_h: v: {
     hostName = v.connect;
     systems = v.systems or ["x86_64-linux"];
     speedFactor = v.speedFactor or 1;

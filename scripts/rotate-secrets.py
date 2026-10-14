@@ -45,6 +45,7 @@ def _run(cmd, *, env=None, capture=True, stdin=None):
         text=True,
         env=env,
         input=stdin,
+        check=False,
     )
     return r
 
@@ -78,7 +79,7 @@ def _age_keygen(new_key_path: str) -> str:
     for line in output.splitlines():
         if line.startswith("Public key:"):
             return line[len("Public key:"):].strip()
-    sys.exit(f"could not parse age public key from stdout/stderr")
+    sys.exit("could not parse age public key from stdout/stderr")
 
 
 def _ssh_keygen(priv_path: str, host: str, label: str):
@@ -303,9 +304,9 @@ def cmd_nebula_cert(args) -> int:
 
         # 2. Sign it with the CA (name + networks required by nebula-cert sign)
         r = _run(["nix-shell", "-p", "nebula", "--run",
-                  f"nebula-cert sign -ca-crt {ca_cert} -ca-key {ca_key} "
-                  f"-in-pub {new_pub} -out-crt {new_cert} "
-                  f"-name {host} -networks {args.networks}"])
+                  (f"nebula-cert sign -ca-crt {ca_cert} -ca-key {ca_key} "
+                   f"-in-pub {new_pub} -out-crt {new_cert} "
+                   f"-name {host} -networks {args.networks}")])
         if r.returncode != 0:
             sys.exit(f"nebula-cert sign failed: {r.stderr.strip()}")
 
@@ -355,7 +356,7 @@ def main() -> int:
     p_id.add_argument("label", help="identity label (e.g. ssh, build, borg:woody)")
     p_id.add_argument("--age-key", help="local copy of the host's sops age keyfile; defaults to $SOPS_AGE_KEY_FILE")
     p_id.add_argument("--sops-file", help="override sops secrets.yaml path")
-    p_id.add_argument("--pub-out", help=f"override pub output dir (default: secrets/common/ssh)")
+    p_id.add_argument("--pub-out", help="override pub output dir (default: secrets/common/ssh)")
 
     p_neb = sub.add_parser("nebula-cert", help="rotate a host's nebula cert + key")
     p_neb.add_argument("host", help="nixos hostName")

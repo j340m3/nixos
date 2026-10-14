@@ -74,7 +74,7 @@ in
         allowedIPs = p.allowed_ips;
 
         presharedKeyFile = config.sops.secrets."${peerSecret p}".path;
-        name = p.name;
+        inherit (p) name;
 
         # Send keepalives every 25 seconds. Important to keep NAT tables alive.
         persistentKeepalive = 25;
