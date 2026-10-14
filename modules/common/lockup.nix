@@ -1,4 +1,4 @@
-{ ... }: {
+_: {
   boot.kernelParams = [
     "hardlockup_panic=1"
     "panic=10" # reboot 10 seconds after panic

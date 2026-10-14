@@ -29,7 +29,7 @@ in
 
     shortcuts = {
       kwin = kwinKeymap;
-      ksmserver = ksmserver;
+      inherit ksmserver;
       plasmashell = import ./keymap/plasmashell.nix;
       kaccess = {
         "Toggle Screen Reader On and Off" = null;

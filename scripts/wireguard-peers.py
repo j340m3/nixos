@@ -144,7 +144,9 @@ def render_client_conf(*, private_key: str, tunnel_ips: list[str], server: dict,
 # ---------------------------------------------------------------------------
 
 def _run(cmd, *, env=None, stdin=None):
-    return subprocess.run(cmd, capture_output=True, text=True, env=env, input=stdin)
+    return subprocess.run(
+        cmd, capture_output=True, text=True, env=env, input=stdin, check=False
+    )
 
 
 def _norm(data) -> dict:
@@ -608,8 +610,6 @@ def cmd_delete(args) -> int:
 
 
 def run_selftest() -> int:
-    import ipaddress
-
     for ok in ["a", "A1", "ok.name-1", "a_b"]:
         validate_name(ok)                      # must not raise
     for bad in ["", ".hidden", "has space", "a/b", "x" * 64]:

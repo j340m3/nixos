@@ -1,4 +1,4 @@
-{...}:{
+_: {
   boot.kernelModules = [ "iwlwifi" ];
   hardware.enableRedistributableFirmware = true;
   hardware.enableAllFirmware = true;

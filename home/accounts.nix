@@ -1,4 +1,4 @@
-{ ... }:
+_:
 {
   accounts.email = {
     accounts.rwth = {

@@ -1,21 +1,5 @@
 { pkgs, ... }:
 let
-  mate-packages = with pkgs.mate; [
-    caja-with-extensions
-    eom
-    marco
-    mate-control-center
-    mate-desktop
-    mate-media
-    mate-netbook
-    mate-panel
-    mate-polkit
-    mate-power-manager
-    mate-session-manager
-    mate-tweak
-    mate-utils
-  ];
-
   fontList = with pkgs; [
     nerd-fonts.jetbrains-mono
     nerd-fonts.symbols-only

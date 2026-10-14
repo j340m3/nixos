@@ -52,6 +52,7 @@ def _run(cmd, *, env=None, capture=True, stdin=None, capture_stderr=True):
         text=True,
         env=env,
         input=stdin,
+        check=False,
     )
     return r
 
@@ -151,8 +152,8 @@ def main() -> int:
                     help="run the remote cat under sudo (default: true); --no-sudo reads as the SSH user")
     ap.add_argument("--label", default="ssh", help="label for pub file and sops key (e.g. borg:pricklepants)")
     ap.add_argument("--age-key", help="local copy of the host's sops age keyfile; otherwise sops reads the age key from $SOPS_AGE_KEY (set by the Justfile from rbw)")
-    ap.add_argument("--sops-file", help=f"override sops secrets.yaml path (default: secrets/hosts/<host>/secrets.yaml)")
-    ap.add_argument("--pub-out", help=f"override pub output dir (default: secrets/common/ssh)")
+    ap.add_argument("--sops-file", help="override sops secrets.yaml path (default: secrets/hosts/<host>/secrets.yaml)")
+    ap.add_argument("--pub-out", help="override pub output dir (default: secrets/common/ssh)")
     args = ap.parse_args()
 
     sops_file = (

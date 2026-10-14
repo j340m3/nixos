@@ -5,13 +5,11 @@
   ...
 }:
 let
-  rnspython = (
-    pkgs.python3.withPackages (
-      ps: with ps; [
-        rns
-        lxmf
-      ]
-    )
+  rnspython = pkgs.python3.withPackages (
+    ps: with ps; [
+      rns
+      lxmf
+    ]
   );
 in
 {

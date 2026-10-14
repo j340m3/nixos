@@ -73,7 +73,7 @@
         # "--update-all-inputs"
         "--no-write-lock-file"
       ];
-      allowReboot = config.allowReboot;
+      inherit (config) allowReboot;
       dates = lib.mkDefault "*-*-* 0/1:45:00";
       randomizedDelaySec = lib.mkDefault "25min";
       #dates = lib.mkDefault "hourly";

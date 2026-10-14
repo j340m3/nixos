@@ -3,9 +3,6 @@
   lib,
   ...
 }:
-let
-  inherit (lib) mkOverride;
-in
 {
   #nix.distributedBuilds = false;
   nix.settings = {
