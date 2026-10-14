@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   wg = builtins.fromJSON (builtins.readFile ../global/wireguard-peers.json);
   secretsFile = ../secrets/services/wireguard/secrets.yaml;
@@ -34,10 +39,15 @@ in
     "wireguard/private" = {
       sopsFile = secretsFile;
     };
-  } // builtins.listToAttrs (map (p: {
-    name = peerSecret p;
-    value = { sopsFile = secretsFile; };
-  }) wg.peers);
+  }
+  // builtins.listToAttrs (
+    map (p: {
+      name = peerSecret p;
+      value = {
+        sopsFile = secretsFile;
+      };
+    }) wg.peers
+  );
 
   # Enable Wireguard
   networking.wireguard.interfaces = {

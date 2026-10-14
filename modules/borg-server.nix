@@ -27,7 +27,7 @@
     pricklepants = {
       path = "/var/lib/borgbackup/pricklepants";
       authorizedKeysAppendOnly = [
-        (builtins.readFile (../../secrets/common/ssh + "/pricklepants/borg:pricklepants.pub"))
+        (builtins.readFile (../secrets/common/ssh + "/pricklepants/borg:pricklepants.pub"))
       ];
     };
     # nextcloud = {

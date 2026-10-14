@@ -32,7 +32,7 @@ in
   zramSwap.enable = true;
   nix.gc.dates = lib.mkForce "hourly";
   nix.gc.options = lib.mkForce "-d";
-  boot.kernelPackages = inputs.chaotic.packages.${pkgs.system}.linuxPackages_cachyos_lts_lto;
+  boot.kernelPackages = pkgs.linuxPackages_cachyos-lts;
 
   boot.loader.grub.configurationLimit = 2;
   #system.autoUpgrade.dates = lib.mkForce "daily";

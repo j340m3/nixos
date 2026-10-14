@@ -63,7 +63,7 @@ in
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelPackages = inputs.chaotic.packages.${pkgs.system}.linuxPackages_cachyos_lto;
+  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
   services.scx.enable = true;
 
   networking.hostName = "woody"; # Define your hostname.
