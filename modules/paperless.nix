@@ -6,10 +6,16 @@
   ...
 }:
 {
-  environment.etc."paperless-admin-pass".text = "admin";
+  sops.secrets."paperless-admin-pass" = {
+    sopsFile = ../secrets/services/paperless/secrets.yaml;
+    owner = "paperless";
+    group = "paperless";
+    path = "/etc/paperless-admin-pass";
+  };
+
   services.paperless = {
     enable = true;
-    passwordFile = "/etc/paperless-admin-pass";
+    passwordFile = config.sops.secrets."paperless-admin-pass".path;
     configureTika = true;
     database.createLocally = true;
     dataDir = "/mnt/nas/paperless";
