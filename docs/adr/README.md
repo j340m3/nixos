@@ -2,6 +2,7 @@
 
 | ADR | Title | Status | Date |
 |-----|-------|--------|------|
+| [0000](0000-update-independence-with-opportunistic-cooperation.md) | Update independence with opportunistic cooperation | accepted (guiding principle) | 2024-12-18 |
 | [0001](0001-single-flake-auto-discovered-hosts.md) | Auto-discovered host folders in a single flake | accepted | 2025-07-08 |
 | [0002](0002-flake-parts-per-system-outputs.md) | flake-parts for perSystem outputs | accepted | 2026-10-14 |
 | [0003](0003-floating-lock-hourly-autoupgrade.md) | Push-to-GitHub delivery with hourly autoUpgrade and floating inputs | accepted | 2024-12-18 / 2025-04-15 |
@@ -16,4 +17,5 @@
 
 All ADRs were backfilled on 2026-10-15 from existing code and
 docs; dates are the original decision/implementation dates from git history
-where known. Decisions are numbered in review order, not chronological order.
+where known. Decisions are numbered in review order, not chronological order;
+ADR-0000 is the umbrella principle and is placed first.
