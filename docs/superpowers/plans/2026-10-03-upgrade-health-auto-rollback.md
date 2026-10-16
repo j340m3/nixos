@@ -72,7 +72,7 @@ Five input classes the spec implies that no step above naturally exercises. Each
   - when enabled: `systemd.services.nixos-upgrade-health` and `systemd.services.nixos-upgrade.onSuccess`
   - when disabled: neither exists at all, on any host
 
-- [ ] **Step 1: Create `modules/common/upgradeHealth.nix`**
+- [x] **Step 1: Create `modules/common/upgradeHealth.nix`**
 
 Module signature `{ config, lib, pkgs, ... }:`. `enable` is `lib.mkEnableOption "roll back the host when systemd reports failed units"`. `settleDelay` is `lib.types.str`, default `"5m"`, described as how long to wait after the check is triggered before judging the host.
 
@@ -119,11 +119,11 @@ Decisions the script body fixes, so do not re-derive them:
 - `install -d` runs first, so the guard directory always exists for the write.
 - No `set +e` anywhere: a failure of any command must leave the unit failed rather than continue into a reboot.
 
-- [ ] **Step 2: Add the import to `modules/common/default.nix`**
+- [x] **Step 2: Add the import to `modules/common/default.nix`**
 
 Add `./upgradeHealth.nix` to the `imports` list in `/home/jeromeb/code/github/nixos/modules/common/default.nix`, keeping the file's existing one-per-line style and its commented-out entries untouched. Place it after `./update.nix`.
 
-- [ ] **Step 3: Verify every host still evaluates and no unit appears**
+- [x] **Step 3: Verify every host still evaluates and no unit appears**
 
 Run:
 
@@ -150,7 +150,7 @@ nix eval --impure --json --expr '
 
 Expected: `{"enable":false,"settleDelay":"5m","serviceExists":false}`. This is what pins Review Focus item 5: `settleDelay` resolves through the option, so a host can raise it.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add modules/common/upgradeHealth.nix modules/common/default.nix
@@ -169,7 +169,7 @@ git push
 - Consumes: `upgradeHealth.enable`, `upgradeHealth.settleDelay`, and the two unit names from Task 1.
 - Produces: on `mrpotatohead` only, the check is triggered on boot and after an upgrade, and its script is verified against Review Focus items 1-4.
 
-- [ ] **Step 1: Enable the option**
+- [x] **Step 1: Enable the option**
 
 In `/home/jeromeb/code/github/nixos/hosts/headless/mrpotatohead/default.nix`, add to the host's top-level attribute set, next to the other `services.*`/`system.*` settings rather than in a comment:
 
@@ -177,7 +177,7 @@ In `/home/jeromeb/code/github/nixos/hosts/headless/mrpotatohead/default.nix`, ad
 upgradeHealth.enable = true;
 ```
 
-- [ ] **Step 2: Format and evaluate**
+- [x] **Step 2: Format and evaluate**
 
 ```bash
 nixfmt hosts/headless/mrpotatohead/default.nix
@@ -186,7 +186,7 @@ nix eval --no-write-lock-file --raw ".#nixosConfigurations.mrpotatohead.config.s
 
 Expected: a store path, exit 0.
 
-- [ ] **Step 3: Assert the triggers, not the unit's existence**
+- [x] **Step 3: Assert the triggers, not the unit's existence**
 
 `systemd.units` lists a unit whether or not anything activates it, so its presence
 proves nothing. Assert the trigger data instead:
@@ -219,7 +219,7 @@ Expected: exit 0. In `script`, every occurrence of `systemctl`, `install`, `grep
 `cat` and `nixos-rebuild` must be preceded by `/nix/store/`. If any is bare, or if the
 build fails, stop and fix Task 1's script before continuing.
 
-- [ ] **Step 4: Commit and push**
+- [x] **Step 4: Commit and push**
 
 ```bash
 git add hosts/headless/mrpotatohead/default.nix
@@ -227,7 +227,7 @@ git commit -m "Enable the upgrade health check on mrpotatohead"
 git push
 ```
 
-- [ ] **Step 5: Deploy and prove the healthy path on the live host**
+- [x] **Step 5: Deploy and prove the healthy path on the live host**
 
 ```bash
 sudo nixos-rebuild switch --flake 'github:j340m3/nixos' --no-write-lock-file
@@ -252,7 +252,7 @@ Record the boot time before continuing:
 who -b
 ```
 
-- [ ] **Step 6: Prove the unhealthy path without letting it roll back**
+- [x] **Step 6: Prove the unhealthy path without letting it roll back**
 
 The guard holds the failed-unit list, not the generation, so pre-seeding it means running
 the check once against the throwaway unit and letting the first run write the guard. The
@@ -291,7 +291,7 @@ sudo systemctl reset-failed health-test-fail.service
 sudo rm /var/lib/nixos-upgrade-health/rolled-back-from
 ```
 
-- [ ] **Step 7: Prove that a failing rollback command cannot reach the reboot**
+- [x] **Step 7: Prove that a failing rollback command cannot reach the reboot**
 
 The script's only protection is that a systemd `script` runs under `set -e`, so a non-zero rollback aborts before `systemctl reboot`. Demonstrate that mechanism directly, with no risk to the host, and confirm the rollback target exists:
 
@@ -321,7 +321,7 @@ Do not attempt this by renaming or removing a store path. An inconsistent store 
 - Consumes: `upgradeHealth.enable` from Task 1.
 - Produces: the option enabled on all four intended headless hosts, none on graphical hosts or `bootstrap-impermanent`.
 
-- [ ] **Step 1: Enable the option on the three remaining hosts**
+- [x] **Step 1: Enable the option on the three remaining hosts**
 
 Add this line to each of the three files above, at the same nesting level as in Task 2:
 
@@ -329,7 +329,7 @@ Add this line to each of the three files above, at the same nesting level as in 
 upgradeHealth.enable = true;
 ```
 
-- [ ] **Step 2: Format and evaluate everything**
+- [x] **Step 2: Format and evaluate everything**
 
 ```bash
 cd /home/jeromeb/code/github/nixos
@@ -344,7 +344,7 @@ done
 Expected: `OK` for all 11. `slinky` is expected to fail, because it needs an aarch64
 builder this workspace does not have; that is pre-existing and unrelated.
 
-- [ ] **Step 3: Confirm the enabled set is exactly the intended four**
+- [x] **Step 3: Confirm the enabled set is exactly the intended four**
 
 ```bash
 nix eval --impure --json --expr '
@@ -372,7 +372,7 @@ nix eval --impure --json --expr '
 
 Expected: for the four enabled hosts, no value is `1`. `pricklepants` is already `2`, which is the tightest acceptable value; the others inherit the NixOS default of `100`. A `1` means that host can never roll back and the option must be raised there.
 
-- [ ] **Step 4: Commit and push**
+- [x] **Step 4: Commit and push**
 
 ```bash
 git add hosts/headless/{buzz,pricklepants,jessie}/default.nix
@@ -380,7 +380,7 @@ git commit -m "Enable the upgrade health check on the remaining headless hosts"
 git push
 ```
 
-- [ ] **Step 5: Deploy and verify each host**
+- [x] **Step 5: Deploy and verify each host**
 
 On each of `buzz`, `pricklepants` and `jessie`:
 
@@ -397,7 +397,7 @@ Expected on each: the service is `enabled`, there is no `nixos-upgrade-health.ti
 start. That gap is the settle delay; if the journal line appears instantly, the delay is
 not wired in on that host.
 
-- [ ] **Step 6: Watch one automatic upgrade cycle per host**
+- [x] **Step 6: Watch one automatic upgrade cycle per host**
 
 After the next hourly window has passed on each host:
 

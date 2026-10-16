@@ -1,7 +1,8 @@
 # WireGuard Peer CRUD Tool — Design
 
 Date: 2026-10-14
-Status: Draft (awaiting user review)
+Status: Implemented. See `docs/superpowers/plans/2026-10-14-wireguard-peer-crud.md`
+(commits 4db70bc, cc29b16, 9e54e0b, 3de6f8e, 4c9bd72).
 
 ## Problem
 

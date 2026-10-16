@@ -5,7 +5,10 @@ Goal: make all SSH/identity key distribution and sops-age secret rotation
 `ssh builderX` "accept host key? (y/N)" prompt by pre-populating
 `known_hosts` from keys declared in this repo.
 
-Status: **design — not implemented. Awaiting review before planning.**
+Status: **implemented.** See `docs/superpowers/plans/2026-10-05-secrets-identity-plan.md`
+(commits 0750eb0, 5fa143b, 77fa54a, 502df9b, 2d5920f). The plan targeted
+`functions/rotate-secrets.sh`; the workspace later renamed `functions/` to
+`scripts/` and the tool landed as `scripts/rotate-secrets.py`.
 
 ## 1. Problem & current state (from repo)
 

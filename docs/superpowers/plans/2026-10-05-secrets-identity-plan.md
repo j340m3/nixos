@@ -41,7 +41,7 @@
 - Consumes: `config.networking.hostName`, `constants.buildHosts`, `config.sops.secrets."ssh.key".path`, committed `secrets/common/ssh/<host>/ssh.pub`.
 - Produces: `security.ssh.hostKeys` for the local host, `services.openssh.knownHosts` for every peer host.
 
-- [ ] **Step 1: Write the failing eval assertion.** Add to `ssh-identities.nix` a `warnings`/`assertions`: for every peer host in `constants.buildHosts`, `lib.pathExists ../../secrets/common/ssh/<peer>/ssh.pub`; assert fails if any missing.
+- [x] **Step 1: Write the failing eval assertion.** Add to `ssh-identities.nix` a `warnings`/`assertions`: for every peer host in `constants.buildHosts`, `lib.pathExists ../../secrets/common/ssh/<peer>/ssh.pub`; assert fails if any missing.
 
   ```nix
   # modules/common/ssh-identities.nix (skeleton)
@@ -51,15 +51,15 @@
   ```
   Run: `nix eval '(with import <nixpkgs/nixos> { configuration = (import ./hosts/headless/pricklepants/default.nix); }; config.assertions)' ` (host-targeted eval via the host's config) — or simpler `nix eval --file` a tiny snippet. Expected: FAIL with "missing committed pub …" before pubs exist.
 
-- [ ] **Step 2: Run the assertion to confirm it fails.** Run: the eval above. Expected: FAILURE (no pub files yet).
+- [x] **Step 2: Run the assertion to confirm it fails.** Run: the eval above. Expected: FAILURE (no pub files yet).
 
-- [ ] **Step 3: Define `constants.buildHosts`.** `constants/hosts.nix`: one attrset `buildHosts = { <host> = { ip; port = 42069; systems; speedFactor; }; }` for every build-capable host (pricklepants, zurg, buzz, mrpotatohead, slinky, lenny, rex, jessie, plus builder1..4 if still external). Mark `woody` absent (not a builder client).
+- [x] **Step 3: Define `constants.buildHosts`.** `constants/hosts.nix`: one attrset `buildHosts = { <host> = { ip; port = 42069; systems; speedFactor; }; }` for every build-capable host (pricklepants, zurg, buzz, mrpotatohead, slinky, lenny, rex, jessie, plus builder1..4 if still external). Mark `woody` absent (not a builder client).
 
-- [ ] **Step 4: Implement knownHosts + hostKeys declaratively.** In `ssh-identities.nix`, `services.openssh.knownHosts = mapAttrs (h: _: { publicKey = lib.fileContents ../../secrets/common/ssh + "/${h}/ssh.pub"; }) constants.buildHosts;` and `security.ssh.hostKeys = [ { type = "ed25519"; path = config.sops.secrets."ssh.key".path; } ];`.
+- [x] **Step 4: Implement knownHosts + hostKeys declaratively.** In `ssh-identities.nix`, `services.openssh.knownHosts = mapAttrs (h: _: { publicKey = lib.fileContents ../../secrets/common/ssh + "/${h}/ssh.pub"; }) constants.buildHosts;` and `security.ssh.hostKeys = [ { type = "ed25519"; path = config.sops.secrets."ssh.key".path; } ];`.
 
-- [ ] **Step 5: Run the assertion to confirm it passes.** Expected: PASS once pubs exist (T2). Re-run later for each newly enrolled host.
+- [x] **Step 5: Run the assertion to confirm it passes.** Expected: PASS once pubs exist (T2). Re-run later for each newly enrolled host.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
   ```bash
   git add constants/hosts.nix modules/common/ssh-identities.nix modules/common/default.nix docs/superpowers/plans/2026-10-05-secrets-identity-plan.md
   git commit -m "modules/common/ssh-identities: declare knownHosts+hostKeys from inventory"
@@ -74,18 +74,18 @@
 - Consumes: live `/etc/ssh/ssh_host_ed25519_key` (+`.pub`) on the target host (read via `ssh` or a local `--priv` file), that host's `secrets/hosts/<host>/secrets.yaml`, and a local copy of the host's age keyfile (`--age-key`).
 - Produces: a committed pub file at `secrets/common/ssh/<host>/ssh.pub`, and `ssh.key` (priv) stored encrypted in that host's sops file.
 
-- [ ] **Step 1: Write the script.** `functions/publish-host-keys.py <host>`:
+- [x] **Step 1: Write the script.** `functions/publish-host-keys.py <host>`:
   - `--priv <file>` reads the host's ed25519 priv directly; OR `--from-ssh <target> [--ssh-port 42069]` runs `ssh -p <port> <target> cat /etc/ssh/ssh_host_ed25519_key` into a temp file.
   - `--age-key <file>` = local copy of the host's sops age keyfile (NOT fetched over ssh).
   - `--sops-file <path>` (default `secrets/hosts/<host>/secrets.yaml`) and `--pub-out <dir>` (default `secrets/common/ssh`) so tests run against `/tmp` without polluting the repo.
   - Core: writes `<pub-out>/<host>/ssh.pub` = `ssh-keygen -y -f <priv>`; decrypts the sops file with `SOPS_AGE_KEY_FILE`, injects/replaces top-level `ssh.key` with the priv contents, re-encrypts with `sops -e` preserving recipients. Idempotent (no-op when the stored `ssh.key` already matches).
 
-- [ ] **Step 2: Local dry-run acceptance test (NO live host).** With a temp ed25519 keypair + temp age key + a temp sops `secrets.yaml`:
+- [x] **Step 2: Local dry-run acceptance test (NO live host).** With a temp ed25519 keypair + temp age key + a temp sops `secrets.yaml`:
   1. run `publish-host-keys.py testhost --priv <h> --age-key <s> --sops-file /tmp/secrets.yaml --pub-out /tmp/pubtest`
   2. assert `/tmp/pubtest/testhost/ssh.pub` == `ssh-keygen -y -f <h>`
   3. assert `SOPS_AGE_KEY_FILE=<s> sops -d /tmp/secrets.yaml` yields a YAML whose `ssh.key` equals the priv file contents (recipients preserved).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
   ```bash
   git add functions/publish-host-keys.py
   git commit -m "functions/publish-host-keys: bootstrap declarative host identity (python3)"
@@ -100,11 +100,11 @@
 - Consumes: Task 1's module, Task 2's zurg pub.
 - Produces: confirmed no-prompt SSH to peers + working as a builder target.
 
-- [ ] **Step 1: Rebuild canary.** `nixos-rebuild --use-remote-sudo -H zurg switch` (stop upgrades first). Expected: activation succeeds, `security.ssh.hostKeys` path resolves to sops-priv, sshd starts.
+- [x] **Step 1: Rebuild canary.** `nixos-rebuild --use-remote-sudo -H zurg switch` (stop upgrades first). Expected: activation succeeds, `security.ssh.hostKeys` path resolves to sops-priv, sshd starts.
 
-- [ ] **Step 2: Verify trust from a peer.** From pricklepants: `ssh -p 42069 -i /root/.ssh/remotebuild zurg true`. Expected: runs without host-key prompt (knownHosts populated). Check `~/.ssh/known_hosts` on pricklepants no longer asks.
+- [x] **Step 2: Verify trust from a peer.** From pricklepants: `ssh -p 42069 -i /root/.ssh/remotebuild zurg true`. Expected: runs without host-key prompt (knownHosts populated). Check `~/.ssh/known_hosts` on pricklepants no longer asks.
 
-- [ ] **Step 3: Commit host activation** — no source change expected; if host config needed a flag, commit it. Document the canary result in the plan.
+- [x] **Step 3: Commit host activation** — no source change expected; if host config needed a flag, commit it. Document the canary result in the plan.
 
 ## Task 4: Roll to all hosts + inventory-driven builder list
 
@@ -117,13 +117,13 @@
 - Consumes: `constants.buildHosts`, `secrets/common/ssh/<host>/ssh.pub`, shared `remotebuild.pub`.
 - Produces: every non-builder-client host lists every peer as a builder with knownHosts trust.
 
-- [ ] **Step 1: Rewrite `distributed-builds.nix`.** `nix.buildMachines = mapAttrsToList (h: v: { hostName = h; hostName = v.ip; ... systems=v.systems; ... }) (filterAttrs (h: _: h != config.networking.hostName && h != "woody") constants.buildHosts);` and `programs.ssh.extraConfig Host <h>` blocks from same. Add `knownHosts` import (reuses T1 module).
+- [x] **Step 1: Rewrite `distributed-builds.nix`.** `nix.buildMachines = mapAttrsToList (h: v: { hostName = h; hostName = v.ip; ... systems=v.systems; ... }) (filterAttrs (h: _: h != config.networking.hostName && h != "woody") constants.buildHosts);` and `programs.ssh.extraConfig Host <h>` blocks from same. Add `knownHosts` import (reuses T1 module).
 
-- [ ] **Step 2: Run assertion guard** for all hosts as builder clients: `nix eval` that `builtins.attrNames config.nix.buildMachines` equals `constants.buildHosts` minus {self, woody} and each has a `lib.pathExists` pub. Expected: PASS.
+- [x] **Step 2: Run assertion guard** for all hosts as builder clients: `nix eval` that `builtins.attrNames config.nix.buildMachines` equals `constants.buildHosts` minus {self, woody} and each has a `lib.pathExists` pub. Expected: PASS.
 
-- [ ] **Step 3: Authorize remotebuild builder identity** on each builder host (users config in a shared snippet under `modules/common` or inline). Commit the shared `remotebuild.pub` to `secrets/common/ssh/<host>/` as a public file too (it's the same pub on all) — or keep in `borg-server`/`ssh.nix`. Decision left to impl: one committed `secrets/common/ssh/builder/remotebuild.pub`.
+- [x] **Step 3: Authorize remotebuild builder identity** on each builder host (users config in a shared snippet under `modules/common` or inline). Commit the shared `remotebuild.pub` to `secrets/common/ssh/<host>/` as a public file too (it's the same pub on all) — or keep in `borg-server`/`ssh.nix`. Decision left to impl: one committed `secrets/common/ssh/builder/remotebuild.pub`.
 
-- [ ] **Step 4: Verify from a client host** (zurg): `nix build --builders "ssh://remotebuild@pricklepants -` small drv. Expected: builds on pricklepants with no host-key prompt.
+- [x] **Step 4: Verify from a client host** (zurg): `nix build --builders "ssh://remotebuild@pricklepants -` small drv. Expected: builds on pricklepants with no host-key prompt.
 
 ## Task 5: `rotate-secrets.sh` (sops age-key + identity rotation)
 
@@ -134,7 +134,7 @@
 - Consumes: a host's `keyFile` path (read from `sops.age.keyFile` in that host's config) + its `secrets/hosts/<host>/secrets.yaml`.
 - Produces: re-encrypted sops file under a new age recipient; a deploy artifact for the new keyFile.
 
-- [ ] **Step 1: Write the script.** `rotate-secrets.sh <host>`:
+- [x] **Step 1: Write the script.** `rotate-secrets.sh <host>`:
   1. Resolve host age `keyFile` by grepping `hosts/*/default.nix` for `sops.age.keyFile` (or take `--key-file <path>`).
   2. `age-keygen -o deploy/<host>/sops-age.key` (new key).
   3. Extract new age pub → rewrite `sops.age[-.0].age` recipient line in `secrets/hosts/<host>/secrets.yaml` (drop old recipient, add new).
@@ -142,11 +142,11 @@
   5. `SOPS_AGE_KEY_FILE=deploy/<host>/sops-age.key sops -d secrets/hosts/<host>/secrets.yaml` and assert every original key present in output.
   6. Print deploy checklist (copy `deploy/<host>/sops-age.key` → host `keyFile`, rebuild).
 
-- [ ] **Step 2: Dry-run on scratch** (copy zurg's `secrets.yaml` to `/tmp`, run with a throwaway age key, verify decrypt reads all keys). Expected: all original top-level keys resolvable.
+- [x] **Step 2: Dry-run on scratch** (copy zurg's `secrets.yaml` to `/tmp`, run with a throwaway age key, verify decrypt reads all keys). Expected: all original top-level keys resolvable.
 
-- [ ] **Step 3: Add identity-rotation flag** `--identity <host> <label>`: re-encrypt the `<label>.key` value under the file's existing age key, and `ssh-keygen -y` the new priv → overwrite `secrets/common/ssh/<host>/<label>.pub`. (Falls back to T2's publishing for host keys.)
+- [x] **Step 3: Add identity-rotation flag** `--identity <host> <label>`: re-encrypt the `<label>.key` value under the file's existing age key, and `ssh-keygen -y` the new priv → overwrite `secrets/common/ssh/<host>/<label>.pub`. (Falls back to T2's publishing for host keys.)
 
-- [ ] **Step 4: Commit** `functions/rotate-secrets.sh` + `deploy/.gitkeep`.
+- [x] **Step 4: Commit** `functions/rotate-secrets.sh` + `deploy/.gitkeep`.
 
 ## Task 6: Borg pubkey migration (the original motivator)
 
@@ -159,13 +159,13 @@
 - Consumes: Task 1/2 pub convention (`secrets/common/ssh/<host>/<label>.pub`).
 - Produces: pricklepants' borg pubkey appears in woody's borg server authorizedKeys without hand-pasting; the "forgotten pubkey" bug class is gone.
 
-- [ ] **Step 1: Add pricklepants borg identity** via T2 script with label; commit `secrets/common/ssh/pricklepants/borg:woody.pub`.
+- [x] **Step 1: Add pricklepants borg identity** via T2 script with label; commit `secrets/common/ssh/pricklepants/borg:woody.pub`.
 
-- [ ] **Step 2: Point woody at it.** In `modules/borg-server.nix`, `woody = { path=...; authorizedKeysAppendOnly = [ read .../borg:woody.pub ]; };` (new repo for woody-backed-up data) — or add pricklepants' borg pub to the existing repo pricklepants backs up. Decision left to impl (scope of new repo).
+- [x] **Step 2: Point woody at it.** In `modules/borg-server.nix`, `woody = { path=...; authorizedKeysAppendOnly = [ read .../borg:woody.pub ]; };` (new repo for woody-backed-up data) — or add pricklepants' borg pub to the existing repo pricklepants backs up. Decision left to impl (scope of new repo).
 
-- [ ] **Step 3: Verify** pricklepants borg backup activates; `nix eval lib.fileContents` resolves; no plain pubkey string remains in `borg-server.nix`.
+- [x] **Step 3: Verify** pricklepants borg backup activates; `nix eval lib.fileContents` resolves; no plain pubkey string remains in `borg-server.nix`.
 
-- [ ] **Step 4: Commit.**
+- [x] **Step 4: Commit.**
 
 ## Self-Review (against spec)
 

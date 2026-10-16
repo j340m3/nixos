@@ -1,7 +1,8 @@
 # Upgrade health check with automatic rollback
 
 Date: 2026-10-03
-Status: proposed
+Status: Implemented. See `docs/superpowers/plans/2026-10-03-upgrade-health-auto-rollback.md`
+(commits d1ae1b9, 2a4146e, e95dd55, plus follow-up fixes 221dbcd..14ac90a).
 
 ## Context
 

@@ -45,17 +45,17 @@
   (2-space indent, `peers` order preserved).
 - Produces (Nix): `config.networking.wireguard.interfaces.wg0.peers` — same list as before the refactor.
 
-- [ ] **Step 1: Capture the pre-refactor peers**
+- [x] **Step 1: Capture the pre-refactor peers**
 
 Run: `nix eval .#nixosConfigurations.buzz.config.networking.wireguard.interfaces.wg0.peers --json > /tmp/wg-before.json`
 Expected: JSON array of 3 peers (`test1`, `ks273fb`, `giusi`).
 
-- [ ] **Step 2: Get the server public key**
+- [x] **Step 2: Get the server public key**
 
 Run: `SOPS_AGE_KEY_FILE=<admin age key> sops -d secrets/services/wireguard/secrets.yaml`
 Expected: prints `wireguard.public` (the server's own public key). Record this value.
 
-- [ ] **Step 3: Create `global/wireguard-peers.json`**
+- [x] **Step 3: Create `global/wireguard-peers.json`**
 
 Seed from the current module (test1/ks273fb/giusi) with the recorded `server.public_key`:
 
@@ -74,7 +74,7 @@ Seed from the current module (test1/ks273fb/giusi) with the recorded `server.pub
 }
 ```
 
-- [ ] **Step 4: Rewrite `modules/wireguard.nix` to read the JSON**
+- [x] **Step 4: Rewrite `modules/wireguard.nix` to read the JSON**
 
 Keep the `networking.nat` block and its comment **verbatim**; drive port, ips, firewall, sops secrets and peers from `wg`:
 
@@ -113,7 +113,7 @@ in
 }
 ```
 
-- [ ] **Step 5: Stage the new file, then verify eval parses and output is identical**
+- [x] **Step 5: Stage the new file, then verify eval parses and output is identical**
 
 Flake evaluation only sees git-tracked files, so the new JSON must be staged first.
 
@@ -128,12 +128,12 @@ Expected: no diff.
 Run: `nix eval .#nixosConfigurations.jessie.config.networking.wireguard.interfaces.wg0.peers --json > /tmp/wg-after-jessie.json && diff /tmp/wg-before.json /tmp/wg-after-jessie.json`
 Expected: no diff. (Repeat for `pricklepants`.)
 
-- [ ] **Step 6: Verify sops secret names unchanged**
+- [x] **Step 6: Verify sops secret names unchanged**
 
 Run: `nix eval --raw .#nixosConfigurations.buzz.config.sops.secrets --apply builtins.attrNames` (or `--json`)
 Expected: includes `wireguard/private`, `wireguard/peer/test1`, `wireguard/peer/ks273fb`, `wireguard/peer/giusi`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add global/wireguard-peers.json modules/wireguard.nix \
@@ -153,7 +153,7 @@ git commit -m "feat(wireguard): data-drive peers from plaintext JSON"
 **Interfaces:**
 - Produces: creation rule matching `secrets/services/wireguard/clients.yaml` with recipients `admin_jerome`, `bw_jerome`, `bw_age_jerome` only.
 
-- [ ] **Step 1: Insert the rule**
+- [x] **Step 1: Insert the rule**
 
 Immediately **above** the `secrets/services/.+\.(yaml|json|env|ini)$` rule (currently line 119):
 
@@ -166,12 +166,12 @@ Immediately **above** the `secrets/services/.+\.(yaml|json|env|ini)$` rule (curr
           - *bw_age_jerome
 ```
 
-- [ ] **Step 2: Verify rule order is correct**
+- [x] **Step 2: Verify rule order is correct**
 
 Run: `grep -n "clients\\.yaml\|services/\.+" .sops.yaml`
 Expected: the `clients.yaml` line has a **smaller** line number than the generic `services/.+` line.
 
-- [ ] **Step 3: Verify recipients resolve to admin-only**
+- [x] **Step 3: Verify recipients resolve to admin-only**
 
 Create a throwaway plaintext, encrypt it against the rule, and inspect recipients:
 
@@ -185,7 +185,7 @@ rm -f /tmp/cl.yaml /tmp/cl.enc.yaml
 
 Expected: **3** recipients, exactly `age1yd27qq2ys4tyae08ncs09fqgma87asrd3kandkkyvdj0kgjn9v3qm3l0yu`, `age1ex3axxazzhsllzj0pqkdgjqnvzjmp8he2patv0k5wlzaacqwpfys8saxrq`, `age1f3fnr3dzn28xv52a3hht3d2ylpwrre3zghkh598syggaduq02dusfzsrmr`. (Not the 14-key services set.)
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add .sops.yaml
@@ -218,7 +218,7 @@ git commit -m "feat(sops): admin-only recipients for wireguard clients.yaml"
   - `render_client_conf(*, private_key: str, tunnel_ips: list[str], server: dict, psk: str, endpoint: str | None, dns: str | None) -> str`
   - `run_selftest() -> int`
 
-- [ ] **Step 1: Write the failing selftest**
+- [x] **Step 1: Write the failing selftest**
 
 At the bottom of the new file, add `run_selftest()` with these assertions (use `assert`, catch-driven):
 
@@ -286,23 +286,23 @@ def run_selftest() -> int:
     return 0
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `python3 functions/wireguard-peers.py --selftest`
 Expected: FAIL (`NameError: validate_name`, or the `--selftest` flag unhandled).
 
-- [ ] **Step 3: Implement the pure core**
+- [x] **Step 3: Implement the pure core**
 
 `validate_name` uses `NAME_RE.fullmatch`; reject len > 63. Allocation: `tunnel_networks` = `ip_network(a, strict=False)` for the v4 and v6 entries of `server["address"]`; `server_hosts` = `ip_interface(a).ip` for each. `covered_networks` = `ip_network(ip, strict=False)` for every `allowed_ips` entry of every peer ∪ the server hosts as `/32`,`/128`. `allocate_tunnel_ips`: walk `net.hosts()` of the v4 then v6 tunnel network, skip any candidate equal to a server host or contained (`candidate in net`) in any covered network, return the first free as `f"{ip}/32"` / `f"{ip}/128"`; raise `ValueError("no free tunnel address in <net>")` on exhaustion. `split_allowed_ips`: an entry is a tunnel address when `ip_network(entry, strict=False).subnet_of(tunnel_net)` for a tunnel net, else a route. `resolve_endpoint`: if the (host) part after the last `:` is all digits, return unchanged, else `f"{endpoint}:{listen_port}"`; `None` → default host. `render_client_conf`: the exact template from the spec (blank line between `[Interface]` and `[Peer]`; `Address` joined with `", "`).
 
 Wire `--selftest` in `main()` (before argparse-required subcommand handling) to call `run_selftest()`.
 
-- [ ] **Step 4: Run to verify it passes**
+- [x] **Step 4: Run to verify it passes**
 
 Run: `python3 functions/wireguard-peers.py --selftest`
 Expected: `selftest OK`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add functions/wireguard-peers.py
@@ -338,7 +338,7 @@ CLI behaviour (from the spec):
 | `update <name> [--rotate-psk] [--new-name N] [--allowed-ips CSV] [--routes CSV]` | per spec; `--allowed-ips` validated to keep ≥1 tunnel address; `--new-name` collision-checked. |
 | `delete <name>` | remove from JSON + sops PSK + `clients.yaml`; rebuild reminder. |
 
-- [ ] **Step 1: Write failing integration tests (selftest additions)**
+- [x] **Step 1: Write failing integration tests (selftest additions)**
 
 Extend `run_selftest()` (no sops needed):
 
@@ -360,7 +360,7 @@ Also assert `resolve_endpoint("vpn.example.org:1234", 55025)` still returns the 
 Run: `python3 functions/wireguard-peers.py --selftest`
 Expected: FAIL (`sops_encrypt_new` undefined).
 
-- [ ] **Step 2: Implement sops helpers**
+- [x] **Step 2: Implement sops helpers**
 
 `sops_decrypt` / `read_recipients` / `sops_encrypt_existing` mirror `functions/rotate-secrets.py` (`SOPS_AGE_KEY_FILE`, `NamedTemporaryFile(delete=False)`, `_write_atomic`, round-trip verify). `sops_encrypt_new(plaintext, rel_path)`:
 
@@ -369,16 +369,16 @@ env = {**os.environ, "SOPS_CONFIG": str(REPO_ROOT / ".sops.yaml")}
 r = _run(["sops", "--filename-override", rel_path, "-e", tmp_path], env=env)
 ```
 
-- [ ] **Step 3: Implement wg/qr helpers and CLI**
+- [x] **Step 3: Implement wg/qr helpers and CLI**
 
 `wg_genkey`/`wg_pubkey`/`wg_genpsk` and `qr_ansi` shell out through `nix-shell -p wireguard-tools` / `nix-shell -p qrencode` (mirroring `rotate-secrets.py`'s `_run`/`nix-shell` pattern). `add`: build the new peer, write PSK via `sops_encrypt_existing` on `PEER_SECRETS`, handle the first `clients.yaml` write with `sops_encrypt_new`. `--dry-run`: print the JSON delta, the conf, and the sops paths touched, write nothing.
 
-- [ ] **Step 4: Run selftest to verify it passes**
+- [x] **Step 4: Run selftest to verify it passes**
 
 Run: `python3 functions/wireguard-peers.py --selftest`
 Expected: `selftest OK`.
 
-- [ ] **Step 5: Dry-run every subcommand against the real repo**
+- [x] **Step 5: Dry-run every subcommand against the real repo**
 
 ```bash
 python3 functions/wireguard-peers.py list
@@ -389,7 +389,7 @@ python3 functions/wireguard-peers.py --dry-run delete demo
 ```
 Expected: `list` shows 3 peers; `add`/`update`/`delete` print plans and write nothing (`git status` clean).
 
-- [ ] **Step 6: Live round-trip (needs the admin age key)**
+- [x] **Step 6: Live round-trip (needs the admin age key)**
 
 ```bash
 python3 functions/wireguard-peers.py --age-key "$ADMIN_AGE_KEY" add demo
@@ -398,7 +398,7 @@ python3 functions/wireguard-peers.py --age-key "$ADMIN_AGE_KEY" delete demo
 ```
 Expected: `add` prints a scannable QR + `.conf`; `show demo` re-renders identically; `delete demo` removes the JSON entry, the sops PSK, and the `clients.yaml` entry. `clients.yaml` decrypts with an **admin** key only (attempting a server host key must fail).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add functions/wireguard-peers.py
