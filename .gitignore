@@ -1,6 +1,7 @@
 flake.lock
 .vscode/
 result
+.pre-commit-config.yaml
 
 # Python
 __pycache__/
