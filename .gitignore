@@ -2,6 +2,7 @@ flake.lock
 .vscode/
 result
 .superpowers/
+.pre-commit-config.yaml
 
 # Python
 __pycache__/
