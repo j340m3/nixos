@@ -2,7 +2,7 @@
 
 **Date**: 2026-10-03
 **Status**: accepted (backfilled 2026-10-15)
-**Deciders**: jeromeb
+**Deciders**: j340m3
 
 ## Context
 
@@ -20,9 +20,20 @@ check `systemctl --failed`. If any failed units remain (after filtering out
 the upgrade/notify/health units themselves), notify Telegram, write a guard
 file keyed on the failed-unit set, `nixos-rebuild rollback`, and reboot.
 Enabled on headless hosts only (`mrpotatohead`, `buzz`, `pricklepants`,
-`jessie`).
+`jessie`). Has rolled back a real broken upgrade in production.
 
 ## Alternatives Considered
+
+### Alert-only (Telegram, no auto-rollback)
+- **Pros**: human stays in control; no surprise reboots.
+- **Cons**: headless hosts sit broken until someone reads the alert.
+- **Why not**: the point is self-healing without a human.
+
+### Human rollback only (status quo)
+- **Pros**: no new module.
+- **Cons**: requires noticing the breakage and acting — exactly what
+  unattended hourly upgrades removed from the loop.
+- **Why not**: this was the gap being fixed.
 
 ### systemd timer on the health check
 - **Pros**: natural scheduling primitive.

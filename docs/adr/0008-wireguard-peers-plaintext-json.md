@@ -2,7 +2,7 @@
 
 **Date**: 2026-10-14
 **Status**: accepted (backfilled 2026-10-15)
-**Deciders**: jeromeb
+**Deciders**: j340m3
 
 ## Context
 
@@ -20,11 +20,18 @@ IPs). The Nix module reads it with `builtins.fromJSON (builtins.readFile ...)`
 and generates interface peers and sops secret declarations. PSKs stay in
 `secrets/services/wireguard/secrets.yaml`; client private keys in a separate
 `clients.yaml` restricted to admin age keys via a dedicated `.sops.yaml`
-rule above the generic services rule. A Python script
+rule above the generic services rule (the script creates it lazily on the
+first client save — no client keys stored yet as of backfill). A Python script
 (`scripts/wireguard-peers.py`) owns add/list/update/delete, deterministic
 CIDR-aware IP allocation, and client `.conf`/QR rendering.
 
 ## Alternatives Considered
+
+### Keep the hand-edited module (status quo)
+- **Pros**: no tooling; worked for a handful of peers.
+- **Cons**: manual IP allocation on `10.66.66.0/24` collided; onboarding
+  meant hand-generating keys and assembling configs.
+- **Why not**: this was the pain being fixed.
 
 ### Keep peers only in sops
 - **Pros**: fully encrypted.
@@ -48,7 +55,8 @@ CIDR-aware IP allocation, and client `.conf`/QR rendering.
 
 ### Positive
 - Collision-free deterministic allocation (CIDR containment, not equality).
-- One JSON drives all three WG servers; client keys never committed plain.
+- One JSON drives all three WG servers (`buzz`, `jessie`, `pricklepants`
+  behind the `vpn.kauderwels.ch` DNS RR); client keys never committed plain.
 
 ### Negative
 - The JSON must be git-added before builds (flake eval ignores untracked

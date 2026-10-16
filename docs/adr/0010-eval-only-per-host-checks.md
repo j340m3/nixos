@@ -1,8 +1,8 @@
 # ADR-0010: Eval-only per-host flake checks as the fast CI gate
 
-**Date**: 2026-10 (backfilled 2026-10-15)
-**Status**: accepted
-**Deciders**: jeromeb
+**Date**: 2026-10-14 (backfilled 2026-10-15)
+**Status**: accepted (backfilled 2026-10-15)
+**Deciders**: j340m3
 
 ## Context
 
@@ -13,12 +13,21 @@ eval time.
 
 ## Decision
 
-`checks.x86_64-linux.<host>` evaluates each native host by discarding the
-toplevel drv string context (`unsafeDiscardStringContext ... drvPath` into a
-`runCommand`), without building. `just check` is the local entrypoint; the
-same checks run in CI/pre-commit. Foreign-system hosts (aarch64 uConsole)
-are filtered out. Behaviour-sensitive modules add small assert-based checks
-(e.g. `checks.upgrade-health` asserts service triggers and opt-out).
+Evaluate (never build) every native host, two ways that grew together and
+have not been unified:
+
+- `checks.x86_64-linux.<host>` — flake checks that discard the toplevel drv
+  string context (`unsafeDiscardStringContext ... drvPath` into a
+  `runCommand`), so `nix flake check` / `nix build .#checks.x86_64-linux.<h>`
+  evaluates without building.
+- `just check` — a Justfile bash loop that runs the equivalent `nix eval` per
+  host for a quick local signal.
+
+Both filter out foreign-system hosts (the aarch64 uConsole). Behaviour-
+sensitive modules add small assert-based checks (e.g. `checks.upgrade-health`
+asserts the service triggers and opt-out). Pre-commit hooks run lint only
+(deadnix/statix/shellcheck/ruff); there is no hosted CI — the eval gate runs
+locally.
 
 ## Alternatives Considered
 
@@ -38,8 +47,13 @@ are filtered out. Behaviour-sensitive modules add small assert-based checks
 
 ### Positive
 - Seconds-level feedback that the whole fleet still evaluates.
-- Cheap enough to run on every commit via pre-commit/CI.
+- Cheap enough to run locally on every change.
 
 ### Negative
 - Eval-only: a package that fails to *build* slips through.
 - Assert-style checks (upgrade-health) are bespoke, not a framework.
+- Two separate eval-check implementations (`checks.*` and `just check`) still
+  coexist; which one becomes canonical is not settled.
+
+### Open
+- Unify the flake checks and `just check` on one implementation.
