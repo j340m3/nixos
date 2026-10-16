@@ -1,7 +1,7 @@
 { pkgs, config, lib, constants, ... }:
 let
   inventory = constants.buildHosts;
-  peers = lib.filterAttrs (h: _: h != config.networking.hostName && h != "woody") inventory;
+  peers = lib.filterAttrs (h: _: h != config.networking.hostName) inventory;
 in
 {
   nix.distributedBuilds = true;
