@@ -32,7 +32,6 @@ is recorded in ADR-0011.)
 
 ### Positive
 - Adding a host = create a folder, update `HOSTS.md`. No flake edit.
-- One `nix flake update` moves the whole fleet's inputs together.
 
 ### Negative
 - A stray folder under `hosts/` becomes a configuration; eval checks catch

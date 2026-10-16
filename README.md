@@ -71,7 +71,7 @@ Secrets, host identity keys, and rotation are documented in
 3. Set `networking.hostName` and `system.stateVersion`.
 4. Add the host to [HOSTS.md](./HOSTS.md).
 
-The flake auto-discovers folders under `hosts/` — no `flake.nix` edit needed.
+The flake auto-discovers folders under `hosts/graphical/` and `hosts/headless/` — no `flake.nix` edit needed.
 
 ## Inputs & pinning
 
