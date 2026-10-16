@@ -12,14 +12,14 @@
   # See ADR-0000.
   buildHosts = {
     pricklepants = {
-      connect = "10.0.0.5";
+      connect = "10.0.0.1";
       port = 42069;
       user = "remotebuild";
       systems = [ "x86_64-linux" ];
       speedFactor = 1;
     };
     buzz = {
-      connect = "10.0.0.1";
+      connect = "10.0.0.5";
       port = 42069;
       user = "remotebuild";
       systems = [ "x86_64-linux" ];
@@ -33,7 +33,14 @@
       speedFactor = 1;
     };
     jessie = {
-      connect = "10.0.0.2";
+      connect = "10.0.0.7";
+      port = 42069;
+      user = "remotebuild";
+      systems = [ "x86_64-linux" ];
+      speedFactor = 1;
+    };
+    woody = {
+      connect = "10.0.0.3";
       port = 42069;
       user = "remotebuild";
       systems = [ "x86_64-linux" ];
