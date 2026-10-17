@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  constants,
   ...
 }:
 
@@ -108,7 +109,7 @@
     ];
     encryption.mode = "none";
     environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/minecraft-bedrock".path}";
-    repo = "borg@10.0.0.3:.";
+    repo = "borg@${constants.host.woody.ip}:.";
     compression = "auto,lzma";
     startAt = "*-*-* 02:30:00";
     preHook = "${pkgs.podman}/bin/podman stop --all";

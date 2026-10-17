@@ -156,12 +156,8 @@ in
     # cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
     # key = "/etc/nebula/pricklepants.key";
     # ca = "/etc/nebula/ca.crt";
-    staticHostMap = {
-      "10.0.0.5" = [
-        "[2a01:239:27f:fd00::1]:4242"
-        "194.164.54.40:4242"
-      ];
-    };
+    # staticHostMap (other lighthouse) comes from global/constants.nix.
+    staticHostMap = constants.nebula.staticMap config.networking.hostName;
     settings = {
       lighthouse = {
         serve_dns = true;

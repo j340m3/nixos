@@ -3,6 +3,7 @@
   config,
   pkgs,
   lib,
+  constants,
   ...
 }:
 {
@@ -104,7 +105,7 @@
   # Enable SSH server and listen on port 2222
   services.openssh = {
     enable = true;
-    ports = lib.mkDefault [ 42069 ];
+    ports = lib.mkDefault [ constants.sshPort ];
     settings = {
       #PasswordAuthentication = false;
       #PermitRootLogin = lib.mkForce "prohibit-password";

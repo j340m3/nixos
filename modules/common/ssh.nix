@@ -40,7 +40,7 @@
       };
     */
     services.openssh = {
-      ports = [ 42069 ];
+      ports = [ constants.sshPort ];
       enable = true;
       settings.PasswordAuthentication = false;
       settings.KbdInteractiveAuthentication = false;
@@ -66,13 +66,13 @@
       openFirewall = true;
     };
 
-    networking.firewall.allowedTCPPorts = [ 42069 ];
+    networking.firewall.allowedTCPPorts = [ constants.sshPort ];
     services.nebula.networks.mesh.firewall.inbound =
       lib.mkIf (config.services.openssh.enable && config.services.nebula.networks.mesh.enable)
         [
           {
             cidr = constants.nebula.cidr;
-            port = 42069;
+            port = constants.sshPort;
             proto = "any";
           }
         ];
