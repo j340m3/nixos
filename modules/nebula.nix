@@ -5,6 +5,10 @@
   constants,
   ...
 }:
+let
+  # lighthouse status rides the roster (inline nebula hosts set their own)
+  isLighthouse = builtins.elem config.networking.hostName constants.lighthouses;
+in
 {
   # Mesh member => remote-build accept side (every mesh host builds for the
   # fleet). The two lighthouses (pricklepants, buzz) define nebula inline in
@@ -18,11 +22,10 @@
   services.nebula.networks.mesh = {
     listen.host = "[::]";
     enable = true;
-    isLighthouse = false;
+    inherit isLighthouse;
     # roster in global/constants.nix: names -> mesh ip + public endpoints
     lighthouses = map (h: constants.host.${h}.ip) constants.lighthouses;
-    relays = map (h: constants.host.${h}.ip) constants.lighthouses;
-    settings = {
+    relays = map (h: constants.host.${h}.ip) constants.lighthouses;    settings = {
       cipher = "aes";
       static_map = {
         network = "ip";
@@ -76,6 +79,10 @@
     */
 
   };
+  # module-managed lighthouses accept WAN peerings; the two inline nebula
+  # hosts (pricklepants, buzz) don't import this module
+  networking.firewall.allowedUDPPorts = lib.mkIf isLighthouse [ constants.nebula.port ];
+
   sops.secrets."nebula/ca_crt" = {
     restartUnits = [ "nebula@mesh.service" ];
     owner = "nebula-mesh";
