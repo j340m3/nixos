@@ -68,3 +68,15 @@ ADR-0008 (overlay connectivity as the cooperation substrate), ADR-0006
 ### Risks
 - Today the invariant is still bounded by GitHub and DNS; losing either
   stops updates until the forge is decentralized.
+
+## Amendments
+
+- **2026-10-16 — cachyos kernels dropped from headless hosts.** Every VPS
+  booted a `linuxPackages_cachyos-*` kernel that exists only in
+  `cache.chaotic.cx`; if that cache is unreachable the host cannot rebuild —
+  a hard dependency on a binary cache, exactly the failure mode the Negative
+  consequence below warns about. Removed `boot.kernelPackages` from buzz,
+  jessie, mrpotatohead and pricklepants (now stock nixpkgs kernels) and moved
+  `inputs.chaotic.nixosModules.default` out of the global `mkHost` into the
+  per-host imports of the only remaining cachyos users (rex, lenny, woody).
+  Binary caches remain listed globally as best-effort accelerators.

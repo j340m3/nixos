@@ -26,6 +26,7 @@
     #../../modules/cool-shell.nix
     ../../../modules/google-drive.nix
     inputs.home-manager.nixosModules.home-manager
+    inputs.chaotic.nixosModules.default
   ];
 
   # Bootloader.

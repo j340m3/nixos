@@ -96,7 +96,6 @@
             specialArgs.inputs = inputs;
             specialArgs.constants = constants;
             modules = [
-              inputs.chaotic.nixosModules.default
               (base + "/${host}")
             ];
           };

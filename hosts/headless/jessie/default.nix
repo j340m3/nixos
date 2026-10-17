@@ -38,8 +38,6 @@
   #system.autoUpgrade.dates = lib.mkForce "daily";
   #nix.gc.dates = lib.mkForce "daily";
 
-  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
-
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
   # boot.loader.grub.efiSupport = true;
