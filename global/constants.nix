@@ -25,6 +25,10 @@ let
     woody = { ip = "10.0.0.3"; ygg = null; yggPub = null; };
     mrpotatohead = { ip = "10.0.0.6"; ygg = null; yggPub = null; };
     jessie = { ip = "10.0.0.7"; ygg = null; yggPub = null; };
+    # mesh members without a verified nebula address yet — ygg harvest (T8)
+    # must cover them, or AllowedPublicKeys pins them out of the overlay
+    lenny = { ygg = null; yggPub = null; };
+    rex = { ygg = null; yggPub = null; };
   };
 
   # The DNS/relay backbone (names into the roster above); pricklepants

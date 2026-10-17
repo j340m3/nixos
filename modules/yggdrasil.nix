@@ -29,8 +29,8 @@ in
     openMulticastPort = true;
     persistentKeys = true;
     settings = {
-      "Peers" = lib.mkIf (!isLighthouse) yggPeers;
-      "Listen" = lib.mkIf isLighthouse [ "tcp://0.0.0.0:${toString constants.yggPort}" ];
+      "Peers" = lib.mkIf (!isLighthouse && fleetKeys != [ ]) yggPeers;
+      "Listen" = lib.mkIf (isLighthouse && fleetKeys != [ ]) [ "tcp://0.0.0.0:${toString constants.yggPort}" ];
       "AllowedPublicKeys" = fleetKeys;
       "IfName" = "ygg";
       "IfMTU" = 65535;

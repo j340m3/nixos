@@ -377,7 +377,7 @@
 - [ ] **Step 1: (user) per host:** ssh in, `yggdrasilctl getSelf` → take `Address` + `box_pub_key`, fill `host.<name>.ygg`/`.yggPub`, delete `ygg = null` placeholders.
 - [ ] **Step 2: registrar:** AAAA `cache.kauderwels.ch` → woody's ygg address.
 - [ ] **Step 3: re-run the Task 7 sweep, then**
-  `nix eval --json '.#nixosConfigurations.lenny.config.nix.buildMachines' | jq length` (expect 10 on fleet hosts; 5 where `ygg` still null), and a manual backup-path proof: `nix store ping --store https://cache.kauderwels.ch`.
+  `nix eval --json '.#nixosConfigurations.lenny.config.nix.buildMachines' | jq length` (expect 10 on pure clients [lenny, rex]; 8 on builder members [woody, and the 5 targets themselves dial only others]; 5 where `ygg` still null), and a manual backup-path proof: `nix store ping --store https://cache.kauderwels.ch`.
 
 ---
 
