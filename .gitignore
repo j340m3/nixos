@@ -1,4 +1,3 @@
-flake.lock
 .vscode/
 result
 .pre-commit-config.yaml

@@ -122,19 +122,6 @@ creation_rules:
           - *admin_jerome
           - *bw_jerome
           - *bw_age_jerome
-  - path_regex: secrets/services/.+\.(yaml|json|env|ini)$
-    key_groups:
-      - age:
-          - *admin_jerome
-          - *bw_jerome
-          - *bw_age_jerome
-          - *server_woody
-          - *server_woody_ssh
-          - *server_pricklepants
-          - *server_buzz
-          - *server_jessie
-          - *server_zurg
-          - *server_mrpotatohead
   - path_regex: secrets/services/postgres/rclone.ini$
     key_groups:
       - age:
@@ -150,5 +137,18 @@ creation_rules:
           - *server_lenny
           - *server_jessie
           - *server_slinky
+          - *server_zurg
+          - *server_mrpotatohead
+  - path_regex: secrets/services/.+\.(yaml|json|env|ini)$
+    key_groups:
+      - age:
+          - *admin_jerome
+          - *bw_jerome
+          - *bw_age_jerome
+          - *server_woody
+          - *server_woody_ssh
+          - *server_pricklepants
+          - *server_buzz
+          - *server_jessie
           - *server_zurg
           - *server_mrpotatohead

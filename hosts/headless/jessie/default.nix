@@ -29,7 +29,6 @@
     ../../../modules/minecraft-bedrock.nix
     ../../../modules/wireguard.nix
     #../../../modules/minecraft-java.nix
-    ../../../modules/remote-builder.nix
     #../../../modules/matrix3.nix
     ../../../modules/acme.nix
     ../../../modules/radicle-seed.nix

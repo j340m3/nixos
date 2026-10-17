@@ -31,7 +31,6 @@ in
     ../../../users/donquezz.nix
     ../../../modules/loghost.nix
     ../../../modules/borg-server.nix
-    ../../../modules/remote-builder.nix
     #../../../modules/peerix.nix
     ../../../modules/reticulum.nix
     ../../../desktop-environments/kde.nix

@@ -5,6 +5,11 @@
   ...
 }:
 {
+  # Mesh member => remote-build accept side (every mesh host builds for the
+  # fleet). The two lighthouses (pricklepants, buzz) define nebula inline in
+  # their host files, so they import ../../modules/remote-builder.nix there.
+  imports = [ ./remote-builder.nix ];
+
   environment.systemPackages = with pkgs; [
     nebula
   ];
