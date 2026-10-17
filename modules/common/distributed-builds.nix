@@ -11,6 +11,7 @@ let
       User remotebuild
       IdentitiesOnly yes
       IdentityFile /root/.ssh/remotebuild
+      ConnectTimeout 3
   '';
   machines = lib.flatten (
     lib.mapAttrsToList
