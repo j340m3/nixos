@@ -10,6 +10,8 @@ let
         "194.164.125.154:4242"
         "[2a00:da00:f43a:8800::1]:4242"
       ];
+      ygg = null;
+      yggPub = null;
     };
     buzz = {
       ip = "10.0.0.5";
@@ -17,10 +19,12 @@ let
         "194.164.54.40:4242"
         "[2a01:239:27f:fd00::1]:4242"
       ];
+      ygg = null;
+      yggPub = null;
     };
-    woody = { ip = "10.0.0.3"; };
-    mrpotatohead = { ip = "10.0.0.6"; };
-    jessie = { ip = "10.0.0.7"; };
+    woody = { ip = "10.0.0.3"; ygg = null; yggPub = null; };
+    mrpotatohead = { ip = "10.0.0.6"; ygg = null; yggPub = null; };
+    jessie = { ip = "10.0.0.7"; ygg = null; yggPub = null; };
   };
 
   # The DNS/relay backbone (names into the roster above); pricklepants
@@ -28,6 +32,13 @@ let
   lighthouses = [ "pricklepants" "buzz" ];
 
   sshPort = 42069;
+
+  # Yggdrasil backup overlay facts: address + node box pubkey harvested via
+  # `yggdrasilctl getSelf` per host (after first boot with persistentKeys).
+  # null until harvested; consumers are null-guarded. Addresses and box
+  # pubkeys are public facts, not secrets. AllowedPublicKeys pinning happens
+  # in modules/yggdrasil.nix from these values.
+  yggPort = 1337;
 
   # Remote-build targets over the mesh (subset of `host`). A builder entry
   # enrolls a host as a build target; the accept side (remotebuild user,
@@ -50,7 +61,7 @@ in
   # The lighthouse that runs the mesh DNS (must have lighthouse.serve_dns).
   nebula.dns = "pricklepants";
 
-  inherit host lighthouses sshPort;
+  inherit host lighthouses sshPort yggPort;
 
   # staticHostMap for nebula configs: all lighthouses except the host itself
   # (name -> ip + endpoints). Used by modules/nebula.nix and the two inline
