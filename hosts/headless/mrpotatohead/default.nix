@@ -22,8 +22,12 @@
     ../../../modules/nebula.nix
     ../../../modules/logging.nix
     ../../../modules/nextcloud.nix
+    ../../../modules/wireguard.nix
 
   ];
+
+  # WG NAT masquerades out the WAN iface (module default is jessie's eth0)
+  networking.nat.externalInterface = "ens6";
 
   sops.age = {
     #keyFile = "/var/lib/sops-nix/key.txt";

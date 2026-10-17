@@ -23,8 +23,24 @@ let
       yggPub = null;
     };
     woody = { ip = "10.0.0.3"; ygg = null; yggPub = null; };
-    mrpotatohead = { ip = "10.0.0.6"; ygg = null; yggPub = null; };
-    jessie = { ip = "10.0.0.7"; ygg = null; yggPub = null; };
+    mrpotatohead = {
+      ip = "10.0.0.6";
+      endpoints = [
+        "85.214.10.114:4242"
+        "[2a01:239:4ac:7300::1]:4242"
+      ];
+      ygg = null;
+      yggPub = null;
+    };
+    jessie = {
+      ip = "10.0.0.7";
+      endpoints = [
+        "217.154.211.186:4242"
+        "[2a01:239:396:fd00::1]:4242"
+      ];
+      ygg = null;
+      yggPub = null;
+    };
     # mesh members without a verified nebula address yet — ygg harvest (T8)
     # must cover them, or AllowedPublicKeys pins them out of the overlay
     lenny = { ygg = null; yggPub = null; };
@@ -32,8 +48,10 @@ let
   };
 
   # The DNS/relay backbone (names into the roster above); pricklepants
-  # serves_mesh DNS (serve_dns), buzz does not.
-  lighthouses = [ "pricklepants" "buzz" ];
+  # serves_mesh DNS (serve_dns), the other three do not. Endpoints are
+  # leased public addresses (DHCP/DHCPv6, ~20min renewals, stable in
+  # practice) — re-enter the roster from `ip a` when a provider rotates one.
+  lighthouses = [ "pricklepants" "buzz" "jessie" "mrpotatohead" ];
 
   sshPort = 42069;
 
@@ -64,6 +82,8 @@ in
   nebula.cidr = "10.0.0.0/24";
   # The lighthouse that runs the mesh DNS (must have lighthouse.serve_dns).
   nebula.dns = "pricklepants";
+  # The mesh udp listen/peer port (suffix of every endpoint above).
+  nebula.port = 4242;
 
   inherit host lighthouses sshPort yggPort;
 
