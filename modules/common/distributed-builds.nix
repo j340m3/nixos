@@ -25,14 +25,8 @@ in
       IdentityFile /root/.ssh/remotebuild
   '') peers);
 
-  users.users.remotebuild = {
-    isSystemUser = true;
-    group = "remotebuild";
-    openssh.authorizedKeys.keyFiles = lib.mkForce [ ];
-    openssh.authorizedKeys.keys = [ ];
-  };
-
-  users.groups.remotebuild = { };
+  # remotebuild user/group live in ../remote-builder.nix (accept side),
+  # pulled in by nebula.nix for every mesh member.
 
   sops.secrets."remotebuild/key" = {
     sopsFile = ../../secrets/hosts/${config.networking.hostName}/secrets.yaml;

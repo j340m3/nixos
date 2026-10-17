@@ -5,6 +5,6 @@
   ...
 }:
 {
-  sops.defaultSopsFile = ../../secrets/example.yaml;
+  sops.defaultSopsFile = ../../secrets/shared.yaml;
   #sops.age.generateKey = true;
 }

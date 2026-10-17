@@ -36,6 +36,9 @@
     ../../../modules/pihole.nix
     #../../../modules/radicle-seed.nix
     #../../modules/nebula.nix
+    # nebula config is defined inline below (this host is a lighthouse);
+    # pull in the remote-build accept side that other mesh members get via modules/nebula.nix
+    ../../../modules/remote-builder.nix
   ];
 
   # Use the GRUB 2 boot loader.
