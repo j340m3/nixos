@@ -3,6 +3,7 @@
   pkgs,
   lib,
   inputs,
+  constants,
   ...
 }:
 
@@ -306,7 +307,7 @@
   */
 
   networking.nameservers = [
-    "10.0.0.3"
+    "${constants.host.woody.ip}"
     "1.1.1.1"
     "8.8.8.8"
     "9.9.9.9"

@@ -492,48 +492,6 @@ in
   #    wantedBy = [ "multi-user.target" ];
   #  };
 
-  services.nebula.networks.mesh = {
-    listen.host = "[::]";
-    enable = true;
-    isLighthouse = false;
-    lighthouses = [
-      "10.0.0.1"
-      "10.0.0.5"
-    ];
-    relays = [
-      "10.0.0.1"
-      "10.0.0.5"
-    ];
-    settings = {
-      cipher = "aes";
-      punchy.punch = true;
-      punchy.respond = true;
-    };
-    # cert = lib.mkForce "/etc/nebula/woody.crt";
-    # key = lib.mkForce "/etc/nebula/woody.key";
-    # ca = lib.mkForce "/etc/nebula/ca.crt";
-    # staticHostMap = {
-    #     "10.0.0.1" = [
-    #             "194.164.125.154:4242"
-    #             ];
-    #     "10.0.0.5" = [ "194.164.54.40:4242" ];
-    #     };
-    firewall.outbound = [
-      {
-        cidr = constants.nebula.cidr;
-        port = "any";
-        proto = "any";
-      }
-    ];
-    firewall.inbound = [
-      {
-        cidr = constants.nebula.cidr;
-        proto = "icmp";
-        port = "any";
-      }
-    ];
-  };
-
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [
     80
     443

@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  constants,
   ...
 }:
 
@@ -42,7 +43,7 @@
     paths = "/var/lib/minetest/.minetest";
     encryption.mode = "none";
     environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/luanti".path}";
-    repo = "borg@10.0.0.3:.";
+    repo = "borg@${constants.host.woody.ip}:.";
     compression = "auto,lzma";
     startAt = "daily";
     preHook = "systemctl stop minetest-server";

@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  lib,
   constants,
   ...
 }:
@@ -18,14 +19,9 @@
     listen.host = "[::]";
     enable = true;
     isLighthouse = false;
-    lighthouses = [
-      "10.0.0.1"
-      "10.0.0.5"
-    ];
-    relays = [
-      "10.0.0.1"
-      "10.0.0.5"
-    ];
+    # roster in global/constants.nix: names -> mesh ip + public endpoints
+    lighthouses = map (h: constants.host.${h}.ip) constants.lighthouses;
+    relays = map (h: constants.host.${h}.ip) constants.lighthouses;
     settings = {
       cipher = "aes";
       static_map = {
@@ -36,23 +32,14 @@
         respond = true;
       };
       dns = {
-        host = "10.0.0.1";
+        host = constants.host.${constants.nebula.dns}.ip;
         port = 53;
       };
     };
     cert = config.sops.secrets."nebula/self_crt".path; # "/run/secrets/nebula/self.crt";
     key = config.sops.secrets."nebula/self_key".path; # "/run/secrets/nebula/self.key";
     ca = config.sops.secrets."nebula/ca_crt".path; # "/run/secrets/nebula/ca.crt";
-    staticHostMap = {
-      "10.0.0.1" = [
-        "194.164.125.154:4242"
-        "[2a00:da00:f43a:8800::1]:4242"
-      ];
-      "10.0.0.5" = [
-        "194.164.54.40:4242"
-        "[2a01:239:27f:fd00::1]:4242"
-      ];
-    };
+    staticHostMap = constants.nebula.staticMap config.networking.hostName;
     firewall.outbound = [
       {
         cidr = constants.nebula.cidr;
