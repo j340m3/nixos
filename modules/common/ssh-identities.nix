@@ -13,7 +13,9 @@ in
 
       services.openssh.knownHosts =
         lib.mapAttrs (h: v: {
-          hostNames = [ h v.connect ];
+          hostNames = [ h v.connect ]
+            ++ (lib.optional ((constants.host.${h}.ygg or null) != null)
+                  constants.host.${h}.ygg);
           publicKey = lib.fileContents (../../secrets/common/ssh + "/${h}/ssh.pub");
         }) constants.buildHosts;
     }
