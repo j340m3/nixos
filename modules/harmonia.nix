@@ -38,4 +38,8 @@
       proto = "tcp";
     }
   ];
+
+  # cache reachable over the yggdrasil backup overlay — TLS only (no 80/5000)
+  networking.firewall.interfaces."ygg".allowedTCPPorts = lib.mkIf
+    (config.services.harmonia.cache.enable && config.services.yggdrasil.enable) [ 443 ];
 }
