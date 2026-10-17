@@ -8,18 +8,23 @@
   environment.systemPackages = with pkgs; [
     rsyslog
   ];
-  networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 514 ];
+  networking.firewall.interfaces."nebula.mesh" = {
+    allowedUDPPorts = [ 514 ]; # legacy clients until rebuilt; drop after migration
+    allowedTCPPorts = [ 514 ];
+  };
   services.journald.settings.Journal = {
     MaxRetentionSec = "1week";
-    ForwardToSyslog = true;
+    # imjournal is the single reader; would otherwise duplicate woody's own
+    # messages into its own store via imuxsock
+    ForwardToSyslog = false;
   };
   services.rsyslogd = {
     enable = true;
     defaultConfig = ''
-      #module(load="imtcp")
-      #input(type="imtcp" port="514")
+    module(load="imtcp")
+    input(type="imtcp" port="514")
 
-      module(load="imudp")
+    module(load="imudp")
       input(type="imudp" port="514")
       $PreserveFQDN on
       $LocalHostName ${config.networking.hostName}

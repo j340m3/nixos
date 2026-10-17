@@ -11,10 +11,17 @@
     rsyslog
   ];
 
+  # RAM-only journal: the log host (woody) is the sole durable copy. The
+  # forwarder below is single-path TCP with a bounded disk queue.
   services.journald.settings.Journal = {
-    MaxRetentionSec = "1week";
-    ForwardToSyslog = true;
+    Storage = "volatile";
+    RuntimeMaxUse = "64M";
+    # upstream default is "yes"; without this both imjournal and the syslog
+    # socket deliver the same entry -> duplicates on the log host.
+    ForwardToSyslog = false;
   };
+  # stale persistent journals from before this switch must not linger
+  systemd.tmpfiles.rules = [ "R /var/log/journal" ];
   services.rsyslogd = {
     enable = true;
     /*
@@ -47,12 +54,13 @@
       			user.*                            -/var/log/user.log
       			*.*;auth,authpriv.*                /var/log/syslog
       			'';
-    extraConfig = ''
-    			*.*  action(type="omfwd" target="${constants.host.woody.ip}" port="514" protocol="udp"
-    			action.resumeRetryCount="100"
-    			queue.type="linkedList" queue.size="10000")
-    		#*.* @10.0.0.3:514
-      	'';
+  extraConfig = ''
+     			*.*  action(type="omfwd" target="${constants.host.woody.ip}" port="514" protocol="tcp"
+     			action.resumeRetryCount="-1"
+     			queue.type="linkedList" queue.size="10000" queue.dequeuebatchsize="1000"
+     			queue.filename="qfwd" queue.maxFileSize="4m" queue.maxDiskSpace="32m"
+     			queue.saveOnShutdown="on")
+   	'';
   };
 
   services.logrotate.settings."/var/log/syslog" = {

@@ -91,6 +91,14 @@
   systemd.network.enable = true;
   services.resolved.enable = false;
 
+  # recovery host, ships no logs: keep the journal off disk
+  services.journald.settings.Journal = {
+    Storage = "volatile";
+    RuntimeMaxUse = "32M";
+    ForwardToSyslog = false;
+  };
+  systemd.tmpfiles.rules = [ "R /var/log/journal" ];
+
   # Configure network IP and DNS
   systemd.network.networks.eth0 = {
     #address = ["194.164.54.40/24"];
