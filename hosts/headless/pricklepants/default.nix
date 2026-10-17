@@ -19,7 +19,7 @@ in
     #../../../modules/matrix2.nix
     ../../../modules/minetest.nix
     ../../../modules/vaultwarden.nix
-    #../../../modules/logging.nix
+    ../../../modules/logging.nix
     #../../../modules/zabbix.nix
     #../../../modules/dns-tunnel.nix
     #../../../modules/immich-proxy.nix
