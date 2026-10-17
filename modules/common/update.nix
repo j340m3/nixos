@@ -113,13 +113,19 @@
         auto-optimise-store = true;
         max-jobs = lib.mkDefault 1;
         cores = lib.mkDefault 1;
-        min-free = lib.mkDefault "${toString (100 * 1024 * 1024)}";
-        max-free = lib.mkDefault "${toString (1024 * 1024 * 1024)}";
+        # Free-space headroom so a rebuild can stage the new closure beside the
+        # old one and still trigger a mid-build GC instead of hitting ENOSPC.
+        min-free = lib.mkDefault "${toString (2 * 1024 * 1024 * 1024)}";
+        max-free = lib.mkDefault "${toString (3 * 1024 * 1024 * 1024)}";
       };
 
       daemonIOSchedClass = lib.mkDefault "idle";
       daemonCPUSchedPolicy = lib.mkDefault "idle";
     };
+
+    # The journal is the other thing that grows without bound on a small disk.
+    services.journald.settings.Journal.SystemMaxUse = lib.mkDefault "200M";
+
     #systemd.services.nix-daemon.serviceConfig.Slice = "-.slice";
     # always use the daemon, even executed  with root
     environment.variables.NIX_REMOTE = "daemon";
