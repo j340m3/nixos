@@ -27,7 +27,6 @@ in
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    ../../../modules/acme.nix
     ../../../modules/common
     ../../../users/donquezz.nix
     ../../../modules/loghost.nix
@@ -51,6 +50,7 @@ in
     # ./firefox.nix
     #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
     #<home-manager/nixos>
+    inputs.chaotic.nixosModules.default
   ];
 
   boot.tmp.cleanOnBoot = true;
