@@ -6,6 +6,8 @@
 
   users.users.remotebuild = {
     isSystemUser = true;
+    # real shell; nix ssh-ng runs nix-daemon --stdio through the login shell
+    useDefaultShell = true;
     createHome = false;
     group = "remotebuild";
     openssh.authorizedKeys.keys = [
