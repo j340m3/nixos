@@ -29,11 +29,6 @@
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
-    peerix = {
-      url = "github:j340m3/peerix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 
     # Pinned to the same rev as /etc/nixos (newer revs have a broken bun build).
@@ -66,9 +61,6 @@
       flake = false;
       url = "github:tinted-theming/schemes";
     };
-
-    apple-fonts.url = "github:Lyndeno/apple-fonts.nix";
-    apple-fonts.inputs.nixpkgs.follows = "nixpkgs";
 
     affinity-nix.url = "github:mrshmllow/affinity-nix";
     affinity-nix.inputs.nixpkgs.follows = "nixpkgs";
