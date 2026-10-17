@@ -29,6 +29,7 @@
     ./jeromeb
     ./lilly
     ../../../desktop-environments/xfce.nix
+    inputs.chaotic.nixosModules.default
   ];
 
   /*

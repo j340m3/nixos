@@ -49,8 +49,6 @@
   nix.gc.dates = lib.mkForce "hourly";
   nix.gc.options = lib.mkForce "-d";
 
-  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
-
   security.sudo.extraConfig = ''
     # rollback results in sudo lectures after each reboot
     Defaults lecture = never

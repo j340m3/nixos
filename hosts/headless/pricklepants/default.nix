@@ -32,8 +32,10 @@ in
   zramSwap.enable = true;
   nix.gc.dates = lib.mkForce "hourly";
   nix.gc.options = lib.mkForce "-d";
-  boot.kernelPackages = pkgs.linuxPackages_cachyos-lts;
-
+  # 10 GB root, 1 GB RAM: make the daemon collect mid-build while the new
+  # closure sits beside the old one instead of dying with ENOSPC.
+  nix.settings.min-free = lib.mkForce (toString (2 * 1024 * 1024 * 1024));
+  nix.settings.max-free = lib.mkForce (toString (3 * 1024 * 1024 * 1024));
   boot.loader.grub.configurationLimit = 2;
   #system.autoUpgrade.dates = lib.mkForce "daily";
 
@@ -143,6 +145,7 @@ in
 
   services.logrotate.enable = true;
   services.logrotate.checkConfig = false;
+  services.journald.settings.Journal.SystemMaxUse = "200M";
 
   # environment.systemPackages = with pkgs; [ nebula ];
   services.nebula.networks.mesh = {
