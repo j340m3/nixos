@@ -34,6 +34,11 @@
     # Pinned to the same rev as /etc/nixos (newer revs have a broken bun build).
     opencode-dev.url = "github:anomalyco/opencode/88c6c7abc7f320b6aabed2634ac0b2d6e6ecea67";
 
+    nix-minecraft = {
+      url = "github:Infinidoge/nix-minecraft";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
     impermanence.url = "github:nix-community/impermanence";
     disko = {
@@ -243,7 +248,8 @@
                   assert !(disabled.systemd.services ? nixos-upgrade-health-schedule);
                   pkgs.runCommand "upgrade-health-check" { } "touch $out";
               in
-              builtins.mapAttrs evalCheck native // {
+              builtins.mapAttrs evalCheck native
+              // {
                 upgrade-health = upgradeHealthCheck;
                 pre-commit = preCommit;
               };

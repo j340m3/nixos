@@ -15,7 +15,7 @@ host name. This file is the human-readable map.
 | `bootstrap` | image | headless | Disko image for provisioning new hosts. |
 | `bootstrap-impermanent` | image | headless | Disko image, impermanent-root variant. |
 | `buzz` | VPS (Ionos) | headless | vaultwarden. |
-| `jessie` | server | headless | minecraft-bedrock, radicle-seed, wireguard, remote-builder, acme, persistence. |
+| `jessie` | server | headless | minecraft-bedrock + minecraft-java (Paper via nix-minecraft, 1G heap), radicle-seed, wireguard, remote-builder, acme, persistence. |
 | `mrpotatohead` | VPS | headless | nextcloud (nginx/php-fpm), hardening, upgrade-health auto-rollback enabled. |
 | `pricklepants` | VPS (Ionos) | headless | wireguard VPN -> UK, bridge home, nebula lighthouse. |
 
@@ -61,8 +61,9 @@ VPS on Ionos. vaultwarden. Also a declaratively-enrolled remote builder.
 
 ### jessie
 
-Server. minecraft-bedrock, radicle-seed, wireguard, remote-builder, acme,
-persistence, nebula.
+Server. minecraft-bedrock, minecraft-java (Paper via nix-minecraft, 1G heap,
+Aikar flags, view/simulation distance reduced for the 1-core/1.8GB box),
+radicle-seed, wireguard, remote-builder, acme, persistence, nebula.
 
 ### mrpotatohead
 
