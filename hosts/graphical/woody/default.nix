@@ -55,6 +55,11 @@ in
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
 
+  # 24/7 homeserver: self-repair like the headless hosts (ADR-0012). The
+  # graphical/interests-of-saved-work exclusion (ADR-0007) is relaxed here
+  # because nobody sits at this display — it is reached via xrdp only.
+  upgradeHealth.enable = true;
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;

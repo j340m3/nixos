@@ -8,24 +8,31 @@
   services.borgbackup.repos = {
     matrix = {
       path = "/var/lib/borgbackup/matrix";
+      # Capacity ceiling (ADR-0012): if a repo outgrows this, borg serve
+      # refuses new writes → the client job fails → onFailure → Telegram.
+      # Turns "prune broke silently" into "backup failed loudly".
+      quota = "50G";
       authorizedKeysAppendOnly = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFuaGVhBlZ1yTk4NfbQwRTkFYcL4H86wbx2NJH4oMtRx mtrx"
       ];
     };
     minetest = {
       path = "/var/lib/borgbackup/minetest";
+      quota = "50G";
       authorizedKeysAppendOnly = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMHzhGXrb4GrFuRKi1bTdXcEz9J8vrGk/cn8KeDDlntI lnti"
       ];
     };
     minecraft-bedrock = {
       path = "/var/lib/borgbackup/minecraft-bedrock";
+      quota = "50G";
       authorizedKeysAppendOnly = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM5Y64l29rfKiDBGrLDllN6rRzoDeMiyLCaoPN8LYpAH jessie"
       ];
     };
     pricklepants = {
       path = "/var/lib/borgbackup/pricklepants";
+      quota = "50G";
       authorizedKeysAppendOnly = [
         (builtins.readFile (../secrets/common/ssh + "/pricklepants/borg:pricklepants.pub"))
       ];
