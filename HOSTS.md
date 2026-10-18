@@ -7,7 +7,7 @@ host name. This file is the human-readable map.
 | Host | Class | Role | Notes |
 |---|---|---|---|
 
-Roles as of 2026-10-18, verified against the import graph (see `docs/wiki/`).
+Roles as of 2026-10-18, verified against the import graph.
 
 | `lenny` | laptop | graphical | XFCE. Users: jeromeb, lilly. Old ThinkPad X230. |
 | `rex` | VM (on laptop) | graphical | Work laptop VM. XFCE, k3s, nebula, rclone, home-manager. |

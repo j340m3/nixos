@@ -42,7 +42,7 @@ ip a            # wg0 UP, 10.66.66.1/24 (same server key/pool as the other three
 iptables-save | grep ens6    # NAT masquerade goes out ens6
 ```
 
-## 3. yggdrasil harvest (plan: docs/superpowers/plans/2026-10-17-yggdrasil-backup.md)
+## 3. yggdrasil harvest
 
 Per member host (lenny, rex, woody, jessie, mrpotatohead, pricklepants,
 buzz) — take `Address` and `box_pub_key`:

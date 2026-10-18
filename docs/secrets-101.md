@@ -52,7 +52,13 @@ just py3 scripts/rotate-secrets.py identity zurg ssh --age-key <host age key>
 2. Replaces `<label>.key` in the host's sops file (preserving all existing age recipients).
 3. Writes the pub to `secrets/common/ssh/<host>/<label>.pub`.
 
-See `docs/superpowers/identity-keys.md` for the full reference and more examples.
+**Rotate the host's nebula cert:**
+```bash
+just py3 scripts/rotate-secrets.py nebula-cert pricklepants --ca-cert <local ca.crt> --ca-key <local ca.key> --age-key <host age key>
+```
+Generates a new nebula keypair and signs it with the operator-supplied CA (`--networks` CIDR defaults to `10.0.0.0/24`), then replaces `nebula.self_key`/`nebula.self_crt` in the host's sops file. The CA cert itself (`nebula.ca_crt`) is shared and rarely rotates — if it does, every host cert gets re-signed and redistributed.
+
+Common args for `rotate-secrets.py`: `--age-key` (local copy of the host's current sops age keyfile), `--sops-file <path>` (override the secrets.yaml path), `--networks <cidr>`.
 
 ## Safety rules
 - Use local copies of age keys (`--age-key`); the scripts do not fetch them over the network.

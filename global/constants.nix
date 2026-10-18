@@ -73,7 +73,7 @@ let
   # ssh.pub in secrets/common/ssh/<h>/ (feeds knownHosts) and its root key in
   # modules/remote-builder.nix authorizedKeys. Opportunistic accelerators
   # only; absence means not attempted, unreachable falls back to local
-  # builds. See ADR-0000.
+  # builds.
   builders = [
     "pricklepants"
     "buzz"

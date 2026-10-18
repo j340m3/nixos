@@ -1,7 +1,8 @@
 .vscode/
-result
+result*
 .pre-commit-config.yaml
 
 # Python
 __pycache__/
 *.py[cod]
+.ruff_cache/

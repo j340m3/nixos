@@ -8,7 +8,7 @@
   services.borgbackup.repos = {
     matrix = {
       path = "/var/lib/borgbackup/matrix";
-      # Capacity ceiling (ADR-0012): if a repo outgrows this, borg serve
+      # Capacity ceiling: if a repo outgrows this, borg serve
       # refuses new writes → the client job fails → onFailure → Telegram.
       # Turns "prune broke silently" into "backup failed loudly".
       quota = "50G";

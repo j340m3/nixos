@@ -22,7 +22,10 @@ in
 {
   imports = [ inputs.peerpatrol.nixosModules.default ];
 
-  services.peerpatrol = {
+  # ponytail: upstream package is x86_64-only; slinky (aarch64) must not
+  # inherit a binary it cannot exec. Add packages.aarch64-linux upstream,
+  # then key the package on pkgs.system instead of gating.
+  services.peerpatrol = lib.mkIf pkgs.stdenv.hostPlatform.isx86_64 {
     enable = true;
     package = inputs.peerpatrol.packages.x86_64-linux.default;
     # Placeholders in the shared JSON; real values arrive via the

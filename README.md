@@ -60,8 +60,7 @@ Formatting and checks are provided through [flake-parts](https://flake.parts/):
 `packages`/`checks`/`devShells`/`formatter` are `perSystem`.
 
 Secrets, host identity keys, and rotation are documented in
-[docs/secrets-101.md](./docs/secrets-101.md) and
-[docs/superpowers/identity-keys.md](./docs/superpowers/identity-keys.md).
+[docs/secrets-101.md](./docs/secrets-101.md).
 
 ## Adding a host
 

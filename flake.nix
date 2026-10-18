@@ -259,6 +259,10 @@
                   assert lib.hasInfix "peerpatrol-chat-id-file:${enabled.sops.secrets."telegram/group_id".path}" (
                     lib.concatStringsSep "\n" enabled.systemd.services.peerpatrol.serviceConfig.LoadCredential
                   );
+                  assert lib.hasInfix "--token-file %d/peerpatrol-token-file"
+                    enabled.systemd.services.peerpatrol.serviceConfig.ExecStart;
+                  assert lib.hasInfix "--chat-id-file %d/peerpatrol-chat-id-file"
+                    enabled.systemd.services.peerpatrol.serviceConfig.ExecStart;
                   assert 5 == lib.length (lib.filter (h: h ? ip) (lib.attrValues constants.host));
                   pkgs.runCommand "peerpatrol-check" { } "touch $out";
               in
