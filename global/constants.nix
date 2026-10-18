@@ -10,8 +10,8 @@ let
         "194.164.125.154:4242"
         "[2a00:da00:f43a:8800::1]:4242"
       ];
-      ygg = null;
-      yggPub = null;
+      ygg = "200:7b7a:984c:6206:75a4:6cb4:2a89:4275";
+      yggPub = "c242b3d9cefcc52dc9a5eabb5ec5698728d4cc27e5c776c670cfc3799ae372ac";
     };
     buzz = {
       ip = "10.0.0.5";
@@ -22,7 +22,11 @@ let
       ygg = null;
       yggPub = null;
     };
-    woody = { ip = "10.0.0.3"; ygg = null; yggPub = null; };
+    woody = {
+      ip = "10.0.0.3";
+      ygg = "200:c21a:8e2b:4ccb:834e:e195:f938:d1e7";
+      yggPub = "9ef2b8ea599a3e588f350363970c186aa5ba5d641fdf0d01f5f6cb4388202ae3";
+    };
     mrpotatohead = {
       ip = "10.0.0.6";
       endpoints = [
