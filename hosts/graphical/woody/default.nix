@@ -133,6 +133,7 @@ in
   nix.settings.max-jobs = 6;
   nix.settings.cores = 6;
   nix.distributedBuilds = lib.mkForce false;
+  nix.settings.trusted-users = ["jeromeb"];
 
   users.groups.plugdev = { };
   # Define a user account. Don't forget to set a password with ‘passwd’.
