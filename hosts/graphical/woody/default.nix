@@ -148,6 +148,7 @@ in
       #goose-cli
       htop
       rbw
+      pinentry-curses
       # home-manager
       github-desktop
       (vscode-with-extensions.override {
