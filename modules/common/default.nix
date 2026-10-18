@@ -14,6 +14,7 @@
     #./lockup.nix
     #./ntp.nix
     ./ulimit.nix
+    ./peerpatrol.nix
     ../../users/donquezz.nix
   ];
 

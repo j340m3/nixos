@@ -839,6 +839,26 @@
         "type": "github"
       }
     },
+    "peerpatrol": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792345825,
+        "narHash": "sha256-DhQojeuA7zbtPzCjSQaIqJC+2Ich+M3V72Kk5qnO9HA=",
+        "owner": "j340m3",
+        "repo": "peerpatrol",
+        "rev": "f3c6fdaab35f352b80c2545cac9614324daac4b9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "j340m3",
+        "repo": "peerpatrol",
+        "type": "github"
+      }
+    },
     "plugin-loader-src": {
       "flake": false,
       "locked": {
@@ -894,6 +914,7 @@
         "nixpkgs-master": "nixpkgs-master",
         "oom-hardware": "oom-hardware",
         "opencode-dev": "opencode-dev",
+        "peerpatrol": "peerpatrol",
         "pre-commit-hooks": "pre-commit-hooks",
         "sops-nix": "sops-nix",
         "stylix": "stylix",

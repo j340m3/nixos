@@ -65,6 +65,11 @@
 
     nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
 
+    peerpatrol = {
+      url = "github:j340m3/peerpatrol";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -240,10 +245,27 @@
                   assert !(disabled.systemd.services ? nixos-upgrade-health);
                   assert !(disabled.systemd.services ? nixos-upgrade-health-schedule);
                   pkgs.runCommand "upgrade-health-check" { } "touch $out";
+
+                # Guards the peerpatrol fleet wiring: the unit exists and is
+                # enabled, LoadCredential points at the sops secret aliases,
+                # and the ping targets match the roster hosts that have a
+                # verified nebula ip.
+                peerpatrolCheck =
+                  assert enabled.services.peerpatrol.enable;
+                  assert enabled.systemd.services ? peerpatrol;
+                  assert lib.hasInfix "peerpatrol-token-file:${enabled.sops.secrets."telegram/bot_token".path}" (
+                    lib.concatStringsSep "\n" enabled.systemd.services.peerpatrol.serviceConfig.LoadCredential
+                  );
+                  assert lib.hasInfix "peerpatrol-chat-id-file:${enabled.sops.secrets."telegram/group_id".path}" (
+                    lib.concatStringsSep "\n" enabled.systemd.services.peerpatrol.serviceConfig.LoadCredential
+                  );
+                  assert 5 == lib.length (lib.filter (h: h ? ip) (lib.attrValues constants.host));
+                  pkgs.runCommand "peerpatrol-check" { } "touch $out";
               in
               builtins.mapAttrs evalCheck native
               // {
                 upgrade-health = upgradeHealthCheck;
+                peerpatrol = peerpatrolCheck;
                 pre-commit = preCommit;
               };
           };
