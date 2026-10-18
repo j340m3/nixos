@@ -22,10 +22,8 @@
     ../../../modules/logging.nix
     ../../../modules/nebula.nix
     #../../../modules/zabbix.nix
-    ../../../modules/k3s.nix
     #../../modules/peerix.nix
     #../../modules/cool-shell.nix
-    ../../../modules/google-drive.nix
     inputs.home-manager.nixosModules.home-manager
     inputs.chaotic.nixosModules.default
   ];
