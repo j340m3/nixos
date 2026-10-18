@@ -97,7 +97,7 @@
         # record the failed units first, so a rollback that itself fails is not
         # retried on every trigger
         printf '%s\n' "$failed" > "$guard/rolled-back-from"
-        ${pkgs.nixos-rebuild}/bin/nixos-rebuild rollback
+        ${pkgs.nixos-rebuild}/bin/nixos-rebuild --rollback switch
         echo "upgrade-health: rolled back, rebooting"
         ${pkgs.systemd}/bin/systemctl reboot
       '';

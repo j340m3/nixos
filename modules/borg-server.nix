@@ -40,4 +40,26 @@
     # };
   };
 
+  # Client keys are append-only (they can never delete), so retention must
+  # run here as root. nixpkgs' borgbackup.jobs only prunes as part of a
+  # backup (assertion requires paths/dumpCommand), which would create junk
+  # archives just to satisfy its script — so this is a direct service.
+  systemd.services.borg-prune = {
+    description = "Prune + compact local borg repos (append-only clients cannot delete)";
+    path = [ pkgs.borgbackup ];
+    script = ''
+      set -euo pipefail
+      for repo in /var/lib/borgbackup/*; do
+        borg prune --verbose "$repo" --keep-within 90d --keep-daily 7 --keep-weekly 4
+        borg compact "$repo"
+      done
+    '';
+  };
+  systemd.timers.borg-prune = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "Sun 03:30";
+      Persistent = true;
+    };
+  };
 }

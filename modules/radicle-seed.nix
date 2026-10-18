@@ -26,9 +26,18 @@
     };
     httpd.enable = true;
     httpd.nginx.serverName = "radicle.kauderwels.ch";
-    httpd.nginx.useACMEHost = "kauderwels.ch";
-    #httpd.nginx.enableACME = true;
+    httpd.nginx.enableACME = true;
     httpd.nginx.forceSSL = true;
+  };
+
+  # enableACME needs a real nginx; without this the httpd vhost is phantom
+  # (jessie had no nginx in its closure at all)
+  services.nginx.enable = true;
+
+  # web UI cert: enableACME generates the entry incl. nginx reload on renewal;
+  # explicit group mirrors modules/pihole.nix (key readable by the proxy group)
+  security.acme.certs."radicle.kauderwels.ch" = {
+    group = config.services.nginx.group;
   };
 
   sops.secrets."radicle/private" = {
@@ -37,14 +46,30 @@
 
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [
     config.services.radicle.node.listenPort
+    80
+    443
   ];
-  networking.firewall.allowedTCPPorts = [ config.services.radicle.node.listenPort ];
+  networking.firewall.allowedTCPPorts = [
+    config.services.radicle.node.listenPort
+    80
+    443
+  ];
   services.nebula.networks.mesh.firewall.inbound =
     lib.mkIf (config.services.radicle.enable && config.services.nebula.networks.mesh.enable)
       [
         {
           cidr = constants.nebula.cidr;
           port = config.services.radicle.node.listenPort;
+          proto = "any";
+        }
+        {
+          cidr = constants.nebula.cidr;
+          port = 80;
+          proto = "any";
+        }
+        {
+          cidr = constants.nebula.cidr;
+          port = 443;
           proto = "any";
         }
       ];

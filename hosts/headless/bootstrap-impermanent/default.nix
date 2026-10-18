@@ -90,9 +90,10 @@
   services.resolved.enable = false;
 
   # recovery host, ships no logs: keep the journal off disk
+  # mkDefault so a service host importing this + logging.nix still evals
   services.journald.settings.Journal = {
     Storage = "volatile";
-    RuntimeMaxUse = "32M";
+    RuntimeMaxUse = lib.mkDefault "32M";
     ForwardToSyslog = false;
   };
   systemd.tmpfiles.rules = [ "R /var/log/journal" ];

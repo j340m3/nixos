@@ -29,7 +29,10 @@
     ../../../modules/common
     ../../../users/donquezz.nix
     ../../../modules/logging.nix
-    ../../../modules/nextcloud.nix
+    #../../../modules/nextcloud.nix
+    # nextcloud lives on mrpotatohead (public DNS nextcloud.kauderwels.ch +
+    # files.dabergmann.de both point there); a second instance here would
+    # fight it over ACME identity and sops secrets when buzz returns
     #../../../modules/persistence.nix
     #../../../modules/zabbix.nix
     ../../../modules/wireguard.nix

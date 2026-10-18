@@ -29,9 +29,4 @@
       };
     };
   };
-
-  virtualisation.docker = {
-    daemon.settings.features.cdi = true;
-    daemon.settings.cdi-spec-dirs = [ "/etc/cdi" ];
-  };
 }

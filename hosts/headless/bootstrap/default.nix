@@ -92,9 +92,11 @@
   services.resolved.enable = false;
 
   # recovery host, ships no logs: keep the journal off disk
+  # mkDefault so a service host importing this + logging.nix still evals
+  # (plain-vs-plain RuntimeMaxUse conflict killed buzz's toplevel, 2026-10-18)
   services.journald.settings.Journal = {
     Storage = "volatile";
-    RuntimeMaxUse = "32M";
+    RuntimeMaxUse = lib.mkDefault "32M";
     ForwardToSyslog = false;
   };
   systemd.tmpfiles.rules = [ "R /var/log/journal" ];

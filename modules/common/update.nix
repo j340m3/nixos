@@ -97,7 +97,7 @@
       settings = {
         substituters = [
           "https://cache.nixos.org"
-          "https://cache.kauderwels.ch"
+          "https://cache.kauderwels.ch:5000"
           "https://nix-community.cachix.org"
           "https://cache.chaotic.cx"
         ];

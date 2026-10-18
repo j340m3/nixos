@@ -7,7 +7,13 @@ in
 {
   # nginx serves the challenge and dnsdist reads the key, so it has to be
   # readable by both
-  security.acme.certs.${domainName}.group = config.services.nginx.group;
+  security.acme.certs.${domainName} = {
+    group = config.services.nginx.group;
+    # dnsdist reads the cert at startup only and its unit has no ExecReload,
+    # so on renewal the acme module's `try-reload-or-restart` restarts it
+    # (restartUnits was removed upstream; reloadServices is the remaining knob)
+    reloadServices = [ "dnsdist.service" ];
+  };
   users.users.dnsdist.extraGroups = [ config.services.nginx.group ];
 
   # buzz already runs nginx for nextcloud, this only serves the challenge

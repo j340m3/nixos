@@ -42,4 +42,13 @@
   # cache reachable over the yggdrasil backup overlay — TLS only (no 80/5000)
   networking.firewall.interfaces."ygg".allowedTCPPorts = lib.mkIf
     (config.services.harmonia.cache.enable && config.services.yggdrasil.enable) [ 443 ];
+
+  # harmonia.socket goes zombie after every autoUpgrade config change
+  # ("Unit configuration changed ... no socket file descriptors are open;
+  # Unit not functional until restarted") — systemd leaves changed socket
+  # units dangling, and hourly floating-lock deploys make that every cycle.
+  # Run the daemon straight at boot instead (TLS on :5000, in-process).
+  systemd.sockets.harmonia.enable = false;
+  systemd.services.harmonia.wantedBy = [ "multi-user.target" ];
+  systemd.services.harmonia.requires = lib.mkForce [ ];
 }
