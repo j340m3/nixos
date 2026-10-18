@@ -147,6 +147,7 @@ in
     packages = with pkgs; [
       #goose-cli
       htop
+      rbw
       # home-manager
       github-desktop
       (vscode-with-extensions.override {
@@ -173,7 +174,9 @@ in
     };
     home-manager.backupFileExtension = "backup.hm";
   */
-
+  environment.sessionVariables = {
+    SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/rbw/ssh-agent-socket";
+  };
   # Install firefox.
   # programs.firefox.enable = true;
   # Install firefox.
