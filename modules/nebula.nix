@@ -8,6 +8,13 @@
 let
   # lighthouse status rides the roster (inline nebula hosts set their own)
   isLighthouse = builtins.elem config.networking.hostName constants.lighthouses;
+  # a host must never list itself as lighthouse/relay: nebula requires every
+  # entry to have a static_host_map entry, and constants.nebula.staticMap
+  # (correctly) omits self. Self-listing made nebula crash-loop on jessie and
+  # mrpotatohead from 2026-10-17 (fatal "lighthouse X does not have a
+  # static_host_map entry") and aborted every subsequent switch with
+  # switch-to-configuration exit 4.
+  notSelf = h: h != config.networking.hostName;
 in
 {
   # Mesh member => remote-build accept side (every mesh host builds for the
@@ -24,8 +31,8 @@ in
     enable = true;
     inherit isLighthouse;
     # roster in global/constants.nix: names -> mesh ip + public endpoints
-    lighthouses = map (h: constants.host.${h}.ip) constants.lighthouses;
-    relays = map (h: constants.host.${h}.ip) constants.lighthouses;    settings = {
+    lighthouses = map (h: constants.host.${h}.ip) (builtins.filter notSelf constants.lighthouses);
+    relays = map (h: constants.host.${h}.ip) (builtins.filter notSelf constants.lighthouses);    settings = {
       cipher = "aes";
       static_map = {
         network = "ip";
