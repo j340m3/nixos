@@ -39,4 +39,9 @@ in
     tokenFile = config.sops.secrets."telegram/bot_token".path;
     chatIdFile = config.sops.secrets."telegram/group_id".path;
   };
+
+  # The daemon writes monitor-state.txt relative to its cwd.  Without this
+  # it lands in /, which DynamicUser makes read-only (ProtectSystem=strict),
+  # and peerpatrol exits with "state path ... not writable".
+  systemd.services.peerpatrol.serviceConfig.WorkingDirectory = "/var/lib/peerpatrol";
 }

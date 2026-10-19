@@ -138,7 +138,7 @@ in
   nix.settings.max-jobs = 6;
   nix.settings.cores = 6;
   nix.distributedBuilds = lib.mkForce false;
-  nix.settings.trusted-users = ["jeromeb"];
+  nix.settings.trusted-users = [ "jeromeb" ];
 
   users.groups.plugdev = { };
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -380,7 +380,12 @@ in
   #services.xrdp.defaultWindowManager = "mate-session";
   services.xrdp.defaultWindowManager = "startplasma-x11";
   services.xrdp.openFirewall = true;
-  #services.xrdp.extraConfDirCommands = "substituteInPlace $out/sesman.ini --replace-fail '#SessionSockdirGroup=xrdp' 'SessionSockdirGroup=xrdp'";
+  # xrdp logs every RDP callback at INFO; that produced ~1GB/week of
+  # pointer addresses on the loghost.  WARNING is enough to troubleshoot.
+  services.xrdp.extraConfDirCommands = ''
+    substituteInPlace $out/sesman.ini --replace-fail 'LogLevel=INFO' 'LogLevel=WARNING'
+    substituteInPlace $out/xrdp.ini --replace-fail 'LogLevel=INFO' 'LogLevel=WARNING'
+  '';
 
   services.home-assistant = {
     enable = false; # doesn't build!?
