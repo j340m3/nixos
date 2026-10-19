@@ -21,9 +21,8 @@
   services.yubikey-agent.enable = true;
   services.udev.packages = [ pkgs.libfido2 ];
   # Install firefox.
-  home-manager.backupFileExtension = "hmbackup";
-  home-manager.users.jeromeb = import ../home;
-  home-manager.extraSpecialArgs = { inherit inputs; };
+  # Home Manager wiring: hosts use modules/common/home-manager.nix + their own
+  # home-manager.users.jeromeb entry (rex currently).
 
   sops.secrets."filen/jeromeb.conf" = {
     format = "ini";

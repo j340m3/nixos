@@ -39,6 +39,9 @@
     };
   */
 
+  # jeromeb's home, wired into the host rebuild instead of a standalone switch
+  home-manager.users.jeromeb.imports = [ ../../../home ];
+
   # Bootloader.
   boot.loader.grub.enable = true;
   boot.loader.grub.device = "/dev/sda";

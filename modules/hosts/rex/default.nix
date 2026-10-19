@@ -24,9 +24,12 @@
     #../../../modules/zabbix.nix
     #../../modules/peerix.nix
     #../../modules/cool-shell.nix
-    inputs.home-manager.nixosModules.home-manager
+    # home-manager module comes in via modules/common/home-manager.nix
     inputs.chaotic.nixosModules.default
   ];
+
+  # jeromeb's home, wired into the host rebuild instead of a standalone switch
+  home-manager.users.jeromeb.imports = [ ../../../home ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;

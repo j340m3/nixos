@@ -2,7 +2,7 @@
 {
   imports = [
     ../../../../desktop-environments/xfce.nix
-    inputs.home-manager.nixosModules.home-manager
+    # home-manager module comes in via modules/common/home-manager.nix
   ];
   nixpkgs.overlays = [
     inputs.affinity-nix.overlays.default
@@ -25,7 +25,6 @@
       #  thunderbird
     ];
   };
-  home-manager.backupFileExtension = "hmbackup";
-  home-manager.users.jeromeb = import ../../../../home;
-  home-manager.extraSpecialArgs = { inherit inputs; };
+  # Home Manager comes in via modules/common/home-manager.nix; the host wires
+  # the home tree under home-manager.users.jeromeb.
 }

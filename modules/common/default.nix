@@ -15,6 +15,7 @@
     #./ntp.nix
     ./ulimit.nix
     ./peerpatrol.nix
+    ./home-manager.nix
     ../../users/donquezz.nix
   ];
 

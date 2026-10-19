@@ -9,6 +9,12 @@
         config.permittedInsecurePackages = [
           "radicle-node-1.10.3"
         ];
+        config.allowUnfreePredicate =
+          pkg:
+          builtins.elem (inputs.nixpkgs.lib.getName pkg) [
+            "spotify"
+            "apple_cursor"
+          ];
       };
       extraSpecialArgs = { inherit inputs; };
       modules = [ (inputs.self + "/home") ];
