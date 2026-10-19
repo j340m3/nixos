@@ -40,6 +40,14 @@
     };
   };
 
+  # Gotenberg 8.36 (pulled in by the paperless module) defaults unset OTEL
+  # exporters to OTLP on localhost:4318, which this host does not run.
+  systemd.services.gotenberg.environment = {
+    OTEL_METRICS_EXPORTER = "none";
+    OTEL_LOGS_EXPORTER = "none";
+    OTEL_TRACES_EXPORTER = "none";
+  };
+
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [ config.services.paperless.port ];
   networking.firewall.allowedTCPPorts = [ config.services.paperless.port ];
 

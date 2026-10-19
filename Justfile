@@ -45,7 +45,8 @@ check:
     set -uo pipefail
     system=$(nix eval --raw --impure --expr builtins.currentSystem)
     status=0
-    for dir in hosts/graphical/* hosts/headless/*; do
+    for dir in modules/hosts/*; do
+      [ -f "$dir/default.nix" ] || continue
       host=$(basename "$dir")
       hostSystem=$(nix eval --no-write-lock-file --raw ".#nixosConfigurations.${host}.config.nixpkgs.hostPlatform.system" 2>/dev/null)
       if [ "$hostSystem" != "$system" ]; then

@@ -51,13 +51,22 @@
   networking.hostName = "jessie"; # Define your hostname.
   zramSwap.enable = false;
   # 1-core/1.8GB host shared with the minecraft container: nix builds (remote
-  # ones arrive via the remotebuild stdio daemon, which reads this nix.conf)
-  # run niced and one at a time, so bedrock_server wins CPU under contention.
+  # ones arrive via the remotebuild SSH session) run at low priority and one
+  # at a time, so bedrock_server wins CPU under contention.
   # Hard CPUQuota would idle the core whenever the game is quiet — avoided.
-  nix.settings = {
-    nice = 15;
-    max-jobs = lib.mkForce 1;
+  nix = {
+    daemonCPUSchedPolicy = "idle";
+    settings.max-jobs = lib.mkForce 1;
   };
+  security.pam.loginLimits = [
+    {
+      domain = "remotebuild";
+      item = "nice";
+      value = 15;
+    }
+  ];
+  # autoUpgrade runs as root and bypasses nix-daemon, so nice it separately.
+  systemd.services.nixos-upgrade.serviceConfig.Nice = 15;
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
   # networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.

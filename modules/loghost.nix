@@ -62,6 +62,9 @@ in
         input(type="imudp" port="514")
         $PreserveFQDN on
         $LocalHostName ${config.networking.hostName}
+        # rsyslog defaults to 0700, which masks the jeromeb ACL on new
+        # per-host dirs (mrpotatohead's log dir became unreadable).
+        $DirCreateMode 0750
 
         $template RemoteLogs,"/persist/rsyslog/%HOSTNAME%/%PROGRAMNAME%.log"
         #$template RemoteLogs,"/persist/rsyslog/%FROMHOST-IP%/%PROGRAMNAME%.log"
