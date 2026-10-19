@@ -10,6 +10,7 @@
     inputs.disko.nixosModules.disko
     inputs.sops-nix.nixosModules.sops
     inputs.impermanence.nixosModules.impermanence
+    ../../../modules/common/agent-md.nix
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";

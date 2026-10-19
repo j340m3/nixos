@@ -12,6 +12,7 @@
       # standalone /etc/nixos flake).
       inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p51
       inputs.stylix.nixosModules.stylix
+      ../../../modules/common/agent-md.nix
       ./gaming.nix
       ./fingerprint.nix
       #./wifi.nix
