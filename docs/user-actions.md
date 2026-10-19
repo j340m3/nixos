@@ -42,29 +42,25 @@ ip a            # wg0 UP, 10.66.66.1/24 (same server key/pool as the other three
 iptables-save | grep ens6    # NAT masquerade goes out ens6
 ```
 
-## 3. yggdrasil harvest
+## 3. Reticulum identities
 
-Per member host (lenny, rex, woody, jessie, mrpotatohead, pricklepants,
-buzz) — take `Address` and `box_pub_key`:
+Each member host has a Reticulum identity in `secrets/hosts/<host>/reticulum.yaml`
+(key `identity`, base64). The public transport hash and the Nix `rnsh`
+destination hash live in `global/constants.nix` under `reticulum.identities`.
 
-```bash
-yggdrasilctl getSelf
-```
-
-Fill into `global/constants.nix` `host.<name>.ygg` / `.yggPub`, replacing the
-null tiles. Before harvest, peerings are gate-off (peers/listen stay empty on
-purpose); with the last pin filled they all activate on the next rebuild.
-
-Push, rebuild the fleet, then:
+To rotate one host:
 
 ```bash
-# buildMachines: 10 on pure clients (lenny, rex), 8 on builder members
-nix eval --json .#nixosConfigurations.lenny.config.nix.buildMachines | jq length
-nix eval --json .#nixosConfigurations.woody.config.nix.buildMachines | jq length
-
-# registrar: AAAA cache.kauderwels.ch -> woody's ygg address, then:
-nix store ping --store https://cache.kauderwels.ch
+NIXPKGS_ALLOW_UNFREE=1 nix shell --impure nixpkgs#python3Packages.rns -c bash -c '
+  rnid -g /tmp/identity
+  rnid -i /tmp/identity -p
+  rnid -i /tmp/identity -H "rnsh"
+'
+sudo sops secrets/hosts/<host>/reticulum.yaml   # set identity to base64 of /tmp/identity
 ```
+
+Update `reticulum.identities.<host>.hash` and `.nix`, rebuild that host and the
+public transports, then check with `rnstatus` and `rnprobe <nix-destination>`.
 
 ## 4. wifi secret format spot-check (works only if values are FOO=bar lines)
 

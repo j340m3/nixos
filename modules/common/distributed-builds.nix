@@ -1,9 +1,13 @@
-{ pkgs, lib, config, constants, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  constants,
+  ...
+}:
 let
   inventory = constants.buildHosts;
   peers = lib.filterAttrs (h: _: h != config.networking.hostName) inventory;
-  # ygg backup address per peer (null until harvested from yggdrasilctl)
-  yggAddr = h: constants.host.${h}.ygg or null;
   sshBlock = h: host: ''
     Host ${h}
       HostName ${host}
@@ -14,40 +18,38 @@ let
       ConnectTimeout 3
   '';
   machines = lib.flatten (
-    lib.mapAttrsToList
-      (h: v: [
-        {
-          # primary: nebula path wins via speedFactor; dials by alias so the
-          # ssh-config block (not the raw IP) applies identity + port
-          hostName = h;
-          systems = v.systems or [ "x86_64-linux" ];
-          speedFactor = 10;
-          protocol = "ssh-ng";
-          supportedFeatures = v.supportedFeatures or [ ];
-          maxJobs = v.maxJobs or 4;
-        }
-      ]
-      ++ lib.optionals (yggAddr h != null) [
-          {
-            hostName = "${h}-ygg";
-            systems = v.systems or [ "x86_64-linux" ];
-            speedFactor = 1; # backup path only
-            protocol = "ssh-ng";
-            supportedFeatures = v.supportedFeatures or [ ];
-            maxJobs = v.maxJobs or 4;
-          }
-        ])
-      peers
+    lib.mapAttrsToList (h: v: [
+      {
+        # Reticulum path is preferred; the ssh alias is handled by the shim.
+        hostName = "${h}-rns";
+        systems = v.systems or [ "x86_64-linux" ];
+        speedFactor = 20;
+        protocol = "ssh-ng";
+        supportedFeatures = v.supportedFeatures or [ ];
+        maxJobs = v.maxJobs or 4;
+      }
+      {
+        # nebula path is the fallback.
+        hostName = h;
+        systems = v.systems or [ "x86_64-linux" ];
+        speedFactor = 10;
+        protocol = "ssh-ng";
+        supportedFeatures = v.supportedFeatures or [ ];
+        maxJobs = v.maxJobs or 4;
+      }
+    ]) peers
   );
 in
 {
   nix.distributedBuilds = true;
   nix.settings.builders-use-substitutes = true;
+  nix.settings.substituters = lib.mkAfter (
+    map (h: "ssh-ng://${h}-rns?trusted=1&max-connections=1") (lib.attrNames peers)
+  );
   nix.buildMachines = machines;
 
   programs.ssh.extraConfig = lib.concatStringsSep "\n" (
     lib.mapAttrsToList (h: v: sshBlock h v.connect) peers
-    ++ lib.concatMap (h: lib.optionals (yggAddr h != null) [ (sshBlock "${h}-ygg" (yggAddr h)) ]) (lib.attrNames peers)
   );
 
   # remotebuild user/group live in ../remote-builder.nix (accept side),

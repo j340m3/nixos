@@ -4,6 +4,7 @@
     ./upgradeHealth.nix
     ./ssh.nix
     ./ssh-identities.nix
+    ../reticulum.nix
     ./locale.nix
     ./sops.nix
     ./rate_limiting_avoidance.nix
@@ -19,6 +20,8 @@
     ./home-manager.nix
     ../../users/donquezz.nix
   ];
+
+  services.reticulum.enable = true;
 
   # radicle-node is marked insecure in nixpkgs (unencrypted node traffic)
   nixpkgs.config.permittedInsecurePackages = [

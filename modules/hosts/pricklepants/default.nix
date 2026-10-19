@@ -29,9 +29,8 @@ in
     # nebula config is defined inline below (this host is a lighthouse);
     # pull in the remote-build accept side that other mesh members get via modules/nebula.nix
     ../../../modules/remote-builder.nix
-    # yggdrasil backup overlay member (inline nebula host)
-    ../../../modules/yggdrasil.nix
   ];
+
   #swapDevices = [ { device = "/swapfile"; size = 512; } ];
   boot.tmp.cleanOnBoot = true;
   zramSwap.enable = true;
@@ -236,7 +235,10 @@ in
   };
 
   services.borgbackup.jobs.pricklepants = {
-    paths = [ "/etc" "/var/lib/vaultwarden" ];
+    paths = [
+      "/etc"
+      "/var/lib/vaultwarden"
+    ];
     encryption.mode = "none";
     environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/pricklepants".path}";
     repo = "borg@10.0.0.3:pricklepants";

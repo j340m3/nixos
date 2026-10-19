@@ -7,7 +7,7 @@
 ## Context
 
 pricklepants holds the densest workload set (vaultwarden, luanti, wireguard,
-nebula lighthouse, remote-builder, yggdrasil) on a 10GiB Ionos disk with a
+nebula lighthouse, remote-builder, reticulum) on a 10GiB Ionos disk with a
 9G root partition. It had filled up in the past to the point of failed
 rebuilds. The invariant that rules this fleet is ADR-0000's update
 independence: every host must be able to pull its next generation from this

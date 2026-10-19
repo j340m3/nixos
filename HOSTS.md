@@ -14,14 +14,14 @@ Roles as of 2026-10-18, verified against the import graph.
 | `rex` | VM (on laptop) | graphical | Work laptop VM. XFCE, k3s, nebula, rclone, home-manager. |
 | `sid` | WSL | graphical | NixOS-WSL on Windows. NVIDIA, editor. |
 | `slinky` | uConsole (aarch64) | graphical | Raspberry Pi 4 / oom-hardware uConsole, nebula, wifi. |
-| `woody` | server | graphical | Homeserver: prometheus/grafana/fritz-exporter, zabbix web+agent, immich, paperless, harmonia binary cache, borg-server, loghost, NFS-fee, reticulum, mosquitto. KDE via xrdp (no display manager). |
+| `woody` | server | graphical | Homeserver: prometheus/grafana/fritz-exporter, zabbix web+agent, immich, paperless, harmonia binary cache, borg-server, loghost, NFS-fee, mosquitto. KDE via xrdp (no display manager). |
 | `zurg` | laptop | graphical | ThinkPad P51. stylix, gaming, llm, fingerprint, DE. |
 | `bootstrap` | image | headless | Disko image for provisioning new hosts. |
 | `bootstrap-impermanent` | image | headless | Disko image, impermanent-root variant. |
 | `buzz` | VPS (Ionos) | headless | nextcloud, dnsdist DoT/53 (the "pihole"), wireguard, remote-builder. Currently offline — Ionos panel check pending; vaultwarden moved to pricklepants. |
 | `jessie` | server | headless | minecraft-bedrock + minecraft-java (Paper via nix-minecraft, 1G heap), radicle-seed, wireguard, remote-builder, acme, persistence. |
 | `mrpotatohead` | VPS | headless | nextcloud (nginx/php-fpm), wireguard, hardening, disko LVM/btrfs, upgrade-health auto-rollback. |
-| `pricklepants` | VPS (Ionos) | headless | vaultwarden, luanti/minetest, wireguard VPN -> UK, bridge home, nebula lighthouse with mesh DNS, remote-builder, yggdrasil. |
+| `pricklepants` | VPS (Ionos) | headless | vaultwarden, luanti/minetest, wireguard VPN -> UK, bridge home, nebula lighthouse with mesh DNS, remote-builder, reticulum. |
 
 ## Graphical
 
@@ -45,8 +45,8 @@ locally built rpi4 kernel. Nebula, wifi.
 ### woody
 
 Homeserver. prometheus/grafana/fritz-exporter, zabbix web + agent, immich,
-paperless, harmonia binary cache, borg-server, loghost, NFS-fee, reticulum,
-mosquitto. KDE reachable via xrdp (no local display manager).
+paperless, harmonia binary cache, borg-server, loghost, NFS-fee, mosquitto.
+KDE reachable via xrdp (no local display manager).
 
 ### zurg
 
@@ -83,8 +83,8 @@ rolls back and reboots if systemd reports a failed unit after
 ### pricklepants
 
 VPS on Ionos. vaultwarden, luanti/minetest, wireguard VPN to the UK, bridge
-home, nebula lighthouse with mesh DNS, remote-builder, yggdrasil. Also a
-declaratively-enrolled remote builder.
+home, nebula lighthouse with mesh DNS, remote-builder, reticulum.
+Also a declaratively-enrolled remote builder.
 
 ## Retired / not in this flake
 

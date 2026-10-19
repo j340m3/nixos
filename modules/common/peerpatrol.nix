@@ -12,7 +12,7 @@ let
   members = builtins.attrNames (builtins.readDir ../../modules/hosts);
 
   # One ping check per mesh-roster host with a verified nebula ip; hosts
-  # without one (pending the ygg harvest) are skipped.
+  # without one are skipped.
   checks = lib.mapAttrsToList (_: h: {
     type = "ping";
     target = h.ip;

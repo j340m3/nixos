@@ -20,7 +20,7 @@ in
   # Mesh member => remote-build accept side (every mesh host builds for the
   # fleet). The two lighthouses (pricklepants, buzz) define nebula inline in
   # their host files, so they import ../../modules/remote-builder.nix there.
-  imports = [ ./remote-builder.nix ./yggdrasil.nix ];
+  imports = [ ./remote-builder.nix ];
 
   environment.systemPackages = with pkgs; [
     nebula
@@ -32,7 +32,8 @@ in
     inherit isLighthouse;
     # roster in global/constants.nix: names -> mesh ip + public endpoints
     lighthouses = map (h: constants.host.${h}.ip) (builtins.filter notSelf constants.lighthouses);
-    relays = map (h: constants.host.${h}.ip) (builtins.filter notSelf constants.lighthouses);    settings = {
+    relays = map (h: constants.host.${h}.ip) (builtins.filter notSelf constants.lighthouses);
+    settings = {
       cipher = "aes";
       static_map = {
         network = "ip";

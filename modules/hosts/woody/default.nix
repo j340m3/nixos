@@ -19,7 +19,6 @@
     ../../../modules/loghost.nix
     ../../../modules/borg-server.nix
     #../../../modules/peerix.nix
-    ../../../modules/reticulum.nix
     ../../../desktop-environments/kde.nix
     #../../../desktop-environments/mate.nix
     ../../../modules/wifi.nix
@@ -39,7 +38,6 @@
     ../../../modules/prometheus.nix
     ../../../modules/grafana.nix
     ../../../modules/fritz-exporter.nix
-    ../../../modules/yggdrasil.nix
     # ./firefox.nix
     #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
     #<home-manager/nixos>

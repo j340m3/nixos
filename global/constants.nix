@@ -10,8 +10,6 @@ let
         "194.164.125.154:4242"
         "[2a00:da00:f43a:8800::1]:4242"
       ];
-      ygg = "200:7b7a:984c:6206:75a4:6cb4:2a89:4275";
-      yggPub = "c242b3d9cefcc52dc9a5eabb5ec5698728d4cc27e5c776c670cfc3799ae372ac";
     };
     buzz = {
       ip = "10.0.0.5";
@@ -19,13 +17,9 @@ let
         "194.164.54.40:4242"
         "[2a01:239:27f:fd00::1]:4242"
       ];
-      ygg = null;
-      yggPub = null;
     };
     woody = {
       ip = "10.0.0.3";
-      ygg = "200:c21a:8e2b:4ccb:834e:e195:f938:d1e7";
-      yggPub = "9ef2b8ea599a3e588f350363970c186aa5ba5d641fdf0d01f5f6cb4388202ae3";
     };
     mrpotatohead = {
       ip = "10.0.0.6";
@@ -33,8 +27,6 @@ let
         "85.214.10.114:4242"
         "[2a01:239:4ac:7300::1]:4242"
       ];
-      ygg = null;
-      yggPub = null;
     };
     jessie = {
       ip = "10.0.0.7";
@@ -42,29 +34,28 @@ let
         "217.154.211.186:4242"
         "[2a01:239:396:fd00::1]:4242"
       ];
-      ygg = null;
-      yggPub = null;
     };
-    # mesh members without a verified nebula address yet — ygg harvest (T8)
-    # must cover them, or AllowedPublicKeys pins them out of the overlay
-    lenny = { ygg = null; yggPub = null; };
-    rex = { ygg = null; yggPub = null; };
+    # mesh members without a verified nebula address yet
+    lenny = {
+    };
+    rex = {
+    };
+    slinky = {
+    };
   };
 
   # The DNS/relay backbone (names into the roster above); pricklepants
   # serves_mesh DNS (serve_dns), the other three do not. Endpoints are
   # leased public addresses (DHCP/DHCPv6, ~20min renewals, stable in
   # practice) — re-enter the roster from `ip a` when a provider rotates one.
-  lighthouses = [ "pricklepants" "buzz" "jessie" "mrpotatohead" ];
+  lighthouses = [
+    "pricklepants"
+    "buzz"
+    "jessie"
+    "mrpotatohead"
+  ];
 
   sshPort = 42069;
-
-  # Yggdrasil backup overlay facts: address + node box pubkey harvested via
-  # `yggdrasilctl getSelf` per host (after first boot with persistentKeys).
-  # null until harvested; consumers are null-guarded. Addresses and box
-  # pubkeys are public facts, not secrets. AllowedPublicKeys pinning happens
-  # in modules/yggdrasil.nix from these values.
-  yggPort = 1337;
 
   # Remote-build targets over the mesh (subset of `host`). A builder entry
   # enrolls a host as a build target; the accept side (remotebuild user,
@@ -81,6 +72,66 @@ let
     "jessie"
     "woody"
   ];
+
+  # Reticulum fleet overlay. Public transports are the VPS lighthouses plus
+  # jessie; every other roster host is a client. External peers are the
+  # public testnet (no shared secret).
+  reticulum = {
+    port = 4242;
+    publicHosts = lighthouses;
+    vpsHosts = [
+      "pricklepants"
+      "buzz"
+      "mrpotatohead"
+    ];
+    externalPeers = [
+      {
+        name = "dismail";
+        host = "rns.dismail.de";
+        port = 7822;
+      }
+      {
+        name = "fn";
+        host = "202.61.243.41";
+        port = 4965;
+      }
+      {
+        name = "istanbul";
+        host = "istanbul.reserve.network";
+        port = 9034;
+      }
+      {
+        name = "sydney";
+        host = "sydney.reticulum.au";
+        port = 4242;
+      }
+      {
+        name = "sideband";
+        host = "sideband.connect.reticulum.network";
+        port = 7822;
+      }
+    ];
+    # `hash` is the rnid identity hash (rnsh allowlist); `nix` is the base
+    # rnsh destination hash used by the ssh shim (rnsh ignores -s here).
+    identities = {
+      pricklepants.hash = "dcdc9aeca3f90daa00f45654e2e38443";
+      pricklepants.nix = "0efcb07069aec9c89763c549fa3ed0db";
+      buzz.hash = "c2dea2b92488fe8284df38d9348d5770";
+      buzz.nix = "5adf7ddc1a927af62cbfd22d1d8a393f";
+      woody.hash = "f921a6b4ccb4477fbf27124bc724c30f";
+      woody.nix = "252990ad10a5c148041aeac99fa2b54f";
+      mrpotatohead.hash = "cbda20fffed88a8a403766c4eec84c2f";
+      mrpotatohead.nix = "9cd41760be653f33273ebf976840ab96";
+      jessie.hash = "43456921b522914308923c8b0791ed56";
+      jessie.nix = "378e66d79ec052cfec8e857d8a538b26";
+      lenny.hash = "5f1c4a9f0bee5248a2f8e3c6d905f8a9";
+      lenny.nix = "a2cf800d80b8ec01b4331483e31f650e";
+      rex.hash = "3bcd6766e5cf13df42cc49cece312dd3";
+      rex.nix = "b8e3998d8822ea9d5739a7099e26d9c4";
+      slinky.hash = "d4a8944c1e5dccf5166c2884142667bf";
+      slinky.nix = "ec395a7d5d6b299b71889743602ad607";
+    };
+  };
 in
 {
   nebula.cidr = "10.0.0.0/24";
@@ -89,7 +140,12 @@ in
   # The mesh udp listen/peer port (suffix of every endpoint above).
   nebula.port = 4242;
 
-  inherit host lighthouses sshPort yggPort;
+  inherit
+    host
+    lighthouses
+    reticulum
+    sshPort
+    ;
 
   # staticHostMap for nebula configs: all lighthouses except the host itself
   # (name -> ip + endpoints). Used by modules/nebula.nix and the two inline
