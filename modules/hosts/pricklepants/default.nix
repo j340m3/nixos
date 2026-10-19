@@ -229,10 +229,16 @@ in
     path = "/nix/persist/etc/nebula/self.key";
   };
 
+  # Key rotated 2026-10-19 after the priv was never published (backups failed
+  # auth with /dev/null); rotate into woody's repos via the .pub file.
+  sops.secrets."borg/pricklepants" = {
+    sopsFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
+  };
+
   services.borgbackup.jobs.pricklepants = {
     paths = [ "/etc" "/var/lib/vaultwarden" ];
     encryption.mode = "none";
-    environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/pricklepants".path or "/dev/null"}";
+    environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/pricklepants".path}";
     repo = "borg@10.0.0.3:pricklepants";
     compression = "auto,lzma";
     startAt = "daily";

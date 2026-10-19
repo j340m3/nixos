@@ -174,7 +174,7 @@ def main() -> int:
         pub = ssh_keygen_pub(priv_path)
         pub_dir = pub_out / args.host
         pub_dir.mkdir(parents=True, exist_ok=True)
-        pub_file = pub_dir / args.label
+        pub_file = pub_dir / f"{args.label}.pub"
         if pub_file.exists() and pub_file.read_text().strip() == pub:
             print(f"pub unchanged for {args.host}: {pub_file}")
         else:

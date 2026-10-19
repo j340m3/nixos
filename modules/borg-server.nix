@@ -54,6 +54,10 @@
   systemd.services.borg-prune = {
     description = "Prune + compact local borg repos (append-only clients cannot delete)";
     path = [ pkgs.borgbackup ];
+    # Repos are owned by borg:borg; pruning/compacting as root leaves
+    # root-owned index/segments behind, after which clients get EACCES.
+    serviceConfig.User = "borg";
+    serviceConfig.Group = "borg";
     script = ''
       set -euo pipefail
       for repo in /var/lib/borgbackup/*; do
