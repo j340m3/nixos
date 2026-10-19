@@ -4,16 +4,54 @@
   constants,
   ...
 }:
-
+let
+  acmeSecretFile = ../secrets/services/harmonia/secrets.yaml;
+  acmeEnabled = builtins.pathExists acmeSecretFile;
+  acmeCertDir = "/var/lib/acme/cache.kauderwels.ch";
+in
 {
+  imports = [ ./acme.nix ];
+
   services.harmonia.cache.enable = true;
   services.harmonia.cache.signKeyPaths = [ "/var/lib/secrets/harmonia.secret" ];
-  # woody is not reachable from the internet, so Let's Encrypt cannot validate
-  # (ACME HTTP-01 fails). Terminate TLS directly with the static wildcard cert
-  # instead of routing through nginx + ACME.
+  # woody is not reachable from the internet, so HTTP-01 cannot work.  DNS-01
+  # needs no inbound port; the IONOS API key lives in the service-scoped sops
+  # file.  Until that file exists, keep the manual wildcard so a checkout still
+  # evaluates.
   services.harmonia.cache.settings.tls_cert_path =
-    "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
-  services.harmonia.cache.settings.tls_key_path = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+    if acmeEnabled then
+      "/run/credentials/harmonia.service/tls-cert"
+    else
+      "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
+  services.harmonia.cache.settings.tls_key_path =
+    if acmeEnabled then
+      "/run/credentials/harmonia.service/tls-key"
+    else
+      "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+
+  sops.secrets."acme/ionos_api_key" = lib.mkIf acmeEnabled {
+    sopsFile = acmeSecretFile;
+  };
+
+  security.acme.certs."cache.kauderwels.ch" = lib.mkIf acmeEnabled {
+    dnsProvider = "ionos";
+    # The router's resolver serves a stale NXDOMAIN for the challenge record.
+    dnsResolver = "1.1.1.1:53";
+    webroot = lib.mkForce null;
+    credentialFiles.IONOS_API_KEY_FILE = config.sops.secrets."acme/ionos_api_key".path;
+    reloadServices = [ "harmonia.service" ];
+  };
+
+  systemd.services.harmonia.wants = lib.mkIf acmeEnabled [
+    "acme-cache.kauderwels.ch.service"
+  ];
+  systemd.services.harmonia.after = lib.mkIf acmeEnabled [
+    "acme-cache.kauderwels.ch.service"
+  ];
+  systemd.services.harmonia.serviceConfig.LoadCredential = lib.mkIf acmeEnabled [
+    "tls-cert:${acmeCertDir}/fullchain.pem"
+    "tls-key:${acmeCertDir}/key.pem"
+  ];
 
   nix.settings.allowed-users = [ "harmonia" ];
   networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [

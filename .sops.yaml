@@ -139,6 +139,14 @@ creation_rules:
           - *server_slinky
           - *server_zurg
           - *server_mrpotatohead
+  - path_regex: secrets/services/harmonia/[^/]+\.(yaml|json|env|ini)$
+    key_groups:
+      - age:
+          - *admin_jerome
+          - *bw_jerome
+          - *bw_age_jerome
+          - *server_woody
+          - *server_woody_ssh
   - path_regex: secrets/services/.+\.(yaml|json|env|ini)$
     key_groups:
       - age:
