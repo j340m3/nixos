@@ -7,10 +7,9 @@
   ...
 }:
 let
-  # Membership follows the host dirs: adding a host dir enrolls it.
-  members =
-    builtins.attrNames (builtins.readDir ../../hosts/graphical)
-    ++ builtins.attrNames (builtins.readDir ../../hosts/headless);
+  # Membership follows the host dirs under modules/hosts: adding a host
+  # dir enrolls it.
+  members = builtins.attrNames (builtins.readDir ../../modules/hosts);
 
   # One ping check per mesh-roster host with a verified nebula ip; hosts
   # without one (pending the ygg harvest) are skipped.

@@ -79,200 +79,42 @@
   # =============================================================================
   # Outputs
   # =============================================================================
+  # All config plumbing lives under ./modules/flake — this entry file only
+  # wires the inputs and auto-imports that tree. NixOS modules (modules/*.nix,
+  # modules/hosts/*) are deliberately NOT auto-imported here: they are NixOS
+  # modules, not flake-parts modules, and stay wired up exclusively by
+  # modules/flake/hosts.nix.
 
   outputs =
-    inputs@{
-      flake-parts,
-      nixpkgs,
-      home-manager,
-      ...
-    }:
-    flake-parts.lib.mkFlake { inherit inputs; } (
-      { self, ... }:
-      let
-        # Constants represent variables which are important for multiple hosts
-        constants = import ./global/constants.nix;
+    inputs@{ flake-parts, ... }:
+    let
+      hasNixSuffix =
+        name:
+        let
+          l = builtins.stringLength name;
+        in
+        l >= 4 && builtins.substring (l - 4) 4 name == ".nix";
 
-        mkHost = base: host: {
-          name = host;
-          value = nixpkgs.lib.nixosSystem {
-            specialArgs.inputs = inputs;
-            specialArgs.constants = constants;
-            modules = [
-              (base + "/${host}")
-            ];
-          };
-        };
-      in
-      {
-        # Only x86_64 hosts need per-system outputs (devShell, checks, images).
-        # aarch64 hosts (slinky) still build from flake.nixosConfigurations.
-        systems = [ "x86_64-linux" ];
-
-        flake = {
-          # ---------------------------------------------------------------------------
-          # NixOS Hosts - Each folder in ./hosts is one host-config
-          # ---------------------------------------------------------------------------
-          nixosConfigurations = builtins.listToAttrs (
-            (map (mkHost ./hosts/graphical) (builtins.attrNames (builtins.readDir ./hosts/graphical)))
-            ++ (map (mkHost ./hosts/headless) (builtins.attrNames (builtins.readDir ./hosts/headless)))
-          );
-
-          # ---------------------------------------------------------------------------
-          # home-manager configurations
-          # ---------------------------------------------------------------------------
-          homeConfigurations = {
-            "jeromeb" = home-manager.lib.homeManagerConfiguration {
-              pkgs = import nixpkgs {
-                system = "x86_64-linux";
-                config.permittedInsecurePackages = [
-                  "radicle-node-1.10.3"
-                ];
-              };
-              extraSpecialArgs = { inherit inputs; };
-              modules = [
-                ./home
-              ];
-            };
-          };
-        };
-
-        perSystem =
-          {
-            pkgs,
-            system,
-            lib,
-            ...
-          }:
-          let
-            # Lint staged files at commit time (installed into the devShell) and
-            # the whole tree via `checks.pre-commit`.
-            preCommit = inputs.pre-commit-hooks.lib.${system}.run {
-              src = ./.;
-              hooks = {
-                # NixOS/home-manager modules conventionally take unused args
-                # (`lib`, `config`); don't flag those.
-                deadnix = {
-                  enable = true;
-                  args = [ "--no-lambda-pattern-names" ];
-                };
-                statix.enable = true;
-                shellcheck.enable = true;
-                ruff.enable = true;
-              };
-            };
-          in
-          {
-            packages =
-              let
-                # disko passes a module tree (`aggregateModules`) to vmTools as
-                # its `kernel`. Newer nixpkgs rejects a `kernel` without a
-                # `target` attribute and expects module trees via
-                # `kernelModules`, which disko does not set yet. Tagging the
-                # aggregate restores the previous behaviour. Scoped to the image
-                # builders only; assumes an x86_64 kernel image ("bzImage").
-                diskoImageCompat = {
-                  nixpkgs.overlays = [
-                    (_final: prev: {
-                      aggregateModules =
-                        modules:
-                        (prev.aggregateModules modules).overrideAttrs (old: {
-                          passthru = (old.passthru or { }) // {
-                            target = "bzImage";
-                          };
-                        });
-                    })
-                  ];
-                };
-                mkImage =
-                  host:
-                  (self.nixosConfigurations.${host}.extendModules {
-                    modules = [ diskoImageCompat ];
-                  }).config.system.build.diskoImages;
-              in
-              {
-                image = mkImage "bootstrap";
-                image-impermanent = mkImage "bootstrap-impermanent";
-              };
-
-            formatter = pkgs.nixfmt;
-
-            devShells.default = pkgs.mkShell {
-              packages =
-                (with pkgs; [
-                  age
-                  deadnix
-                  jq
-                  just
-                  nixfmt
-                  nixos-rebuild
-                  shellcheck
-                  sops
-                  statix
-                  (python3.withPackages (ps: [ ps.pyyaml ]))
-                ])
-                ++ preCommit.enabledPackages;
-              inherit (preCommit) shellHook;
-            };
-
-            # Evaluate (without building) every native NixOS configuration so
-            # broken imports/options surface in CI and via
-            # `nix build .#checks.x86_64-linux.<host>`. Foreign-system hosts
-            # (e.g. the aarch64 uConsole) are skipped.
-            checks =
-              let
-                evalCheck =
-                  name: cfg:
-                  pkgs.runCommand "eval-${name}" { } ''
-                    echo ${builtins.unsafeDiscardStringContext cfg.config.system.build.toplevel.drvPath} > "$out"
-                  '';
-                native = lib.filterAttrs (
-                  _: cfg: cfg.config.nixpkgs.hostPlatform.system == system
-                ) self.nixosConfigurations;
-
-                enabled = self.nixosConfigurations.mrpotatohead.config;
-                disabled = self.nixosConfigurations.lenny.config;
-
-                # Guards the upgrade-health module's observable behaviour: the two
-                # services exist and honour the settle delay when enabled, and
-                # neither exists when a host does not opt in.
-                upgradeHealthCheck =
-                  assert enabled.upgradeHealth.enable;
-                  assert enabled.systemd.services ? nixos-upgrade-health;
-                  assert enabled.systemd.services ? nixos-upgrade-health-schedule;
-                  assert lib.hasInfix "--on-active=${enabled.upgradeHealth.settleDelay}"
-                    enabled.systemd.services.nixos-upgrade-health-schedule.script;
-                  assert !(disabled.systemd.services ? nixos-upgrade-health);
-                  assert !(disabled.systemd.services ? nixos-upgrade-health-schedule);
-                  pkgs.runCommand "upgrade-health-check" { } "touch $out";
-
-                # Guards the peerpatrol fleet wiring: the unit exists and is
-                # enabled, LoadCredential points at the sops secret aliases,
-                # and the ping targets match the roster hosts that have a
-                # verified nebula ip.
-                peerpatrolCheck =
-                  assert enabled.services.peerpatrol.enable;
-                  assert enabled.systemd.services ? peerpatrol;
-                  assert lib.hasInfix "peerpatrol-token-file:${enabled.sops.secrets."telegram/bot_token".path}" (
-                    lib.concatStringsSep "\n" enabled.systemd.services.peerpatrol.serviceConfig.LoadCredential
-                  );
-                  assert lib.hasInfix "peerpatrol-chat-id-file:${enabled.sops.secrets."telegram/group_id".path}" (
-                    lib.concatStringsSep "\n" enabled.systemd.services.peerpatrol.serviceConfig.LoadCredential
-                  );
-                  assert lib.hasInfix "--token-file %d/peerpatrol-token-file"
-                    enabled.systemd.services.peerpatrol.serviceConfig.ExecStart;
-                  assert lib.hasInfix "--chat-id-file %d/peerpatrol-chat-id-file"
-                    enabled.systemd.services.peerpatrol.serviceConfig.ExecStart;
-                  assert 5 == lib.length (lib.filter (h: h ? ip) (lib.attrValues constants.host));
-                  pkgs.runCommand "peerpatrol-check" { } "touch $out";
-              in
-              builtins.mapAttrs evalCheck native
-              // {
-                upgrade-health = upgradeHealthCheck;
-                peerpatrol = peerpatrolCheck;
-                pre-commit = preCommit;
-              };
-          };
-      }
-    );
+      # Import every .nix file in a directory tree, recursing into
+      # subdirectories. Same idea as vic's import-tree; local copy so the
+      # flake does not grow an extra input for a 10-line helper.
+      importTree =
+        path:
+        builtins.foldl' (acc: x: acc ++ x) [ ] (
+          builtins.attrValues (
+            builtins.mapAttrs (
+              name: type:
+              if type == "directory" then
+                importTree (path + "/${name}")
+              else if hasNixSuffix name then
+                [ (import (path + "/${name}")) ]
+              else
+                [ ]
+            ) (builtins.readDir path)
+          )
+        );
+    in
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = importTree ./modules/flake;
+    };
 }

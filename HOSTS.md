@@ -1,6 +1,6 @@
 # Hosts
 
-Every folder in `hosts/graphical/` and `hosts/headless/` is a
+Every folder in `modules/hosts/` is a
 `nixosConfiguration` auto-discovered by `flake.nix`. The folder name is the
 host name. This file is the human-readable map.
 

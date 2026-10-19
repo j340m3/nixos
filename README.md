@@ -17,16 +17,16 @@ nixos-rebuild build --flake .#<host>
 home-manager switch --flake .#jeromeb
 ```
 
-Host names come from `hosts/graphical/*` and `hosts/headless/*` (each folder
+Host names come from `modules/hosts/*` (each folder
 name is a `nixosConfiguration`). See [HOSTS.md](./HOSTS.md) for the host map.
 
 ## Layout
 
 | Path | Purpose |
 |---|---|
-| `flake.nix` | Inputs, `nixosConfigurations`, `homeConfigurations`, packages. |
-| `hosts/graphical/` | Desktop/laptop hosts (each folder = one `nixosConfiguration`). |
-| `hosts/headless/` | Server/VM/device hosts (each folder = one `nixosConfiguration`). |
+| `flake.nix` | Inputs; auto-imports the `modules/flake/` plumbing tree. |
+| `modules/hosts/` | Host folders (each folder = one `nixosConfiguration`). |
+| `modules/flake/` | flake-parts plumbing: `nixosConfigurations`, `homeConfigurations`, packages/checks/devShells. |
 | `modules/` | Feature modules (services, hardening, networking, ...). |
 | `modules/common/` | Modules imported by most hosts (ssh, sops, locale, update, ...). |
 | `desktop-environments/` | Reusable DE profiles (xfce, kde, mate, ...). |
@@ -64,13 +64,13 @@ Secrets, host identity keys, and rotation are documented in
 
 ## Adding a host
 
-1. Create `hosts/graphical/<name>/` or `hosts/headless/<name>/` with a
+1. Create `modules/hosts/<name>/` with a
    `default.nix` (and `hardware-configuration.nix`).
 2. Import shared modules you need (`../../../modules/common`, DE profile, ...).
 3. Set `networking.hostName` and `system.stateVersion`.
 4. Add the host to [HOSTS.md](./HOSTS.md).
 
-The flake auto-discovers folders under `hosts/graphical/` and `hosts/headless/` — no `flake.nix` edit needed.
+The flake auto-discovers folders under `modules/hosts/` — no `flake.nix` edit needed.
 
 ## Inputs & pinning
 
