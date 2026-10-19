@@ -42,7 +42,8 @@
       trusted-users = [ "remotebuild" ];
 
       # min-free/max-free headroom comes from modules/common/update.nix.
-      max-jobs = 6;
+      # mkDefault so hosts can cap it themselves (slinky only manages 1).
+      max-jobs = lib.mkDefault 6;
     };
   };
 

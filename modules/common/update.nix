@@ -111,7 +111,8 @@
           "flakes"
         ];
         auto-optimise-store = true;
-        max-jobs = lib.mkDefault 1;
+        # no max-jobs here: builders need 6 (modules/remote-builder.nix) and
+        # slinky caps itself at 1 in its own module.
         cores = lib.mkDefault 1;
         # Free-space headroom so a rebuild can stage the new closure beside the
         # old one and still trigger a mid-build GC instead of hitting ENOSPC.
