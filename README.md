@@ -17,14 +17,15 @@ nixos-rebuild build --flake .#<host>
 home-manager switch --flake .#jeromeb
 ```
 
-Host names come from `modules/hosts/*` (each folder
-name is a `nixosConfiguration`). See [HOSTS.md](./HOSTS.md) for the host map.
+Host names come from `modules/hosts/*` (each folder declares itself as a
+`nixosConfiguration` via its `flake-parts.nix`). See [HOSTS.md](./HOSTS.md) for
+the host map.
 
 ## Layout
 
 | Path | Purpose |
 |---|---|
-| `flake.nix` | Inputs; auto-imports the `modules/flake/` plumbing tree. |
+| `flake.nix` | Inputs; imports `modules/flake/` plumbing plus each host's `modules/hosts/<name>/flake-parts.nix`. |
 | `modules/hosts/` | Host folders (each folder = one `nixosConfiguration`). |
 | `modules/flake/` | flake-parts plumbing: `nixosConfigurations`, `homeConfigurations`, packages/checks/devShells. |
 | `modules/` | Feature modules (services, hardening, networking, ...). |
@@ -68,9 +69,20 @@ Secrets, host identity keys, and rotation are documented in
    `default.nix` (and `hardware-configuration.nix`).
 2. Import shared modules you need (`../../../modules/common`, DE profile, ...).
 3. Set `networking.hostName` and `system.stateVersion`.
-4. Add the host to [HOSTS.md](./HOSTS.md).
+4. Declare the host: `modules/hosts/<name>/flake-parts.nix` with
 
-The flake auto-discovers folders under `modules/hosts/` — no `flake.nix` edit needed.
+   ```nix
+   { self, ... }:
+   {
+     flake.nixosConfigurations."<name>" = self.lib.mkNixos "<name>";
+   }
+   ```
+
+5. Add the host to [HOSTS.md](./HOSTS.md).
+
+`flake.nix` imports every `modules/hosts/<name>/flake-parts.nix` it finds; a
+folder without one is a loud eval error, not a silently skipped host — no
+`flake.nix` edit needed.
 
 ## Inputs & pinning
 

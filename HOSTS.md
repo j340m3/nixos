@@ -1,8 +1,9 @@
 # Hosts
 
 Every folder in `modules/hosts/` is a
-`nixosConfiguration` auto-discovered by `flake.nix`. The folder name is the
-host name. This file is the human-readable map.
+`nixosConfiguration`: each host folder declares itself via a one-line
+`flake-parts.nix` (see [README "Adding a host"](./README.md#adding-a-host)).
+The folder name is the host name. This file is the human-readable map.
 
 | Host | Class | Role | Notes |
 |---|---|---|---|
