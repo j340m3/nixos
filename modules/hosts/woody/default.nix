@@ -3,6 +3,7 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 {
+  config,
   pkgs,
   lib,
   inputs,
@@ -268,7 +269,6 @@
     };
   */
 
-
   #  systemd.services.monitoring = {
   #    path = with pkgs; [
   #      bc
@@ -284,6 +284,21 @@
   #    '';
   #    wantedBy = [ "multi-user.target" ];
   #  };
+
+  # A glibc bump changes the collation version, and postgres then warns on
+  # every connection. Reindex each connectable database once, then record the
+  # new version. Best-effort: never keep postgres from starting.
+  systemd.services.postgresql.postStart = lib.mkAfter ''
+    psql=${config.services.postgresql.package}/bin/psql
+    "$psql" -tAc "select datname from pg_database where datallowconn and datcollversion is not null and datcollversion <> '${pkgs.glibc.version}'" |
+      while IFS= read -r db; do
+        [ -n "$db" ] || continue
+        if "$psql" -d "$db" -c "REINDEX DATABASE \"$db\";"; then
+          "$psql" -d postgres -c "ALTER DATABASE \"$db\" REFRESH COLLATION VERSION;" || true
+        fi
+      done
+    true
+  '';
 
   #services.vscode-server.enable = true;
   services.udev.packages = [ pkgs.libfido2 ];
