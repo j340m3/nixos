@@ -80,10 +80,11 @@
   # Outputs
   # =============================================================================
   # All config plumbing lives under ./modules/flake — this entry file only
-  # wires the inputs and auto-imports that tree. NixOS modules (modules/*.nix,
-  # modules/hosts/*) are deliberately NOT auto-imported here: they are NixOS
-  # modules, not flake-parts modules, and stay wired up exclusively by
-  # modules/flake/hosts.nix.
+  # wires the inputs and auto-imports that tree plus each host's
+  # self-declaration (modules/hosts/*/flake-parts.nix). NixOS modules
+  # (modules/*.nix, modules/hosts/*) are deliberately NOT auto-imported here:
+  # they are NixOS modules, not flake-parts modules, and stay wired up
+  # exclusively by the host declaring itself.
 
   outputs =
     inputs@{ flake-parts, ... }:
@@ -115,6 +116,10 @@
         );
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
-      imports = importTree ./modules/flake;
+      imports =
+        importTree ./modules/flake
+        ++ map (host: ./modules/hosts/${host}/flake-parts.nix) (
+          builtins.attrNames (builtins.readDir ./modules/hosts)
+        );
     };
 }
