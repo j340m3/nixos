@@ -83,6 +83,15 @@
       };
     };
 
+    # Flake-based updates make root's nix-channel legacy dead weight: the
+    # stale channels profile roots the 24.11 eval tree (~430MiB) in the
+    # store forever. Disable the channel machinery and drop the stale
+    # profile links on every switch, so the next hourly GC frees the space.
+    nix.channel.enable = false;
+    system.activationScripts.removeRootChannels.text = ''
+      rm -f /nix/var/nix/profiles/per-user/root/channels*
+    '';
+
     nix.gc = {
       automatic = true;
       dates = lib.mkDefault "*-*-* 0/1:15:00";
@@ -126,6 +135,32 @@
 
     # The journal is the other thing that grows without bound on a small disk.
     services.journald.settings.Journal.SystemMaxUse = lib.mkDefault "200M";
+
+    # Disk guard for auto-upgrade. Measure free space on /nix first; when it
+    # is tight, run the remediation the hourly GC would do anyway (collect
+    # unreachable store paths, vacuum the journal) and re-measure. Only fail
+    # when even remediation cannot make room. A loud failure is the point:
+    # nixos-upgrade.service fails -> the patch notify-telegram unit reports
+    # it, and the next hourly attempt retries after the GC that ran in
+    # between. Skipping unattended is not an error, while terminating
+    # neither drops an upgrade nor fails silently. Without -d, so old
+    # generations (the rollback target) survive.
+    systemd.services.nixos-upgrade.serviceConfig.ExecStartPre =
+      pkgs.writeShellScript "upgrade-space-guard" ''
+        need=$(${pkgs.coreutils}/bin/numfmt --from=iec 4G)
+        free=$(${pkgs.coreutils}/bin/df --output=avail --block-size=1 /nix | ${pkgs.coreutils}/bin/tail -n1)
+        if [ "$free" -lt "$need" ]; then
+          echo "upgrade-space-guard: only $free bytes free (< $need), remediating before upgrade"
+          ${config.nix.package}/bin/nix-collect-garbage >/dev/null 2>&1 || true
+          ${pkgs.systemd}/bin/journalctl --vacuum-size=100M >/dev/null 2>&1 || true
+          free=$(${pkgs.coreutils}/bin/df --output=avail --block-size=1 /nix | ${pkgs.coreutils}/bin/tail -n1)
+          echo "upgrade-space-guard: after remediation: $free bytes free"
+        fi
+        if [ "$free" -lt "$need" ]; then
+          echo "upgrade-space-guard: still $free bytes free (< $need) after GC and journal vacuum, skipping rebuild"
+          exit 1
+        fi
+      '';
 
     #systemd.services.nix-daemon.serviceConfig.Slice = "-.slice";
     # always use the daemon, even executed  with root
