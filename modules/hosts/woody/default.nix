@@ -38,6 +38,7 @@ in
     ../../../modules/wifi.nix
     ./immich.nix
     ./paperless.nix
+    ./xrdp.nix
     ../../../modules/harmonia.nix
     ../../../modules/nfs-fee.nix
     ../../../modules/nebula.nix
@@ -375,12 +376,6 @@ in
       MemoryMax = "1G";
     };
   */
-
-  services.xrdp.enable = true;
-  #services.xrdp.defaultWindowManager = "mate-session";
-  services.xrdp.defaultWindowManager = "startplasma-x11";
-  services.xrdp.openFirewall = true;
-  #services.xrdp.extraConfDirCommands = "substituteInPlace $out/sesman.ini --replace-fail '#SessionSockdirGroup=xrdp' 'SessionSockdirGroup=xrdp'";
 
   services.home-assistant = {
     enable = false; # doesn't build!?
