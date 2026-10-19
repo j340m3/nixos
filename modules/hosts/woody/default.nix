@@ -36,8 +36,8 @@ in
     ../../../desktop-environments/kde.nix
     #../../../desktop-environments/mate.nix
     ../../../modules/wifi.nix
-    ../../../modules/immich.nix
-    ../../../modules/paperless.nix
+    ./immich.nix
+    ./paperless.nix
     ../../../modules/harmonia.nix
     ../../../modules/nfs-fee.nix
     ../../../modules/nebula.nix
@@ -138,7 +138,7 @@ in
   nix.settings.max-jobs = 6;
   nix.settings.cores = 6;
   nix.distributedBuilds = lib.mkForce false;
-  nix.settings.trusted-users = ["jeromeb"];
+  nix.settings.trusted-users = [ "jeromeb" ];
 
   users.groups.plugdev = { };
   # Define a user account. Don't forget to set a password with ‘passwd’.

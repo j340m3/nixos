@@ -7,7 +7,7 @@
 }:
 {
   imports = [
-    ./common/postgresBackup.nix
+    ../../common/postgresBackup.nix
   ];
   environment.systemPackages = with pkgs; [
     immich-machine-learning

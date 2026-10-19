@@ -7,7 +7,7 @@
 }:
 {
   sops.secrets."paperless-admin-pass" = {
-    sopsFile = ../secrets/services/paperless/secrets.yaml;
+    sopsFile = ../../../secrets/services/paperless/secrets.yaml;
     owner = "paperless";
     group = "paperless";
     path = "/etc/paperless-admin-pass";
@@ -44,7 +44,7 @@
   networking.firewall.allowedTCPPorts = [ config.services.paperless.port ];
 
   services.nebula.networks.mesh.firewall.inbound =
-    lib.mkIf (config.services.immich.enable && config.services.nebula.networks.mesh.enable)
+    lib.mkIf (config.services.paperless.enable && config.services.nebula.networks.mesh.enable)
       [
         {
           cidr = constants.nebula.cidr;
@@ -56,7 +56,7 @@
   users.users.paperless = {
     uid = 315;
     group = "paperless";
-    #home = "/mnt/nas/immich";
+    #home = "/mnt/nas/paperless";
     #createHome = true;
   };
 
