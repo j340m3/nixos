@@ -147,7 +147,19 @@
     # generations (the rollback target) survive.
     systemd.services.nixos-upgrade.serviceConfig.ExecStartPre =
       pkgs.writeShellScript "upgrade-space-guard" ''
-        need=$(${pkgs.coreutils}/bin/numfmt --from=iec 4G)
+        # The current closure is the best available estimate of what the next
+        # generation needs to stage beside it, but only for small closures.
+        # The full closure is not the delta needed beside the old generation:
+        # woody's is ~21G with ~17G free, so demanding all of it would block
+        # woody. Use the closure size when it is smaller than the old 4G
+        # heuristic; otherwise keep 4G (and fall back to 4G if the query fails).
+        max=$(${pkgs.coreutils}/bin/numfmt --from=iec 4G)
+        need=$max
+        closure=$(${config.nix.package}/bin/nix path-info -S /run/current-system 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}')
+        case "$closure" in
+          "" | *[!0-9]*) ;;
+          *) [ "$closure" -lt "$need" ] && need=$closure ;;
+        esac
         free=$(${pkgs.coreutils}/bin/df --output=avail --block-size=1 /nix | ${pkgs.coreutils}/bin/tail -n1)
         if [ "$free" -lt "$need" ]; then
           echo "upgrade-space-guard: only $free bytes free (< $need), remediating before upgrade"

@@ -23,13 +23,13 @@ let
     ipv6_server = true;
     enable_fire = true;
   };
-  confFile = pkgs.writeText "luanti-server.conf" (lib.concatStrings (
-    lib.mapAttrsToList
-      (n: v: "${n} = ${
-        if builtins.isBool v || builtins.isInt v then toString v else v
-      }\n")
-      settings
-  ));
+  confFile = pkgs.writeText "luanti-server.conf" (
+    lib.concatStrings (
+      lib.mapAttrsToList (
+        n: v: "${n} = ${if builtins.isBool v || builtins.isInt v then toString v else v}\n"
+      ) settings
+    )
+  );
 in
 {
   environment.systemPackages = with pkgs; [
@@ -43,6 +43,23 @@ in
   # same --gameid/--port; --server is dropped because luantiserver rejects it.
   systemd.services.minetest-server.serviceConfig.ExecStart =
     lib.mkForce "${pkgs.luanti-server}/bin/luantiserver --config ${confFile} --gameid voxelibre --port 30000";
+  # The game dir is host-managed; a previous cleanup disabled mcl_spawn,
+  # which makes mcl_void_damage index a nil global at startup. Re-enable it
+  # before launch and fail clearly if the mod files themselves are gone.
+  systemd.services.minetest-server.preStart = lib.mkAfter ''
+    world=/var/lib/minetest/.minetest/worlds/world/world.mt
+    game=/var/lib/minetest/.minetest/games/voxelibre
+    if [ -f "$world" ]; then
+      if ! ${pkgs.gnugrep}/bin/grep -q '^load_mod_mcl_spawn = true$' "$world"; then
+        ${pkgs.coreutils}/bin/sed -i '/^load_mod_mcl_spawn[[:space:]]*=/d' "$world"
+        echo 'load_mod_mcl_spawn = true' >> "$world"
+      fi
+    fi
+    if ! ${pkgs.findutils}/bin/find "$game/mods" -maxdepth 2 -type d -name mcl_spawn | ${pkgs.gnugrep}/bin/grep -q .; then
+      echo "minetest: mcl_spawn missing from $game; restore the VoxeLibre game directory" >&2
+      exit 1
+    fi
+  '';
   networking.firewall.allowedTCPPorts = [ 30000 ];
   networking.firewall.allowedUDPPorts = [ 30000 ];
 
