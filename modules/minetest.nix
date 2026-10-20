@@ -51,7 +51,7 @@ in
     game=/var/lib/minetest/.minetest/games/voxelibre
     if [ -f "$world" ]; then
       if ! ${pkgs.gnugrep}/bin/grep -q '^load_mod_mcl_spawn = true$' "$world"; then
-        ${pkgs.coreutils}/bin/sed -i '/^load_mod_mcl_spawn[[:space:]]*=/d' "$world"
+        ${pkgs.gnused}/bin/sed -i '/^load_mod_mcl_spawn[[:space:]]*=/d' "$world"
         echo 'load_mod_mcl_spawn = true' >> "$world"
       fi
     fi

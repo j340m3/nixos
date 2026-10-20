@@ -97,7 +97,9 @@
         # record the failed units first, so a rollback that itself fails is not
         # retried on every trigger
         printf '%s\n' "$failed" > "$guard/rolled-back-from"
-        ${pkgs.nixos-rebuild}/bin/nixos-rebuild --rollback switch
+        # --no-reexec: the re-exec path builds from /etc/nixos, which is stale
+        # here; a rollback only needs nix-env on the system profile.
+        ${pkgs.nixos-rebuild}/bin/nixos-rebuild --no-reexec --rollback switch
         echo "upgrade-health: rolled back, rebooting"
         ${pkgs.systemd}/bin/systemctl reboot
       '';

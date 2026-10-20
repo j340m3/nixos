@@ -13,12 +13,7 @@ let
   autoInterface = !isVps;
   lxmf = isPublic;
 
-  rnspython = pkgs.python3.withPackages (
-    ps: with ps; [
-      rns
-      lxmf
-    ]
-  );
+  rnspython = pkgs.python3.withPackages (ps: [ ps.rns ] ++ lib.optional lxmf ps.lxmf);
   rnsPatched = pkgs.runCommand "rns-rnsh-streaming" { } ''
     mkdir -p "$out"
     cp -r ${pkgs.python3Packages.rns}/${pkgs.python3.sitePackages}/RNS "$out/RNS"

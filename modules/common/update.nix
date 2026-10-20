@@ -151,9 +151,10 @@
         # generation needs to stage beside it, but only for small closures.
         # The full closure is not the delta needed beside the old generation:
         # woody's is ~21G with ~17G free, so demanding all of it would block
-        # woody. Use the closure size when it is smaller than the old 4G
-        # heuristic; otherwise keep 4G (and fall back to 4G if the query fails).
-        max=$(${pkgs.coreutils}/bin/numfmt --from=iec 4G)
+        # woody. Use the closure size when it is smaller than the 3G
+        # heuristic; otherwise keep 3G (and fall back to 3G if the query fails).
+        # pricklepants settles at ~3.9G free, so a 4G floor blocked it forever.
+        max=$(${pkgs.coreutils}/bin/numfmt --from=iec 3G)
         need=$max
         closure=$(${config.nix.package}/bin/nix path-info -S /run/current-system 2>/dev/null | ${pkgs.gawk}/bin/awk '{print $2}')
         case "$closure" in

@@ -10,6 +10,11 @@
 {
   options = { };
   config = {
+    programs.ssh.extraConfig = ''
+      Host *
+        ConnectTimeout 5
+    '';
+
     services.fail2ban = {
       enable = lib.mkDefault true;
       daemonSettings = {
