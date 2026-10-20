@@ -64,14 +64,16 @@ let
     "  [[Fleet ${h}]]"
     "    type = BackboneInterface"
     "    enabled = yes"
-    "    remote = ${publicV4 h}:${toString constants.reticulum.port}"
+    "    remote = ${publicV4 h}"
+    "    port = ${toString constants.reticulum.port}"
   ];
 
   externalInterface = peer: [
     "  [[External ${peer.name}]]"
     "    type = BackboneInterface"
     "    enabled = yes"
-    "    remote = ${peer.host}:${toString peer.port}"
+    "    remote = ${peer.host}"
+    "    port = ${toString peer.port}"
   ];
 
   autoInterfaceLines = [
