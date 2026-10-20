@@ -242,9 +242,9 @@ in
         RuntimeDirectoryMode = "0700";
       };
       script = ''
-        ${pkgs.coreutils}/bin/base64 -d ${
+        ${pkgs.coreutils}/bin/tr '_-' '/+' < ${
           config.sops.secrets."reticulum/identity".path
-        } > /run/reticulum/identity
+        } | ${pkgs.coreutils}/bin/base64 -d > /run/reticulum/identity
         chmod 0400 /run/reticulum/identity
       '';
     };
