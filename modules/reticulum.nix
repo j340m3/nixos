@@ -280,7 +280,7 @@ in
         LimitNOFILE = 1024;
       };
       script = ''
-        exec ${rnsh}/bin/rnsh --rnsconfig ${stateDir} -l -C -i /run/reticulum/identity \
+        exec ${rnsh}/bin/rnsh --rnsconfig ${stateDir} -l -b 900 -C -i /run/reticulum/identity \
           ${allowedIdentities} \
           -- ${config.nix.package}/bin/nix-daemon --stdio
       '';
