@@ -231,8 +231,6 @@ in
     systemd.services.reticulum-identity = {
       description = "Decode the Reticulum identity";
       wantedBy = [ "multi-user.target" ];
-      after = [ "sops-install-secrets.service" ];
-      requires = [ "sops-install-secrets.service" ];
       before = [
         "reticulum.service"
         "rnsh-nix.service"
@@ -305,6 +303,7 @@ in
         ExecStartPre = "${pkgs.coreutils}/bin/ln -sfn /etc/lxmd/config ${lxmfStateDir}/config";
         Restart = "always";
         RestartSec = "3s";
+        TimeoutStopSec = "10s";
       };
     };
 
