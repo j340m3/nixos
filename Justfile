@@ -37,16 +37,16 @@ test host *args:
 
 # --- checks & formatting --------------------------------------------------
 
-# Evaluate every native NixOS configuration (no build). Catches broken
-# imports/options. Skips hosts whose system differs from the current one
-# (e.g. the aarch64 uConsole on an x86_64 machine).
+# Evaluate every declared host (no build). Catches broken imports/options.
+# Skips hosts whose system differs from the current one (e.g. the aarch64
+# uConsole on an x86_64 machine).
 check:
     #!/usr/bin/env bash
     set -uo pipefail
     system=$(nix eval --raw --impure --expr builtins.currentSystem)
     status=0
     for dir in modules/hosts/*; do
-      [ -f "$dir/default.nix" ] || continue
+      [ -f "$dir/flake-parts.nix" ] || continue
       host=$(basename "$dir")
       hostSystem=$(nix eval --no-write-lock-file --raw ".#nixosConfigurations.${host}.config.nixpkgs.hostPlatform.system" 2>/dev/null)
       if [ "$hostSystem" != "$system" ]; then

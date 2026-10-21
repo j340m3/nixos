@@ -1,5 +1,5 @@
 { self, ... }:
 
 {
-  flake.nixosConfigurations."bootstrap" = self.lib.mkNixos "bootstrap";
+  flake.nixosConfigurations = self.lib.mkNixos "x86_64-linux" "bootstrap";
 }

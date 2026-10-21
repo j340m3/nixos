@@ -1,5 +1,5 @@
 { self, ... }:
 
 {
-  flake.nixosConfigurations."pricklepants" = self.lib.mkNixos "pricklepants";
+  flake.nixosConfigurations = self.lib.mkNixos "x86_64-linux" "pricklepants";
 }

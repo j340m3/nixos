@@ -1,5 +1,5 @@
 { self, ... }:
 
 {
-  flake.nixosConfigurations."sid" = self.lib.mkNixos "sid";
+  flake.nixosConfigurations = self.lib.mkNixos "x86_64-linux" "sid";
 }

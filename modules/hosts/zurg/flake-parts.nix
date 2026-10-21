@@ -1,5 +1,5 @@
 { self, ... }:
 
 {
-  flake.nixosConfigurations."zurg" = self.lib.mkNixos "zurg";
+  flake.nixosConfigurations = self.lib.mkNixos "x86_64-linux" "zurg";
 }

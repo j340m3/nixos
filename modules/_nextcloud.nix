@@ -1,0 +1,297 @@
+{
+  self,
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
+let
+  domainName = "nextcloud.kauderwels.ch";
+in
+{
+  imports = [
+    ./_common/postgresBackup.nix
+  ];
+
+  sops.secrets."nextcloud/secrets.json" = {
+    format = "json";
+    sopsFile = ../secrets/services/nextcloud/secrets.json;
+    #restartUnits = ["nebula@mesh.service"];
+    owner = "nextcloud";
+    group = "nextcloud";
+    #path = "/etc/nebula/self.key";
+    key = "";
+  };
+
+  sops.secrets."nextcloud-admin-pass" = {
+    sopsFile = ../secrets/services/nextcloud/secrets.yaml;
+    owner = "nextcloud";
+    group = "nextcloud";
+    path = "/etc/nextcloud-admin-pass";
+  };
+
+  users.users.nextcloud.uid = 989;
+  users.groups.nextcloud.gid = 987;
+  # Based on https://carjorvaz.com/posts/the-holy-grail-nextcloud-setup-made-easy-by-nixos/
+  services = {
+    #  nginx.virtualHosts = {
+    #    "nextcloud.kauderwels.ch" = {
+    #      forceSSL = true;
+    #      enableACME = true;
+    #      #sslCertificate = "/etc/ssl/certs/kauderwels.ch_ssl_certificate_chain.cer";
+    #      #sslCertificateKey = "/etc/ssl/certs/_.kauderwels.ch_private_key.key";
+    #      listen = [
+    #        {
+    #          addr = "0.0.0.0";
+    #          port = 443;
+    #          ssl = true;
+    #        }
+    #      ];
+    #    };
+    #  };
+    #
+    nextcloud = {
+      enable = true;
+      #datadir = "/mnt/filen/services/nextcloud";
+      home = "/mnt/filen/services/nextcloud";
+      #home = "/var/lib/nextcloud";
+      hostName = "nextcloud.kauderwels.ch";
+      # Need to manually increment with every major upgrade.
+      package = pkgs.nextcloud35;
+      # Let NixOS install and configure the database automatically.
+      database.createLocally = true;
+      # Let NixOS install and configure Redis caching automatically.
+      configureRedis = true;
+      # Increase the maximum file upload size.
+      maxUploadSize = "1G";
+      secretFile = config.sops.secrets."nextcloud/secrets.json".path;
+      https = true;
+      autoUpdateApps.enable = true;
+      extraAppsEnable = true;
+      extraApps = with config.services.nextcloud.package.packages.apps; {
+        # List of apps we want to install and are already packaged in
+        # https://github.com/NixOS/nixpkgs/blob/master/pkgs/servers/nextcloud/packages/nextcloud-apps.json
+        inherit
+          calendar
+          contacts
+          notes
+          onlyoffice
+          tasks
+          cookbook
+          phonetrack
+          qownnotesapi
+          #uppush
+          ;
+        # Custom app example.
+        /*
+          socialsharing_telegram = pkgs.fetchNextcloudApp rec {
+            url =
+              "https://github.com/nextcloud-releases/socialsharing/releases/download/v3.0.1/socialsharing_telegram-v3.0.1.tar.gz";
+            license = "agpl3";
+            sha256 = "sha256-8XyOslMmzxmX2QsVzYzIJKNw6rVWJ7uDhU1jaKJ0Q8k=";
+          };
+        */
+      };
+      settings = {
+        overwriteProtocol = "https";
+        default_phone_region = "DE";
+        trusted_domains = [
+          "nextcloud.kauderwels.ch"
+          "files.dabergmann.de"
+        ];
+      };
+      config = {
+        dbtype = "pgsql";
+        adminuser = "admin";
+        adminpassFile = config.sops.secrets."nextcloud-admin-pass".path;
+      };
+      # Suggested by Nextcloud's health check.
+      phpOptions."opcache.interned_strings_buffer" = "16";
+    };
+    # Nightly database backups.
+    postgresqlBackup = {
+      databases = [ "nextcloud" ];
+      enable = true;
+      startAt = "*-*-* 01:15:00";
+    };
+  };
+
+  systemd.services.mnt-filen-services-nextcloud-tmpfiles-resetup = {
+    # no --remove: this runs on a network filesystem, and tmpfiles age based
+    # removal there can delete directories that still hold remote data.
+    # the mount can come up before the sops secret and the remote are usable,
+    # and creating rules too early writes them into the rclone cache, where a
+    # reboot loses them, so probe first and let Restart=on-failure retry. the
+    # probe lives in the script because this unit has no /bin in PATH.
+    script = ''
+      set -e
+      ${pkgs.rclone}/bin/rclone lsd filen:services/nextcloud --config ${
+        config.sops.secrets."filen/nextcloud.conf".path
+      }
+      systemd-tmpfiles --create --prefix=/mnt/filen/services/nextcloud
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      Restart = "on-failure";
+      RestartSec = 30;
+    };
+    after = [ "mnt-filen-services-nextcloud.mount" ];
+    requires = [ "mnt-filen-services-nextcloud.mount" ];
+    before = [ "nextcloud-setup.service" ];
+  };
+
+  # flake.lock is not committed, so a glibc bump arrives with any nixpkgs
+  # update and postgres then reports a collation version mismatch on every occ
+  # call. rebuild the indexes once per change instead of by hand.
+  systemd.services.nextcloud-setup.postStart = ''
+    psql=${config.services.postgresql.package}/bin/psql
+    current=$("$psql" -tAc "select datcollversion from pg_database where datname = 'nextcloud'" || true)
+    [ -n "$current" ] || exit 0
+    if [ "$current" != "${pkgs.glibc.version}" ]; then
+      "$psql" -d nextcloud -c 'REINDEX DATABASE nextcloud;'
+      "$psql" -d nextcloud -c 'ALTER DATABASE nextcloud REFRESH COLLATION VERSION;'
+    fi
+  '';
+
+  systemd.services.nextcloud-setup.after = [
+    "mnt-filen-services-nextcloud.mount"
+    "mnt-filen-services-nextcloud-tmpfiles-resetup.service"
+  ];
+  systemd.services.nextcloud-setup.requires = [
+    "mnt-filen-services-nextcloud.mount"
+    "mnt-filen-services-nextcloud-tmpfiles-resetup.service"
+  ];
+  #systemd.services."mnt-filen-services-nextcloud.mount".wantedBy = [ "systemd-tempfiles-resetup" ];
+  #systemd.services.systemd-tempfiles-resetup.requires = [ "mnt-filen-services-nextcloud.mount" ];
+  #systemd.services.systemd-tempfiles-setup.after = [ "mnt-filen-services-nextcloud.mount" ];
+  #systemd.services.systemd-tempfiles-setup.requires = [ "mnt-filen-services-nextcloud.mount" ];
+
+  security.acme = {
+    acceptTerms = true;
+    defaults = {
+      email = "jerome.bergmann@posteo.de";
+      webroot = "/var/lib/acme/acme-challenge/";
+      #dnsProvider = "cloudflare";
+      # location of your CLOUDFLARE_DNS_API_TOKEN=[value]
+      # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#EnvironmentFile=
+      #environmentFile = "/REPLACE/WITH/YOUR/PATH";
+    };
+    certs.${domainName} = {
+      group = config.services.nginx.group;
+      extraDomainNames = [
+        "files.dabergmann.de"
+      ];
+    };
+    certs."files.dabergmann.de".group = config.services.nginx.group;
+  };
+
+  # for acme plain http challenge
+  # networking.firewall.allowedTCPPorts = [ 80 ];
+
+  # webserver for http challenge
+  services.nginx = {
+    enable = true;
+    virtualHosts.${domainName} = {
+      forceSSL = true;
+      useACMEHost = domainName;
+      locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
+    };
+    virtualHosts."files.dabergmann.de" = {
+      forceSSL = true;
+      useACMEHost = "files.dabergmann.de";
+      locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
+      locations."/" = {
+        proxyPass = "https://nextcloud.kauderwels.ch";
+        proxyWebsockets = true;
+      };
+    };
+  };
+
+  services.fail2ban.jails."nextcloud".settings = {
+    enabled = true;
+    filter = "nextcloud";
+    logpath = "/var/log/syslog";
+    port = "80,443";
+    banaction = "%(banaction_allports)s";
+    maxretry = 3;
+    backend = "auto";
+    protocol = "tcp";
+    bantime = 86400;
+    findtime = 43200;
+  };
+
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+  ];
+
+  environment.etc."fail2ban/filter.d/nextcloud.local".text = ''
+    [Definition]
+    _groupsre = (?:(?:,?\s*"\w+":(?:"[^"]+"|\w+))*)
+    failregex = ^\{%(_groupsre)s,?\s*"remoteAddr":"<HOST>"%(_groupsre)s,?\s*"message":"Login failed:
+                ^\{%(_groupsre)s,?\s*"remoteAddr":"<HOST>"%(_groupsre)s,?\s*"message":"Trusted domain error.
+    datepattern = ,?\s*"time"\s*:\s*"%%Y-%%m-%%d[T ]%%H:%%M:%%S(%%z)?"
+  '';
+
+  sops.secrets."filen/nextcloud.conf" = {
+    format = "ini";
+    sopsFile = ../secrets/services/nextcloud/rclone.ini;
+    #restartUnits = ["nebula@mesh.service"];
+    owner = "nextcloud";
+    group = "nextcloud";
+    #path = "/etc/nebula/self.key";
+    key = "";
+    # the resetup unit only makes sense once the config it passes to rclone
+    # exists, and it is not running at that point, so try-restart is the only
+    # thing that helps here
+    restartUnits = [ "mnt-filen-services-nextcloud-tmpfiles-resetup.service" ];
+  };
+
+  environment.systemPackages = with pkgs; [
+    rclone
+  ];
+  environment.variables = {
+    GOGC = 20;
+  };
+  fileSystems."/mnt/filen/services/nextcloud" = {
+    device = "filen:services/nextcloud";
+    fsType = "rclone";
+    options = [
+      "nodev"
+      "_netdev"
+      "nofail"
+      #"auto"
+      "allow_other"
+      "args2env"
+      "syslog"
+      #"x-systemd.automount"
+      "cache_dir=/var/cache/rclone"
+      #"dir-cache-time=24h"
+      "allow-non-empty"
+      "daemon-wait=0"
+      "vfs-cache-mode=full"
+      "vfs-cache-min-free-space=2G"
+      "vfs-fast-fingerprint"
+      "vfs-links"
+      "transfers=1"
+      "vfs-write-back=1h" # write changes after one hour
+      "vfs-cache-max-age=24h" # Retain cached files for up to 24 hours
+      "vfs-read-chunk-size=32M" # Start with 32MB chunks for faster initial reads
+      "vfs-read-chunk-size-limit=1G" # Allow chunk size to grow up to 1GB for large files
+      #"vfs-cache-poll-interval=30s"
+      "tpslimit=16"
+      "tpslimit-burst=32"
+      "log-level=WARNING"
+      #"log-file=/var/log/rclone/filen/nextcloud.log"
+      "config=${config.sops.secrets."filen/nextcloud.conf".path}"
+      "x-systemd.requires=network-online.target"
+      "x-systemd.after=network-online.target" # only after network came up
+      "x-systemd.onSuccess=mnt-filen-services-nextcloud-tmpfiles-resetup.service"
+      "uid=${toString config.users.users.nextcloud.uid}"
+      "gid=${toString config.users.groups.nextcloud.gid}"
+      "dir-perms=0770"
+    ];
+  };
+}

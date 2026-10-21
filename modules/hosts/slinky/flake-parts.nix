@@ -1,5 +1,5 @@
 { self, ... }:
 
 {
-  flake.nixosConfigurations."slinky" = self.lib.mkNixos "slinky";
+  flake.nixosConfigurations = self.lib.mkNixos "aarch64-linux" "slinky";
 }

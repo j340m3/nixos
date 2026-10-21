@@ -25,11 +25,10 @@ the host map.
 
 | Path | Purpose |
 |---|---|
-| `flake.nix` | Inputs; imports `modules/flake/` plumbing plus each host's `modules/hosts/<name>/flake-parts.nix`. |
+| `flake.nix` | Inputs; the dendritic preset auto-imports `modules/` (see ADR 0014). |
 | `modules/hosts/` | Host folders (each folder = one `nixosConfiguration`). |
-| `modules/flake/` | flake-parts plumbing: `nixosConfigurations`, `homeConfigurations`, packages/checks/devShells. |
-| `modules/` | Feature modules (services, hardening, networking, ...). |
-| `modules/common/` | Modules imported by most hosts (ssh, sops, locale, update, ...). |
+| `modules/nix/` | flake-parts plumbing: `nixosConfigurations`, `homeConfigurations`, packages/checks/devShells, input manifest. |
+| `modules/` | Feature modules (services, hardening, networking, ...). Plain (pre-conversion) NixOS modules carry a `_` prefix: they are parked out of the auto-imported flake-parts tree while keeping relative imports intact. |
 | `desktop-environments/` | Reusable DE profiles (xfce, kde, mate, ...). |
 | `users/` | System user definitions. |
 | `home/` | home-manager configuration for `jeromeb`. |
@@ -66,17 +65,21 @@ Secrets, host identity keys, and rotation are documented in
 ## Adding a host
 
 1. Create `modules/hosts/<name>/` with a
-   `default.nix` (and `hardware-configuration.nix`).
-2. Import shared modules you need (`../../../modules/common`, DE profile, ...).
+   `_default.nix` (and a `_hardware-configuration.nix`).
+2. Import shared modules you need (`../../../modules/_common`, DE profile, ...).
 3. Set `networking.hostName` and `system.stateVersion`.
 4. Declare the host: `modules/hosts/<name>/flake-parts.nix` with
 
    ```nix
    { self, ... }:
    {
-     flake.nixosConfigurations."<name>" = self.lib.mkNixos "<name>";
+     flake.nixosConfigurations."<name>" = self.lib.mkNixos "x86_64-linux" "<name>";
    }
    ```
+
+   Afterwards convert the folder to the dendritic layout: rename the module
+   to `default.nix`, define `flake.modules.nixos.<name> = { imports = [ ... ]; }`
+   and drop the relative imports of parked modules as they get converted.
 
 5. Add the host to [HOSTS.md](./HOSTS.md).
 

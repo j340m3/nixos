@@ -1,5 +1,5 @@
 { self, ... }:
 
 {
-  flake.nixosConfigurations."jessie" = self.lib.mkNixos "jessie";
+  flake.nixosConfigurations = self.lib.mkNixos "x86_64-linux" "jessie";
 }

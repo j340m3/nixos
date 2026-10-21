@@ -1,5 +1,5 @@
 { self, ... }:
 
 {
-  flake.nixosConfigurations."rex" = self.lib.mkNixos "rex";
+  flake.nixosConfigurations = self.lib.mkNixos "x86_64-linux" "rex";
 }
