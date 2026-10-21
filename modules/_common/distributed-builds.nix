@@ -12,10 +12,11 @@ let
     Host ${h}
       HostName ${host}
       Port ${toString constants.sshPort}
+      ConnectTimeout 3
+    Match Host ${h} LocalUser root
       User remotebuild
       IdentitiesOnly yes
       IdentityFile /root/.ssh/remotebuild
-      ConnectTimeout 3
   '';
   machines = lib.flatten (
     lib.mapAttrsToList (h: v: [
