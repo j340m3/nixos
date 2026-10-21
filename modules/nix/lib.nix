@@ -17,10 +17,19 @@
     default = { };
   };
 
+  # Transitional (ADR 0014): aspect-mode hosts keep specialArgs inputs/
+  # constants so their still-plain-module siblings (e.g. bootstrap/_default.nix
+  # with `imports = [ inputs.disko... ]`) resolve without a config-dependent
+  # _module.args shim — those recurse infinitely at module-collection time.
+  # Drop this block once the last plain sibling has become an aspect.
   config.flake.lib.mkNixos = system: name: {
     ${name} = inputs.nixpkgs.lib.nixosSystem (
       if self.modules.nixos or { } ? ${name} then
         {
+          specialArgs = {
+            inherit inputs;
+            constants = import (inputs.self + "/global/constants.nix");
+          };
           modules = [
             self.modules.nixos.${name}
             { nixpkgs.hostPlatform = lib.mkDefault system; }
