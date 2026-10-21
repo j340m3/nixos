@@ -57,16 +57,20 @@ secrets/, scripts/               # data — stay outside modules/ (no .nix, veri
 ## Conversion recipe (per host)
 
 1. Rename the host dir's `_default.nix` → `configuration.nix` and wrap its
-   body: `{ inputs, ... }: { flake.modules.nixos.<host> = { pkgs, ... }:
-   { <verbatim body> }; }` — `inputs.*` references inside the body resolve
-   through the outer closure. Relative `../../../`/`./` imports stay as-is
-   for now; they become `with self.modules.nixos;` aspect imports when the
-   imported features exist. Sibling files keep `_`-prefixes (parked,
-   host-local glue).
-2. Plain NixOS siblings that reference `inputs.*` in their own function
-   args break in aspect mode (no specialArgs there). Until each becomes an
-   aspect, publish inputs once in the host aspect:
-   `_module.args.inputs = inputs;` — drop the line as siblings convert.
+   body: `{ lib, ... }: { flake.modules.nixos.<host> = { pkgs, ... }:
+   { <verbatim body> }; }` — keep the body's original function head verbatim
+   (its `inputs`/`constants` args resolve via the factory specialArgs, next
+   point). Relative `../../../`/`./` imports stay as-is for now; they become
+   `with self.modules.nixos;` aspect imports when the imported features
+   exist. Sibling files keep `_`-prefixes (parked, host-local glue).
+2. ~~`_module.args.{inputs,constants}` shims~~ **Superseded 2026-10-21**:
+   shims recurse infinitely when an imported plain module references
+   `inputs` in *imports* (e.g. `bootstrap/_default.nix`
+   `imports = [ inputs.disko... ]`) — module-arg resolution then depends on
+   `config` during module collection. Instead, `lib.mkNixos` passes
+   `specialArgs = { inputs; constants; }` in aspect mode too (same value as
+   the legacy branch); per-host heads need no shim lines. Drop specialArgs
+   from the factory when the last plain sibling has converted.
 3. The factory auto-switches: once `flake.modules.nixos.<host>` exists it
    evaluates in aspect mode — no change needed in the `flake-parts.nix`
    one-liner.
@@ -79,6 +83,10 @@ secrets/, scripts/               # data — stay outside modules/ (no .nix, veri
 
 Tracer done 2026-10-21 (zurg): recipe above applied verbatim,
 `nix build .#checks.x86_64-linux.zurg` + full `just check` green.
+buzz done 2026-10-21 with the corrected recipe (step 2); `just check` green
+(11 ok + aarch64 slinky skip). Remaining hosts: jessie, lenny,
+mrpotatohead, pricklepants, rex, sid, slinky, woody, bootstrap(-impermanent)
+last.
 
 ## Post-skeleton refactors (not part of host conversion)
 

@@ -140,3 +140,24 @@ Implemented the synthesis in the Nix repo:
 - Vault: `sources/pricklepants-config.md` marked stale; synthesis listener option note corrected (`listen_on` is aliased, `port` overrides `listen_port`).
 
 Remaining (operator): copy `/root/.reticulum/storage` → `/var/lib/reticulum/storage` and `/root/.lxmd` → `/var/lib/lxmd` on pricklepants, deploy pricklepants, rebuild woody; never run both identities at once; verify with `rnstatus -a` and `rnstatus -d` from a discovering node.
+
+## 2026-10-21 — dendritic host conversions resumed (pass 3) [dendritic]
+
+Continued from ADR-0014 + adopted-plan. Repo state at start: skeleton +
+zurg tracer converted (commit 33570fa); no dedicated handoff file exists —
+inferred plan this way.
+
+- Retrying zurg's `_module.args.{inputs,constants}` shim recipe on buzz
+  exposed the recursion hazard: any imported plain module that references
+  `inputs` in `imports` (bootstrap/_default.nix is the case) makes module-arg
+  resolution depend on `config` during module collection → infinite
+  recursion. Corrected the recipe (adopted-plan step 2): `lib.mkNixos`
+  aspect-mode branch now passes the same transitional specialArgs
+  (inputs/constants) as the legacy branch; per-host heads keep their
+  original arg list verbatim, zero shim lines.
+- Converted buzz (aspect in modules/hosts/buzz/configuration.nix); body
+  verified verbatim against the old _default.nix; `just check` green
+  (11 ok + aarch64 slinky skip), formatter/statix clean. One commit each.
+- Open: 9 hosts remain (bootstrap(-impermanent) last, per ADR-0014 §8);
+  each conversion so far is mechanical, the only host-specific care being
+  sopsFile depth (file-location sensitive) and imports-time inputs usage.
