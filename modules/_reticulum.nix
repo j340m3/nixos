@@ -183,7 +183,16 @@ let
       exec "$real_ssh" "$@"
     fi
 
-    if [ "''${1:-}" = "-O" ] && [ "''${2:-}" = "check" ]; then
+    is_check=0
+    previous=
+    for arg in "$@"; do
+      if [ "$previous" = "-O" ] && [ "$arg" = "check" ]; then
+        is_check=1
+        break
+      fi
+      previous="$arg"
+    done
+    if [ "$is_check" = 1 ]; then
       exit 1
     fi
 
@@ -192,7 +201,17 @@ let
       exit 1
     fi
 
-    printf 'started\n'
+    master=0
+    session=0
+    for arg in "$@"; do
+      case "$arg" in
+        -M*) master=1 ;;
+        -S*) session=1 ;;
+      esac
+    done
+    if [ "$master" = 1 ] || [ "$session" = 0 ]; then
+      printf 'started\n'
+    fi
     exec "$rnsh" --rnsconfig ${stateDir} -i "$identity" "$dest"
     EOF
         chmod +x "$out/bin/ssh"
@@ -255,7 +274,7 @@ in
       after = [ "reticulum-identity.service" ];
       requires = [ "reticulum-identity.service" ];
       script = ''
-        ${rnspython}/bin/rnsd --config ${stateDir} --service --verbose
+        exec ${rnspython}/bin/rnsd --config ${stateDir} --service --verbose
       '';
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
@@ -279,11 +298,18 @@ in
       ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
+        PartOf = [ "reticulum.service" ];
         Restart = "always";
         RestartSec = "3s";
         LimitNOFILE = 1024;
       };
       script = ''
+        expected=${constants.reticulum.identities.${host}.nix}
+        actual=$(${rnspython}/bin/rnid -i /run/reticulum/identity -H rnsh 2>/dev/null | ${pkgs.gnugrep}/bin/grep 'rnsh destination' | ${pkgs.gnugrep}/bin/grep -oE '[0-9a-f]{32}' || true)
+        if [ "$actual" != "$expected" ]; then
+          echo "rnsh-nix: destination hash mismatch: expected $expected, got '$actual'" >&2
+          exit 1
+        fi
         exec ${rnsh}/bin/rnsh --rnsconfig ${stateDir} -l -b 900 -C -i /run/reticulum/identity \
           ${allowedIdentities} \
           -- ${config.nix.package}/bin/nix-daemon --stdio
@@ -299,6 +325,7 @@ in
       '';
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
+        PartOf = [ "reticulum.service" ];
         StateDirectory = "lxmd";
         StateDirectoryMode = "0700";
         ExecStartPre = "${pkgs.coreutils}/bin/ln -sfn /etc/lxmd/config ${lxmfStateDir}/config";
