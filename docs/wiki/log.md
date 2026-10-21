@@ -96,3 +96,47 @@ Open questions for a future pass:
 - flake-file's `flake-file.outputs` literal-string path for an
   already-modularized repo that keeps its own flake-parts module tree (vs
   dendritic preset): no dedicated doc; validate during actual migration.
+
+## 2026-10-19 — initial research and vault creation [reticulum]
+
+Scope: RNS 1.5.x guidance for a public VPS transport node; host `pricklepants` (Ionos). No Nix files edited.
+
+Activities:
+
+- Read the NixOS module `modules/reticulum.nix` and `modules/hosts/pricklepants/reticulum.conf`:
+  - transport disabled, discovery learning on, `required_discovery_value = 1`, `autoconnect_discovered_interfaces = 100`;
+  - ~23 enabled outbound BackboneInterface clients, AutoInterface, disabled RNode, commented I2P;
+  - module firewalls UDP 29716/42671 and multicast, but no TCP listener port.
+- Inspected installed RNS **1.5.5** in the Nix store and downloaded the **1.5.7** sdist from PyPI (SHA-256 recorded).
+- Verified behaviour in source: transport gating, discovery parsing, stamp semantics, autoconnect eligibility, interface modes, announce rates, IFAC parsing, transport identity persistence.
+- Diffed 1.5.5 vs 1.5.7: Discovery.py autoconnect transport check; Reticulum.py static identity for discoverable non-transport; BackboneInterface egress-control reset; rnodeconf changes.
+- Read official manual chapters (`networks`, `gettingstartedfast`, `interfaces`, `using`, `reference`, `Changelog`) and the project bootstrapping page. Found that the markdown conversion omits an RST-only redundancy tip.
+- Found and read two rns.recipes forum threads: the heavy-load `listen(1)` report (2026-10-18) and the discoverable-mode workaround (2026-10-02). Read the community wiki transport-node page and the deprecated node list.
+- Recorded discrepancies:
+  - manual stamp default 14 vs code 16;
+  - rendered manual has a mode-forcing note missing from the markdown;
+  - 1.5.6/1.5.7 lack mirror changelog entries.
+
+Outputs:
+
+- Created `docs/wiki/{index.md,log.md,sources/,concepts/,syntheses/}`.
+- Synthesis recommendation: enable transport; public discoverable Backbone gateway; discovery learning on, autoconnect 0, required value 16; prune peers to 3–5; drop AutoInterface; open TCP listener port.
+
+Open items for a future pass:
+
+- Test `listen_on = ::` dual-stack behaviour on the host.
+- Re-check whether upstream raises the Backbone backlog / caches announce validation.
+- Validate live peers from `directory.rns.recipes`/`rmap.world` before finalizing the retained peer list.
+- Confirm Nixpkgs version bump to 1.5.6/1.5.7 and any package-level patch for `listen(1)`.
+
+## 2026-10-19 — implementation: pricklepants public transport node [reticulum]
+
+Implemented the synthesis in the Nix repo:
+
+- `modules/hosts/pricklepants/reticulum.conf`: rewritten from the copied live config. `enable_transport = yes`, `required_discovery_value = 16`, `autoconnect_discovered_interfaces = 0`, `respond_to_probes = yes`; public `BackboneInterface` gateway on `0.0.0.0:4242` (`mode = gateway`, `discoverable`, `discovery_name = pricklepants`, `reachable_on = 194.164.125.154`, `announce_interval = 720`, stamp 20, announce rate 3600/3600/6); AutoInterface and the RNode block removed; five static peers kept: dismail, Germany 001, R-Net Istanbul, Sydney RNS, Sideband Hub (pinned transport identity).
+- `modules/reticulum.nix`: removed the AutoInterface UDP 29716/42671 and multicast firewall rules.
+- `modules/hosts/pricklepants/default.nix`: added `networking.firewall.allowedTCPPorts = [ 4242 ]` for the listener.
+- Verified: config parses with RNS's vendored configobj; listener options re-checked against 1.5.7 source (`listen_ip`/`port`/`listen_on` alias at `Reticulum.py:1119-1122`, announce-rate options per-interface via `_synthesize_interface`); `nix eval` of the pricklepants toplevel succeeds; `nixfmt --check modules/reticulum.nix` passes (pricklepants default.nix was already unformatted at baseline).
+- Vault: `sources/pricklepants-config.md` marked stale; synthesis listener option note corrected (`listen_on` is aliased, `port` overrides `listen_port`).
+
+Remaining (operator): copy `/root/.reticulum/storage` → `/var/lib/reticulum/storage` and `/root/.lxmd` → `/var/lib/lxmd` on pricklepants, deploy pricklepants, rebuild woody; never run both identities at once; verify with `rnstatus -a` and `rnstatus -d` from a discovering node.
