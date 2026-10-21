@@ -161,3 +161,38 @@ inferred plan this way.
 - Open: 9 hosts remain (bootstrap(-impermanent) last, per ADR-0014 §8);
   each conversion so far is mechanical, the only host-specific care being
   sopsFile depth (file-location sensitive) and imports-time inputs usage.
+
+## 2026-10-21 — host-conversion phase complete (pass 4) [dendritic]
+
+- Converted the remaining hosts, one scripted commit each (rex pattern:
+  sed body extraction `/^  imports = \[/,/^}/p`, drop last line, +4 indent,
+  verbatim diff check; heads verbatim, resolved by the factory's transitional
+  specialArgs): lenny, mrpotatohead (keeps `@args:` — body uses
+  `args.extraPublicKeys or [ ]`), pricklepants (has a top-level
+  `let rootPath = ../../../.; in` — moved into the aspect head expression),
+  sid, woody, slinky, bootstrap, bootstrap-impermanent.
+- Discovery: this nix's `nix-instantiate --parse` performs scope-checking.
+  Standalone parse fails on free vars like `modulesPath` even though the
+  module system supplies them at eval time — heads must bind everything the
+  body uses. Also: `nix-instantiate --parse` on a scratch file is part of
+  the scripted assembly, before the file even enters the tree.
+- Order trap caught: ran `just check` between `git rm bootstrap/_default.nix`
+  and its commit → buzz (which imports it) reported `skip buzz ()` from the
+  dirty-tree Path error. Post-commit still failed: buzz's import target had
+  to change. Restructured to `modules/hosts/bootstrap/_base.nix` (the old
+  `_default.nix` byte-identical, plain module), aspect is now a thin wrapper
+  importing it, and buzz imports `../bootstrap/_base.nix` — identical
+  module set, both hosts eval.
+- slinky: converted (parse + verbatim verified), local eval impossible
+  (aarch64 eval drags remote builders with failing ssh connections);
+  `just check` keeps the documented skip. Needs hardware eval.
+- Verified `.#packages.x86_64-linux.image` and `image-impermanent` still
+  eval after the bootstrap aspect split (disko image targets intact).
+- Housekeeping: `just fmt` is tree-wide; its churn on parked legacy files
+  (`home/accounts.nix`, `modules/_common/*`, zurg siblings) was reverted to
+  keep the diff scoped; only the converted aspect heads were formatted in a
+  follow-up commit.
+- Phase closed: every host now routes through `flake.modules.nixos.*`
+  aspects via `lib.mkNixos`. Remaining per adopted plan ("not part of host
+  conversion"): HM one-source, collector-style refactors, flake-file,
+  dropping the transitional specialArgs once it's no longer needed.

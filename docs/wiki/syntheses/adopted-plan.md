@@ -88,6 +88,21 @@ buzz done 2026-10-21 with the corrected recipe (step 2); `just check` green
 mrpotatohead, pricklepants, rex, sid, slinky, woody, bootstrap(-impermanent)
 last.
 
+All hosts converted 2026-10-21: jessie, lenny, mrpotatohead, pricklepants,
+rex, sid, woody, bootstrap(-impermanent) each in one commit, scripted
+assembly (sed body extraction, +4 indent, verbatim check;
+`nix-instantiate --parse` does scope-check, so free vars fail standalone
+even when the module system would supply them — heads must bind everything
+the body uses, which the transitional factory specialArgs makes possible for
+`inputs`/`constants`). slinky converted but unevaluated: aarch64 eval drags
+remote builders (`ssh-ng://*-rns` failing) — verify on aarch64 hardware.
+One restructuring was needed: buzz imports bootstrap's whole host module as
+its base, so bootstrap's body lives in plain `modules/hosts/bootstrap/_base.nix`
+(byte-identical to the old `_default.nix`); the aspect is a thin wrapper
+importing it, and buzz imports `../bootstrap/_base.nix` — same module set,
+same eval. `image` and `image-impermanent` disko targets still eval
+(`nix eval .#packages.x86_64-linux.image{,-impermanent}.drvPath`).
+
 ## Post-skeleton refactors (not part of host conversion)
 
 - HM one-source (ADR §6): home/ tree → `home/jeromeb/*` aspects; standalone
