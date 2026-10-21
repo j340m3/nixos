@@ -46,6 +46,11 @@ in
   # The game dir is host-managed; a previous cleanup disabled mcl_spawn,
   # which makes mcl_void_damage index a nil global at startup. Re-enable it
   # before launch and fail clearly if the mod files themselves are gone.
+  # Luanti >= 5.16 (nixpkgs 26.11, self-update 2026-10-19) loads mods that
+  # are absent from world.mt; the June-2024 VoxeLibre copy still ships a
+  # mcl_void_damage that indexes mcl_spawn too early, so the server got
+  # stuck in a restart loop. Explicitly disable it like mcl_spawn above
+  # until the game dir is upgraded wholesale.
   systemd.services.minetest-server.preStart = lib.mkAfter ''
     world=/var/lib/minetest/.minetest/worlds/world/world.mt
     game=/var/lib/minetest/.minetest/games/voxelibre
@@ -53,6 +58,10 @@ in
       if ! ${pkgs.gnugrep}/bin/grep -q '^load_mod_mcl_spawn = true$' "$world"; then
         ${pkgs.gnused}/bin/sed -i '/^load_mod_mcl_spawn[[:space:]]*=/d' "$world"
         echo 'load_mod_mcl_spawn = true' >> "$world"
+      fi
+      if ! ${pkgs.gnugrep}/bin/grep -q '^load_mod_mcl_void_damage = false$' "$world"; then
+        ${pkgs.gnused}/bin/sed -i '/^load_mod_mcl_void_damage[[:space:]]*=/d' "$world"
+        echo 'load_mod_mcl_void_damage = false' >> "$world"
       fi
     fi
     if ! ${pkgs.findutils}/bin/find "$game/mods" -maxdepth 2 -type d -name mcl_spawn | ${pkgs.gnugrep}/bin/grep -q .; then

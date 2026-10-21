@@ -11,11 +11,11 @@
     location = "/mnt/filen/services/postgres/backups/${config.networking.hostName}";
   };
 
-  # Skipped because detected autofs mount point
-  #systemd.tmpfiles.rules = [
-  #  "d /mnt/filen/services/postgres/backups 1750 postgres postgres -"
-  #  "d /mnt/filen/services/postgres/backups/${config.networking.hostName} 1750 postgres postgres -"
-  #];
+  # rclone refuses to mount when it cannot open its own log file
+  # ("Failed to open log file: open /var/log/rclone/filen/postgres.log").
+  systemd.tmpfiles.rules = [
+    "d /var/log/rclone/filen 0750 root root -"
+  ];
 
   sops.secrets."filen/postgres.conf" = {
     format = "ini";
