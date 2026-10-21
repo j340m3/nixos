@@ -23,7 +23,7 @@
         #inputs.disko.nixosModules.disko
         #inputs.impermanence.nixosModules.impermanence
         #inputs.peerix.nixosModules.peerix
-        ../bootstrap/_default.nix
+        ../bootstrap/_base.nix
         (modulesPath + "/profiles/minimal.nix")
         (modulesPath + "/profiles/headless.nix")
         #../../../modules/_hardening.nix
