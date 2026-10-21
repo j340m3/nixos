@@ -6,7 +6,15 @@
 
 {
   flake.modules.nixos.pricklepants =
-    { modulesPath, pkgs, lib, constants, config, inputs, ... }:
+    {
+      modulesPath,
+      pkgs,
+      lib,
+      constants,
+      config,
+      inputs,
+      ...
+    }:
     let
       rootPath = ../../../.;
     in

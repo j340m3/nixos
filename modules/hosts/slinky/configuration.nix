@@ -6,7 +6,13 @@
 
 {
   flake.modules.nixos.slinky =
-    { config, lib, pkgs, inputs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      inputs,
+      ...
+    }:
     {
       imports = [
         # Include the results of the hardware scan.

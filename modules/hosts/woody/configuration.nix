@@ -6,7 +6,13 @@
 
 {
   flake.modules.nixos.woody =
-    { config, pkgs, lib, inputs, ... }:
+    {
+      config,
+      pkgs,
+      lib,
+      inputs,
+      ...
+    }:
     {
       imports = [
         # Include the results of the hardware scan.

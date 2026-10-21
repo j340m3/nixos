@@ -6,7 +6,13 @@
 
 {
   flake.modules.nixos.mrpotatohead =
-     { modulesPath, lib, pkgs, inputs, ... }@args:
+    {
+      modulesPath,
+      lib,
+      pkgs,
+      inputs,
+      ...
+    }@args:
     {
       imports = [
         inputs.disko.nixosModules.disko

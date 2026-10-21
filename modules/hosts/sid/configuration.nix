@@ -6,7 +6,13 @@
 
 {
   flake.modules.nixos.sid =
-     { config, lib, pkgs, inputs, ... }:
+    {
+      config,
+      lib,
+      pkgs,
+      inputs,
+      ...
+    }:
     {
       imports = [
         # include NixOS-WSL modules
