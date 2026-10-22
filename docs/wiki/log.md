@@ -196,3 +196,42 @@ inferred plan this way.
   aspects via `lib.mkNixos`. Remaining per adopted plan ("not part of host
   conversion"): HM one-source, collector-style refactors, flake-file,
   dropping the transitional specialArgs once it's no longer needed.
+
+## Pass 7 - 2026-10-22
+
+- `_common` grab-bag -> dendritic base feature: `modules/system-default.nix`
+  defines `flake.modules.nixos.system-default` importing the parked
+  `modules/_common` dir; 8 hosts (buzz jessie lenny mrpotatohead
+  pricklepants rex slinky woody) swapped from the path import to
+  `inputs.self.modules.nixos.system-default` (commit 7d6ee1d).
+- Gotcha re-felt: dirty-tree eval ignores untracked files - the new wrapper
+  only worked after `git add` ("attribute 'system-default' missing" until then).
+  Same note as skeleton pass; worth a wiki page of its own later.
+- Transitional specialArgs (inputs/constants) stays in `modules/nix/lib.nix`
+  until sibling aspects absorb `_common/*` files; `_module.args`-style feeds
+  are NOT viable for modules referencing inputs inside `imports` lists
+  (_common/update.nix comin) - recorded from rex conversion.
+
+## 2026-10-22 - _common peel sweep (pass 5, continued) [dendritic]
+
+- f5c1b88: `_common/*` now peels as per-feature aspects. Shape chosen after
+  three failed verbatim-body variants (python surgery kept mis-assembling
+  let-body modules; full git-revert): every
+  `modules/system/<aspect>.nix` is a THIN wrapper over the still-parked
+  original (`flake.modules.nixos.<aspect> = { imports = [ ../_common/<x>.nix ]; }`,
+  reticulum -> `../_reticulum.nix` with depth correction).
+- `system-default.nix` moved into `modules/system/` and rewritten as the
+  aggregate over `with inputs.self.modules.nixos`; it now owns the former
+  `_common/default.nix` settings (reticulum enable + radicle insecure
+  allowlist) and imports `../../users/donquezz.nix` by path. The old
+  aggregator is unreachable; the four agent-md hosts import the aspect.
+- gotcha thirds: (1) dirty-tree eval ignores untracked wrappers until
+  `git add` - one-line error was "attribute missing" with no hint why;
+  (2) empty `()` skip markers in `just check` = the guarded per-host eval
+  failed with stderr suppressed; always re-run one eval unsuppressed;
+  (3) nix LSP piles bogus parser errors on committed files during fast
+  writes - trust `nix eval`/`just check`, never those diagnostics.
+- Follow-up queue: absorb each parked body into its wrapper (sopsFile
+  depth rule on the move), then re-evaluate the specialArgs countdown
+  (update/ssh/ssh-identities/distributed-builds/peerpatrol/home-manager/
+  rate-limiting-avoidance/reticulum still consume inputs/constants).

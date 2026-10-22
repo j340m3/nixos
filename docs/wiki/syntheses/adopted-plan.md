@@ -109,8 +109,36 @@ same eval. `image` and `image-impermanent` disko targets still eval
   wrapper switches to `mkHomeManager` over the same aspects.
 - Collector-style refactors where several hosts contribute per-identity data
   to one aspect: peerpatrol roster, nebula per-host IPs (constants merge).
+  Done 2026-10-22: both were already `constants.nix`-derived post-skeleton
+  (peerpatrol members = host-dir readDir with ip-gated checks; `_nebula`
+  staticMap/lighthouses = rosters). Only residue was one literal woody ip in
+  pricklepants' borg job (ee13993). Deliberately left: buzz/pricklepants
+  inline `services.nebula.networks.mesh` blocks (serve_dns + persist paths
+  + firewall extras differ; unification is cosmetic-only, regression risk on
+  the mesh backbone outweighs it for now).
 - `modules/common` hard-enabled settings (reticulum, insecure-pkg allowlist)
   flow into `system-default` / `system-default`-like features.
+  Done 2026-10-22 (7d6ee1d): `modules/system-default.nix` defines
+  `flake.modules.nixos.system-default` (= the former `_common` grab-bag,
+  still wrapped behind the parked `modules/_common` dir). Swapped off the
+  path import in all 8 dir-importing hosts (buzz jessie lenny mrpotatohead
+  pricklepants rex slinky woody); bootstrap/-impermanent/sid/zurg keep the
+  direct `agent-md.nix` file import until that file becomes its own aspect.
+  Done 2026-10-22 (f5c1b88): `_common/*` peeled into per-feature aspects
+  `modules/system/<aspect>.nix` = thin wrappers
+  (`flake.modules.nixos.<aspect> = { imports = [ ../_common/<orig>.nix ]; }`;
+  reticulum wraps `../_reticulum.nix`). `system-default.nix` moved into
+  `modules/system/` and became the aggregate: it imports the aspects via
+  `with inputs.self.modules.nixos` (+ `../../users/donquezz.nix` by path)
+  and carries the two former `_common/default.nix` settings
+  (`services.reticulum.enable = true`,
+  `nixpkgs.config.permittedInsecurePackages = [ radicle-node-1.10.3 ]`);
+  the `_common/default.nix` aggregator is dead. The four agent-md host
+  files swapped to `inputs.self.modules.nixos.agent-md`.
+  Follow-up absorption: each wrapper still boots from the parked file by
+  path; moving the body INTO the wrapper (one feature per commit, with the
+  (b3) sopsFile-depth rule) retires the consecutive file, then re-evaluates
+  the `specialArgs` countdown.
 
 ## Done when
 
