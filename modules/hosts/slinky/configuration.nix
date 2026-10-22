@@ -26,11 +26,11 @@
         "${inputs.oom-hardware}/uconsole/module-4g.nix"
         ./_uConsole.nix
         inputs.self.modules.nixos.system-default
-        ../../../modules/_vscodium.nix
+        inputs.self.modules.nixos.vscodium
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.nebula
         #../../../modules/_zabbix.nix
-        ../../../modules/_wifi.nix
+        inputs.self.modules.nixos.wifi
       ]
       ++ lib.optional (builtins.pathExists ./_local.nix) ./_local.nix;
 

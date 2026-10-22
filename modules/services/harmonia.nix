@@ -15,7 +15,7 @@ in
       acmeCertDir = "/var/lib/acme/cache.kauderwels.ch";
     in
     {
-      imports = [ ../_acme.nix ];
+      imports = [ inputs.self.modules.nixos.acme ];
 
       services.harmonia.cache.enable = true;
       services.harmonia.cache.signKeyPaths = [ "/var/lib/secrets/harmonia.secret" ];

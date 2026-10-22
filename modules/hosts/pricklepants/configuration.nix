@@ -27,17 +27,17 @@ in
         #../../../modules/_hardening.nix
         #../../../modules/_matrix2.nix
         inputs.self.modules.nixos.minetest
-        ../../../modules/_vaultwarden.nix
+        inputs.self.modules.nixos.vaultwarden
         inputs.self.modules.nixos.logging
         #../../../modules/_zabbix.nix
         #../../../modules/_dns-tunnel.nix
         #../../../modules/_immich-proxy.nix
-        ../../../modules/_acme.nix
+        inputs.self.modules.nixos.acme
         inputs.self.modules.nixos.system-default
-        ../../../modules/_wireguard.nix
+        inputs.self.modules.nixos.wireguard
         # nebula config is defined inline below (this host is a lighthouse);
         # pull in the remote-build accept side that other mesh members get via modules/_nebula.nix
-        ../../../modules/_remote-builder.nix
+        inputs.self.modules.nixos.remote-builder
       ];
 
       #swapDevices = [ { device = "/swapfile"; size = 512; } ];

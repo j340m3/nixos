@@ -22,11 +22,11 @@ in
         inputs.self.modules.nixos.system-default
         ../../../users/donquezz.nix
         inputs.self.modules.nixos.loghost
-        ../../../modules/_borg-server.nix
+        inputs.self.modules.nixos.borg-server
         #../../../modules/_peerix.nix
         ../../../desktop-environments/kde.nix
         #../../../desktop-environments/mate.nix
-        ../../../modules/_wifi.nix
+        inputs.self.modules.nixos.wifi
         ./_xrdp.nix
         ./_nas.nix
         ./_nofile.nix
@@ -36,12 +36,12 @@ in
         ./_home-assistant.nix
         inputs.self.modules.nixos.postgres-backup
         inputs.self.modules.nixos.harmonia
-        ../../../modules/_nfs-fee.nix
+        inputs.self.modules.nixos.nfs-fee
         inputs.self.modules.nixos.nebula
         #../../../modules/_technitium.nix
-        ../../../modules/_prometheus.nix
+        inputs.self.modules.nixos.prometheus
         inputs.self.modules.nixos.grafana
-        ../../../modules/_fritz-exporter.nix
+        inputs.self.modules.nixos.fritz-exporter
         # ./_firefox.nix
         #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
         #<home-manager/nixos>

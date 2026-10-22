@@ -22,7 +22,7 @@
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.nebula
         #../../../modules/_zabbix.nix
-        ../../../modules/_wifi.nix
+        inputs.self.modules.nixos.wifi
         ./jeromeb/_default.nix
         ./lilly/_default.nix
         ../../../desktop-environments/xfce.nix

@@ -21,7 +21,7 @@
         (modulesPath + "/profiles/qemu-guest.nix")
         (modulesPath + "/profiles/minimal.nix")
         (modulesPath + "/profiles/headless.nix")
-        ../../../modules/_hardening.nix
+        inputs.self.modules.nixos.hardening
 
         ./_disk-config.nix
         inputs.self.modules.nixos.system-default
@@ -29,7 +29,7 @@
         inputs.self.modules.nixos.nebula
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.nextcloud
-        ../../../modules/_wireguard.nix
+        inputs.self.modules.nixos.wireguard
 
       ];
 

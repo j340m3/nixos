@@ -29,7 +29,7 @@ in
         (modulesPath + "/profiles/headless.nix")
         #../../../modules/_hardening.nix
         #../../../modules/_swap.nix
-        ../../../modules/_acme.nix
+        inputs.self.modules.nixos.acme
         inputs.self.modules.nixos.system-default
         ../../../users/donquezz.nix
         inputs.self.modules.nixos.logging
@@ -39,13 +39,13 @@ in
         # fight it over ACME identity and sops secrets when buzz returns
         #../../../modules/_persistence.nix
         #../../../modules/_zabbix.nix
-        ../../../modules/_wireguard.nix
-        ../../../modules/_pihole.nix
+        inputs.self.modules.nixos.wireguard
+        inputs.self.modules.nixos.pihole
         #../../../modules/_radicle-seed.nix
         #../../modules/_nebula.nix
         # nebula config is defined inline below (this host is a lighthouse);
         # pull in the remote-build accept side that other mesh members get via modules/_nebula.nix
-        ../../../modules/_remote-builder.nix
+        inputs.self.modules.nixos.remote-builder
       ];
 
       # Use the GRUB 2 boot loader.

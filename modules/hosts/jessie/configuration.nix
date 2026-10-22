@@ -20,7 +20,7 @@
         #../bootstrap
         (modulesPath + "/profiles/minimal.nix")
         (modulesPath + "/profiles/headless.nix")
-        ../../../modules/_hardening.nix
+        inputs.self.modules.nixos.hardening
         #../../modules/_swap.nix
         inputs.self.modules.nixos.system-default
         ../../../users/donquezz.nix
@@ -29,10 +29,10 @@
         inputs.self.modules.nixos.nebula
         #../../../modules/_zabbix.nix
         inputs.self.modules.nixos.minecraft-bedrock
-        ../../../modules/_wireguard.nix
+        inputs.self.modules.nixos.wireguard
         inputs.self.modules.nixos.minecraft-java
         #../../../modules/_matrix3.nix
-        ../../../modules/_acme.nix
+        inputs.self.modules.nixos.acme
         inputs.self.modules.nixos.radicle-seed
       ];
 
