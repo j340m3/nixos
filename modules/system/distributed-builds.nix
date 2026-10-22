@@ -1,11 +1,14 @@
 # dendritic: aspect with absorbed body (was modules/_common/distributed-builds.nix).
-_: {
+{ inputs, ... }:
+let
+  constants = import (inputs.self + "/global/constants.nix");
+in
+{
   flake.modules.nixos.distributed-builds =
     {
       pkgs,
       lib,
       config,
-      constants,
       ...
     }:
     let

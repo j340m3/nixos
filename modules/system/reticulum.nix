@@ -1,10 +1,13 @@
-_: {
+{ inputs, ... }:
+let
+  constants = import (inputs.self + "/global/constants.nix");
+in
+{
   flake.modules.nixos.reticulum =
     {
       config,
       lib,
       pkgs,
-      constants,
       ...
     }:
     let

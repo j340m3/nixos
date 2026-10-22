@@ -1,10 +1,12 @@
 # dendritic aspect (ADR 0014): peerpatrol absorbed from _common/peerpatrol.nix.
-_: {
+{ inputs, ... }:
+let
+  constants = import (inputs.self + "/global/constants.nix");
+in
+{
   flake.modules.nixos.peerpatrol =
     {
       config,
-      constants,
-      inputs,
       lib,
       pkgs,
       ...

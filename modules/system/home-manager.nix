@@ -1,8 +1,7 @@
 # dendritic aspect (ADR 0014): home-manager absorbed from _common/home-manager.nix.
-_: {
+{ inputs, ... }: {
   flake.modules.nixos.home-manager =
     {
-      inputs,
       ...
     }:
     {

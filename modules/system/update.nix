@@ -1,13 +1,14 @@
 # dendritic aspect (ADR 0014): update absorbed from _common/update.nix.
-_: {
+{ inputs, ... }:
+let
+  constants = import (inputs.self + "/global/constants.nix");
+in
+{
   flake.modules.nixos.update =
     {
       config,
       pkgs,
-      comin,
       lib,
-      constants,
-      inputs,
       ...
     }:
     {

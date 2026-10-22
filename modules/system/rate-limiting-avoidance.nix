@@ -1,11 +1,10 @@
 # dendritic aspect (ADR 0014): rate-limiting-avoidance absorbed from _common/rate_limiting_avoidance.nix.
-_: {
+{ inputs, ... }: {
   flake.modules.nixos.rate-limiting-avoidance =
     {
       config,
       pkgs,
       lib,
-      inputs,
       ...
     }:
     {
