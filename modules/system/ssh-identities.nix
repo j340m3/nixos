@@ -1,8 +1,40 @@
-# dendritic: ssh-identities feature (ADR 0014 transitional): thin aspect over the parked
-# plain module it used to be imported by path as (modules/_common/ssh-identities.nix);
-# absorb the module body here per-feature in a follow-up.
+# dendritic: aspect with absorbed body (was modules/_common/ssh-identities.nix).
 _: {
-  flake.modules.nixos.ssh-identities = {
-    imports = [ ../_common/ssh-identities.nix ];
-  };
+  flake.modules.nixos.ssh-identities =
+    {
+      config,
+      lib,
+      pkgs,
+      constants,
+      ...
+    }:
+    let
+      hosts = lib.attrNames constants.buildHosts;
+    in
+    {
+      config = lib.mkMerge [
+        {
+          assertions = map (h: {
+            assertion = lib.pathExists (../../secrets/common/ssh + "/${h}/ssh.pub");
+            message = "missing committed pub for ${h}";
+          }) hosts;
+
+          services.openssh.knownHosts = lib.mapAttrs (h: v: {
+            hostNames = [
+              h
+              v.connect
+            ];
+            publicKey = lib.fileContents (../../secrets/common/ssh + "/${h}/ssh.pub");
+          }) constants.buildHosts;
+        }
+        (lib.mkIf (config.sops.secrets ? "ssh.key") {
+          services.openssh.hostKeys = [
+            {
+              type = "ed25519";
+              path = config.sops.secrets."ssh.key".path;
+            }
+          ];
+        })
+      ];
+    };
 }

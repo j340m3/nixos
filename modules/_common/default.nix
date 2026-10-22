@@ -2,12 +2,9 @@
   imports = [
     ./update.nix
     ./upgradeHealth.nix
-    ./ssh.nix
-    ./ssh-identities.nix
     ../_reticulum.nix
     ./sops.nix
     ./rate_limiting_avoidance.nix
-    ./distributed-builds.nix
     #./lockup.nix
     #./ntp.nix
     ./peerpatrol.nix
