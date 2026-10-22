@@ -15,6 +15,17 @@ in
       lib,
       ...
     }:
+    let
+      # Former ./_firefox.nix policy wordings.
+      lock-false = {
+        Value = false;
+        Status = "locked";
+      };
+      lock-empty-string = {
+        Value = "";
+        Status = "locked";
+      };
+    in
     {
       imports = [
         # Include the results of the hardware scan.
@@ -27,13 +38,6 @@ in
         ../../../desktop-environments/kde.nix
         #../../../desktop-environments/mate.nix
         inputs.self.modules.nixos.wifi
-        ./_xrdp.nix
-        ./_nas.nix
-        ./_nofile.nix
-        ./_firefox.nix
-        ./_power.nix
-        ./_zabbix.nix
-        ./_home-assistant.nix
         inputs.self.modules.nixos.postgres-backup
         inputs.self.modules.nixos.harmonia
         inputs.self.modules.nixos.nfs-fee
@@ -162,10 +166,20 @@ in
       networking.firewall.allowedTCPPorts = [
         config.services.immich.port
         config.services.paperless.port
+        # Former ./_home-assistant.nix:
+        8123 # Home Assistant
+        1883 # Mosquitto
       ];
       networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [
         config.services.immich.port
         config.services.paperless.port
+      ]
+      # Former ./_zabbix.nix:
+      ++ [
+        80
+        443
+        8080
+        10051
       ];
       services.nebula.networks.mesh.firewall.inbound = lib.mkMerge [
         (lib.mkIf (config.services.immich.enable && config.services.nebula.networks.mesh.enable) [
@@ -222,6 +236,335 @@ in
           "x-systemd.after=network-online.target"
           "uid=${toString config.users.users.paperless.uid}"
           "gid=${config.users.users.paperless.group}"
+        ];
+      };
+      # The ./_*.nix host-local glue (xrdp nas nofile firefox power zabbix
+      # home-assistant) absorbed here and in the firewall folds above.
+      services.xrdp.enable = true;
+      #services.xrdp.defaultWindowManager = "mate-session";
+      services.xrdp.defaultWindowManager = "startplasma-x11";
+      services.xrdp.openFirewall = true;
+      # xrdp logs every RDP callback at INFO; that produced ~1GB/week of
+      # pointer addresses on the loghost.  WARNING is enough to troubleshoot.
+      services.xrdp.extraConfDirCommands = ''
+        substituteInPlace $out/sesman.ini --replace-fail 'LogLevel=INFO' 'LogLevel=WARNING'
+        substituteInPlace $out/xrdp.ini --replace-fail 'LogLevel=INFO' 'LogLevel=WARNING'
+      '';
+
+      # Former ./_nas.nix.
+      # For mount.cifs, required unless domain name resolution is not needed.
+      # environment.systemPackages = [ pkgs.cifs-utils ];
+      fileSystems."/mnt/share" = {
+        device = "//bergmannnas/home";
+        fsType = "cifs";
+        options =
+          let
+            # this line prevents hanging on network split
+            automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s";
+
+          in
+          [
+            "${automount_opts},credentials=/etc/nixos/smb-secrets,uid=${toString config.users.users.jeromeb.uid},gid=${toString config.users.groups.users.gid}"
+          ];
+      };
+      services.gvfs.enable = true;
+
+      environment.etc."rclone-mnt.conf" = {
+        text = ''
+          [immich]
+          type = sftp
+          host = bergmannnas.fritz.box
+          user = borg
+          key_file = /root/.ssh/id_rsa
+
+          [rsyslog]
+          type = sftp
+          host = bergmannnas.fritz.box
+          user = borg
+          key_file = /root/.ssh/id_rsa
+
+          [paperless]
+          type = sftp
+          host = bergmannnas.fritz.box
+          user = borg
+          key_file = /root/.ssh/id_rsa
+        '';
+        mode = "755";
+      };
+
+      # Former ./_nofile.nix.
+      systemd.settings.Manager = {
+        DefaultLimitNOFILE = lib.mkForce "65536:1048576";
+      };
+      security.pam.loginLimits = [
+        {
+          domain = "*";
+          type = "soft";
+          item = "nofile";
+          value = "65536";
+        }
+        {
+          domain = "*";
+          type = "hard";
+          item = "nofile";
+          value = "1048576";
+        }
+      ];
+
+      # Former ./_firefox.nix.
+      # Install firefox.
+      # programs.firefox.enable = true;
+      # Install firefox.
+
+      programs.firefox = {
+        enable = true;
+        package = pkgs.firefox-esr;
+        policies = {
+          Cookies = {
+            "Locked" = true;
+            "Behavior" = "reject-tracker";
+            "BehaviorPrivateBrowsing" = "reject-tracker";
+            "DisableFirefoxAccounts" = true;
+          };
+
+          DisableTelemetry = true;
+          DisableFirefoxStudies = true;
+          DontCheckDefaultBrowser = true;
+          DisablePocket = true;
+          EnableTrackingProtection = {
+            "Value" = true;
+            "Locked" = true;
+            "Cryptomining" = true;
+            "Fingerprinting" = true;
+            "Exceptions" = [ ];
+          };
+
+          OfferToSaveLogins = false;
+          PasswordManagerEnabled = false;
+          SanitizeOnShutdown = {
+            "Cache" = true;
+            "Cookies" = true;
+            "Downloads" = false;
+            "FormData" = true;
+            "History" = false;
+            "Sessions" = true;
+            "SiteSettings" = true;
+            "OfflineApps" = true;
+            "Locked" = true;
+          };
+
+          SearchBar = "unified";
+
+          Preferences = {
+            # Privacy settings
+            "extensions.pocket.enabled" = lock-false;
+            "browser.newtabpage.pinned" = lock-empty-string;
+            "browser.topsites.contile.enabled" = lock-false;
+            "browser.newtabpage.activity-stream.showSponsored" = lock-false;
+            "browser.newtabpage.activity-stream.system.showSponsored" = lock-false;
+            "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
+
+            # "browser.startup.homepage" = "https://duckduckgo.com";
+            "browser.search.defaultenginename" = "DuckDuckGo";
+            "browser.search.order.1" = "DuckDuckGo";
+
+            "signon.rememberSignons" = false;
+            "widget.use-xdg-desktop-portal.file-picker" = 1;
+            "browser.aboutConfig.showWarning" = false;
+            "browser.compactmode.show" = true;
+            "browser.cache.disk.enable" = false; # Be kind to hard drive
+
+            # Firefox 75+ remembers the last workspace it was opened on as part of its session management.
+            # This is annoying, because I can have a blank workspace, click Firefox from the launcher, and
+            # then have Firefox open on some other workspace.
+            "widget.disable-workspace-management" = true;
+          };
+
+          ExtensionSettings = {
+            "uBlock0@raymondhill.net" = {
+              install_url = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
+              installation_mode = "force_installed";
+            };
+            "{446900e4-71c2-419f-a6a7-df9c091e268b}" = {
+              install_url = "https://addons.mozilla.org/firefox/downloads/latest/bitwarden-password-manager/latest.xpi";
+              installation_mode = "force_installed";
+            };
+            "jid1-MnnxcxisBPnSXQ@jetpack" = {
+              install_url = "https://addons.mozilla.org/firefox/downloads/latest/privacy-badger17/latest.xpi";
+              installation_mode = "force_installed";
+            };
+            "extension@tabliss.io" = {
+              install_url = "https://addons.mozilla.org/firefox/downloads/latest/tabliss/latest.xpi";
+              installation_mode = "force_installed";
+            };
+            "gdpr@cavi.au.dk" = {
+              install_url = "https://addons.mozilla.org/firefox/downloads/latest/consent-o-matic/latest.xpi";
+              installation_mode = "force_installed";
+            };
+          };
+
+          SearchEngines = {
+            Default = "DuckDuckGo";
+          };
+
+          WebsiteFilter = {
+            Block = [ "https://9gag.com/" ];
+            Exceptions = [ ];
+          };
+        };
+      };
+
+      # Former ./_power.nix.
+      # This is on by default, making auto-cpufreq unable to work
+      services.power-profiles-daemon.enable = false;
+
+      powerManagement.enable = true;
+      powerManagement.cpuFreqGovernor = "powersave";
+      powerManagement.powertop.enable = true;
+      services.thermald.enable = true;
+      services.auto-cpufreq.enable = true;
+      services.auto-cpufreq.settings = {
+        battery = {
+          governor = "schedutil";
+          turbo = "never";
+        };
+        charger = {
+          governor = "schedutil";
+          turbo = "auto";
+          energy_performance_preference = "balance_power";
+          energy_perf_bias = "balance_power";
+        };
+
+      };
+      # services.ollama = {
+      #   enable = true;
+      #   acceleration = false;
+      #   environmentVariables = {
+      #     OLLAMA_CONTEXT_LENGTH="32768";
+      #   };
+      # };
+
+      # Former ./_zabbix.nix.
+      #services.zabbixServer ={
+      #  enable = true;
+      #  package = pkgs.zabbix74.server;
+      #};
+
+      services.zabbixWeb = {
+        enable = true;
+        #    server.port = 8080;
+        frontend = "nginx";
+        package = pkgs.zabbix74.web;
+        nginx.virtualHost = {
+          #hostName = "woody";
+          #adminAddr = "webmaster@localhost";
+          listen = [
+            {
+              addr = "0.0.0.0";
+              port = 80;
+              ssl = false;
+            }
+          ];
+        };
+      };
+
+      services.zabbixAgent = {
+        enable = true;
+        server = "localhost";
+        package = pkgs.zabbix74.agent;
+        #    settings = {
+        #      Plugins.MQTT.Session.iot = {
+        #        User = "root";
+        #        Password = "<redacted, see sops mosquitto-password>";
+        #        Topic = "#";
+        #      };
+        #    };
+      };
+
+      # Former ./_home-assistant.nix.
+      sops.secrets."mosquitto-password" = {
+        sopsFile = ../../../secrets/hosts/woody/services.yaml;
+      };
+
+      services.home-assistant = {
+        enable = false; # doesn't build!?
+        extraComponents = [
+          # Components required to complete the onboarding
+          "esphome"
+          "met"
+          "radio_browser"
+          "tasmota"
+          "google_translate"
+          "prusalink"
+          "cast"
+          "spotify"
+        ];
+        config = {
+          # Includes dependencies for a basic setup
+          # https://www.home-assistant.io/integrations/default_config/
+          default_config = { };
+          mqtt = {
+            climate = [
+              {
+                name = "Emelies Heizung";
+                modes = [
+                  "off"
+                  "heat"
+                  "auto"
+                ];
+                min_temp = 5;
+                max_temp = 26;
+                temp_step = 0.5;
+                precision = 0.1;
+                mode_command_topic = "cmnd/tasmota_D84500/EQ3/001A221B9574/mode";
+                temperature_command_topic = "cmnd/tasmota_D84500/EQ3/001A221B9574/settemp";
+                temperature_state_topic = "stat/EQ3/001A221B9574";
+                temperature_state_template = "{{ value_json.temp }}";
+                mode_state_topic = "stat/EQ3/001A221B9574";
+                mode_state_template = "{{ value_json.hassmode }}";
+                #current_temperature_topic = "tele/tasmota_D84500/SENSOR";
+                # current_temperature_template: '{{ value_json["AM2301"].Temperature - 4.2 }}'
+                #current_temperature_template = "{{ value_json[\"AM2301\"].Temperature }}";
+                #current_humidity_topic = "tele/tasmota_D84500/SENSOR";
+                #current_humidity_template = "{{ value_json[\"AM2301\"].Humidity }}";
+              }
+            ];
+            sensor = [
+              {
+                name = "Palme_Boden";
+                state_topic = "Palme/soil";
+                unique_id = "mqtt_palme_soil";
+                device_class = "moisture";
+              }
+            ];
+          };
+        };
+      };
+
+      services.mosquitto = {
+        enable = true;
+        # port = 1883;
+        listeners = [
+          {
+            users.root = {
+              acl = [
+                "readwrite #"
+                #"topic write tasmota/discovery/#"
+              ];
+              #omitPasswordAuth = true;
+              passwordFile = config.sops.secrets."mosquitto-password".path;
+              #settings.allow_anonymous = true;
+            };
+          }
+          #      {
+          #        users.DVES_USER = {
+          #          acl = [
+          #            "readwrite #"
+          #          ];
+          #          #omitPasswordAuth = true;
+          #          passwordFile = config.sops.secrets."mosquitto-password".path;      #          #settings.allow_anonymous = true;
+          #        };
+          #      }
         ];
       };
       zramSwap.enable = true;

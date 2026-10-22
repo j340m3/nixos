@@ -5,12 +5,13 @@
 
 {
   flake.modules.nixos.zurg =
-    { pkgs, ... }:
     {
-      # feeds the path-imported siblings (_llm/_update eat inputs in option
-      # values only, so this hook-safe _module.args feed is enough)
-      _module.args.inputs = inputs;
-
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
+    {
       imports = [
         # Include the results of the hardware scan.
         ./_hardware-configuration.nix
@@ -19,14 +20,6 @@
         inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p51
         inputs.stylix.nixosModules.stylix
         inputs.self.modules.nixos.agent-md
-        ./_gaming.nix
-        ./_fingerprint.nix
-        #./_wifi.nix
-        #./_secops.nix
-        ./_fonts.nix
-        ./_update.nix
-        ./_de.nix
-        ./_llm.nix
       ];
 
       # Use the systemd-boot EFI boot loader.
@@ -159,7 +152,8 @@
       programs.flashprog.enable = true;
 
       # Former ./_terminal.nix (retirement step 3C); its systemPackages items
-      # merged into the list below.
+      # merged into the list below, as are the ./_fingerprint/_gaming/_llm
+      # systemPackages (all ./_*.nix host-local glue absorbed).
       stylix.enable = true;
       stylix.base16Scheme = "${inputs.tinted-schemes}/base16/flexoki-light.yaml";
       environment.systemPackages = with pkgs; [
@@ -172,11 +166,114 @@
         efibootmgr
         kitty
         gnomeExtensions.activate-linux
+        # Former ./_fingerprint.nix:
+        fprintd
+        # Former ./_gaming.nix:
+        mangohud
+        protonup-qt
+        lutris
+        bottles
+        heroic
+        # Former ./_llm.nix:
+        inputs.opencode-dev.packages.${pkgs.system}.default
+        opencode
+        opencode-desktop
       ];
 
       environment.sessionVariables = {
         SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/rbw/ssh-agent-socket";
       };
+
+      # The ./_*.nix host-local glue (gaming fingerprint fonts de llm update)
+      # absorbed here and in the systemPackages list above.
+      # Former ./_gaming.nix.
+      hardware.graphics.enable = true;
+      hardware.graphics.enable32Bit = true;
+      services.xserver.videoDrivers = [
+        "nvidia"
+      ];
+      hardware.nvidia.modesetting.enable = true;
+      hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
+      #hardware.nvidia.open = true;
+      #nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+      #           "nvidia-x11"
+      #           "nvidia-settings"
+      #         ];
+      nixpkgs.config.allowUnfree = true;
+      hardware.enableRedistributableFirmware = true;
+      programs.steam = {
+        enable = true;
+      };
+      nix.daemonCPUSchedPolicy = "idle";
+      nix.daemonIOSchedClass = "idle";
+      #environment.systemPackages = [ (pkgs.writeShellScriptBin "reboot-kexec" (builtins.readFile ./reboot-kexec.sh)) ];
+      programs.steam.gamescopeSession.enable = true;
+      programs.gamemode.enable = true;
+
+      # Former ./_fingerprint.nix.
+      services.fprintd.enable = true;
+
+      # Former ./_fonts.nix.
+      fonts.packages = with pkgs; [
+        nerd-fonts.victor-mono
+      ];
+
+      # Former ./_de.nix.
+      programs.hyprland.enable = true;
+
+      # Former ./_llm.nix.
+      nix.settings = {
+        substituters = [
+          "https://cache.nixos-cuda.org"
+          "https://cache.chaotic.cx"
+        ];
+        trusted-public-keys = [
+          "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
+          "chaotic.cachix.org-1:Zf7C6GVRqJjU8B/ihd+psPVKp3/7Or/FSvOP3/9aB8Y="
+        ];
+      };
+      services.ollama = {
+        enable = true;
+        package = pkgs.ollama-cuda.override {
+          cudaArches = [ "52" ]; # Quadro M1200/M2200 (Maxwell) im ThinkPad P51
+          cudaPackages = pkgs.cudaPackages_12; # CUDA 13 dropped Maxwell (sm_52)
+        };
+        environmentVariables = {
+          # 1. Zwingt den Kontext auf ein kleineres Fenster (Standard ist oft 4K/8K oder mehr)
+          # OLLAMA_CONTEXT_LENGTH = "2048";
+
+          # 2. Komprimiert den Schlüssel-Wert-Cache im VRAM (spart massig VRAM)
+          # OLLAMA_KV_CACHE_TYPE = "q8_0";
+
+          # 3. Verhindert, dass Ollama parallel Slots für mehrere User im VRAM reserviert
+          OLLAMA_NUM_PARALLEL = "1";
+        };
+      };
+
+      # Former ./_update.nix.
+      system.autoUpgrade = {
+        enable = true;
+        #flake = "/etc/nixos";
+        #flake = "github:j340m3/nixos";
+        flake = inputs.self.outPath;
+        flags = [
+          "--update-input"
+          "nixpkgs"
+          "--print-build-logs"
+          "--commit-lock-file"
+          #  "--upgrade-all"
+          #  "--no-write-lock-file"
+        ];
+        allowReboot = true;
+        dates = lib.mkDefault "*-*-* 0/1:45:00";
+        randomizedDelaySec = lib.mkDefault "25min";
+        #dates = lib.mkDefault "hourly";
+        rebootWindow = {
+          lower = lib.mkDefault "22:00";
+          upper = "08:00";
+        };
+      };
+
       boot.kernelPackages = pkgs.linuxPackages_zen;
 
       systemd.targets.sleep.enable = false;
