@@ -3,11 +3,12 @@
   pkgs,
   lib,
   constants,
+  inputs,
   ...
 }:
 {
   imports = [
-    ../../_common/postgresBackup.nix
+    inputs.self.modules.nixos.postgres-backup
   ];
   environment.systemPackages = with pkgs; [
     immich-machine-learning

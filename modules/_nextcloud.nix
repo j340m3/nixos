@@ -11,7 +11,7 @@ let
 in
 {
   imports = [
-    ./_common/postgresBackup.nix
+    inputs.self.modules.nixos.postgres-backup
   ];
 
   sops.secrets."nextcloud/secrets.json" = {
