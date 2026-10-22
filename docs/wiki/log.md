@@ -261,3 +261,23 @@ Added sources/nixos-26.05-release-notes.md, sources/nixos-announcements.md, conc
   from the HM commit, `modules/system-default.nix` from the peel).
 - batch 4 queue: reticulum, agent-md, postgresBackup decision, donquezz,
   dead-aggregator deletion, then specialArgs retirement + lib.nix cleanup.
+
+## 2026-10-22 - absorption batch 4 + _common dir gone (pass 7 closed) [dendritic]
+
+- 7b73949: reticulum (344-line let-heavy body in-wrapped, secrets depth
+  `../../secrets/hosts`), agent-md, and a NEW `postgres-backup` aspect
+  (was `_common/postgresBackup.nix`, never in the aggregator) are absorbed;
+  `_nextcloud` and woody `_immich` now import the aspect;
+  `_immich` needed `inputs` added to its args (path imports never fed it).
+  `modules/_reticulum.nix` and the parked `modules/_common/` dir are
+  deleted - the migration list now ends at specialArgs retirement.
+- assembler lesson (third slip, then stable): python slicing that maps
+  `src[1:k]` to args SKIPS the opening `{` line - always include the
+  brace line explicitly; `write` the file, run nixfmt immediately, let
+  the parser catch slip-ups, read the error line.
+- tomorrow-notes for retirement: lift `constants` into a wrapper-level
+  `let` so inner lambdas go lexical; prune inner arg lists; hosts get
+  their own pass; `lib.nix` legacy branch + specialArgs go once no
+  `_default.nix` path import survives; root `users/`/`secrets/` stay
+  parked by prior decision, so `donquezz` keeps its by-path import in
+  `system-default`.

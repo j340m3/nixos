@@ -153,6 +153,19 @@ same eval. `image` and `image-impermanent` disko targets still eval
   consumed by `_nextcloud` + woody `_immich` by path), donquezz user
   (path import in the aggregate), final dead-aggregator deletion, then the
   specialArgs retirement + `lib.nix` cleanup.
+  Done 2026-10-22 (7b73949): those absorbed too - `reticulum` (body in,
+  secrets path depth adjusted to `../../secrets/hosts`), `agent-md`
+  (hand-rewritten), `postgres-backup` (new aspect; `_nextcloud` and woody
+  `_immich` swapped to `inputs.self.modules.nixos.postgres-backup`,
+  `_immich` gained an `inputs` arg). `modules/_reticulum.nix` and the
+  whole parked `modules/_common` dir deleted; only cosmetic comments still
+  mention it. `donquezz` stays a root-dir path import in the aggregate
+  (root dirs parked by decision).
+  Remaining: specialArgs retirement (per-aspect `let constants` at
+  flake-parts level, inner args pruned to lexical) + `lib.nix` cleanup
+  (possibly the legacy branch too, once no `_default.nix` path import
+  remains) + host-file `inputs`/`constants` arg pruning in each host's
+  own pass.
 
 ## Done when
 
