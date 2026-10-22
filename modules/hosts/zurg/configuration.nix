@@ -7,6 +7,10 @@
   flake.modules.nixos.zurg =
     { pkgs, ... }:
     {
+      # feeds the path-imported siblings (_llm/_update eat inputs in option
+      # values only, so this hook-safe _module.args feed is enough)
+      _module.args.inputs = inputs;
+
       imports = [
         # Include the results of the hardware scan.
         ./_hardware-configuration.nix

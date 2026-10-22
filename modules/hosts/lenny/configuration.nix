@@ -37,6 +37,10 @@
           };
       */
 
+      # feeds the path-imported specialisation files (jeromeb/_default.nix uses
+      # inputs.affinity-nix in its overlays)
+      _module.args.inputs = inputs;
+
       # jeromeb's home, wired into the host rebuild instead of a standalone switch
       home-manager.users.jeromeb.imports = [ inputs.self.modules.homeManager.jeromeb ];
 
