@@ -5,16 +5,11 @@
     ./ssh.nix
     ./ssh-identities.nix
     ../_reticulum.nix
-    ./locale.nix
     ./sops.nix
     ./rate_limiting_avoidance.nix
-    ./zram.nix
-    ./domain.nix
     ./distributed-builds.nix
-    ./mem.nix
     #./lockup.nix
     #./ntp.nix
-    ./ulimit.nix
     ./peerpatrol.nix
     ./agent-md.nix
     ./home-manager.nix

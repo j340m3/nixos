@@ -1,8 +1,19 @@
-# dendritic: ulimit feature (ADR 0014 transitional): thin aspect over the parked
-# plain module it used to be imported by path as (modules/_common/ulimit.nix);
-# absorb the module body here per-feature in a follow-up.
+# dendritic aspect (ADR 0014): nofile login limits absorbed from _common/ulimit.nix.
 _: {
-  flake.modules.nixos.ulimit = {
-    imports = [ ../_common/ulimit.nix ];
+  flake.modules.nixos.ulimit = _: {
+    security.pam.loginLimits = [
+      {
+        domain = "*";
+        type = "soft";
+        item = "nofile";
+        value = "65536";
+      }
+      {
+        domain = "*";
+        type = "hard";
+        item = "nofile";
+        value = "1048576";
+      }
+    ];
   };
 }

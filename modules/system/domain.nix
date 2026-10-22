@@ -1,8 +1,13 @@
-# dendritic: domain feature (ADR 0014 transitional): thin aspect over the parked
-# plain module it used to be imported by path as (modules/_common/domain.nix);
-# absorb the module body here per-feature in a follow-up.
+# dendritic aspect (ADR 0014): network domain absorbed from _common/domain.nix.
 _: {
-  flake.modules.nixos.domain = {
-    imports = [ ../_common/domain.nix ];
-  };
+  flake.modules.nixos.domain =
+    {
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
+    {
+      networking.domain = "hosts.kauderwels.ch";
+    };
 }
