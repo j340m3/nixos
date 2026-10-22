@@ -199,13 +199,15 @@ same eval. `image` and `image-impermanent` disko targets still eval
 - Eval-gotcha re-learned: `nix eval` on a dirty git tree cannot see
   UNTRACKED files — stages "attribute 'remote-builder' missing" until
   `git add` tracks the new aspect files.
-- Still parked after wave 2: host-local glue siblings
-  (woody `_nas _xrdp _home-assistant _firefox _power _zabbix`, zurg
-  `_de _fingerprint _fonts _gaming _llm _update`, sid `_editor
-  _nvidia`, slinky `_local _uConsole`, mrpotatohead `_disk-config`,
-  per-host `_hardware-configuration.nix` x7), root `users/`,
-  `secrets/`, `desktop-environments/`, and lenny/zurg
-  `_module.args.inputs` hooks.
+- Still parked after wave 2: slinky `_local _uConsole` (IFD-bound),
+  mrpotatohead `_disk-config` + per-host `_hardware-configuration.nix`
+  x7 (permanent), lenny specialisation `_default.nix` x2, root `users/`,
+  `secrets/`, `desktop-environments/` (by decision).
+- Host-local glue absorbed same day (bca2e82, fe81c0d idiom): woody
+  (nas xrdp nofile firefox power zabbix home-assistant), zurg
+  (de fingerprint fonts gaming llm update), sid (editor nvidia);
+  zurg dropped its `_module.args.inputs` hook (inputs lexical from the
+  file head now). lenny's hook remains for its specialisations.
 
 ## Done when
 

@@ -325,3 +325,23 @@ Added sources/nixos-26.05-release-notes.md, sources/nixos-announcements.md, conc
 - just check: 11/11 ok, slinky skipped (aarch64, hardware verify).
 - Remaining parks: host-local glue siblings + root users/, secrets/,
   desktop-environments/ + lenny/zurg _module.args.inputs hooks.
+
+## 2026-10-22 - host-local service glue absorbed (pass 10) [dendritic]
+
+- bca2e82: woody (nas/xrdp/nofile/firefox/power/zabbix/home-assistant),
+  zurg (de/fingerprint/fonts/gaming/llm/update), sid (editor/nvidia)
+  inlined into their configuration.nix per the fe81c0d idiom; sibling
+  files deleted. Colliding lists folded: firewall allowedTCPPorts +
+  nebula mesh ports (woody), systemPackages 4-way fold (zurg incl. the
+  inputs.opencode-dev entry). zurg lambda head gained config/lib; the
+  `_module.args.inputs` hook is GONE - absorbed bodies see inputs
+  lexically from the file head.
+- Absorb-pattern lessons: `environment.systemPackages = hostList ++ [x]`
+  self-references inside one attrset - put ONE list with entries inline;
+  sibling `let` vars move to a wrapper let above the host body (woody
+  firefox lock-policies); statix rejects `(...)` around the opencode-dev
+  package term in a with-scoped list.
+- just check 11/11 (slinky aarch64 skip). Still parked: slinky
+  _local/_uConsole (IFD-bound), mrpotatohead _disk-config + 7x
+  _hardware-configuration.nix (permanent), lenny specialisation _defs,
+  root users/ secrets/ desktop-environments/ (by decision).
