@@ -26,8 +26,8 @@ in
         ../../../desktop-environments/xfce.nix
         #./_hardened.nix
         inputs.self.modules.nixos.system-default
-        ../../../modules/_logging.nix
-        ../../../modules/_nebula.nix
+        inputs.self.modules.nixos.logging
+        inputs.self.modules.nixos.nebula
         #../../../modules/_zabbix.nix
         #../../modules/_peerix.nix
         #../../modules/_cool-shell.nix

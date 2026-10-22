@@ -26,9 +26,9 @@ in
         (modulesPath + "/profiles/headless.nix")
         #../../../modules/_hardening.nix
         #../../../modules/_matrix2.nix
-        ../../../modules/_minetest.nix
+        inputs.self.modules.nixos.minetest
         ../../../modules/_vaultwarden.nix
-        ../../../modules/_logging.nix
+        inputs.self.modules.nixos.logging
         #../../../modules/_zabbix.nix
         #../../../modules/_dns-tunnel.nix
         #../../../modules/_immich-proxy.nix

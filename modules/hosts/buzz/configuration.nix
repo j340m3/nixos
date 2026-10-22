@@ -32,7 +32,7 @@ in
         ../../../modules/_acme.nix
         inputs.self.modules.nixos.system-default
         ../../../users/donquezz.nix
-        ../../../modules/_logging.nix
+        inputs.self.modules.nixos.logging
         #../../../modules/_nextcloud.nix
         # nextcloud lives on mrpotatohead (public DNS nextcloud.kauderwels.ch +
         # files.dabergmann.de both point there); a second instance here would

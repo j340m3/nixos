@@ -18,7 +18,7 @@
         ./_hardware-configuration.nix
         inputs.self.modules.nixos.system-default
         ../../../users/donquezz.nix
-        ../../../modules/_loghost.nix
+        inputs.self.modules.nixos.loghost
         ../../../modules/_borg-server.nix
         #../../../modules/_peerix.nix
         ../../../desktop-environments/kde.nix
@@ -33,12 +33,12 @@
         ./_power.nix
         ./_zabbix.nix
         ./_home-assistant.nix
-        ../../../modules/_harmonia.nix
+        inputs.self.modules.nixos.harmonia
         ../../../modules/_nfs-fee.nix
-        ../../../modules/_nebula.nix
+        inputs.self.modules.nixos.nebula
         #../../../modules/_technitium.nix
         ../../../modules/_prometheus.nix
-        ../../../modules/_grafana.nix
+        inputs.self.modules.nixos.grafana
         ../../../modules/_fritz-exporter.nix
         # ./_firefox.nix
         #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")

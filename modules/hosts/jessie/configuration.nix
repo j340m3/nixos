@@ -24,16 +24,16 @@
         #../../modules/_swap.nix
         inputs.self.modules.nixos.system-default
         ../../../users/donquezz.nix
-        ../../../modules/_logging.nix
-        ../../../modules/_persistence.nix
-        ../../../modules/_nebula.nix
+        inputs.self.modules.nixos.logging
+        inputs.self.modules.nixos.persistence
+        inputs.self.modules.nixos.nebula
         #../../../modules/_zabbix.nix
-        ../../../modules/_minecraft-bedrock.nix
+        inputs.self.modules.nixos.minecraft-bedrock
         ../../../modules/_wireguard.nix
-        ../../../modules/_minecraft-java.nix
+        inputs.self.modules.nixos.minecraft-java
         #../../../modules/_matrix3.nix
         ../../../modules/_acme.nix
-        ../../../modules/_radicle-seed.nix
+        inputs.self.modules.nixos.radicle-seed
       ];
 
       #system.autoUpgrade.dates = lib.mkForce "daily";
