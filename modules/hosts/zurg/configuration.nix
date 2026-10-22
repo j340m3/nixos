@@ -21,7 +21,6 @@
         #./_secops.nix
         ./_fonts.nix
         ./_update.nix
-        ./_terminal.nix
         ./_de.nix
         ./_llm.nix
       ];
@@ -154,6 +153,11 @@
         ];
       };
       programs.flashprog.enable = true;
+
+      # Former ./_terminal.nix (retirement step 3C); its systemPackages items
+      # merged into the list below.
+      stylix.enable = true;
+      stylix.base16Scheme = "${inputs.tinted-schemes}/base16/flexoki-light.yaml";
       environment.systemPackages = with pkgs; [
         (wordlists.override {
           lists = [
@@ -162,7 +166,8 @@
           ];
         })
         efibootmgr
-
+        kitty
+        gnomeExtensions.activate-linux
       ];
 
       environment.sessionVariables = {

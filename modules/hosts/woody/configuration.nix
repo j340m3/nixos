@@ -3,6 +3,9 @@
 # declares the host into the flake. inputs arrive via the transitional
 # specialArgs in the factory, so the head args stay verbatim.
 { inputs, lib, ... }:
+let
+  constants = import (inputs.self + "/global/constants.nix");
+in
 
 {
   flake.modules.nixos.woody =
@@ -24,8 +27,6 @@
         ../../../desktop-environments/kde.nix
         #../../../desktop-environments/mate.nix
         ../../../modules/_wifi.nix
-        ./_immich.nix
-        ./_paperless.nix
         ./_xrdp.nix
         ./_nas.nix
         ./_nofile.nix
@@ -33,6 +34,7 @@
         ./_power.nix
         ./_zabbix.nix
         ./_home-assistant.nix
+        inputs.self.modules.nixos.postgres-backup
         inputs.self.modules.nixos.harmonia
         ../../../modules/_nfs-fee.nix
         inputs.self.modules.nixos.nebula
@@ -47,6 +49,181 @@
       ];
 
       boot.tmp.cleanOnBoot = true;
+      # Former ./_immich.nix + ./_paperless.nix absorbed (retirement step 3B).
+      # Shared firewall/inbound attrs merged; duplicate user defs folded.
+
+      services.immich = {
+        enable = true;
+        host = "::";
+        # secretsFile = config.vaultix.secrets.immich.path;
+        database.createDB = true;
+        machine-learning.enable = true;
+        redis.enable = true;
+        /*
+          settings = {
+            logging = {
+              enabled = true;
+              level = "verbose";
+            };
+          };
+        */
+        accelerationDevices = null;
+        port = 2283;
+        mediaLocation = "/mnt/nas/immich";
+      };
+
+      users.users.immich = {
+        uid = 989;
+        group = "immich";
+        extraGroups = [
+          "video"
+          "render"
+        ];
+        #home = "/mnt/nas/immich";
+        #createHome = true;
+      };
+
+      fileSystems."/mnt/nas/immich" = {
+        device = "immich:immich";
+        fsType = "rclone";
+        options = [
+          "nodev"
+          #"_netdev"
+          #"nofail"
+          "noauto"
+          "allow_other"
+          "args2env"
+          "x-systemd.automount"
+          "cache_dir=/var/cache/rclone"
+          "dir-cache-time=24h"
+          "sftp-path-override=/volume1/borgbackup/immich"
+          "vfs-cache-mode=full"
+          "vfs-cache-min-free-space=10G"
+          "vfs-fast-fingerprint"
+          "config=/etc/rclone-mnt.conf"
+          "vfs-write-back=1m" # write changes after one hour
+          "vfs-cache-max-age=24h" # Retain cached files for up to 24 hours
+          "vfs-read-chunk-size=32M" # Start with 32MB chunks for faster initial reads
+          "vfs-read-chunk-size-limit=1G" # Allow chunk size to grow up to 1GB for large files
+          "vfs-cache-poll-interval=30s"
+          #"tpslimit=8"
+          #"tpslimit-burst=16"
+          #"bwlimit=1K"
+          #"transfers=4"
+          "log-level=INFO" # Log to stdout for debugging
+          "log-file=/var/log/rclone.log"
+          "x-systemd.requires=network-online.target"
+          "x-systemd.after=network-online.target" # only after network came up
+          "uid=${toString config.users.users.immich.uid}"
+          "gid=${config.users.users.immich.group}"
+        ];
+      };
+
+      systemd.services."immich-server.service".after = [ "mnt-nas-immich.mount" ];
+
+      sops.secrets."paperless-admin-pass" = {
+        sopsFile = ../../../secrets/services/paperless/secrets.yaml;
+        owner = "paperless";
+        group = "paperless";
+        path = "/etc/paperless-admin-pass";
+      };
+
+      services.paperless = {
+        enable = true;
+        passwordFile = config.sops.secrets."paperless-admin-pass".path;
+        configureTika = true;
+        database.createLocally = true;
+        dataDir = "/mnt/nas/paperless";
+        port = 28981;
+        address = "0.0.0.0";
+        settings = {
+          PAPERLESS_TASK_WORKERS = 1;
+          PAPERLESS_THREADS_PER_WORKER = 2;
+          PAPERLESS_OCR_LANGUAGE = "deu+eng";
+          # PAPERLESS_APP_TITLE = "Paperless";
+          # PAPERLESS_CONSUMER_IGNORE_PATTERN = [
+          #   ".db"
+          # ];
+          # PAPERLESS_EMAIL_TASK_CRON = "0 */8 * * *";
+          # https://github.com/paperless-ngx/paperless-ngx/issues/7383
+          # PAPERLESS_OCR_USER_ARGS = {
+          #   "invalidate_digital_signatures" = true;
+          # };
+        };
+      };
+
+      # Gotenberg 8.36 OTEL env silencing (paperless companion)
+      systemd.services.gotenberg.environment = {
+        OTEL_METRICS_EXPORTER = "none";
+        OTEL_LOGS_EXPORTER = "none";
+        OTEL_TRACES_EXPORTER = "none";
+      };
+
+      networking.firewall.allowedTCPPorts = [
+        config.services.immich.port
+        config.services.paperless.port
+      ];
+      networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [
+        config.services.immich.port
+        config.services.paperless.port
+      ];
+      services.nebula.networks.mesh.firewall.inbound = lib.mkMerge [
+        (lib.mkIf (config.services.immich.enable && config.services.nebula.networks.mesh.enable) [
+          {
+            cidr = constants.nebula.cidr;
+            port = config.services.immich.port;
+            proto = "any";
+          }
+        ])
+        (lib.mkIf (config.services.paperless.enable && config.services.nebula.networks.mesh.enable) [
+          {
+            cidr = constants.nebula.cidr;
+            port = config.services.paperless.port;
+            proto = "any";
+          }
+        ])
+      ];
+
+      users.users.paperless = {
+        uid = 315;
+        group = "paperless";
+        #home = "/mnt/nas/paperless";
+        #createHome = true;
+      };
+
+      fileSystems."/mnt/nas/paperless" = {
+        device = "paperless:paperless";
+        fsType = "rclone";
+        options = [
+          "nodev"
+          #"_netdev"
+          #"nofail"
+          "noauto"
+          "allow_other"
+          "args2env"
+          "x-systemd.automount"
+          "cache_dir=/var/cache/rclone"
+          "dir-cache-time=24h"
+          "sftp-path-override=/volume1/borgbackup/paperless"
+          "vfs-cache-mode=full"
+          "vfs-cache-min-free-space=10G"
+          "vfs-fast-fingerprint"
+          "vfs-write-back=1m" # write changes after one hour
+          "vfs-cache-max-age=24h" # Retain cached files for up to 24 hours
+          "vfs-read-chunk-size=32M"
+          "vfs-read-chunk-size-limit=1G"
+          "vfs-cache-poll-interval=30s"
+          "tpslimit=16"
+          "tpslimit-burst=32"
+          "log-level=INFO"
+          "log-file=/var/log/rclone/paperless.log"
+          "config=/etc/rclone-mnt.conf"
+          "x-systemd.requires=network-online.target"
+          "x-systemd.after=network-online.target"
+          "uid=${toString config.users.users.paperless.uid}"
+          "gid=${config.users.users.paperless.group}"
+        ];
+      };
       zramSwap.enable = true;
 
       # 24/7 homeserver: self-repair like the headless hosts. The
@@ -184,6 +361,7 @@
       # List packages installed in system profile. To search, run:
       # $ nix search wget
       environment.systemPackages = with pkgs; [
+        immich-machine-learning
         intel-undervolt
         undervolt
         s-tui

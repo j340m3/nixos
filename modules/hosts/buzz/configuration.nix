@@ -24,7 +24,7 @@ in
         #inputs.disko.nixosModules.disko
         #inputs.impermanence.nixosModules.impermanence
         #inputs.peerix.nixosModules.peerix
-        ../bootstrap/_base.nix
+        inputs.self.modules.nixos.bootstrap-base
         (modulesPath + "/profiles/minimal.nix")
         (modulesPath + "/profiles/headless.nix")
         #../../../modules/_hardening.nix

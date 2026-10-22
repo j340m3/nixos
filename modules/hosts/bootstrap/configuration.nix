@@ -9,7 +9,7 @@
     { ... }:
     {
       imports = [
-        ./_base.nix
+        inputs.self.modules.nixos.bootstrap-base
       ];
     };
 }
