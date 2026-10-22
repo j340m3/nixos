@@ -1,15 +1,9 @@
 {
   imports = [
-    ./update.nix
-    ./upgradeHealth.nix
     ../_reticulum.nix
-    ./sops.nix
-    ./rate_limiting_avoidance.nix
     #./lockup.nix
     #./ntp.nix
-    ./peerpatrol.nix
     ./agent-md.nix
-    ./home-manager.nix
     ../../users/donquezz.nix
   ];
 

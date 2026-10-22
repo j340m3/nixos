@@ -1,8 +1,14 @@
-# dendritic: sops feature (ADR 0014 transitional): thin aspect over the parked
-# plain module it used to be imported by path as (modules/_common/sops.nix);
-# absorb the module body here per-feature in a follow-up.
+# dendritic aspect (ADR 0014): sops absorbed from _common/sops.nix.
 _: {
-  flake.modules.nixos.sops = {
-    imports = [ ../_common/sops.nix ];
-  };
+  flake.modules.nixos.sops =
+    {
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
+    {
+      sops.defaultSopsFile = ../../secrets/shared.yaml;
+      #sops.age.generateKey = true;
+    };
 }

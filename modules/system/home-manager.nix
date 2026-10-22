@@ -1,8 +1,23 @@
-# dendritic: home-manager feature (ADR 0014 transitional): thin aspect over the parked
-# plain module it used to be imported by path as (modules/_common/home-manager.nix);
-# absorb the module body here per-feature in a follow-up.
+# dendritic aspect (ADR 0014): home-manager absorbed from _common/home-manager.nix.
 _: {
-  flake.modules.nixos.home-manager = {
-    imports = [ ../_common/home-manager.nix ];
-  };
+  flake.modules.nixos.home-manager =
+    {
+      inputs,
+      ...
+    }:
+    {
+      imports = [ inputs.home-manager.nixosModules.home-manager ];
+
+      home-manager = {
+        # useGlobalPkgs breaks: stylix target overlay modules always define a
+        # top-level `overlay`, which home-manager promotes to `nixpkgs.overlays`
+        # and useGlobalPkgs asserts on. Home Manager builds its own nixpkgs
+        # instead, same as the standalone homeConfigurations did.
+        useGlobalPkgs = false;
+        useUserPackages = true;
+        # Transition guard: never clobber files left by standalone `home-manager switch`
+        backupFileExtension = "hm-backup";
+        extraSpecialArgs = { inherit inputs; };
+      };
+    };
 }

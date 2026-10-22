@@ -1,8 +1,24 @@
-# dendritic: rate-limiting-avoidance feature (ADR 0014 transitional): thin aspect over the parked
-# plain module it used to be imported by path as (modules/_common/rate_limiting_avoidance.nix);
-# absorb the module body here per-feature in a follow-up.
+# dendritic aspect (ADR 0014): rate-limiting-avoidance absorbed from _common/rate_limiting_avoidance.nix.
 _: {
-  flake.modules.nixos.rate-limiting-avoidance = {
-    imports = [ ../_common/rate_limiting_avoidance.nix ];
-  };
+  flake.modules.nixos.rate-limiting-avoidance =
+    {
+      config,
+      pkgs,
+      lib,
+      inputs,
+      ...
+    }:
+    {
+      imports = [
+        inputs.sops-nix.nixosModules.sops
+      ];
+      nix = {
+        extraOptions = "!include ${config.sops.secrets.nixAccessTokens.path}";
+      };
+
+      sops.secrets.nixAccessTokens = {
+        mode = "0440";
+        group = config.users.groups.keys.name;
+      };
+    };
 }
