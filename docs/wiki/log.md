@@ -1,5 +1,33 @@
 # Research log
 
+## 2026-10-22 — php2shell remediation implemented in-repo [php2shell]
+
+Task: assess php2shell (CVE-2026-109618/109619) exposure across all 12 hosts,
+mitigate. Research compiled in this vault (see index "PHP php2shell exposure").
+
+Findings: only two hosts execute vulnerable php — **mrpotatohead** (nextcloud35
+→ php-fpm, nginx 443, internet-exposed) and **woody** (zabbix74.web → php-fpm,
+nginx 0.0.0.0:80 but nixos firewall only admits it on the nebula mesh
+interface). Both ata on php 8.4.26 (root pin nixos-unstable @ 55bfb4d,
+2026-10-14). rex's zabbix web/server blocks are `/* */`-commented (agent
+binary only, not serving); buzz's nextcloud import commented out (host
+offline); lenny/sid/slinky/zurg/jessie/pricklepants/bootstrap* serve no php.
+
+Implemented (repo-side only, NOT deployed to hosts yet):
+- `nix flake update nixpkgs-master` → 5943ea99, 2026-10-22 (includes
+  nixpkgs#576853, php 8.4.27).
+- New temporary aspect `modules/system/php84-patch.nix` (overlay: `php84 =
+  inputs.nixpkgs-master.legacyPackages.${prev.system}.php84`) imported by
+  `system-default`. Verified: nextcloud + zabbix pools eval to 8.4.27;
+  `nixpkgs/nixos-unstable#php84` still 8.4.26 (channel lags; keep the patch
+  until it reports 8.4.27+, then `nix flake update nixpkgs` and delete the
+  module).
+
+Pending (manual): rebuild mrpotatohead + woody (`just rebuild`); grep nginx
+logs back to 2026-10-17 for IoCs (see source page). slinky aarch64 eval error
+(`inputs` missing in `_uConsole.nix`) pre-exists unrelated migration WIP;
+lenny toplevel eval unaffected by the overlay.
+
 ## 2026-10-21 — Dendritic Pattern adoption research (initial pass)
 
 Task: compile knowledge for adopting the Dendritic Pattern with flake-parts
@@ -345,3 +373,56 @@ Added sources/nixos-26.05-release-notes.md, sources/nixos-announcements.md, conc
   _local/_uConsole (IFD-bound), mrpotatohead _disk-config + 7x
   _hardware-configuration.nix (permanent), lenny specialisation _defs,
   root users/ secrets/ desktop-environments/ (by decision).
+
+## 2026-10-22 - php2shell research + repo exposure check [php2shell]
+
+Task: ingest the 2026-10-21 PHP security release ("php2shell", CVE-2026-109618
+OOM-corruption RCE + CVE-2026-109619 stale-global-state RCE, both 9.2),
+resolve the upstream fix status, and check this repo's exposure. Research +
+writing only; no Nix code touched.
+
+Fetched/inspected: php.net release notes; both php/php-src GHSAs (GHSA-w8hw-
+w9fx-j79w, GHSA-6wmf-4rv5-p3rp); ELLIO fields/IoC telemetry; AWS MadPot
+timeline; Cloudflare WAF-post; watchTowr + NetSPI/Huntress/Check Point/
+Calif.io/Wiz/Datadog/JFrog roundups; nixpkgs PR #576853 and siblings
+(#576680/#576852/#576854 closed, #577351 frankenphp open); local flake.lock
+and nix evals of the pinned nixpkgs; nixpkgs nextcloud/php-fpm/zabbix module
+sources at the pinned rev.
+
+Written:
+- sources/php2shell-advisory.md - the fact page: CVE mechanics, version
+  ranges (5.4.0-8.5.11 vs fixed 8.2.35/8.3.36/8.4.27/8.5.12), serving-mode
+  table, exploitation timeline + IoCs, mitigation levers, nixpkgs status,
+  KEV absent, contradictions (watchTowr 5/7 "no patches" vs php.net
+  source backports; Red Hat 8.1 vs 9.2/9.8 scoring).
+- concepts/php-serving-modes-risk.md - serving mode to exploitability
+  matrix, attack-path to config-lever mapping, and the repo's concrete
+  exposure (next section).
+- index.md - new section "PHP php2shell exposure"; thread-count intro
+  refreshed. log.md - this entry.
+
+Repo findings (two corrections over what the passing handoff claimed):
+- flake.lock: root `nixpkgs` input follows lock node **`nixpkgs_8`** =
+  nixos-unstable @ 55bfb4d7437bd4e09ab7cba58a43bd68eb310044, locked
+  2026-10-14 05:35 UTC - NOT the inner node named `nixpkgs` (nixpkgs-
+  unstable @ ac6b2166, 2026-08-25), which is only a child input of other
+  flakes. LESSON: in this lock the "read the rev off node `nixpkgs`" rule is
+  wrong; follow `.nodes[.nodes.root.inputs.nixpkgs]`.
+- php at 55bfb4d: 8.3.35 / 8.4.26 / 8.5.11 = the last vulnerable point
+  releases (verified by evaluating the pinned rev).
+- Which hosts: nextcloud runs on **mrpotatohead** (buzz's config comments
+  state the move), woody runs zabbix74.web. Both interpreters resolve to
+  **8.4.26**: nextcloud via the module's phpPackage default (php84), zabbix
+  via the generic services.phpfpm default (pkgs.php = 8.4.26). nixpkgs-
+  master @ 9e917916 (2026-10-17, pre-fix) feeds pkgsUnstable on lenny only.
+- verify-at-update recipe is in the concept page: `nix flake update nixpkgs
+  nixpkgs-master` once tips include c53532a, eval php84.version >= 8.4.27 on
+  the *root-followed* node, rebuild mrpotatohead + woody (switch restarts
+  phpfpm-nextcloud/phpfpm-zabbix), hunt logs back to 2026-10-17.
+
+Open for a later pass:
+- php82 8.2.35 backport status on nixos-26.05 (no PR visible in search).
+- roll the actual update + rebuilds for mrpotatohead/woody when the channel
+  carries the fix (operator action, not research).
+- optional hardening: nextcloud phpOptions session.upload_progress.enabled=0;
+  zabbix pool string-append equivalent; decide same time as the update.

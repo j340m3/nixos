@@ -1,6 +1,6 @@
 # Wiki index — knowledge vault
 
-Two research threads live here; each topic below is self-contained with its own
+Four research threads live here; each topic below is self-contained with its own
 orientation and page lists.
 
 ## Dendritic Pattern adoption (flake-parts)
@@ -146,6 +146,45 @@ Sources:
 Concepts:
 
 - [Nix/NixOS recent developments](concepts/nixos-recent-developments.md) — releases, technical changes, governance, user considerations.
+
+## PHP php2shell exposure (CVE-2026-109618/109619)
+
+Researched 2026-10-22, one day after the 2026-10-21 14:00 UTC security
+release of PHP 8.2.35/8.3.36/8.4.27/8.5.12. Purpose: what the "php2shell" RCE
+pair means for this repo, and which PHP it routines on.
+
+### Orientation
+
+- The pair: CVE-2026-109618 (OOM corruption → RCE) and CVE-2026-109619
+  (stale global state → RCE), both pre-auth memory-safety bugs, CVSS 4.0 9.2;
+  affected from PHP 5.4.0 through 8.5.11 (fixed versions are release-day
+  points: 8.2.35/8.3.36/8.4.27/8.5.12). Facts, version table, exploitation
+  timeline, IoCs and mitigations in
+  [php2shell-advisory](sources/php2shell-advisory.md).
+- Serving-mode risk (mod_php vs php-fpm/php-cgi/etc.) and the attack-path →
+  config-lever mapping (memory_limit, session.upload_progress, fatal_error_backtraces)
+  in [php-serving-modes-risk](concepts/php-serving-modes-risk.md).
+- Repo exposure (nix-verified 2026-10-22): two PHP services only —
+  **mrpotatohead runs nextcloud35 and woody runs zabbix74.web, both
+  interpreters php 8.4.26 = the last vulnerable release** — because the root
+  nixpkgs pin is `nixos-unstable` @ `55bfb4d7437bd4e09ab7cba58a43bd68eb310044`
+  (locked 2026-10-14 05:35 UTC). nixpkgs-side fix = PR #576853 merged into
+  master 2026-10-21 (commit `c53532a...`, bumps to 8.3.36/8.4.27/8.5.12 and
+  marks php86 8.6.0RC3 insecure); php82 has no master module — 26.05 manual
+  backport pending. Updating the flake inputs after the tips carry the fix
+  then rebuilding mrpotatohead/woody restarts the affected php-fpm units.
+- Log horizon for attack review: 2026-10-17 (pre-disclosure in-the-wild attempt),
+  full IoC list in the advisory page.
+
+### Open uncertainties
+
+- php82 8.2.35 backport to the 26.05 nixpkgs branch — unresolved as of
+  2026-10-22.
+- watchTowr's "no patches for PHP 5/7" vs php.net's source-only backports
+  for 7.4/8.0/8.1 — both documented per sense in the advisory page
+  contradiction block.
+- FrankenPHP nixpkgs update PR #577351 open; irrelevant while this repo runs
+  nginx+php-fpm only.
 
 ## Conventions
 
