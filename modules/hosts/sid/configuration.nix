@@ -18,7 +18,7 @@
         # include NixOS-WSL modules
         #<nixos-wsl/modules>
         inputs.nixos-wsl.nixosModules.default
-        ../../../modules/_common/agent-md.nix
+        inputs.self.modules.nixos.agent-md
         ./_editor.nix
         ./_nvidia.nix
       ];

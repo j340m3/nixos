@@ -10,7 +10,7 @@
   imports = [
     inputs.disko.nixosModules.disko
     inputs.sops-nix.nixosModules.sops
-    ../../../modules/_common/agent-md.nix
+    inputs.self.modules.nixos.agent-md
     ../../../users/donquezz.nix
   ];
 
