@@ -161,17 +161,39 @@ same eval. `image` and `image-impermanent` disko targets still eval
   whole parked `modules/_common` dir deleted; only cosmetic comments still
   mention it. `donquezz` stays a root-dir path import in the aggregate
   (root dirs parked by decision).
-  Remaining: specialArgs retirement (per-aspect `let constants` at
-  flake-parts level, inner args pruned to lexical) + `lib.nix` cleanup
-  (possibly the legacy branch too, once no `_default.nix` path import
-  remains) + host-file `inputs`/`constants` arg pruning in each host's
-  own pass.
+
+  specialArgs retirement — Done 2026-10-22, chain:
+  - b2b852f: aspect wrappers get `constants`/`inputs` from wrapper-level
+    closures (`let constants = import ...; in { ... }`), inner arg lists
+    pruned; specialArgs no longer needed by system aspects.
+  - aa8e73b: 12 host `configuration.nix` pruned the same way; lenny and
+    zurg keep an active `_module.args.inputs` hook each (option-value
+    consumers only, hook-safe).
+  - 8c25aaf + 5450536: the 11 shared service modules became
+    `modules/services/<aspect>.nix` closures and hosts consume them via
+    `inputs.self.modules.nixos.<aspect>`; parked originals deleted;
+    secrets depths re-based per the rule.
+  - fe81c0d: host-local glue absorbed - `bootstrap/_base` became the
+    `bootstrap-base` aspect (also consumed by buzz), woody inlined
+    `_immich`/`_paperless` (firewall/inbound merged via `mkMerge`,
+    packages folded into the one `environment.systemPackages` list),
+    zurg inlined `_terminal`.
+  - 734d3e3: `modules/nix/lib.nix` is now the aspect-only factory - no
+    `specialArgs`, no legacy `_default.nix` branch:
+    `modules = [ self.modules.nixos.${name} { nixpkgs.hostPlatform =
+    lib.mkDefault system; } ]`. data flows to lower-level configs by
+    wrapper closure only (dendritic anti-pattern free).
 
 ## Done when
 
 - flake.nix is generated and `checks.check-flake-file` passes.
 - No host imports features by relative path; `specialArgs` gone from
   `mkNixos`; no `modules/common` aggregator.
+  Reached 2026-10-22 (see specialArgs chain above) except: root-level
+  `users/`, `secrets/`, `desktop-environments/` stay disk-root references
+  from inside features (parked by decision; donquezz etc.), and lenny/zurg
+  `_module.args.inputs` hooks remain for their path-imported
+  specialisation siblings.
 - Aspects for all features; docs/wiki/index.md links this plan.
 
 ## Skeleton state (implemented 2026-10-21)

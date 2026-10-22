@@ -281,3 +281,26 @@ Added sources/nixos-26.05-release-notes.md, sources/nixos-announcements.md, conc
   `_default.nix` path import survives; root `users/`/`secrets/` stay
   parked by prior decision, so `donquezz` keeps its by-path import in
   `system-default`.
+
+## 2026-10-22 - specialArgs retirement (pass 8) [dendritic]
+
+- full chain b2b852f -> aa8e73b -> 8c25aaf -> 5450536 -> fe81c0d ->
+  734d3e3, closing on the adopted-plan's "Done when". Details are in the
+  plan file; the short version: everything inside `modules/` now flows
+  by wrapper-closure (aspect file defines its aspect value with a
+  wrapper-level `let constants` / `inputs`); hosts list
+  `inputs.self.modules.nixos.<aspect>` (system-default, services,
+  bootstrap-base); `specialArgs` and the legacy `_default.nix` branch
+  are gone from `modules/nix/lib.nix`.
+- lenny and zurg retain one `_module.args.inputs` hook each - their
+  remaining path-imported siblings (lenny's specialisation files,
+  zurg's `_llm`/`_update`) only use inputs in option values, the
+  hook-safe class; not the comin-in-imports class.
+- lessons added: nested /* */ comments swallowed the lenny hook insert
+  (debug nix trace pinpointed `attribute inputs missing` from the leaf
+  file); `...` never takes a colon before a `}`; when leans at 'skip
+  ()' markers in `just check` the guarded eval failed silently - probe
+  one eval unsuppressed.
+- _common: deleted (dir gone); root users/, secrets/,
+  desktop-environments/ still referenced by path from inside features,
+  parked by prior decision.
