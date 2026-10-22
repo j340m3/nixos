@@ -249,7 +249,7 @@
         ];
         encryption.mode = "none";
         environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/pricklepants".path}";
-        repo = "borg@10.0.0.3:pricklepants";
+        repo = "borg@${constants.host.woody.ip}:pricklepants";
         compression = "auto,lzma";
         startAt = "daily";
       };
