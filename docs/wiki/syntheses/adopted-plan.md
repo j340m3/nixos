@@ -138,7 +138,21 @@ same eval. `image` and `image-impermanent` disko targets still eval
   Follow-up absorption: each wrapper still boots from the parked file by
   path; moving the body INTO the wrapper (one feature per commit, with the
   (b3) sopsFile-depth rule) retires the consecutive file, then re-evaluates
-  the `specialArgs` countdown.
+  the `specialArgs` countdown. Progress 2026-10-22, bodies now live in the
+  wrappers (parked originals deleted, dead `modules/_common/default.nix`
+  trimmed each batch):
+  batch 1 (simple, no args): locale, domain, mem (commonMem.enable gate),
+  zram, ulimit;
+  batch 2 (constants consumers): ssh, ssh-identities, distributed-builds;
+  batch 3 (inputs consumers; transitional specialArgs still feeding):
+  update, upgrade-health, sops (depth unchanged, `../../secrets`),
+  rate-limiting-avoidance, home-manager (NixOS bridge with
+  `extraSpecialArgs = { inherit inputs; }`), peerpatrol.
+  Still parked/decided: reticulum (344-line body, wrapper over
+  `../_reticulum.nix`), agent-md, postgresBackup (not in system-default;
+  consumed by `_nextcloud` + woody `_immich` by path), donquezz user
+  (path import in the aggregate), final dead-aggregator deletion, then the
+  specialArgs retirement + `lib.nix` cleanup.
 
 ## Done when
 

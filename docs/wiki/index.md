@@ -132,6 +132,21 @@ Synthesis:
 - Live peer and directory availability was not verifiable:
   `directory.rns.recipes` returned no entries at capture time.
 
+## Nix/NixOS recent developments (2024–2026)
+
+Purpose: orientation on recent Nix/NixOS changes worth considering for a user.
+
+### Pages
+
+Sources:
+
+- [NixOS 26.05 release notes](sources/nixos-26.05-release-notes.md) — initrd/systemd, system.nix, dbus-broker, container test backend, switch inhibitors, removals.
+- [NixOS announcements](sources/nixos-announcements.md) — release timeline, governance, partnerships.
+
+Concepts:
+
+- [Nix/NixOS recent developments](concepts/nixos-recent-developments.md) — releases, technical changes, governance, user considerations.
+
 ## Conventions
 
 - Claims in concept/synthesis pages cite the source pages inline.

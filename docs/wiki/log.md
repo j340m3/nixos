@@ -235,3 +235,29 @@ inferred plan this way.
   depth rule on the move), then re-evaluate the specialArgs countdown
   (update/ssh/ssh-identities/distributed-builds/peerpatrol/home-manager/
   rate-limiting-avoidance/reticulum still consume inputs/constants).
+
+## [2026-10-22] ingest | Nix/NixOS recent developments
+
+Added sources/nixos-26.05-release-notes.md, sources/nixos-announcements.md, concepts/nixos-recent-developments.md. New thread in index.md.
+
+## 2026-10-22 - absorption batches 1-3 (pass 7 continued) [dendritic]
+
+- 11 of 13 parked `_common` features absorbed: their bodies now live in
+  `modules/system/<aspect>.nix` wrappers; parked originals git-rm'd; the
+  dead `modules/_common/default.nix` aggregator trimmed each batch.
+  mem keeps its `commonMem.enable` gate (pricklepants only consumer);
+  update/upgrade-health/sops/rate-limiting-avoidance/home-manager/peerpatrol
+  absorbed with their `constants`/`inputs` args unharmed - transitional
+  specialArgs still feeds them, retirement still waits for batch 4.
+- stable absorb recipe (after b12's three failed python surgeries): read
+  the original whole, `write` the wrapper by hand, args col-2 -> col-6,
+  body +2, closer `}` vs `};` decided per let-shape; nixfmt canonicalizes.
+  strip-mode = body WITHOUT its final brace (wrapper supplies `};`);
+  let-mode = body inclusive (wrapper replaces the last `}` with `};`).
+- probes of the day: statix takes ONE target (`statix check .`);
+  `nix eval .#homeConfigurations.jeromeb.config.home.username` (not
+  `.home.`); `git diff --stat home` is ambiguous (rev vs path), use
+  `home/`; b3e604e also swept in owed move-halves (home/*.nix deletions
+  from the HM commit, `modules/system-default.nix` from the peel).
+- batch 4 queue: reticulum, agent-md, postgresBackup decision, donquezz,
+  dead-aggregator deletion, then specialArgs retirement + lib.nix cleanup.
