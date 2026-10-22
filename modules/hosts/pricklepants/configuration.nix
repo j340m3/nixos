@@ -32,7 +32,7 @@
         #../../../modules/_dns-tunnel.nix
         #../../../modules/_immich-proxy.nix
         ../../../modules/_acme.nix
-        ../../../modules/_common
+        inputs.self.modules.nixos.system-default
         ../../../modules/_wireguard.nix
         # nebula config is defined inline below (this host is a lighthouse);
         # pull in the remote-build accept side that other mesh members get via modules/_nebula.nix

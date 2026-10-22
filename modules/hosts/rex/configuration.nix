@@ -24,7 +24,7 @@
         ../../../users/jeromeb.nix
         ../../../desktop-environments/xfce.nix
         #./_hardened.nix
-        ../../../modules/_common
+        inputs.self.modules.nixos.system-default
         ../../../modules/_logging.nix
         ../../../modules/_nebula.nix
         #../../../modules/_zabbix.nix

@@ -25,7 +25,7 @@
         ../../../modules/_hardening.nix
 
         ./_disk-config.nix
-        ../../../modules/_common
+        inputs.self.modules.nixos.system-default
         ../../../users/donquezz.nix
         ../../../modules/_nebula.nix
         ../../../modules/_logging.nix

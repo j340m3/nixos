@@ -26,7 +26,7 @@
         "${inputs.oom-hardware}/raspberry-pi/apply-overlays"
         "${inputs.oom-hardware}/uconsole/module-4g.nix"
         ./_uConsole.nix
-        ../../../modules/_common
+        inputs.self.modules.nixos.system-default
         ../../../modules/_vscodium.nix
         ../../../modules/_logging.nix
         ../../../modules/_nebula.nix

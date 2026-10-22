@@ -17,7 +17,7 @@
       imports = [
         # Include the results of the hardware scan.
         ./_hardware-configuration.nix
-        ../../../modules/_common
+        inputs.self.modules.nixos.system-default
         ../../../users/donquezz.nix
         ../../../modules/_loghost.nix
         ../../../modules/_borg-server.nix

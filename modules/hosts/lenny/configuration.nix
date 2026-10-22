@@ -19,7 +19,7 @@
         inputs.nixos-hardware.nixosModules.lenovo-thinkpad-x230
         #<nixos-hardware/lenovo/thinkpad/x230>
         ./_hardware-configuration.nix
-        ../../../modules/_common
+        inputs.self.modules.nixos.system-default
         ../../../modules/_logging.nix
         ../../../modules/_nebula.nix
         #../../../modules/_zabbix.nix

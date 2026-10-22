@@ -23,7 +23,7 @@
         (modulesPath + "/profiles/headless.nix")
         ../../../modules/_hardening.nix
         #../../modules/_swap.nix
-        ../../../modules/_common
+        inputs.self.modules.nixos.system-default
         ../../../users/donquezz.nix
         ../../../modules/_logging.nix
         ../../../modules/_persistence.nix
