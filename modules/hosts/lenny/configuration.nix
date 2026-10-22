@@ -25,7 +25,7 @@
         inputs.self.modules.nixos.wifi
         ./jeromeb/_default.nix
         ./lilly/_default.nix
-        ../../../desktop-environments/xfce.nix
+        inputs.self.modules.nixos.xfce
         inputs.chaotic.nixosModules.default
       ];
 

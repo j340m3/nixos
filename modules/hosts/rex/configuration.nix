@@ -22,8 +22,8 @@ in
       imports = [
         # Include the results of the hardware scan.
         ./_hardware-configuration.nix
-        ../../../users/jeromeb.nix
-        ../../../desktop-environments/xfce.nix
+        inputs.self.modules.nixos.jeromeb
+        inputs.self.modules.nixos.xfce
         #./_hardened.nix
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.logging

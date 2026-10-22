@@ -31,7 +31,7 @@ in
         #../../../modules/_swap.nix
         inputs.self.modules.nixos.acme
         inputs.self.modules.nixos.system-default
-        ../../../users/donquezz.nix
+        inputs.self.modules.nixos.donquezz
         inputs.self.modules.nixos.logging
         #../../../modules/_nextcloud.nix
         # nextcloud lives on mrpotatohead (public DNS nextcloud.kauderwels.ch +

@@ -31,12 +31,11 @@ in
         # Include the results of the hardware scan.
         ./_hardware-configuration.nix
         inputs.self.modules.nixos.system-default
-        ../../../users/donquezz.nix
+        inputs.self.modules.nixos.donquezz
         inputs.self.modules.nixos.loghost
         inputs.self.modules.nixos.borg-server
         #../../../modules/_peerix.nix
-        ../../../desktop-environments/kde.nix
-        #../../../desktop-environments/mate.nix
+        inputs.self.modules.nixos.kde
         inputs.self.modules.nixos.wifi
         inputs.self.modules.nixos.postgres-backup
         inputs.self.modules.nixos.harmonia

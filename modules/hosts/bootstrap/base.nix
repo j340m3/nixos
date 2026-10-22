@@ -15,7 +15,7 @@ in
         inputs.disko.nixosModules.disko
         inputs.sops-nix.nixosModules.sops
         inputs.self.modules.nixos.agent-md
-        ../../../users/donquezz.nix
+        inputs.self.modules.nixos.donquezz
       ];
       nixpkgs.hostPlatform = "x86_64-linux";
       # Kernel parameters I use

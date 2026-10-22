@@ -25,7 +25,7 @@
 
         ./_disk-config.nix
         inputs.self.modules.nixos.system-default
-        ../../../users/donquezz.nix
+        inputs.self.modules.nixos.donquezz
         inputs.self.modules.nixos.nebula
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.nextcloud

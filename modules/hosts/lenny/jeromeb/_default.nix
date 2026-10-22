@@ -1,9 +1,7 @@
 { pkgs, inputs, ... }:
 {
-  imports = [
-    ../../../../desktop-environments/xfce.nix
-    # home-manager module comes in via modules/_common/home-manager.nix
-  ];
+  # The xfce aspect is imported once by the host configuration; listing it
+  # here again would query _module.args.inputs during imports and recurse.
   nixpkgs.overlays = [
     inputs.affinity-nix.overlays.default
   ];

@@ -23,7 +23,7 @@
         inputs.self.modules.nixos.hardening
         #../../modules/_swap.nix
         inputs.self.modules.nixos.system-default
-        ../../../users/donquezz.nix
+        inputs.self.modules.nixos.donquezz
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.persistence
         inputs.self.modules.nixos.nebula

@@ -1,13 +1,12 @@
-# dendritic: feature aspects peeled from the former modules/_common
-# directory (ADR 0014). Each aspect is a thin wrapper over the parked plain
-# module it used to be; absorb the module body here in a follow-up per
-# feature. Hosts import this aspect; it imports the feature aspects.
+# dendritic: the default feature set every host gets (ADR 0014). Hosts
+# import this aspect; it imports the feature aspects.
 { inputs, ... }: {
   flake.modules.nixos.system-default = {
     imports =
       with inputs.self.modules.nixos;
-      [ ../../users/donquezz.nix ]
+      [ donquezz ]
       ++ [
+        php84-patch # remove when nixos-unstable#php84 >= 8.4.27 (php2shell)
         update
         upgrade-health
         ssh
