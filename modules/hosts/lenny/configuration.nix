@@ -2,7 +2,7 @@
 # (modules/nix/lib.nix); the flake-parts.nix one-liner next to this file
 # declares the host into the flake. inputs arrive via the transitional
 # specialArgs in the factory, so the head args stay verbatim.
-{ lib, ... }:
+{ inputs, lib, ... }:
 
 {
   flake.modules.nixos.lenny =
@@ -10,7 +10,6 @@
       config,
       pkgs,
       lib,
-      inputs,
       ...
     }:
     {
@@ -31,10 +30,11 @@
       ];
 
       /*
+          _module.args.inputs = inputs;
         _module.args.pkgsUnstable = import inputs.nixpkgs-master {
-          inherit (pkgs.stdenv.hostPlatform) system;
-          inherit (config.nixpkgs) config;
-        };
+            inherit (pkgs.stdenv.hostPlatform) system;
+            inherit (config.nixpkgs) config;
+          };
       */
 
       # jeromeb's home, wired into the host rebuild instead of a standalone switch

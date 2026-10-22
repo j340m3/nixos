@@ -5,16 +5,17 @@
 # -----------------------------------------------------------------------------
 # Rex - My laptop at work
 # -----------------------------------------------------------------------------
-{ lib, ... }:
+{ inputs, lib, ... }:
 
+let
+  constants = import (inputs.self + "/global/constants.nix");
+in
 {
   flake.modules.nixos.rex =
     {
       config,
       pkgs,
       lib,
-      inputs,
-      constants,
       ...
     }:
     {
