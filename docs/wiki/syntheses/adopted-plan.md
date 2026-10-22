@@ -178,11 +178,34 @@ same eval. `image` and `image-impermanent` disko targets still eval
     `_immich`/`_paperless` (firewall/inbound merged via `mkMerge`,
     packages folded into the one `environment.systemPackages` list),
     zurg inlined `_terminal`.
-  - 734d3e3: `modules/nix/lib.nix` is now the aspect-only factory - no
+  -   734d3e3: `modules/nix/lib.nix` is now the aspect-only factory - no
     `specialArgs`, no legacy `_default.nix` branch:
     `modules = [ self.modules.nixos.${name} { nixpkgs.hostPlatform =
     lib.mkDefault system; } ]`. data flows to lower-level configs by
     wrapper closure only (dendritic anti-pattern free).
+
+## Wave 2 (2026-10-22): root parked features -> services aspects
+
+- The 12 root `_*` feature files (`_acme _borg-server _fritz-exporter
+  _hardening _nfs-fee _pihole _prometheus _remote-builder _vaultwarden
+  _vscodium _wifi _wireguard`) became absorbed-body aspects
+  `modules/services/<name>.nix` (c0459d3). None needed
+  `constants`/`inputs` closures, only repo-relative paths re-based
+  (`../secrets`→`../../secrets`, `../global`→`../../global`). Hosts and
+  the harmonia/nebula aspects import them via
+  `inputs.self.modules.nixos.<aspect>`; originals deleted.
+  `just check` 11/11 (slinky aarch64 skip); rename note: aspect ids
+  drop the underscore (`acme`, not `_acme`).
+- Eval-gotcha re-learned: `nix eval` on a dirty git tree cannot see
+  UNTRACKED files — stages "attribute 'remote-builder' missing" until
+  `git add` tracks the new aspect files.
+- Still parked after wave 2: host-local glue siblings
+  (woody `_nas _xrdp _home-assistant _firefox _power _zabbix`, zurg
+  `_de _fingerprint _fonts _gaming _llm _update`, sid `_editor
+  _nvidia`, slinky `_local _uConsole`, mrpotatohead `_disk-config`,
+  per-host `_hardware-configuration.nix` x7), root `users/`,
+  `secrets/`, `desktop-environments/`, and lenny/zurg
+  `_module.args.inputs` hooks.
 
 ## Done when
 

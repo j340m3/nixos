@@ -304,3 +304,24 @@ Added sources/nixos-26.05-release-notes.md, sources/nixos-announcements.md, conc
 - _common: deleted (dir gone); root users/, secrets/,
   desktop-environments/ still referenced by path from inside features,
   parked by prior decision.
+
+## 2026-10-22 - wave 2: root _-files become services aspects (pass 9) [dendritic]
+
+- c0459d3: the last 12 root feature files (_acme _borg-server
+  _fritz-exporter _hardening _nfs-fee _pihole _prometheus
+  _remote-builder _vaultwarden _vscodium _wifi _wireguard) moved into
+  absorbed-body modules/services/<name>.nix aspects; host configuration
+  files + harmonia/nebula swap `../../../modules/_x.nix` for
+  `inputs.self.modules.nixos.x`; originals deleted. sed pattern
+  `s#^(\s*)../../../modules/_([a-z-]*)\.nix#\1inputs.self.modules.nixos.\2#`
+  only matched non-comment lines, so the stale commented imports stayed.
+- LESSON: nix eval on a dirty git tree omits UNTRACKED files - new
+  aspect files must be `git add`ed BEFORE eval, else
+  `attribute 'X' missing` points at the consumer, not the cause.
+- LESSON: `just fmt` canonicalizes ALL tracked nix files; pre-existing
+  non-canonical parked zurg siblings got swept into the diff -
+  `git checkout -- modules/hosts/zurg/` to keep the commit scoped
+  (fmt-check still flags those four as pre-session state).
+- just check: 11/11 ok, slinky skipped (aarch64, hardware verify).
+- Remaining parks: host-local glue siblings + root users/, secrets/,
+  desktop-environments/ + lenny/zurg _module.args.inputs hooks.
