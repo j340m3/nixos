@@ -7,11 +7,6 @@
   flake.modules.nixos.zurg =
     { pkgs, ... }:
     {
-      # The siblings imported below are still plain NixOS modules (ADR 0014
-      # transition): this publishes `inputs` as a module argument for them.
-      # Drop this line once they have become flake.modules aspects.
-      _module.args.inputs = inputs;
-
       imports = [
         # Include the results of the hardware scan.
         ./_hardware-configuration.nix

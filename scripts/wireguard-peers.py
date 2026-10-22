@@ -23,12 +23,19 @@ import ipaddress
 import json
 import os
 import re
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
 import yaml
+from sops_lib import (
+    read_recipients,
+    read_recipients_from_text,
+    run,
+    sops_decrypt,
+    sops_encrypt,
+    write_atomic,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PEERS_JSON = REPO_ROOT / "global" / "wireguard-peers.json"
@@ -140,39 +147,14 @@ def render_client_conf(*, private_key: str, tunnel_ips: list[str], server: dict,
 
 
 # ---------------------------------------------------------------------------
-# sops layer (called directly, like scripts/rotate-secrets.py)
+# sops layer (shared plumbing lives in scripts/sops_lib.py)
 # ---------------------------------------------------------------------------
-
-def _run(cmd, *, env=None, stdin=None):
-    return subprocess.run(
-        cmd, capture_output=True, text=True, env=env, input=stdin, check=False
-    )
-
 
 def _norm(data) -> dict:
     """Drop the sops metadata block so plaintext compares equal to decrypted."""
     data = dict(data or {})
     data.pop("sops", None)
     return data
-
-
-def sops_decrypt(sops_file: Path, age_key: Path) -> str:
-    env = {**os.environ, "SOPS_AGE_KEY_FILE": str(age_key)}
-    r = _run(["sops", "-d", str(sops_file)], env=env)
-    if r.returncode != 0:
-        sys.exit(f"sops -d failed for {sops_file}: {r.stderr.strip()}")
-    return r.stdout
-
-
-def read_recipients_from_text(text: str) -> list[str]:
-    """Age recipients are public metadata in the encrypted YAML text."""
-    data = yaml.safe_load(text) or {}
-    age = (data.get("sops") or {}).get("age") or []
-    return [entry["recipient"] for entry in age if entry.get("recipient")]
-
-
-def read_recipients(sops_file: Path) -> list[str]:
-    return read_recipients_from_text(Path(sops_file).read_text())
 
 
 def rule_recipients(rel_path: str, sops_config: Path = REPO_ROOT / ".sops.yaml") -> list[str]:
@@ -187,36 +169,6 @@ def rule_recipients(rel_path: str, sops_config: Path = REPO_ROOT / ".sops.yaml")
     return []
 
 
-def _sops_encrypt_with_recipients(plaintext: str, recipients: list[str]) -> str:
-    with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as cfg:
-        cfg.write("creation_rules:\n")
-        cfg.write("  - path: .*\n")
-        cfg.write("    age:\n")
-        for r in recipients:
-            cfg.write(f'      - "{r}"\n')
-        cfg_path = cfg.name
-    try:
-        env = {**os.environ, "SOPS_CONFIG": cfg_path}
-        with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as tf:
-            tf.write(plaintext)
-            tmp_path = tf.name
-        try:
-            r = _run(["sops", "-e", tmp_path], env=env)
-        finally:
-            os.unlink(tmp_path)
-        if r.returncode != 0:
-            sys.exit(f"sops -e failed: {r.stderr.strip()}")
-        return r.stdout
-    finally:
-        os.unlink(cfg_path)
-
-
-def _write_atomic(path: Path, content: str) -> None:
-    tmp = path.with_name(path.name + ".tmp")
-    tmp.write_text(content)
-    os.replace(tmp, path)
-
-
 def _verify_roundtrip(sops_file: Path, plaintext: str, age_key: Path) -> None:
     got = _norm(yaml.safe_load(sops_decrypt(sops_file, age_key)))
     want = _norm(yaml.safe_load(plaintext))
@@ -229,8 +181,8 @@ def sops_encrypt_existing(plaintext: str, sops_file: Path, age_key: Path) -> str
     recipients = read_recipients(sops_file)
     if not recipients:
         sys.exit(f"no age recipients found in {sops_file}")
-    enc = _sops_encrypt_with_recipients(plaintext, recipients)
-    _write_atomic(sops_file, enc)
+    enc = sops_encrypt(plaintext, recipients)
+    write_atomic(sops_file, enc)
     _verify_roundtrip(sops_file, plaintext, age_key)
     return enc
 
@@ -242,7 +194,7 @@ def sops_encrypt_new(plaintext: str, rel_path: str) -> str:
         tf.write(plaintext)
         tmp_path = tf.name
     try:
-        r = _run(["sops", "--filename-override", rel_path, "-e", tmp_path], env=env)
+        r = run(["sops", "--filename-override", rel_path, "-e", tmp_path], env=env)
     finally:
         os.unlink(tmp_path)
     if r.returncode != 0:
@@ -261,7 +213,7 @@ def save_sops(sops_file: Path, plaintext: str, age_key: Path) -> str:
     if sops_file.exists():
         return sops_encrypt_existing(plaintext, sops_file, age_key)
     enc = sops_encrypt_new(plaintext, str(sops_file.relative_to(REPO_ROOT)))
-    _write_atomic(sops_file, enc)
+    write_atomic(sops_file, enc)
     _verify_roundtrip(sops_file, plaintext, age_key)
     return enc
 
@@ -275,7 +227,7 @@ def _decrypt_sops(sops_file: Path, age_key: Path) -> dict:
 # ---------------------------------------------------------------------------
 
 def _nix_run(package: str, command: str, *, stdin: str | None = None) -> str:
-    r = _run(["nix-shell", "-p", package, "--run", command], stdin=stdin)
+    r = run(["nix-shell", "-p", package, "--run", command], stdin=stdin)
     if r.returncode != 0:
         sys.exit(f"{command} failed: {r.stderr.strip()}")
     return r.stdout

@@ -23,26 +23,23 @@
   # _module.args shim — those recurse infinitely at module-collection time.
   # Drop this block once the last plain sibling has become an aspect.
   config.flake.lib.mkNixos = system: name: {
-    ${name} = inputs.nixpkgs.lib.nixosSystem (
-      if self.modules.nixos or { } ? ${name} then
-        {
-          specialArgs = {
-            inherit inputs;
-            constants = import (inputs.self + "/global/constants.nix");
-          };
-          modules = [
+    ${name} = inputs.nixpkgs.lib.nixosSystem {
+      # Transitional only (ADR 0014): siblings (users/, modules/_*) still consume
+      # inputs/constants directly, including in `imports` lists (_common/update.nix
+      # uses inputs.comin), where `_module.args` cannot reach without recursing
+      # through config. Retired once no such consumer remains.
+      specialArgs = {
+        inherit inputs;
+        constants = import (inputs.self + "/global/constants.nix");
+      };
+      modules =
+        if self.modules.nixos or { } ? ${name} then
+          [
             self.modules.nixos.${name}
             { nixpkgs.hostPlatform = lib.mkDefault system; }
-          ];
-        }
-      else
-        {
-          specialArgs = {
-            inherit inputs;
-            constants = import (inputs.self + "/global/constants.nix");
-          };
-          modules = [ (inputs.self + "/modules/hosts/${name}/_default.nix") ];
-        }
-    );
+          ]
+        else
+          [ (inputs.self + "/modules/hosts/${name}/_default.nix") ];
+    };
   };
 }

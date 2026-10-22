@@ -3,7 +3,7 @@
 
 Writes the host's ed25519 SSH host-key pub to
 `secrets/common/ssh/<host>/ssh.pub` (committed plaintext, consumed by
-`modules/common/ssh-identities.nix` knownHosts via lib.fileContents)
+`modules/_common/ssh-identities.nix` knownHosts via lib.fileContents)
 and stores the matching priv as `ssh.key` in that host's sops
 `secrets/hosts/<host>/secrets.yaml` (encrypted, recipients preserved).
 
@@ -29,83 +29,22 @@ prompt reaches your terminal). Use --no-sudo to read as the SSH user.
 
 import argparse
 import os
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
 import yaml
+from sops_lib import read_recipients, run, sops_decrypt, sops_encrypt, write_atomic
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SSH_HOST_KEY_PATH = "/etc/ssh/ssh_host_ed25519_key"
 
 
-def _run(cmd, *, env=None, capture=True, stdin=None, capture_stderr=True):
-    # capture_output=True would also pipe stderr, which would hide sudo's
-    # password prompt from the user. Pipe stdout always; stderr only when
-    # the caller wants it captured.
-    r = subprocess.run(
-        cmd,
-        capture_output=False,
-        stdout=subprocess.PIPE if capture else None,
-        stderr=subprocess.PIPE if capture_stderr else None,
-        text=True,
-        env=env,
-        input=stdin,
-        check=False,
-    )
-    return r
-
-
 def ssh_keygen_pub(priv_path: str) -> str:
-    r = _run(["ssh-keygen", "-y", "-f", priv_path])
+    r = run(["ssh-keygen", "-y", "-f", priv_path])
     if r.returncode != 0:
         sys.exit(f"ssh-keygen -y failed for {priv_path}: {r.stderr.strip()}")
     return r.stdout.strip()
-
-
-def sops_decrypt(sops_file: Path, age_key: Path | None = None) -> str:
-    env = dict(os.environ)
-    if age_key is not None:
-        env["SOPS_AGE_KEY_FILE"] = str(age_key)
-    r = _run(["sops", "-d", str(sops_file)], env=env)
-    if r.returncode != 0:
-        sys.exit(f"sops -d failed for {sops_file}: {r.stderr.strip()}")
-    return r.stdout
-
-
-def sops_encrypt(plaintext_yaml: str, recipients: list[str]) -> str:
-    # sops 3.x requires a .sops.yaml with creation_rules for encryption.
-    # Stage a minimal one listing exactly the recipients we want to keep.
-    with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as cfg:
-        cfg.write("creation_rules:\n")
-        cfg.write("  - path: .*\n")
-        cfg.write("    age:\n")
-        for r in recipients or ["*"]:
-            cfg.write(f"      - \"{r}\"\n")
-        cfg_path = cfg.name
-    try:
-        env = {**os.environ, "SOPS_CONFIG": cfg_path}
-        with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as tf:
-            tf.write(plaintext_yaml)
-            tmp_path = tf.name
-        try:
-            r = _run(["sops", "-e", tmp_path], env=env)
-        finally:
-            os.unlink(tmp_path)
-        if r.returncode != 0:
-            sys.exit(f"sops -e failed: {r.stderr.strip()}")
-        return r.stdout
-    finally:
-        os.unlink(cfg_path)
-
-
-def read_recipients(sops_file: Path) -> list[str]:
-    """Age recipients are public metadata in the encrypted file."""
-    data = yaml.safe_load(sops_file.read_text()) or {}
-    sops_meta = data.get("sops") or {}
-    age = sops_meta.get("age") or []
-    return [entry["recipient"] for entry in age if entry.get("recipient")]
 
 
 def obtain_priv(args) -> tuple[str, bool]:
@@ -125,7 +64,7 @@ def obtain_priv(args) -> tuple[str, bool]:
             args.from_ssh,
             f"{prefix}cat {SSH_HOST_KEY_PATH}",
         ]
-        r = _run(cmd, capture_stderr=False)
+        r = run(cmd, capture_stderr=False)
         if r.returncode != 0:
             err = r.stderr or ""
             sys.exit(f"ssh read of {SSH_HOST_KEY_PATH} on {args.from_ssh} failed: {err.strip()}")
@@ -196,9 +135,7 @@ def main() -> int:
         data.setdefault(top_key, {})[sub_key] = priv_text
         new_plain = yaml.safe_dump(data, default_flow_style=False, sort_keys=False)
         enc = sops_encrypt(new_plain, recipients)
-        tmp = sops_file.with_name(sops_file.name + ".tmp")
-        tmp.write_text(enc)
-        os.replace(tmp, sops_file)
+        write_atomic(sops_file, enc)
         print(f"re-encrypted {sops_file} with {sops_key} for {args.host}")
         return 0
     finally:

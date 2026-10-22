@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Rotate sops age keys, identity keys, and nebula certs for a host.
 
-Three subcommands:
+Four subcommands:
   age-key <host> [--age-key <current-keyfile>]
     Generate a new age keypair, re-encrypt the host's secrets.yaml with only
     the new recipient, print a deploy checklist.
@@ -11,11 +11,20 @@ Three subcommands:
     (preserving all existing age recipients), write the pub to
     secrets/common/ssh/<host>/<label>.pub.
 
-  nebula-cert <host> --ca-cert <path> --ca-key <path> [--age-key <host-age-keyfile>]
+  password <host> <user> [--key <sops-key>] [--password <pw>] [--age-key <host-age-keyfile>]
+    Hash a login password to yescrypt and store it in the host's sops file
+    (preserving existing age recipients). Pairs with users.users.<user>
+    .hashedPasswordFile and users.mutableUsers = false so the change applies
+    on rebuild. Prompts for the password unless --password is given (an
+    argument is visible in `ps`).
+
+  nebula-cert <host> --ca-cert <path> --ca-key <path> [--age-key <host-age-keyfile>] [--networks <cidr>]
     Generate a new nebula keypair, sign it with the CA, replace
     nebula/self_key + nebula/self_crt in the host's sops file (preserving
     existing age recipients). The CA cert+key are local copies supplied by
-    the operator (they live on the CA host, not this host).
+    the operator (they live on the CA host, not this host). --networks
+    defaults to the address already on the host's cert, or the next free
+    address in the mesh when the host has no cert yet.
 
 --age-key is optional on every subcommand: if omitted the script lets sops
 read the age key from $SOPS_AGE_KEY (raw content, set by the Justfile from
@@ -26,28 +35,20 @@ Requires: python3, sops 3.x, ssh-keygen, nix-shell (for age-keygen + nebula-cert
 """
 
 import argparse
+import getpass
+import ipaddress
+import json
 import os
+import re
 import shutil
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
 import yaml
+from sops_lib import read_recipients, run, sops_decrypt, sops_encrypt, write_atomic
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-
-
-def _run(cmd, *, env=None, capture=True, stdin=None):
-    r = subprocess.run(
-        cmd,
-        capture_output=capture,
-        text=True,
-        env=env,
-        input=stdin,
-        check=False,
-    )
-    return r
 
 
 def _resolve_age_key(arg) -> Path | None:
@@ -71,7 +72,7 @@ def _age_keygen(new_key_path: str) -> str:
         "nix-shell", "-p", "age", "--run",
         f"age-keygen -o {new_key_path}",
     ]
-    r = _run(cmd)
+    r = run(cmd)
     if r.returncode != 0:
         sys.exit(f"age-keygen failed: {r.stderr.strip()}")
     # age-keygen writes the public key to stderr via nix-shell
@@ -85,7 +86,7 @@ def _age_keygen(new_key_path: str) -> str:
 def _ssh_keygen(priv_path: str, host: str, label: str):
     if os.path.exists(priv_path):
         os.unlink(priv_path)
-    r = _run([
+    r = run([
         "ssh-keygen", "-t", "ed25519", "-N", "",
         "-f", priv_path, "-C", host,
     ])
@@ -94,65 +95,89 @@ def _ssh_keygen(priv_path: str, host: str, label: str):
 
 
 def ssh_keygen_pub(priv_path: str) -> str:
-    r = _run(["ssh-keygen", "-y", "-f", priv_path])
+    r = run(["ssh-keygen", "-y", "-f", priv_path])
     if r.returncode != 0:
         sys.exit(f"ssh-keygen -y failed: {r.stderr.strip()}")
     return r.stdout.strip()
 
 
-def sops_decrypt(sops_file: Path, age_key: Path | None = None) -> str:
-    env = dict(os.environ)
-    if age_key is not None:
-        env["SOPS_AGE_KEY_FILE"] = str(age_key)
-    r = _run(["sops", "-d", str(sops_file)], env=env)
-    if r.returncode != 0:
-        sys.exit(f"sops -d failed for {sops_file}: {r.stderr.strip()}")
-    return r.stdout
-
-
-def sops_encrypt(plaintext_yaml: str, recipients: list[str]) -> str:
-    with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as cfg:
-        cfg.write("creation_rules:\n")
-        cfg.write("  - path: .*\n")
-        cfg.write("    age:\n")
-        for r in recipients or ["*"]:
-            cfg.write(f'      - "{r}"\n')
-        cfg_path = cfg.name
-    try:
-        env = {**os.environ, "SOPS_CONFIG": cfg_path}
-        # NamedTemporaryFile(delete=False) creates atomically with O_EXCL and
-        # mode 0o600 on POSIX, so the host's full secrets.yaml plaintext is
-        # never world-readable on /tmp.
-        with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as tf:
-            tf.write(plaintext_yaml)
-            tmp_path = tf.name
-        try:
-            r = _run(["sops", "-e", tmp_path], env=env)
-        finally:
-            os.unlink(tmp_path)
-        if r.returncode != 0:
-            sys.exit(f"sops -e failed: {r.stderr.strip()}")
-        return r.stdout
-    finally:
-        os.unlink(cfg_path)
-
-
-def read_recipients(sops_file: Path) -> list[str]:
-    """Age recipients are public metadata in the encrypted file."""
-    data = yaml.safe_load(sops_file.read_text()) or {}
-    sops_meta = data.get("sops") or {}
-    age = sops_meta.get("age") or []
-    return [entry["recipient"] for entry in age if entry.get("recipient")]
-
-
-def _write_atomic(path: Path, content: str):
-    tmp = path.with_name(path.name + ".tmp")
-    tmp.write_text(content)
-    os.replace(tmp, path)
-
-
 def _label_key(label: str) -> str:
     return f"{label}.key"
+
+
+def _set_nested(data: dict, key: str, value: str) -> None:
+    """Set data["a"]["b"]["c"] from "a/b/c", creating intermediate dicts."""
+    parts = key.split("/")
+    node = data
+    for part in parts[:-1]:
+        node = node.setdefault(part, {})
+    node[parts[-1]] = value
+
+
+def _hash_password(password: str) -> str:
+    """yescrypt ($y$) hash, matching what NixOS writes for hashedPassword."""
+    r = run(["nix-shell", "-p", "mkpasswd", "--run", "mkpasswd -m yescrypt -s"],
+            stdin=password)
+    if r.returncode != 0:
+        sys.exit(f"mkpasswd failed: {r.stderr.strip()}")
+    for line in reversed(r.stdout.splitlines()):
+        if line.startswith("$y$"):
+            return line.strip()
+    sys.exit(f"mkpasswd produced no yescrypt hash: {r.stdout!r}")
+
+
+def _read_password(args) -> str:
+    if args.password is not None:
+        return args.password
+    pw = getpass.getpass("new password: ")
+    if pw != getpass.getpass("confirm password: "):
+        sys.exit("passwords do not match")
+    if not pw:
+        sys.exit("empty password")
+    return pw
+
+
+def cmd_password(args) -> int:
+    host = args.host
+    user = args.user
+    key = args.key or f"users/{user}/password_hash"
+    age_key_path = _resolve_age_key(args.age_key)
+    sops_file = (
+        Path(args.sops_file)
+        if args.sops_file
+        else REPO_ROOT / "secrets" / "hosts" / host / "secrets.yaml"
+    )
+    if not sops_file.exists():
+        sys.exit(f"sops file not found: {sops_file}")
+    if age_key_path is not None and not age_key_path.exists():
+        sys.exit(f"age key not found: {age_key_path}")
+
+    recipients = read_recipients(sops_file)
+    if not recipients:
+        sys.exit(f"no age recipients found in {sops_file}")
+
+    hashed = _hash_password(_read_password(args))
+
+    plain = sops_decrypt(sops_file, age_key_path)
+    data = yaml.safe_load(plain) or {}
+    data.pop("sops", None)
+    _set_nested(data, key, hashed)
+    new_plain = yaml.safe_dump(data, default_flow_style=False, sort_keys=False)
+    enc = sops_encrypt(new_plain, recipients)
+    write_atomic(sops_file, enc)
+    print(f"re-encrypted {sops_file} with {key}")
+
+    verify = sops_decrypt(sops_file, age_key_path)
+    node = yaml.safe_load(verify) or {}
+    for part in key.split("/"):
+        node = (node or {}).get(part)
+    if node != hashed:
+        sys.exit(f"post-rotation verification failed: {key} mismatch")
+    print(f"post-rotation verification: {key} round-trip OK")
+
+    print(f"\npassword set for {user} on {host}.")
+    print(f"  rebuild: nixos-rebuild --use-remote-sudo -H {host} switch")
+    return 0
 
 
 def cmd_age_key(args) -> int:
@@ -189,7 +214,7 @@ def cmd_age_key(args) -> int:
         new_plain = yaml.safe_dump(data, default_flow_style=False, sort_keys=False)
         enc = sops_encrypt(new_plain, [new_pub])
 
-        _write_atomic(sops_file, enc)
+        write_atomic(sops_file, enc)
         print(f"re-encrypted {sops_file} with new age recipient")
 
         verify = sops_decrypt(sops_file, Path(new_key_path))
@@ -243,7 +268,7 @@ def cmd_identity(args) -> int:
         data.setdefault(label, {})[key_name] = priv_text
         new_plain = yaml.safe_dump(data, default_flow_style=False, sort_keys=False)
         enc = sops_encrypt(new_plain, recipients)
-        _write_atomic(sops_file, enc)
+        write_atomic(sops_file, enc)
         print(f"re-encrypted {sops_file} with {key_name}")
 
         verify = sops_decrypt(sops_file, age_key_path)
@@ -265,6 +290,71 @@ def cmd_identity(args) -> int:
             os.unlink(priv_path)
 
     return 0
+
+
+def _mesh_cidr() -> str:
+    """The nebula mesh CIDR, read from global/constants.nix."""
+    txt = (REPO_ROOT / "global" / "constants.nix").read_text()
+    m = re.search(r'nebula\.cidr\s*=\s*"([^"]+)"', txt)
+    return m.group(1) if m else "10.0.0.0/24"
+
+
+def _cert_networks(cert_text: str | None) -> list[str]:
+    """The networks assigned to a nebula cert, via `nebula-cert print -json`."""
+    if not cert_text:
+        return []
+    r = run(["nix-shell", "-p", "nebula", "--run",
+             "nebula-cert print -path - -json"], stdin=cert_text)
+    if r.returncode != 0:
+        return []
+    try:
+        return json.loads(r.stdout)[0]["details"]["networks"] or []
+    except (json.JSONDecodeError, KeyError, IndexError, TypeError):
+        return []
+
+
+def _host_cert(sops_file: Path, age_key) -> str | None:
+    """This host's nebula/self_crt, or None if not decryptable."""
+    plain = sops_decrypt(sops_file, age_key)
+    data = yaml.safe_load(plain) or {}
+    return (data.get("nebula") or {}).get("self_crt")
+
+
+def _next_free_networks(age_key) -> str:
+    """Lowest unused host address in the mesh CIDR, from existing certs."""
+    net = ipaddress.ip_network(_mesh_cidr())
+    used = set()
+    for f in sorted((REPO_ROOT / "secrets" / "hosts").glob("*/secrets.yaml")):
+        try:
+            cert = _host_cert(f, age_key)
+        except SystemExit:
+            print(f"warning: could not decrypt {f}; skipping from IP scan",
+                  file=sys.stderr)
+            continue
+        for n in _cert_networks(cert):
+            try:
+                used.add(ipaddress.ip_address(n.split("/")[0]))
+            except ValueError:
+                pass
+    for ip in net.hosts():
+        if ip not in used:
+            return f"{ip}/{net.prefixlen}"
+    sys.exit(f"no free host address in {net}")
+
+
+def _default_networks(host: str, sops_file: Path, age_key) -> str:
+    """Existing cert's IP if present, else the next free mesh address."""
+    try:
+        cert = _host_cert(sops_file, age_key)
+    except SystemExit:
+        cert = None
+    nets = _cert_networks(cert)
+    if nets:
+        print(f"networks: {nets[0]} (from {host}'s existing cert)")
+        return nets[0]
+    proposed = _next_free_networks(age_key)
+    print(f"networks: {proposed} (no existing cert; next free in mesh)")
+    return proposed
 
 
 def cmd_nebula_cert(args) -> int:
@@ -290,6 +380,10 @@ def cmd_nebula_cert(args) -> int:
     if not recipients:
         sys.exit(f"no age recipients found in {sops_file}")
 
+    networks = args.networks
+    if networks is None:
+        networks = _default_networks(host, sops_file, age_key_path)
+
     tmpdir = tempfile.mkdtemp(prefix="nebula-rotate-")
     try:
         new_key = os.path.join(tmpdir, "nebula-self.key")
@@ -297,16 +391,16 @@ def cmd_nebula_cert(args) -> int:
         new_cert = os.path.join(tmpdir, "nebula-self.crt")
 
         # 1. Generate a new host keypair
-        r = _run(["nix-shell", "-p", "nebula", "--run",
+        r = run(["nix-shell", "-p", "nebula", "--run",
                   f"nebula-cert keygen -out-key {new_key} -out-pub {new_pub}"])
         if r.returncode != 0:
             sys.exit(f"nebula-cert keygen failed: {r.stderr.strip()}")
 
         # 2. Sign it with the CA (name + networks required by nebula-cert sign)
-        r = _run(["nix-shell", "-p", "nebula", "--run",
+        r = run(["nix-shell", "-p", "nebula", "--run",
                   (f"nebula-cert sign -ca-crt {ca_cert} -ca-key {ca_key} "
                    f"-in-pub {new_pub} -out-crt {new_cert} "
-                   f"-name {host} -networks {args.networks}")])
+                   f"-name {host} -networks {networks}")])
         if r.returncode != 0:
             sys.exit(f"nebula-cert sign failed: {r.stderr.strip()}")
 
@@ -321,7 +415,7 @@ def cmd_nebula_cert(args) -> int:
         data.setdefault("nebula", {})["self_crt"] = new_cert_text
         new_plain = yaml.safe_dump(data, default_flow_style=False, sort_keys=False)
         enc = sops_encrypt(new_plain, recipients)
-        _write_atomic(sops_file, enc)
+        write_atomic(sops_file, enc)
         print(f"re-encrypted {sops_file} with new nebula cert + key")
 
         # 4. Verify round-trip
@@ -358,13 +452,23 @@ def main() -> int:
     p_id.add_argument("--sops-file", help="override sops secrets.yaml path")
     p_id.add_argument("--pub-out", help="override pub output dir (default: secrets/common/ssh)")
 
+    p_pw = sub.add_parser("password", help="set a user's login password in a host's sops file")
+    p_pw.add_argument("host", help="nixos hostName")
+    p_pw.add_argument("user", help="user name")
+    p_pw.add_argument("--key", help="sops key for the hash (default: users/<user>/password_hash)")
+    p_pw.add_argument("--password", help="password to hash (omit to prompt; an argument is visible in `ps`)")
+    p_pw.add_argument("--age-key", help="local copy of the host's sops age keyfile; defaults to $SOPS_AGE_KEY_FILE")
+    p_pw.add_argument("--sops-file", help="override sops secrets.yaml path")
+
     p_neb = sub.add_parser("nebula-cert", help="rotate a host's nebula cert + key")
     p_neb.add_argument("host", help="nixos hostName")
     p_neb.add_argument("--ca-cert", required=True, help="local copy of the CA cert (ca.crt)")
     p_neb.add_argument("--ca-key", required=True, help="local copy of the CA key (ca.key)")
     p_neb.add_argument("--age-key", help="local copy of the host's sops age keyfile; defaults to $SOPS_AGE_KEY_FILE")
-    p_neb.add_argument("--networks", default="10.0.0.0/24",
-                       help="CIDR network for the new cert (default: 10.0.0.0/24)")
+    p_neb.add_argument("--networks", default=None,
+                       help="CIDR network/address for the new cert (default: "
+                            "the host's existing cert IP, else the next free "
+                            "address in the mesh)")
     p_neb.add_argument("--sops-file", help="override sops secrets.yaml path")
 
     args = ap.parse_args()
@@ -373,6 +477,8 @@ def main() -> int:
         return cmd_age_key(args)
     elif args.command == "identity":
         return cmd_identity(args)
+    elif args.command == "password":
+        return cmd_password(args)
     elif args.command == "nebula-cert":
         return cmd_nebula_cert(args)
 
