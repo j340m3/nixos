@@ -35,7 +35,7 @@
       ];
 
       # jeromeb's home, wired into the host rebuild instead of a standalone switch
-      home-manager.users.jeromeb.imports = [ ../../../home ];
+      home-manager.users.jeromeb.imports = [ inputs.self.modules.homeManager.jeromeb ];
 
       # Bootloader.
       boot.loader.systemd-boot.enable = true;

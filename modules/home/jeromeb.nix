@@ -1,0 +1,67 @@
+# dendritic: aggregate home aspect for jeromeb (ADR 0014). One source shared
+# by the standalone homeConfigurations.jeromeb (modules/nix/home-configurations.nix)
+# and per-host wiring (rex/lenny home-manager.users.jeromeb).
+_: {
+  flake.modules.homeManager.jeromeb =
+    {
+      pkgs,
+      inputs,
+      lib,
+      ...
+    }:
+    {
+      imports = [
+        inputs.stylix.homeModules.stylix
+        inputs.sops-nix.homeManagerModules.sops
+        inputs.self.modules.homeManager.style
+        inputs.self.modules.homeManager.vscode
+        inputs.self.modules.homeManager.browser
+        inputs.self.modules.homeManager.accounts
+        inputs.self.modules.homeManager.xfce
+      ];
+      home.username = "jeromeb";
+      # radicle-desktop pulls in radicle-node, which nixpkgs marks insecure
+      nixpkgs.config.permittedInsecurePackages = [
+        "radicle-node-1.10.3"
+      ];
+      home.homeDirectory = "/home/jeromeb";
+      home.stateVersion = "25.11"; # Comment out for error with "latest" version
+      #stylix.homeManagerIntegration.autoImport = false;
+      #stylix.homeManagerIntegration.followSystem = false;
+      programs.home-manager.enable = true;
+
+      home.packages = with pkgs; [
+        btop
+        git
+        vulnix
+        wezterm
+        spotify
+        signal-desktop
+        telegram-desktop
+        element-desktop
+        radicle-desktop
+        radicle-node
+        sops
+        #bitwarden-desktop
+        nh
+        nix-du
+        pinentry-curses
+      ];
+
+      programs.rbw = {
+        enable = true;
+      };
+
+      home.sessionVariables = {
+        SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/rbw/ssh-agent-socket";
+      };
+
+      nixpkgs.config.allowUnfreePredicate =
+        pkg:
+        builtins.elem (lib.getName pkg) [
+          "spotify"
+          "apple_cursor"
+        ];
+
+    };
+}

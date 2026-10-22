@@ -1,5 +1,5 @@
-# home-manager configurations: standalone (not per-host yet), importing the
-# shared ./home tree.
+# home-manager configurations: standalone. Shares the same source with the
+# per-host wiring (rex/lenny): the jeromeb HM aspect group in modules/home/.
 { inputs, ... }:
 {
   flake.homeConfigurations = {
@@ -17,7 +17,7 @@
           ];
       };
       extraSpecialArgs = { inherit inputs; };
-      modules = [ (inputs.self + "/home") ];
+      modules = [ inputs.self.modules.homeManager.jeromeb ];
     };
   };
 }
