@@ -38,7 +38,7 @@ from sops_lib import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-PEERS_JSON = REPO_ROOT / "global" / "wireguard-peers.json"
+PEERS_JSON = REPO_ROOT / "modules" / "global" / "wireguard-peers.json"
 PEER_SECRETS = REPO_ROOT / "secrets" / "services" / "wireguard" / "secrets.yaml"
 CLIENTS_SOPS = REPO_ROOT / "secrets" / "services" / "wireguard" / "clients.yaml"
 
@@ -169,14 +169,14 @@ def rule_recipients(rel_path: str, sops_config: Path = REPO_ROOT / ".sops.yaml")
     return []
 
 
-def _verify_roundtrip(sops_file: Path, plaintext: str, age_key: Path) -> None:
+def _verify_roundtrip(sops_file: Path, plaintext: str, age_key: Path | None) -> None:
     got = _norm(yaml.safe_load(sops_decrypt(sops_file, age_key)))
     want = _norm(yaml.safe_load(plaintext))
     if got != want:
         sys.exit(f"post-write verification failed for {sops_file}")
 
 
-def sops_encrypt_existing(plaintext: str, sops_file: Path, age_key: Path) -> str:
+def sops_encrypt_existing(plaintext: str, sops_file: Path, age_key: Path | None) -> str:
     """Re-encrypt an existing file with its own embedded recipients."""
     recipients = read_recipients(sops_file)
     if not recipients:
@@ -208,7 +208,7 @@ def sops_encrypt_new(plaintext: str, rel_path: str) -> str:
     return enc
 
 
-def save_sops(sops_file: Path, plaintext: str, age_key: Path) -> str:
+def save_sops(sops_file: Path, plaintext: str, age_key: Path | None) -> str:
     """Encrypt + write + verify, choosing embedded vs .sops.yaml recipients."""
     if sops_file.exists():
         return sops_encrypt_existing(plaintext, sops_file, age_key)
@@ -218,7 +218,7 @@ def save_sops(sops_file: Path, plaintext: str, age_key: Path) -> str:
     return enc
 
 
-def _decrypt_sops(sops_file: Path, age_key: Path) -> dict:
+def _decrypt_sops(sops_file: Path, age_key: Path | None) -> dict:
     return _norm(yaml.safe_load(sops_decrypt(sops_file, age_key)))
 
 
@@ -253,14 +253,19 @@ def qr_ansi(conf: str) -> str:
 # CLI helpers
 # ---------------------------------------------------------------------------
 
-def _age_key(args) -> Path:
+def _age_key(args) -> Path | None:
+    """Keyfile path, or None when the raw key is in $SOPS_AGE_KEY (sops reads
+    it ambiently, like scripts/rotate-secrets.py)."""
     key = args.age_key or os.environ.get("SOPS_AGE_KEY_FILE")
-    if not key:
-        sys.exit("age key required: pass --age-key PATH or set SOPS_AGE_KEY_FILE")
-    p = Path(key)
-    if not p.exists():
-        sys.exit(f"age key not found: {p}")
-    return p
+    if key:
+        p = Path(key)
+        if not p.exists():
+            sys.exit(f"age key not found: {p}")
+        return p
+    if os.environ.get("SOPS_AGE_KEY"):
+        return None
+    sys.exit("age key required: pass --age-key PATH or set SOPS_AGE_KEY_FILE "
+             "or SOPS_AGE_KEY")
 
 
 def _peer_names_in_sops(sops_file: Path) -> set[str]:
@@ -276,7 +281,7 @@ def _client_names(sops_file: Path) -> set[str]:
     return set((raw.get("clients") or {}).keys())
 
 
-def _load_clients(age_key: Path) -> dict:
+def _load_clients(age_key: Path | None) -> dict:
     if not CLIENTS_SOPS.exists():
         return {}
     return _decrypt_sops(CLIENTS_SOPS, age_key)
@@ -647,7 +652,8 @@ def run_selftest() -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description="WireGuard peer CRUD")
-    ap.add_argument("--age-key", help="age key file (or set SOPS_AGE_KEY_FILE)")
+    ap.add_argument("--age-key", help="age key file (or set SOPS_AGE_KEY_FILE, "
+                    "or set SOPS_AGE_KEY to the raw key)")
     ap.add_argument("--dry-run", action="store_true", help="print the plan; write nothing")
     sub = ap.add_subparsers(dest="command", required=True)
 

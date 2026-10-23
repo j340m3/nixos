@@ -2,7 +2,7 @@
   flake.modules.nixos.wireguard =
     { config, lib, pkgs, ... }:
     let
-      wg = builtins.fromJSON (builtins.readFile ../../global/wireguard-peers.json);
+      wg = builtins.fromJSON (builtins.readFile ../global/wireguard-peers.json);
       secretsFile = ../../secrets/services/wireguard/secrets.yaml;
       peerSecret = p: "wireguard/peer/${p.name}";
     in

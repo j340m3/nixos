@@ -293,8 +293,8 @@ def cmd_identity(args) -> int:
 
 
 def _mesh_cidr() -> str:
-    """The nebula mesh CIDR, read from global/constants.nix."""
-    txt = (REPO_ROOT / "global" / "constants.nix").read_text()
+    """The nebula mesh CIDR, read from modules/global/_constants.nix."""
+    txt = (REPO_ROOT / "modules" / "global" / "_constants.nix").read_text()
     m = re.search(r'nebula\.cidr\s*=\s*"([^"]+)"', txt)
     return m.group(1) if m else "10.0.0.0/24"
 

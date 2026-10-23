@@ -46,7 +46,7 @@ iptables-save | grep ens6    # NAT masquerade goes out ens6
 
 Each member host has a Reticulum identity in `secrets/hosts/<host>/reticulum.yaml`
 (key `identity`, base64). The public transport hash and the Nix `rnsh`
-destination hash live in `global/constants.nix` under `reticulum.identities`.
+destination hash live in `modules/global/_constants.nix` under `reticulum.identities`.
 
 To rotate one host:
 
@@ -87,5 +87,5 @@ sops -d secrets/hosts/mrpotatohead/secrets.yaml | yq -r '.remotebuild.pub'
   (`allowedUDPPorts = [ 53 4242 ]` in buzz) — I can commit it.
 - Rotate the admin password (initial hash still in git history).
 - totp keys in rex/woody/pricklepants yamls are unconsumed — sops-clean them.
-- Endpoints in `global/constants.nix` are leased (DHCP/DHCPv6) — re-check
+- Endpoints in `modules/global/_constants.nix` are leased (DHCP/DHCPv6) — re-check
   `ip a` on the VPSs if peering ever acts up; roster comment says so too.

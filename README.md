@@ -32,7 +32,7 @@ the host map.
 | `desktop-environments/` | Reusable DE profiles (xfce, kde, mate, ...). |
 | `users/` | System user definitions. |
 | `home/` | home-manager configuration for `jeromeb`. |
-| `global/constants.nix` | Cross-host constants (domain, nebula CIDR, build hosts). |
+| `modules/global/_constants.nix` | Cross-host constants (domain, nebula CIDR, build hosts). |
 | `secrets/` | sops-encrypted secrets + committed public keys. |
 | `scripts/` | Host/service key + secret helper scripts. |
 | `docs/` | Repo documentation (see [docs/README.md](./docs/README.md)). |

@@ -1,6 +1,6 @@
 { inputs, ... }:
 let
-  constants = import (inputs.self + "/global/constants.nix");
+  constants = import ../global/_constants.nix;
 in
 {
   flake.modules.nixos.nebula =
@@ -35,7 +35,7 @@ in
         listen.host = "[::]";
         enable = true;
         inherit isLighthouse;
-        # roster in global/constants.nix: names -> mesh ip + public endpoints
+        # roster in modules/global/_constants.nix: names -> mesh ip + public endpoints
         lighthouses = map (h: constants.host.${h}.ip) (builtins.filter notSelf constants.lighthouses);
         relays = map (h: constants.host.${h}.ip) (builtins.filter notSelf constants.lighthouses);
         settings = {

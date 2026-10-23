@@ -1,7 +1,7 @@
 # dendritic: aspect with absorbed body (was modules/_common/ssh.nix).
 { inputs, ... }:
 let
-  constants = import (inputs.self + "/global/constants.nix");
+  constants = import ../global/_constants.nix;
 in
 {
   flake.modules.nixos.ssh =

@@ -9,7 +9,7 @@
 { inputs, lib, ... }:
 
 let
-  constants = import (inputs.self + "/global/constants.nix");
+  constants = import ../../../modules/global/_constants.nix;
 in
 {
   flake.modules.nixos.rex =

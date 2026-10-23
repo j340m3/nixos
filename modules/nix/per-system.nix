@@ -13,7 +13,7 @@
     }:
     let
       # Constants represent variables which are important for multiple hosts
-      constants = import (inputs.self + "/global/constants.nix");
+      constants = import ../global/_constants.nix;
 
       # Lint staged files at commit time (installed into the devShell) and
       # the whole tree via `checks.pre-commit`.

@@ -5,7 +5,7 @@
 { inputs, lib, ... }:
 
 let
-  constants = import (inputs.self + "/global/constants.nix");
+  constants = import ../../../modules/global/_constants.nix;
 in
 {
   flake.modules.nixos.buzz =
@@ -178,7 +178,7 @@ in
         cert = config.sops.secrets."nebula/self_crt".path; # "/run/secrets/nebula/self.crt";
         key = config.sops.secrets."nebula/self_key".path; # "/run/secrets/nebula/self.key";
         ca = config.sops.secrets."nebula/ca_crt".path; # "/run/secrets/nebula/ca.crt";
-        # staticHostMap (other lighthouse) comes from global/constants.nix.
+        # staticHostMap (other lighthouse) comes from modules/global/_constants.nix.
         staticHostMap = constants.nebula.staticMap config.networking.hostName;
         settings = {
           lighthouse = {

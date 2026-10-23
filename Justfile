@@ -15,7 +15,13 @@ sops-refresh:
 # The age key is read from $SOPS_AGE_KEY (set above from rbw); --age-key optional.
 # Usage: just py3 scripts/publish-host-keys.py zurg --from-ssh zurg
 py3 *args:
-    nix-shell -p python3 python3Packages.pyyaml --run "python3 {{ args }}" 
+    nix-shell -p python3 python3Packages.pyyaml --run "python3 {{ args }}"
+
+# WireGuard peer CRUD, keyless: $SOPS_AGE_KEY (above) is used directly.
+# Usage: just wg list | add <name> | show <name> | export <name> --out F |
+#        update <name> [--rotate-psk] | delete <name> [--dry-run]
+wg *args:
+    nix-shell -p python3 python3Packages.pyyaml --run "python3 scripts/wireguard-peers.py {{ args }}" 
 
 # --- nixos rebuilds -------------------------------------------------------
 

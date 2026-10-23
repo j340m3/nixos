@@ -6,7 +6,7 @@
 { inputs, lib, ... }:
 
 let
-  constants = import (inputs.self + "/global/constants.nix");
+  constants = import ../../../modules/global/_constants.nix;
 in
 {
   flake.modules.nixos.pricklepants =
@@ -188,7 +188,7 @@ in
         # cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
         # key = "/etc/nebula/pricklepants.key";
         # ca = "/etc/nebula/ca.crt";
-        # staticHostMap (other lighthouse) comes from global/constants.nix.
+        # staticHostMap (other lighthouse) comes from modules/global/_constants.nix.
         staticHostMap = constants.nebula.staticMap config.networking.hostName;
         settings = {
           lighthouse = {
