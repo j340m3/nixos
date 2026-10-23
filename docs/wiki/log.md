@@ -458,3 +458,17 @@ Open for a later pass:
   `just check` keeps skipping it until then.
 - Bar between every wave: full `just check` green (10 ok + slinky
   skip) before commit; see ADR-0014 status update for the end state.
+- Pass 5 [loghost]: after the dendritic push, swept fleet logs. Found and
+  fixed: woody's `mnt-filen-services-postgres` never mounted (rclone aborts
+  when it cannot open its own log file; `/var/log/rclone/filen/` subdirectory
+  did not exist -> tmpfiles rule) and pricklepants' minetest-server had been
+  restart-looping since the 2026-10-19 rebuild (luanti 5.17 + June-2024
+  VoxeLibre 0.87.2: `mcl_void_damage`/`mcl_grindstone` index nil
+  `mcl_spawn`/`mcl_formspec` before their providers load; per-pair mod.conf
+  seds were whack-a-mole). Final fix: pin VoxeLibre 0.92.3 from the nix
+  store via `LUANTI_GAME_PATH` (gameid comes from the game folder name),
+  preStart parks the stale data-dir copy one level deep so the engine stops
+  discovering it. Learned: a world.mt `load_mod_... = false` does not
+  disable game-shipped mods on 5.16+; remotebuild SSH (port 42069) is
+  builder-only, no journal/sudo on peers; fleet logs arrive at woody
+  rsyslog `/persist/rsyslog/<host>/`.
