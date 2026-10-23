@@ -47,33 +47,34 @@ in
       # same --gameid/--port; --server is dropped because luantiserver rejects it.
       systemd.services.minetest-server.serviceConfig.ExecStart =
         lib.mkForce "${pkgs.luanti-server}/bin/luantiserver --config ${confFile} --gameid voxelibre --port 30000";
-      # The game dir is host-managed; a previous cleanup disabled mcl_spawn,
-      # which makes mcl_void_damage index a nil global at startup. Re-enable it
-      # before launch and fail clearly if the mod files themselves are gone.
-      # Luanti >= 5.16 (nixpkgs 26.11, self-update 2026-10-19) loads mods that
-      # are absent from world.mt, and a world.mt 'load_mod_mcl_void_damage =
-      # false' is still ignored there ('false' disables only user-installed
-      # worldmods, not game mods). The June-2024 VoxeLibre copy declares no
-      # dependency between the two, so init runs before mcl_spawn defines its
-      # global. Restore the missing dependency - load order then guarantees
-      # the global exists - until the game dir is upgraded wholesale.
-      # ponytail: formal fix is rebuilding the game dir to a current VoxeLibre.
+      # The engine jumps caused repeated fatal undeclared-global ModErrors with
+      # the June-2024 VoxeLibre 0.87.2 copy in the data dir (mcl_void_damage ->
+      # mcl_spawn, mcl_grindstone -> mcl_formspec load before their providers,
+      # and luanti >= 5.16 additionally enables game mods absent from world.mt,
+      # so world.mt 'false' entries do not disable them). Serve a pinned current
+      # release from the nix store instead: LUANTI_GAME_PATH must contain a
+      # gameid-named folder (the engine derives the gameid from the folder name,
+      # game.conf 'name' is not authoritative).
+      systemd.services.minetest-server.environment.LUANTI_GAME_PATH =
+        let
+          voxelibre = pkgs.fetchFromGitHub {
+            owner = "VoxeLibre";
+            repo = "VoxeLibre";
+            rev = "0.92.3";
+            hash = "sha256-IRx/sUqwm7UWCALF8EPP8C+DJEe5Dbv+d46EGl/sYfM=";
+          };
+        in
+        pkgs.runCommand "voxelibre-game-0.92.3" { } ''
+          mkdir -p $out && cp -r ${voxelibre} $out/voxelibre
+        '';
+      # Park the stale data-dir copy out of game discovery: direct children of
+      # games/ are scanned as games, one level deeper are not.
       systemd.services.minetest-server.preStart = lib.mkAfter ''
-        world=/var/lib/minetest/.minetest/worlds/world/world.mt
-        game=/var/lib/minetest/.minetest/games/voxelibre
-        if [ -f "$world" ]; then
-          if ! ${pkgs.gnugrep}/bin/grep -q '^load_mod_mcl_spawn = true$' "$world"; then
-            ${pkgs.gnused}/bin/sed -i '/^load_mod_mcl_spawn[[:space:]]*=/d' "$world"
-            echo 'load_mod_mcl_spawn = true' >> "$world"
-          fi
-        fi
-        void_damage=$game/mods/ENVIRONMENT/mcl_void_damage/mod.conf
-        if ! ${pkgs.gnugrep}/bin/grep -qs 'depends = .*mcl_spawn' "$void_damage"; then
-          ${pkgs.gnused}/bin/sed -i 's/^depends = /depends = mcl_spawn, /' "$void_damage"
-        fi
-        if ! ${pkgs.findutils}/bin/find "$game/mods" -maxdepth 2 -type d -name mcl_spawn | ${pkgs.gnugrep}/bin/grep -q .; then
-          echo "minetest: mcl_spawn missing from $game; restore the VoxeLibre game directory" >&2
-          exit 1
+        data=/var/lib/minetest/.minetest
+        game=$data/games/voxelibre
+        if [ -d "$game" ]; then
+          mkdir -p "$data/games/.stale"
+          mv "$game" "$data/games/.stale/0.87.2"
         fi
       '';
       networking.firewall.allowedTCPPorts = [ 30000 ];
