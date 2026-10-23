@@ -1,7 +1,8 @@
-# Host aspect (ADR 0014): flake.modules.nixos.rex is assembled by lib.mkNixos
-# (modules/nix/lib.nix); the flake-parts.nix one-liner next to this file
-# declares the host into the flake. inputs/constants arrive via the
-# transitional specialArgs in the factory, so the head args stay verbatim.
+# Host aspect (ADR 0014): the module list is assembled by lib.mkNixos
+# (modules/nix/lib.nix) from flake.modules.nixos.rex; the flake-parts.nix
+# one-liner next to this file declares the host into the flake.
+# inputs/constants close over the head args. Two-file host: the hardware
+# scan result is inlined below — no host-local glue.
 # -----------------------------------------------------------------------------
 # Rex - My laptop at work
 # -----------------------------------------------------------------------------
@@ -20,8 +21,6 @@ in
     }:
     {
       imports = [
-        # Include the results of the hardware scan.
-        ./_hardware-configuration.nix
         inputs.self.modules.nixos.jeromeb
         inputs.self.modules.nixos.xfce
         #./_hardened.nix
@@ -34,6 +33,30 @@ in
         # home-manager module comes in via modules/_common/home-manager.nix
         inputs.chaotic.nixosModules.default
       ];
+
+      # Inlined from ./_hardware-configuration.nix (zero host-local glue, ADR 0014).
+      boot.initrd.availableKernelModules = [
+        "xhci_pci"
+        "ahci"
+        "sd_mod"
+      ];
+
+      fileSystems."/" = {
+        device = "/dev/disk/by-uuid/ab0899ec-d5b7-4642-be38-577ac223712d";
+        fsType = "ext4";
+        autoResize = true;
+      };
+
+      fileSystems."/boot" = {
+        device = "/dev/disk/by-uuid/3B75-1995";
+        fsType = "vfat";
+        options = [
+          "fmask=0077"
+          "dmask=0077"
+        ];
+      };
+
+      virtualisation.virtualbox.guest.enable = true;
 
       # jeromeb's home, wired into the host rebuild instead of a standalone switch
       home-manager.users.jeromeb.imports = [ inputs.self.modules.homeManager.jeromeb ];

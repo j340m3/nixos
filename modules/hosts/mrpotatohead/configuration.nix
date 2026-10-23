@@ -1,7 +1,8 @@
-# Host aspect (ADR 0014): flake.modules.nixos.mrpotatohead is assembled by lib.mkNixos
-# (modules/nix/lib.nix); the flake-parts.nix one-liner next to this file
-# declares the host into the flake. inputs arrive via the transitional
-# specialArgs in the factory, so the head args stay verbatim.
+# Host aspect (ADR 0014): the module list is assembled by lib.mkNixos
+# (modules/nix/lib.nix) from flake.modules.nixos.mrpotatohead; the
+# flake-parts.nix one-liner next to this file declares the host into the
+# flake. inputs close over the head args. Two-file host: the disko layout
+# is inlined below — no host-local glue.
 { inputs, lib, ... }:
 
 {
@@ -23,7 +24,6 @@
         (modulesPath + "/profiles/headless.nix")
         inputs.self.modules.nixos.hardening
 
-        ./_disk-config.nix
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.donquezz
         inputs.self.modules.nixos.nebula
@@ -32,6 +32,63 @@
         inputs.self.modules.nixos.wireguard
 
       ];
+
+      # Inlined from ./_disk-config.nix (zero host-local glue, ADR 0014):
+      # bios-boot-capable gpt layout, ESP + btrfs root on LVM.
+      disko.devices = {
+        disk.disk1 = {
+          device = lib.mkDefault "/dev/vda";
+          type = "disk";
+          content = {
+            type = "gpt";
+            partitions = {
+              boot = {
+                name = "boot";
+                size = "1M";
+                type = "EF02";
+              };
+              esp = {
+                name = "ESP";
+                size = "500M";
+                type = "EF00";
+                content = {
+                  type = "filesystem";
+                  format = "vfat";
+                  mountpoint = "/boot";
+                };
+              };
+              root = {
+                name = "root";
+                size = "100%";
+                content = {
+                  type = "lvm_pv";
+                  vg = "pool";
+                };
+              };
+            };
+          };
+        };
+        lvm_vg = {
+          pool = {
+            type = "lvm_vg";
+            lvs = {
+              root = {
+                size = "100%FREE";
+                content = {
+                  type = "filesystem";
+                  format = "btrfs";
+                  mountpoint = "/";
+                  mountOptions = [
+                    "compress-force=zstd"
+                    "nosuid"
+                    "nodev"
+                  ];
+                };
+              };
+            };
+          };
+        };
+      };
 
       # WG NAT masquerades out the WAN iface (module default is jessie's eth0)
       networking.nat.externalInterface = "ens6";

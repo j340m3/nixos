@@ -1,7 +1,8 @@
-# Host aspect (ADR 0014): flake.modules.nixos.woody is assembled by lib.mkNixos
-# (modules/nix/lib.nix); the flake-parts.nix one-liner next to this file
-# declares the host into the flake. inputs arrive via the transitional
-# specialArgs in the factory, so the head args stay verbatim.
+# Host aspect (ADR 0014): the module list is assembled by lib.mkNixos
+# (modules/nix/lib.nix) from flake.modules.nixos.woody; the flake-parts.nix
+# one-liner next to this file declares the host into the flake.
+# inputs/constants close over the head args. Two-file host: the hardware
+# scan result is inlined below — no host-local glue.
 { inputs, lib, ... }:
 let
   constants = import (inputs.self + "/global/constants.nix");
@@ -10,6 +11,7 @@ in
 {
   flake.modules.nixos.woody =
     {
+      modulesPath,
       config,
       pkgs,
       lib,
@@ -28,8 +30,8 @@ in
     in
     {
       imports = [
-        # Include the results of the hardware scan.
-        ./_hardware-configuration.nix
+        # Inlined from ./_hardware-configuration.nix.
+        (modulesPath + "/installer/scan/not-detected.nix")
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.donquezz
         inputs.self.modules.nixos.loghost
@@ -50,6 +52,35 @@ in
         #<home-manager/nixos>
         inputs.chaotic.nixosModules.default
       ];
+
+      # Inlined from ./_hardware-configuration.nix (zero host-local glue, ADR 0014).
+      boot.initrd.availableKernelModules = [
+        "xhci_pci"
+        "ahci"
+        "nvme"
+      ];
+      boot.kernelModules = [ "kvm-intel" ];
+      boot.kernelParams = [ "intel_pstate=passive" ];
+
+      fileSystems."/" = {
+        device = "/dev/disk/by-uuid/9bf7dc58-7c06-4f84-a028-84f59ae08bc8";
+        fsType = "ext4";
+      };
+
+      fileSystems."/boot" = {
+        device = "/dev/disk/by-uuid/D4AD-702D";
+        fsType = "vfat";
+        options = [
+          "fmask=0077"
+          "dmask=0077"
+        ];
+      };
+
+      swapDevices = lib.mkForce [ ];
+
+      # Enables DHCP on each ethernet and wireless interface.
+      networking.useDHCP = lib.mkDefault true;
+      hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
       boot.tmp.cleanOnBoot = true;
       # Former ./_immich.nix + ./_paperless.nix absorbed (retirement step 3B).

@@ -1,7 +1,8 @@
-# Host aspect (ADR 0014): flake.modules.nixos.pricklepants is assembled by lib.mkNixos
-# (modules/nix/lib.nix); the flake-parts.nix one-liner next to this file
-# declares the host into the flake. inputs arrive via the transitional
-# specialArgs in the factory, so the head args stay verbatim.
+# Host aspect (ADR 0014): the module list is assembled by lib.mkNixos
+# (modules/nix/lib.nix) from flake.modules.nixos.pricklepants; the
+# flake-parts.nix one-liner next to this file declares the host into the
+# flake. inputs/constants close over the head args. Two-file host: the
+# hardware scan result is inlined below — no host-local glue.
 { inputs, lib, ... }:
 
 let
@@ -21,7 +22,8 @@ in
     in
     {
       imports = [
-        ./_hardware-configuration.nix
+        # Inlined from ./_hardware-configuration.nix.
+        (modulesPath + "/profiles/qemu-guest.nix")
         (modulesPath + "/profiles/minimal.nix")
         (modulesPath + "/profiles/headless.nix")
         #../../../modules/_hardening.nix
@@ -38,6 +40,26 @@ in
         # nebula config is defined inline below (this host is a lighthouse);
         # pull in the remote-build accept side that other mesh members get via modules/_nebula.nix
         inputs.self.modules.nixos.remote-builder
+      ];
+
+      # Inlined from ./_hardware-configuration.nix (zero host-local glue, ADR 0014).
+      boot.loader.grub.device = "/dev/vda";
+      boot.initrd.availableKernelModules = [
+        "ata_piix"
+        "uhci_hcd"
+        "xen_blkfront"
+        "vmw_pvscsi"
+      ];
+      boot.initrd.kernelModules = [ "nvme" ];
+      fileSystems."/" = {
+        device = "/dev/vda1";
+        fsType = "ext4";
+      };
+      swapDevices = [
+        {
+          device = "/dev/vda16";
+          randomEncryption.enable = true;
+        }
       ];
 
       #swapDevices = [ { device = "/swapfile"; size = 512; } ];

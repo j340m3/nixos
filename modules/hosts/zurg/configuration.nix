@@ -1,11 +1,14 @@
-# Host aspect: the module list for this host is assembled by lib.mkNixos
+# Host aspect (ADR 0014): the module list is assembled by lib.mkNixos
 # (modules/nix/lib.nix) from flake.modules.nixos.zurg; the flake-parts.nix
 # one-liner next to this file declares the host into the flake.
+# inputs close over the head args. Two-file host: the hardware scan result
+# is inlined below — no host-local glue.
 { inputs, ... }:
 
 {
   flake.modules.nixos.zurg =
     {
+      modulesPath,
       config,
       pkgs,
       lib,
@@ -13,14 +16,60 @@
     }:
     {
       imports = [
-        # Include the results of the hardware scan.
-        ./_hardware-configuration.nix
+        # Inlined from ./_hardware-configuration.nix.
+        (modulesPath + "/installer/scan/not-detected.nix")
         # Wired here (the repo flake does not add these globally, unlike the
         # standalone /etc/nixos flake).
         inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p51
         inputs.stylix.nixosModules.stylix
         inputs.self.modules.nixos.agent-md
       ];
+
+      # Inlined from ./_hardware-configuration.nix (zero host-local glue, ADR 0014).
+      boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usbhid" "usb_storage" "sd_mod" "rtsx_pci_sdmmc" "e1000e" "iwlwifi" ];
+      boot.initrd.kernelModules = [ "dm-snapshot" ];
+      boot.kernelModules = [ "kvm-intel" ];
+
+      fileSystems."/" =
+        { device = "/dev/disk/by-label/root";
+          fsType = "btrfs";
+          options = [ "subvol=@" "compress=lzo" ];
+        };
+
+      fileSystems."/home" =
+        { device = "/dev/disk/by-label/root";
+          fsType = "btrfs";
+          options = [ "subvol=@home" "compress=lzo" ];
+        };
+
+      fileSystems."/boot" =
+        { device = "/dev/disk/by-label/boot0";
+          fsType = "vfat";
+          options = ["nofail"];
+        };
+
+      fileSystems."/boot-fallback" =
+        { device = "/dev/disk/by-label/boot1";
+          fsType = "vfat";
+          options = ["nofail"];
+        };
+
+      fileSystems."/nix" =
+        { device = "/dev/disk/by-label/root";
+          fsType = "btrfs";
+          options = [ "compress=lzo" ];
+        };
+
+      boot.initrd.luks.devices."cryptroot".device = "/dev/md0";
+
+      swapDevices =
+        [ { device = "/dev/disk/by-uuid/7f1ec5a0-192f-4ded-80f1-586f3d42ff5c"; }
+          { device = "/dev/disk/by-uuid/14b413cd-0b3e-48d2-8d60-5965795c8e4d"; }
+        ];
+
+      # Enables DHCP on each ethernet and wireless interface.
+      networking.useDHCP = lib.mkDefault true;
+      hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
       # Use the systemd-boot EFI boot loader.
       #boot.loader.systemd-boot.enable = true;
