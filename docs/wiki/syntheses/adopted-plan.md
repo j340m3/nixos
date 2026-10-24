@@ -199,10 +199,12 @@ same eval. `image` and `image-impermanent` disko targets still eval
 - Eval-gotcha re-learned: `nix eval` on a dirty git tree cannot see
   UNTRACKED files — stages "attribute 'remote-builder' missing" until
   `git add` tracks the new aspect files.
-- Still parked after wave 2: slinky `_local _uConsole` (IFD-bound),
-  mrpotatohead `_disk-config` + per-host `_hardware-configuration.nix`
-  x7 (permanent), lenny specialisation `_default.nix` x2, root `users/`,
-  `secrets/`, `desktop-environments/` (by decision).
+- Still parked after wave 2 (all resolved 2026-10-24, see Status below):
+  slinky `_local _uConsole` (IFD-bound; inlined), mrpotatohead
+  `_disk-config` + per-host `_hardware-configuration.nix` x7 (inlined),
+  lenny specialisation `_default.nix` x2 (collapsed into the host base),
+  root `users/`, `secrets/`, `desktop-environments/` (users + desktops
+  became aspects, roots deleted; secrets/ stays by decision).
 - Host-local glue absorbed same day (bca2e82, fe81c0d idiom): woody
   (nas xrdp nofile firefox power zabbix home-assistant), zurg
   (de fingerprint fonts gaming llm update), sid (editor nvidia);
@@ -220,6 +222,17 @@ same eval. `image` and `image-impermanent` disko targets still eval
   `_module.args.inputs` hooks remain for their path-imported
   specialisation siblings.
 - Aspects for all features; docs/wiki/index.md links this plan.
+
+Reached in full 2026-10-24. The closing waves: users + desktop
+environment aspects replaced the last root path-import dirs (dbd348c);
+every host became a two-file feature with its hardware/disko/device
+glue absorbed inline — lenny's specialisations collapsed into the base
+config (tags `jeromeb` + `lilly`) and their `_module.args.inputs` hook
+died with them (12f1bc2); `global/` settled under
+`modules/global/` (`_constants.nix`, import-tree `/_`-exclusion now
+load-bearing, b05aa69); `modules/home/xfce/` flattened to a flat aspect
+file and 243 dead comment lines pruned (977184b). Only residue: slinky
+is eval-green but awaits hardware verification on the real uConsole.
 
 ## Skeleton state (implemented 2026-10-21)
 

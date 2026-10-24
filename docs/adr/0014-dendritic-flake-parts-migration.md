@@ -105,7 +105,7 @@ anti-patterns:
   (auto-follow, prune-lock/allfollow-style lock rewriters) stay OFF.
 - Transition period runs two host idioms in parallel (factory supports
   converted and unconverted hosts) until the last host converts; only worth
-  it because the end state题型 deletes the second one.
+  it because the end state deletes the second one.
 
 ### Risks
 - A broken conversion of one shared feature can break many hosts at once —
@@ -114,3 +114,28 @@ anti-patterns:
   surface wrong-class mistakes loudly).
 - sops secrets and other data stay *outside* the auto-import tree (data is
   not a feature module); the `/_`-exclusion convention parks dead code.
+
+## Status update (2026-10-24): adoption complete
+
+Waves 3-5 landed in three days of execution; the end state above is
+realized everywhere. Supersessions of the wording above:
+
+- Point 3 in practice: hosts are **two-file features** —
+  `configuration.nix` (the feature body) + `flake-parts.nix` (the
+  `mkNixos` declaration). Zero host-local glue remains: the 12 per-host
+  `_hardware-configuration.nix` / `_disk-config.nix` / `_local.nix` /
+  `_uConsole.nix` siblings were absorbed inline into the host body, and
+  lenny's two boot specialisations collapsed into the base config
+  (both tags `jeromeb` and `lilly` kept; the `_module.args.inputs` hook
+  died with them).
+- Users and desktops became aspects too (`modules/users/{jeromeb,donquezz}`,
+  `modules/desktop/{kde,xfce}`), replacing the last root path-import dirs.
+- Point 7 final layout: `global/{constants,peers}` moved under
+  `modules/global/` — constants is `modules/global/_constants.nix`
+  (underscore = import-tree exclusion, now load-bearing for a data file);
+  `secrets/` and `scripts/` stay at root, matching the exemplar tree.
+- slinky flags: eval-green to the IFD build wall (aarch64 kernel), but
+  hardware verification on the actual uConsole is still pending —
+  treat slinky as adopted-pending-live-verify.
+- Green bar between waves: full `just check` (10 ok + slinky skip,
+  aarch64) before every commit.

@@ -34,5 +34,8 @@ _Avoid_: module output, option
 
 **Host**:
 A machine this flake boots and manages. A host is itself a feature: it
-exists by listing the features it uses.
-_Avoid_: directory (as the definition of a host), target
+exists by listing the features it uses, and carries its own machine
+reality (disks, hardware quirks) inline — nothing of a host lives in a
+separate pile of helper files.
+_Avoid_: directory (as the definition of a host), glue (there is none),
+target

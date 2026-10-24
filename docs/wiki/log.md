@@ -426,3 +426,35 @@ Open for a later pass:
   carries the fix (operator action, not research).
 - optional hardening: nextcloud phpOptions session.upload_progress.enabled=0;
   zabbix pool string-append equivalent; decide same time as the update.
+
+## 2026-10-24 - adoption complete: zero host-local glue (pass 11) [dendritic]
+
+- The dendritic migration is structurally done; grilling + execution
+  in this session closed out waves 3-5 on top of pass 10:
+  - wave 3 (dbd348c): root `users/` + `desktop-environments/` became
+    aspects under `modules/users/` + `modules/desktop/`; system-default
+    + 8 hosts rewired to aspect refs (`git add`-before-eval lesson
+    reaffirmed; specialisation-loop import of self-referencing aspect
+    files = infinite recursion - consumers reference
+    `inputs.self.modules.nixos.<id>`, never path-import aspect files).
+  - wave 4 (12f1bc2): all 12 hosts are two-file features
+    (`configuration.nix` + `flake-parts.nix`) with the 12 underscore
+    glue siblings absorbed inline (hardware scans, mrpotatohead disko,
+    slinky `/_local` + `/_uConsole` incl. the formerly
+    unbound-`inputs` bug - closure via the host head fixes it);
+    absorption doctrine: absorbed key may not duplicate a key the host
+    attrset already defines (mkForce wins, same-value merges collapse).
+  - wave 4b (b05aa69): `global/` moved to `modules/global/`
+    (`_constants.nix` - the import-tree `/_`-exclusion became
+    load-bearing so the data file is not auto-imported as a module).
+  - wave 5 (977184b): `modules/home/xfce/` dir flattened to a flat
+    aspect file; 243 lines of dead commented blocks raked.
+- Race note: a concurrent wireguard session committed b05aa69 which
+  subsumed the wave-4b rename; my duplicate commit was reset before
+  push (unpushed-only surgery) - do not `git add -A` shared dirs while
+  another session holds the same files; stage explicit paths.
+- slinky: eval-green through to the aarch64 IFD wall, but hardware
+  verification on the real uConsole is still PENDING (operator task);
+  `just check` keeps skipping it until then.
+- Bar between every wave: full `just check` green (10 ok + slinky
+  skip) before commit; see ADR-0014 status update for the end state.
