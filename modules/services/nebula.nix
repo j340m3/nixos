@@ -47,10 +47,6 @@ in
             punch = true;
             respond = true;
           };
-          dns = {
-            host = constants.host.${constants.nebula.dns}.ip;
-            port = 53;
-          };
         };
         cert = config.sops.secrets."nebula/self_crt".path; # "/run/secrets/nebula/self.crt";
         key = config.sops.secrets."nebula/self_key".path; # "/run/secrets/nebula/self.key";

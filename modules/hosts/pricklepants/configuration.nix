@@ -187,11 +187,7 @@ in
         staticHostMap = constants.nebula.staticMap config.networking.hostName;
         settings = {
           lighthouse = {
-            serve_dns = true;
-            dns = {
-              host = "0.0.0.0";
-              port = 53;
-            };
+            serve_dns = false;
           };
           static_map = {
             network = "ip";
@@ -219,11 +215,6 @@ in
             cidr = constants.nebula.cidr;
             port = "any";
             proto = "icmp";
-          }
-          {
-            cidr = constants.nebula.cidr;
-            port = "53";
-            proto = "udp";
           }
           {
             cidr = constants.nebula.cidr;
@@ -280,9 +271,6 @@ in
         CapabilityBoundingSet = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
         AmbientCapabilities = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
       };
-
-      # open the systems firewall for DNS only on the nebula interface
-      networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 53 ];
 
       # rolls this host back to the previous generation and reboots it when systemd
       # reports a failed unit one settle delay after switch-to-configuration

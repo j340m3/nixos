@@ -39,3 +39,14 @@ reality (disks, hardware quirks) inline — nothing of a host lives in a
 separate pile of helper files.
 _Avoid_: directory (as the definition of a host), glue (there is none),
 target
+
+**WG hub**:
+A host that terminates WireGuard tunnels for the fleet's mobile peers.
+Not every WG hub takes part in the mesh, and "hub" is never a word for a
+nebula lighthouse that doesn't serve WG peers.
+_Avoid_: server, gateway
+
+**Lighthouse**:
+An anchor host of the nebula mesh: the rendezvous points mesh members
+find each other through, and the entry/exit relays of the mesh.
+_Avoid_: hub (reserve for WireGuard), master, server

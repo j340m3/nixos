@@ -44,8 +44,7 @@ let
     };
   };
 
-  # The DNS/relay backbone (names into the roster above); pricklepants
-  # serves_mesh DNS (serve_dns), the other three do not. Endpoints are
+  # The DNS/relay backbone (names into the roster above). Endpoints are
   # leased public addresses (DHCP/DHCPv6, ~20min renewals, stable in
   # practice) — re-enter the roster from `ip a` when a provider rotates one.
   lighthouses = [
@@ -135,8 +134,6 @@ let
 in
 {
   nebula.cidr = "10.0.0.0/24";
-  # The lighthouse that runs the mesh DNS (must have lighthouse.serve_dns).
-  nebula.dns = "pricklepants";
   # The mesh udp listen/peer port (suffix of every endpoint above).
   nebula.port = 4242;
 
