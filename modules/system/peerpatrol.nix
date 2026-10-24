@@ -17,11 +17,17 @@ in
       members = builtins.attrNames (builtins.readDir ../../modules/hosts);
 
       # One ping check per mesh-roster host with a verified nebula ip; hosts
-      # without one are skipped.
-      checks = lib.mapAttrsToList (_: h: {
-        type = "ping";
-        target = h.ip;
-      }) (lib.filterAttrs (_: h: h ? ip) constants.host);
+      # without one are skipped. Plus one tcp check per mesh-exposed service
+      # surface (constants.meshServices).
+      checks =
+        lib.mapAttrsToList (_: h: {
+          type = "ping";
+          target = h.ip;
+        }) (lib.filterAttrs (_: h: h ? ip) constants.host)
+        ++ map (s: {
+          type = "tcp";
+          target = "${constants.host.${s.host}.ip}:${toString s.port}";
+        }) constants.meshServices;
     in
     {
       imports = [ inputs.peerpatrol.nixosModules.default ];

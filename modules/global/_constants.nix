@@ -72,6 +72,24 @@ let
     "woody"
   ];
 
+  # TCP services reachable through the mesh: one check per distinct service
+  # surface, not per sibling port of the same backend (zabbix's nginx 80/8080
+  # are dropped; 443 stands in). A port listed here must already be admitted
+  # by both gatekeeping layers for the mesh cidr (the service's
+  # nebula.inbound rule and its nebula.mesh interface firewall opening).
+  # Consumers: peerpatrol tcp checks only.
+  meshServices = [
+    { host = "woody"; service = "immich"; port = 2283; }
+    { host = "woody"; service = "paperless"; port = 28981; }
+    { host = "woody"; service = "zabbix-web"; port = 443; }
+    { host = "woody"; service = "zabbix-server"; port = 10051; }
+    { host = "woody"; service = "grafana"; port = 2342; } # non-default http_port
+    { host = "woody"; service = "harmonia"; port = 5000; }
+    { host = "woody"; service = "rsyslog"; port = 514; }
+    { host = "jessie"; service = "radicle-node"; port = 8776; }
+    { host = "jessie"; service = "radicle-web"; port = 443; }
+  ];
+
   # Reticulum fleet overlay. Public transports are the VPS lighthouses plus
   # jessie; every other roster host is a client. External peers are the
   # public testnet (no shared secret).
@@ -140,6 +158,7 @@ in
   inherit
     host
     lighthouses
+    meshServices
     reticulum
     sshPort
     ;

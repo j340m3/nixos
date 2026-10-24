@@ -50,3 +50,10 @@ _Avoid_: server, gateway
 An anchor host of the nebula mesh: the rendezvous points mesh members
 find each other through, and the entry/exit relays of the mesh.
 _Avoid_: hub (reserve for WireGuard), master, server
+
+**Mesh port**:
+A TCP port a service exposes to the mesh, admitted through both gatekeeping
+layers: the mesh's own in-tunnel firewall and the host's interface firewall.
+Opening one layer without the other silently drops the traffic — an
+in-tunnel service can be reachable locally yet dead from a peer.
+_Avoid_: exposed port (silent about the two layers), firewall port
