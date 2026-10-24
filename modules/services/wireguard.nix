@@ -13,23 +13,27 @@
       networking.nat.externalInterface = lib.mkDefault "eth0";
       networking.nat.internalInterfaces = [
         "wg0"
-        "nebula.mesh"
+        # disabled: wg->nebula routing currently broken
+        # "nebula.mesh"
       ];
       networking.nat.enableIPv6 = true;
-      # Route traffic bound for the Nebula mesh (10.0.0.0/24) out nebula.mesh,
-      # masqueraded to this host's own mesh IP. The nat module marks packets arriving
-      # on the internal interfaces (wg0, nebula.mesh) with mark 1 in nixos-nat-pre,
-      # but only masquerades them out externalInterface; matching that mark here adds
-      # the nebula.mesh path. Using the mark (not a source range) covers every
-      # routed source behind a wg peer, including a peer's LAN such as the FRITZ
-      # 192.168.178.0/24. `-i` cannot be used in POSTROUTING, hence the mark. The
-      # nixos-nat-post / nixos-filter-forward chains are flushed and rebuilt on every
-      # firewall start, so this stays idempotent. (iptables backend; incompatible
-      # with the nftables nat module.)
-      networking.nat.extraCommands = ''
-        iptables -w -t nat -A nixos-nat-post -m mark --mark 1 -o nebula.mesh -j MASQUERADE
-        iptables -w -t filter -A nixos-filter-forward -i wg0 -o nebula.mesh -j ACCEPT
-      '';
+      # disabled: wg->nebula routing currently broken
+      /*
+        # Route traffic bound for the Nebula mesh (10.0.0.0/24) out nebula.mesh,
+        # masqueraded to this host's own mesh IP. The nat module marks packets arriving
+        # on the internal interfaces (wg0, nebula.mesh) with mark 1 in nixos-nat-pre,
+        # but only masquerades them out externalInterface; matching that mark here adds
+        # the nebula.mesh path. Using the mark (not a source range) covers every
+        # routed source behind a wg peer, including a peer's LAN such as the FRITZ
+        # 192.168.178.0/24. `-i` cannot be used in POSTROUTING, hence the mark. The
+        # nixos-nat-post / nixos-filter-forward chains are flushed and rebuilt on every
+        # firewall start, so this stays idempotent. (iptables backend; incompatible
+        # with the nftables nat module.)
+        networking.nat.extraCommands = ''
+          iptables -w -t nat -A nixos-nat-post -m mark --mark 1 -o nebula.mesh -j MASQUERADE
+          iptables -w -t filter -A nixos-filter-forward -i wg0 -o nebula.mesh -j ACCEPT
+        '';
+      */
       networking.firewall.allowedUDPPorts = [ wg.server.listen_port ];
 
       sops.secrets = {

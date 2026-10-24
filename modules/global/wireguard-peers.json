@@ -48,6 +48,14 @@
         "10.66.66.6/32",
         "fd42:42:42::6/128"
       ]
+    },
+    {
+      "name": "jessi",
+      "public_key": "7byzTZdpMSldekOFp4Hyhe4gypKUsae1TmeOuX5DPiA=",
+      "allowed_ips": [
+        "10.66.66.7/32",
+        "fd42:42:42::7/128"
+      ]
     }
   ]
 }

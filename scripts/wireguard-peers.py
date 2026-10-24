@@ -43,7 +43,10 @@ PEER_SECRETS = REPO_ROOT / "secrets" / "services" / "wireguard" / "secrets.yaml"
 CLIENTS_SOPS = REPO_ROOT / "secrets" / "services" / "wireguard" / "clients.yaml"
 
 DEFAULT_ENDPOINT = "vpn.kauderwels.ch"
-DEFAULT_DNS = "10.0.0.1"
+# Public resolver: clients are full-tunnel, so any IP they send reaches the wg
+# server itself. The old 10.0.0.1 was the nebula mesh DNS and required the
+# (currently disabled) wg->nebula forwarding glue in modules/services/wireguard.nix.
+DEFAULT_DNS = "1.1.1.1"
 NAME_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 
 
@@ -616,7 +619,7 @@ def run_selftest() -> int:
         server=server, psk="PSK=", endpoint=None, dns=None)
     assert "PrivateKey = PRIV=" in conf
     assert "Address = 10.66.66.2/32, fd42:42:42::2/128" in conf
-    assert "DNS = 10.0.0.1" in conf
+    assert "DNS = 1.1.1.1" in conf
     assert "PublicKey = SERVERPUB=" in conf
     assert "PresharedKey = PSK=" in conf
     assert "Endpoint = vpn.kauderwels.ch:55025" in conf
