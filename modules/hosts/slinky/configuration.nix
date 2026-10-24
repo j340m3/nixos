@@ -31,7 +31,6 @@
         inputs.self.modules.nixos.vscodium
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.nebula
-        #../../../modules/_zabbix.nix
         inputs.self.modules.nixos.wifi
       ];
 
@@ -325,51 +324,7 @@
       # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
       system.stateVersion = "25.05"; # Did you read the comment?
 
-      /*
-        programs.ccache = {
-          enable = true;
-          packageNames = [ "linux_rpi4" ];
-        };
-        nix.sandboxPaths = [ (toString config.programs.ccache.cacheDir) ];
-      */
 
-      /*
-        nixpkgs.overlays = [
-          (self: super: {
-            ccacheWrapper = super.ccacheWrapper.override {
-              extraConfig = ''
-                export CCACHE_DEBUG=1
-                export CCACHE_COMPRESS=1
-                export CCACHE_DIR="${config.programs.ccache.cacheDir}"
-                export CCACHE_UMASK=007
-                export CCACHE_SLOPPINESS=random_seed
-                export KBUILD_BUILD_TIMESTAMP=""
-                if [ ! -d "$CCACHE_DIR" ]; then
-                  echo "====="
-                  echo "Directory '$CCACHE_DIR' does not exist"
-                  echo "Please create it with:"
-                  echo "  sudo mkdir -m0770 '$CCACHE_DIR'"
-                  echo "  sudo chown root:nixbld '$CCACHE_DIR'"
-                  echo "====="
-                  exit 1
-                fi
-                if [ ! -w "$CCACHE_DIR" ]; then
-                  echo "====="
-                  echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
-                  echo "Please verify its access permissions"
-                  echo "====="
-                  exit 1
-                fi
-              '';
-            };
-          })
-          (self: super: {
-              linux = super.linux.overrideAttrs (oldAttrs: {
-                  depsBuildBuild = oldAttrs.depsBuildBuild // [ super.ccacheStdenv ];
-              });
-            })
-        ];
-      */
 
       # Inlined from ./_local.nix (zero host-local glue, ADR 0014).
       nix.settings = {

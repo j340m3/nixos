@@ -26,14 +26,9 @@ in
         (modulesPath + "/profiles/qemu-guest.nix")
         (modulesPath + "/profiles/minimal.nix")
         (modulesPath + "/profiles/headless.nix")
-        #../../../modules/_hardening.nix
-        #../../../modules/_matrix2.nix
         inputs.self.modules.nixos.minetest
         inputs.self.modules.nixos.vaultwarden
         inputs.self.modules.nixos.logging
-        #../../../modules/_zabbix.nix
-        #../../../modules/_dns-tunnel.nix
-        #../../../modules/_immich-proxy.nix
         inputs.self.modules.nixos.acme
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.wireguard

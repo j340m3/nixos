@@ -23,7 +23,6 @@
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.nebula
-        #../../../modules/_zabbix.nix
         inputs.self.modules.nixos.wifi
         inputs.chaotic.nixosModules.default
       ];
@@ -222,13 +221,7 @@
         #  wget
         pkgs.hunspell
         pkgs.hunspellDicts.de_DE
-        /*
-          pkgs.python3Full
-          pkgs.python3Packages.pip
-          pkgs.python3Packages.setuptools
-        */
         pkgs.cifs-utils
-        #pkgs-2411.signaldctl
         pkgs.htop
         pkgs.kdePackages.discover
       ];
@@ -261,12 +254,6 @@
       # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
       system.stateVersion = "23.11"; # Did you read the comment?
 
-      /*
-        services.signald = {
-          enable = true;
-          user = "lilly";
-        };
-      */
       services.clamav.daemon.enable = true;
       services.clamav.updater.enable = true;
 

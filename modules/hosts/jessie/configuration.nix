@@ -18,21 +18,17 @@
       imports = [
         # Inlined from ./_hardware-configuration.nix.
         (modulesPath + "/profiles/qemu-guest.nix")
-        #../bootstrap
         (modulesPath + "/profiles/minimal.nix")
         (modulesPath + "/profiles/headless.nix")
         inputs.self.modules.nixos.hardening
-        #../../modules/_swap.nix
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.donquezz
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.persistence
         inputs.self.modules.nixos.nebula
-        #../../../modules/_zabbix.nix
         inputs.self.modules.nixos.minecraft-bedrock
         inputs.self.modules.nixos.wireguard
         inputs.self.modules.nixos.minecraft-java
-        #../../../modules/_matrix3.nix
         inputs.self.modules.nixos.acme
         inputs.self.modules.nixos.radicle-seed
       ];

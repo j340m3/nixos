@@ -19,7 +19,6 @@ in
     {
       imports = [
         # Include the results of the hardware scan.
-        #./_hardware-configuration.nix
         #inputs.sops-nix.nixosModules.sops
         #inputs.disko.nixosModules.disko
         #inputs.impermanence.nixosModules.impermanence
@@ -27,22 +26,15 @@ in
         inputs.self.modules.nixos.bootstrap-base
         (modulesPath + "/profiles/minimal.nix")
         (modulesPath + "/profiles/headless.nix")
-        #../../../modules/_hardening.nix
-        #../../../modules/_swap.nix
         inputs.self.modules.nixos.acme
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.donquezz
         inputs.self.modules.nixos.logging
-        #../../../modules/_nextcloud.nix
         # nextcloud lives on mrpotatohead (public DNS nextcloud.kauderwels.ch +
         # files.dabergmann.de both point there); a second instance here would
         # fight it over ACME identity and sops secrets when buzz returns
-        #../../../modules/_persistence.nix
-        #../../../modules/_zabbix.nix
         inputs.self.modules.nixos.wireguard
         inputs.self.modules.nixos.pihole
-        #../../../modules/_radicle-seed.nix
-        #../../modules/_nebula.nix
         # nebula config is defined inline below (this host is a lighthouse);
         # pull in the remote-build accept side that other mesh members get via modules/_nebula.nix
         inputs.self.modules.nixos.remote-builder

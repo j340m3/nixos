@@ -23,13 +23,9 @@ in
       imports = [
         inputs.self.modules.nixos.jeromeb
         inputs.self.modules.nixos.xfce
-        #./_hardened.nix
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.nebula
-        #../../../modules/_zabbix.nix
-        #../../modules/_peerix.nix
-        #../../modules/_cool-shell.nix
         # home-manager module comes in via modules/_common/home-manager.nix
         inputs.chaotic.nixosModules.default
       ];
@@ -163,94 +159,9 @@ in
       #useComin = true;
       virtualisation.docker.enable = true;
       # Define a user account. Don't forget to set a password with ‘passwd’.
-      /*
-        users.users.jeromeb = {
-          isNormalUser = true;
-          description = "Jerome";
-          extraGroups = [ "networkmanager" "wheel" "docker"];
-          shell = pkgs.zsh;
-        };
-        programs.zsh.enable = true;
-        services.yubikey-agent.enable = true;
-        services.udev.packages = [ pkgs.libfido2 ];
-        # Install firefox.
-        home-manager.backupFileExtension = "hmbackup";
-        home-manager.users.jeromeb = import ../../../home;
-        home-manager.extraSpecialArgs = {inherit inputs; };
-      */
       #stylix.homeManagerIntegration.followSystem = false;
       #stylix.homeManagerIntegration.autoImport = false;
       # home-manager.useGlobalPkgs = true;
-      /*
-        home-manager.users.jeromeb = {pkgs, ...} : {
-          nixpkgs.config.allowUnfreePredicate = pkg:
-          builtins.elem (lib.getName pkg) [
-            # Add additional package names here
-            "spotify"
-          ];
-          home.packages = with pkgs; [
-            btop
-            #acct
-            nix-index
-             #anytype
-             #gparted
-             nmap
-             #webex
-             signal-desktop
-             (makeAutostartItem { name = "signal"; package = signal-desktop; prependExtraArgs = [ "--start-in-tray" ];})
-             telegram-desktop
-             (makeAutostartItem { name = "telegram.desktop"; package = telegram-desktop; srcPrefix = "org.";})
-             #jetbrains.pycharm-professional
-             elmPackages.elm
-             /* python3Full
-             (python311.withPackages(ps: with ps; [
-                #(dontCheckPython numpy)
-                pytest
-                (dontCheckPython matplotlib)
-              ]))
-             vulnix
-             git
-             zip
-             lynis
-
-             #spotify
-             #nur.repos.rycee.firefox-addons.bitwarden
-             #(makeAutostartItem { name = "firefox"; package = firefox; })
-             #(makeAutostartItem { name = "spotify"; package = spotify; })
-             #mosh
-            #thunderbird
-             #libreoffice
-             #hunspell
-             #hunspellDicts.de_DE
-             #hunspellDicts.en_US
-             remmina
-             traceroute
-             statix
-             alejandra
-             age
-             wezterm
-          ];
-          home = {
-            username = "jeromeb";
-            homeDirectory = "/home/jeromeb";
-          };
-          home.stateVersion = "25.05";
-          programs.home-manager.enable = true;
-          programs.pay-respects.enable = true;
-
-          programs.zsh = {
-            enable = true;
-            enableCompletion = true;
-            #autosuggestions.enable = true;
-            syntaxHighlighting.enable = true;
-            /* ohMyZsh = {
-              enable = true;
-              plugins = [ "git" "sudo" ];
-              theme = "frisk";
-            };
-          };
-        };
-      */
 
       # Allow unfree packages
       #nixpkgs.config.allowUnfree = true;
@@ -298,44 +209,12 @@ in
 
       nix.settings.auto-optimise-store = true;
 
-      /*
-        services.ollama = {
-          enable = true;
-          acceleration = false;
-        };
-      */
 
       #nixpkgs.config.packageOverrides = pkgs: {
       #  nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {
       #    inherit pkgs;
       #  };
       #};
-      /*
-        services.zabbixServer.enable = true;
-        services.zabbixWeb = {
-          enable = true;
-          virtualHost = {
-            hostName = "zabbix.localhost";
-            adminAddr = "webmaster@localhost";
-          };
-        };
-
-        services.zabbixAgent = {
-          enable = true;
-          server = "localhost";
-        };
-      */
-
-      /*
-        services.zabbixAgent = {
-          enable = true;
-          openFirewall = true;
-          server = "10.0.0.0/24";
-          settings = {
-            Hostname = "rex";
-          };
-        };
-      */
 
       networking.nameservers = [
         "${constants.host.woody.ip}"

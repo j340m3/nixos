@@ -36,20 +36,15 @@ in
         inputs.self.modules.nixos.donquezz
         inputs.self.modules.nixos.loghost
         inputs.self.modules.nixos.borg-server
-        #../../../modules/_peerix.nix
         inputs.self.modules.nixos.kde
         inputs.self.modules.nixos.wifi
         inputs.self.modules.nixos.postgres-backup
         inputs.self.modules.nixos.harmonia
         inputs.self.modules.nixos.nfs-fee
         inputs.self.modules.nixos.nebula
-        #../../../modules/_technitium.nix
         inputs.self.modules.nixos.prometheus
         inputs.self.modules.nixos.grafana
         inputs.self.modules.nixos.fritz-exporter
-        # ./_firefox.nix
-        #(fetchTarball "https://github.com/nix-community/nixos-vscode-server/tarball/master")
-        #<home-manager/nixos>
         inputs.chaotic.nixosModules.default
       ];
 
@@ -93,14 +88,6 @@ in
         database.createDB = true;
         machine-learning.enable = true;
         redis.enable = true;
-        /*
-          settings = {
-            logging = {
-              enabled = true;
-              level = "verbose";
-            };
-          };
-        */
         accelerationDevices = null;
         port = 2283;
         mediaLocation = "/mnt/nas/immich";
@@ -711,20 +698,6 @@ in
         ];
       };
       #users.users.eve.isNormalUser = true;
-      /*
-        home-manager.users.jeromeb = { pkgs, ... }: {
-          home.packages = [ pkgs.atool pkgs.httpie ];
-          programs.bash.enable = true;
-
-          # The state version is required and should stay at the version you
-          # originally installed.
-          home.stateVersion = "24.11";
-          programs.home-manager.enable = true;
-          programs.neovim.plugins = [ pkgs.vimPlugins.parinfer-rust ];
-
-        };
-        home-manager.backupFileExtension = "backup.hm";
-      */
       environment.sessionVariables = {
         SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/rbw/ssh-agent-socket";
       };
@@ -801,25 +774,6 @@ in
       };
 
       # Please do upgrades in Background
-      /*
-        nix = {
-          package = pkgs.nix;
-          settings.experimental-features = [ "nix-command" "flakes" ];
-          settings.auto-optimise-store = true;
-          settings.max-jobs = 1;
-          settings.cores = 1;
-          daemonIOSchedClass = lib.mkDefault "idle";
-          daemonCPUSchedPolicy = lib.mkDefault "idle";
-        };
-        systemd.services.nix-daemon.serviceConfig.Slice = "-.slice";
-        # always use the daemon, even executed  with root
-        environment.variables.NIX_REMOTE = "daemon";
-        systemd.services.nix-daemon.serviceConfig = {
-          MemoryHigh = "800M";
-          MemoryMax = "1G";
-        };
-      */
-
       #  systemd.services.monitoring = {
       #    path = with pkgs; [
       #      bc
