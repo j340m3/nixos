@@ -27,6 +27,15 @@ in
         Value = "";
         Status = "locked";
       };
+      # woody has no inbound port for HTTP-01, so the vhost certs below are
+      # DNS-01-issued with the same IONOS key harmonia already deploys here
+      # (see harmonia.nix; the key lives in its service-scoped sops file).
+      dns01 = {
+        dnsProvider = "ionos";
+        dnsResolver = "1.1.1.1:53";
+        webroot = lib.mkForce null;
+        credentialFiles.IONOS_API_KEY_FILE = config.sops.secrets."acme/ionos_api_key".path;
+      };
     in
     {
       imports = [
@@ -45,6 +54,7 @@ in
         inputs.self.modules.nixos.prometheus
         inputs.self.modules.nixos.grafana
         inputs.self.modules.nixos.fritz-exporter
+        inputs.self.modules.nixos.acme
         inputs.chaotic.nixosModules.default
       ];
 
@@ -92,6 +102,25 @@ in
         port = 2283;
         mediaLocation = "/mnt/nas/immich";
       };
+
+      services.nginx.virtualHosts."immich.kauderwels.ch" = {
+        enableACME = true;
+        forceSSL = true;
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString config.services.immich.port}";
+          proxyWebsockets = true;
+          # All headers live here: a location with any proxy_set_header of its
+          # own stops inheriting the server-level ones (nginx inheritance).
+          extraConfig = ''
+            client_max_body_size 5000M;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+          '';
+        };
+      };
+      security.acme.certs."immich.kauderwels.ch" = dns01;
 
       users.users.immich = {
         uid = 989;
@@ -161,6 +190,8 @@ in
           PAPERLESS_TASK_WORKERS = 1;
           PAPERLESS_THREADS_PER_WORKER = 2;
           PAPERLESS_OCR_LANGUAGE = "deu+eng";
+          # Required for the reverse proxy vhost: https scheme + CSRF origins.
+          PAPERLESS_URL = "https://paperless.kauderwels.ch";
           # PAPERLESS_APP_TITLE = "Paperless";
           # PAPERLESS_CONSUMER_IGNORE_PATTERN = [
           #   ".db"
@@ -180,9 +211,26 @@ in
         OTEL_TRACES_EXPORTER = "none";
       };
 
+      services.nginx.virtualHosts."paperless.kauderwels.ch" = {
+        enableACME = true;
+        forceSSL = true;
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString config.services.paperless.port}";
+          proxyWebsockets = true;
+          extraConfig = ''
+            client_max_body_size 100M;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Port "443";
+          '';
+        };
+      };
+      security.acme.certs."paperless.kauderwels.ch" = dns01;
+
       networking.firewall.allowedTCPPorts = [
         config.services.immich.port
         config.services.paperless.port
+        443 # TLS vhosts: immich/paperless behind nginx
         # Former ./_home-assistant.nix:
         8123 # Home Assistant
         1883 # Mosquitto

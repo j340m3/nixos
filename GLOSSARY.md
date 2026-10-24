@@ -51,6 +51,12 @@ An anchor host of the nebula mesh: the rendezvous points mesh members
 find each other through, and the entry/exit relays of the mesh.
 _Avoid_: hub (reserve for WireGuard), master, server
 
+**Homeserver**:
+A host on the home network the public internet cannot reach; it serves the
+home LAN and mesh members, and its public-name certificates must be issued
+by DNS-01 because a webroot challenge needs a publicly reachable server.
+_Avoid_: LAN-only host (it also serves the mesh), internal server
+
 **Mesh port**:
 A TCP port a service exposes to the mesh, admitted through both gatekeeping
 layers: the mesh's own in-tunnel firewall and the host's interface firewall.

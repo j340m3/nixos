@@ -10,6 +10,8 @@ in
       ...
     }:
     {
+      imports = [ inputs.self.modules.nixos.acme ];
+
       services.grafana = {
         enable = true;
         settings.server = {
@@ -35,10 +37,20 @@ in
       };
       systemd.services.grafana.serviceConfig.EnvironmentFile = config.sops.secrets."grafana-env".path;
       services.nginx.virtualHosts.${config.services.grafana.settings.server.domain} = {
+        enableACME = true;
+        forceSSL = true;
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString config.services.grafana.settings.server.http_port}";
           proxyWebsockets = true;
         };
+      };
+      # Same DNS-01 constraint as the woody vhosts (its IONOS key already
+      # deploys to this host via harmonia's sops file).
+      security.acme.certs."grafana.kauderwels.ch" = {
+        dnsProvider = "ionos";
+        dnsResolver = "1.1.1.1:53";
+        webroot = lib.mkForce null;
+        credentialFiles.IONOS_API_KEY_FILE = config.sops.secrets."acme/ionos_api_key".path;
       };
       networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [
         config.services.grafana.settings.server.http_port
