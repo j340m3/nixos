@@ -56,6 +56,14 @@
         "10.66.66.7/32",
         "fd42:42:42::7/128"
       ]
+    },
+    {
+      "name": "unterwegs",
+      "public_key": "KkNoVS4bfXvlgnpBZVdvwquzi9OubyaKq0cQspn5eVw=",
+      "allowed_ips": [
+        "10.66.66.8/32",
+        "fd42:42:42::8/128"
+      ]
     }
   ]
 }
