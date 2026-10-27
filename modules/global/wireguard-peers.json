@@ -64,6 +64,14 @@
         "10.66.66.8/32",
         "fd42:42:42::8/128"
       ]
+    },
+    {
+      "name": "marita",
+      "public_key": "pADGArGLDMQaFt/34UyqomLT/d6ZsLcbK0/rnpokcA4=",
+      "allowed_ips": [
+        "10.66.66.9/32",
+        "fd42:42:42::9/128"
+      ]
     }
   ]
 }
