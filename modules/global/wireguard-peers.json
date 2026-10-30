@@ -72,6 +72,14 @@
         "10.66.66.9/32",
         "fd42:42:42::9/128"
       ]
+    },
+    {
+      "name": "fbbhst4",
+      "public_key": "+Jkh4m8JLMkwSleDBlsI0uRc6/ISJGq7CLAZ61XDhh8=",
+      "allowed_ips": [
+        "10.66.66.10/32",
+        "fd42:42:42::a/128"
+      ]
     }
   ]
 }
