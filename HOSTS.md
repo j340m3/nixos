@@ -78,7 +78,8 @@ radicle-seed, wireguard, remote-builder, acme, persistence, nebula.
 VPS. nextcloud (nginx/php-fpm), wireguard, hardening, disko LVM/btrfs disk
 layout, and the upgrade-health module (`upgradeHealth.enable = true`) which
 rolls back and reboots if systemd reports a failed unit after
-`switch-to-configuration`.
+`switch-to-configuration` (rollback is opt-in via
+`upgradeHealth.rollback.enable = true`; when false it only notifies).
 
 ### pricklepants
 

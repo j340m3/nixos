@@ -8,10 +8,18 @@ _: {
       ...
     }:
     {
-      options.upgradeHealth = {
-        enable = lib.mkEnableOption "roll back the host when systemd reports failed units";
+       options.upgradeHealth = {
+         enable = lib.mkEnableOption "roll back the host when systemd reports failed units";
 
-        settleDelay = lib.mkOption {
+         rollback = {
+           enable = lib.mkOption {
+             type = lib.types.bool;
+             default = false;
+             description = "Roll back to the previous generation and reboot when a failed unit is detected. When false, only notify.";
+           };
+         };
+
+         settleDelay = lib.mkOption {
           type = lib.types.str;
           default = "5m";
           description = ''
@@ -78,15 +86,21 @@ _: {
             first=''${failed%%"$nl"*}
             unit=''${first%% *}
             echo "upgrade-health: $unit failed"
-            # notify before deciding, so the guard refusal below is reported too.
-            # this waits for the notification rather than queueing it: we reboot
-            # immediately after the rollback, and systemd stops starting queued jobs
-            # during shutdown, so a queued alert is the one alert most likely to be
-            # lost. a failing notification is tolerated by the ||, and a hanging one
-            # is bounded by its own DefaultTimeoutStartSec, so it cannot hold up the
-            # rollback indefinitely.
-            ${pkgs.systemd}/bin/systemctl start "notify-telegram@$unit.service" ||
-              echo "upgrade-health: notification for $unit failed, continuing with the rollback"
+             # notify before deciding, so the guard refusal below is reported too.
+             # this waits for the notification rather than queueing it: we reboot
+             # immediately after the rollback, and systemd stops starting queued jobs
+             # during shutdown, so a queued alert is the one alert most likely to be
+             # lost. a failing notification is tolerated by the ||, and a hanging one
+             # is bounded by its own DefaultTimeoutStartSec, so it cannot hold up the
+             # rollback indefinitely.
+             ${pkgs.systemd}/bin/systemctl start "notify-telegram@$unit.service" ||
+               echo "upgrade-health: notification for $unit failed, continuing with the rollback"
+             # opt-in gate: when rollback is disabled, notify once and stay put.
+             if [ "${if config.upgradeHealth.rollback.enable then "1" else "0"}" != "1" ]; then
+               printf '%s\\n' "$failed" > "$guard/rolled-back-from"
+               echo "upgrade-health: rollback disabled, not rolling back"
+               exit 0
+             fi
             # the guard is keyed on the failure, not on the generation: an hourly
             # autoUpgrade mints a new profile link every time even when the store
             # path is unchanged, so a generation key never matches and the host
