@@ -156,7 +156,18 @@
       # logs process execs and writes to privilege files, so a compromised service
       # leaves a trail. failureMode stays printk, no -e 2: nothing to test here.
       security.auditd.enable = true;
+      # never-side exclusions go first (audit processes rules in order and a
+      # never match short-circuits). keep the execve trail for interactive
+      # users (donquezz et al) and for root-run chains, but drop the three
+      # forever-noisy classes that dominate audit.log (~48MB/3.5 days,
+      # ~213k lines): dhcpcd (uid 996) execs the resolvconf chain on every
+      # lease renewal, nextcloud php-fpm (uid 989) churns nextcloud-occ, and
+      # uid/auid 4294967295 = kernel transition records around daemon forks
+      # that carry no identity.
       security.audit.rules = [
+        "-a never,exit -F arch=b64 -S execve -F uid=996"
+        "-a never,exit -F arch=b64 -S execve -F uid=989"
+        "-a never,exit -F arch=b64 -S execve -F auid=4294967295"
         "-a exit,always -F arch=b64 -S execve"
         "-w /etc/sudoers -p wa -k identity"
         "-w /etc/ssh/sshd_config -p wa -k identity"
