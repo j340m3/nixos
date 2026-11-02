@@ -116,9 +116,25 @@ in
         repo = "borg@${constants.host.woody.ip}:.";
         compression = "auto,lzma";
         startAt = "*-*-* 02:30:00";
-        preHook = "${pkgs.podman}/bin/podman stop --all";
-        postHook = "${pkgs.podman}/bin/podman start --all";
+        # hooks must not abort the job: each failure previously failed the
+        # whole backup and paged the telegram bot for backups that succeeded
+        # without the stop/start choreography.
+        preHook = ''
+          ${pkgs.podman}/bin/podman stop --all 2>&1 ||
+            echo "borg preHook: podman stop failed; backing up as-is"
+        '';
+        postHook = ''
+          ${pkgs.podman}/bin/podman start --all 2>&1 ||
+            echo "borg postHook: podman start failed; containers need manual start"
+        '';
       };
+
+      # the borgbackup module locks the job unit down (ProtectSystem=strict,
+      # ReadWritePaths only its own borg cache/config dirs), so a preHook
+      # `podman stop --all` fails with EROFS on the storage lock and aborts
+      # the job. open the podman storage dir for the job.
+      systemd.services."borgbackup-job-minecraft-bedrock".serviceConfig.ReadWritePaths =
+        [ "/var/lib/containers" ];
 
       # Send an email whenever auto upgrade fails
       systemd.services."borgbackup-job-minecraft-bedrock".onFailure =
