@@ -44,6 +44,7 @@ in
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.donquezz
         inputs.self.modules.nixos.loghost
+        inputs.self.modules.nixos.log-watchdog
         inputs.self.modules.nixos.borg-server
         inputs.self.modules.nixos.kde
         inputs.self.modules.nixos.wifi
@@ -102,6 +103,13 @@ in
         port = 2283;
         mediaLocation = "/mnt/nas/immich";
       };
+
+      # the machine-learning gunicorn control server insists on creating
+      # ~/.gunicorn; with no usable home it dies every few minutes with
+      # "[Errno 1] Operation not permitted: '/var/empty/.gunicorn'". point
+      # HOME at a StateDirectory the immich user can write.
+      services.immich.machine-learning.environment.HOME = "/var/lib/immich-ml";
+      systemd.services.immich-machine-learning.serviceConfig.StateDirectory = "immich-ml";
 
       services.nginx.virtualHosts."immich.kauderwels.ch" = {
         enableACME = true;

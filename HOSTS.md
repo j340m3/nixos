@@ -23,6 +23,19 @@ Roles as of 2026-10-18, verified against the import graph.
 | `mrpotatohead` | VPS | headless | nextcloud (nginx/php-fpm), wireguard, hardening, disko LVM/btrfs, upgrade-health auto-rollback. |
 | `pricklepants` | VPS (Ionos) | headless | vaultwarden, luanti/minetest, wireguard VPN -> UK, bridge home, nebula lighthouse with mesh DNS, remote-builder, reticulum. |
 
+## Logging (2026-11-02 sweep)
+
+`services/logging` (ex `modules/_logging.nix`) forwards every mesh host's
+journald over nebula to woody rsyslog (TCP 10.0.0.3:514); woody archives
+per host under `/persist/rsyslog/<host>/`, `services/log-watchdog` alerts
+when a monitored host goes silent >48h.
+
+- forwarding today: woody (own journal), jessie, mrpotatohead, pricklepants.
+- valid but idle until updated (watchdog `expectedOff`): lenny, rex, slinky,
+  buzz.
+- NOT covered: sid (WSL) and zurg — no nebula/logging import yet; enroll
+  when updated (TODO in `modules/services/logging.nix`).
+
 ## Graphical
 
 ### lenny

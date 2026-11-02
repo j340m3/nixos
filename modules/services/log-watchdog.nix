@@ -24,9 +24,7 @@ in
       ];
       logDir = "/persist/rsyslog";
       maxAge = 48 * 60 * 60; # 48h staleness threshold
-      monitored = lib.filter (h: !(builtins.elem h expectedOff)) (
-        builtins.attrNames constants.host
-      );
+      monitored = lib.filter (h: !(builtins.elem h expectedOff)) (builtins.attrNames constants.host);
     in
     {
       # The 2026-11-02 log sweep turned up hosts that silently stopped
@@ -47,9 +45,7 @@ in
             now=$(date +%s)
             max=${toString maxAge}
             report=""
-            for h in ${
-              lib.concatMapStringsSep " " lib.escapeShellArg monitored
-            }; do
+            for h in ${lib.concatMapStringsSep " " lib.escapeShellArg monitored}; do
               latest=$(find "${logDir}/$h" -maxdepth 1 -name '*.log' -printf '%T@ %p\n' 2>/dev/null | sort -n | tail -1 | cut -d' ' -f1)
               if [ -z "$latest" ]; then
                 report="''${report}  $h: no .log files on the loghost\\n"
@@ -63,11 +59,9 @@ in
             done
             if [ -n "$report" ]; then
               printf -v msg 'fleet-log-watchdog: hosts silent >%sh\\n%s' "$((max / 3600))" "$report"
-              ${pkgs.curl}/bin/curl -fsS -X POST ${
-                "https://api.telegram.org/bot$(cat ${
-                  config.sops.secrets."telegram/bot_token".path
-                })/sendMessage"
-              } --data-urlencode "chat_id=$(cat ${config.sops.secrets."telegram/group_id".path})" --data-urlencode "text=$msg" ||
+              ${pkgs.curl}/bin/curl -fsS -X POST ${"https://api.telegram.org/bot$(cat ${config.sops.secrets."telegram/bot_token".path})/sendMessage"} --data-urlencode "chat_id=$(cat ${
+                config.sops.secrets."telegram/group_id".path
+              })" --data-urlencode "text=$msg" ||
                 echo "log-watchdog: telegram send failed"
             fi
           '';
