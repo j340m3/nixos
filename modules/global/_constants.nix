@@ -45,23 +45,23 @@ let
     };
     lenny = {
       ip = "10.0.0.4";
-      monitor = true;
+      monitor = false;
     };
     rex = {
       ip = "10.0.0.2";
-      monitor = true;
+      monitor = false;
     };
     slinky = {
       ip = "10.0.0.8";
-      monitor = true;
+      monitor = false;
     };
     bully = {
       ip = "10.0.0.11";
-      monitor = true;
+      monitor = false;
     };
     zurg = {
       ip = "10.0.0.10";
-      monitor = true;
+      monitor = false;
     };
   };
 
