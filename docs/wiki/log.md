@@ -472,3 +472,68 @@ Open for a later pass:
   disable game-shipped mods on 5.16+; remotebuild SSH (port 42069) is
   builder-only, no journal/sudo on peers; fleet logs arrive at woody
   rsyslog `/persist/rsyslog/<host>/`.
+
+## 2026-11-03 - fleet log sweep round 2 [loghost]
+
+Second pass over the centralised rsyslog volume on woody. Ten findings,
+five fixed on main the same day; full ledger + user actions in
+`syntheses/log-remediation.md`.
+
+- Pass-5 minetest fix (1baad0d) VERIFIED live on pricklepants: current
+  generation sets `LUANTI_GAME_PATH=...voxelibre-game-0.92.3`; 0
+  `ModError` lines and 0 minetest-server restarts since the switch; the
+  residual noise is benign server-lag warnings.
+- Root-caused the starved backups: endlessh owns woody :22 since
+  2026-10-27 (ssh hardening), real sshd answers on 42069, and all three
+  borg clients dialed the tarpit - minecraft-bedrock's repo empty since
+  2025-07-08, minetest/pricklepants repos stale. Fix 23475e8 adds
+  `-p ${constants.sshPort}` to every `BORG_RSH`. Companion findings:
+  `/run/lock/netavark.lock` EROFS under the borgbackup unit's
+  `ProtectSystem=strict` (e60f0bf adds `/run/lock` to ReadWritePaths)
+  and nightly non-interactive "unknown unencrypted repository" aborts
+  (e60f0bf sets `BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK` +
+  `BORG_RELOCATED_REPO_ACCESS_IS_OK`; these repos are mesh-local family
+  backups, so auto-accept is the right trade).
+- Woody host wave 454c3ff: `nm-wifi-env` dotenv service feeds the NM
+  wifi profile via environmentFiles; immich-ml gets
+  `HOME=/var/lib/immich-ml` (StateDirectory) - both verified live in
+  woody's current-generation units. Plus the new
+  `modules/services/log-watchdog.nix` staleness aspect (daily, 48h,
+  telegram; woody/jessie/mrpotatohead/pricklepants monitored,
+  lenny/rex/slinky/buzz `expectedOff`; sid/zurg coverage parked as a
+  TODO in `modules/services/logging.nix`).
+- mrpotatohead audit narrowing (c4ed4ac) reached the host through its
+  hourly nixos-upgrade: `uid=996/989` lines vanished from today's
+  audit.log (flood era: 54k). Generic `auid=4294967295` service
+  start/stop noise (~10k/day) remains; narrowing further is optional.
+- Vaultwarden "Token has expired" spam (109 `GET /api/sync` lines) is
+  NOT a server bug: an hourly refresh poller from roaming Telekom IPs
+  (80.187.x LTE ↔ 92.209.155.230 DSL) holds a stale refresh token;
+  woody's own rbw syncs 200 OK. Action: re-login that device.
+- mrpotatohead mesh degradation is chronic, not new: 20339 `Handshake
+  timed out vpnAddrs=[10.0.0.6] udpAddrs=[]` in the current log (since
+  2026-11-01 00:04), identical timeouts in rotated logs back to
+  ≥2025-07. Its lighthouse endpoints (`85.214.10.114` /
+  `[2a01:239:4ac:7300::1]`):4242 answer nothing from woody+jessie while
+  ping to 10.0.0.7 RTTs 22 ms. Recorded paradox for on-host follow-up:
+  potato's logs keep streaming into woody's rsyslog (fresh lines
+  throughout the sweep) although `ss` shows no established TCP 514
+  session from potato and woody's nebula holds no tunnel to it - the
+  carrying transport is unidentified. Needs `ip -brief addr show` /
+  `ss` / `journalctl -u nebula@mesh` on the host; then refresh
+  `host.mrpotatohead.endpoints` in `_constants.nix` (potato is a
+  lighthouse, so every peer's staticHostMap carries the stale pair).
+- Coverage matrix from this sweep: active = woody/jessie/mrpotatohead/
+  pricklepants; silent = lenny (since 2025-08-26), rex (2025-09-05),
+  slinky (2025-09-04), buzz (60/60 empty files yet holding live TCP
+  514+42069 sessions into woody during the sweep - it connects but
+  sends nothing; watch item). Legacy `/persist/rsyslog/{10.0.0.1,
+  127.0.0.1}` dirs and the off-hosts' empty stubs need sudo cleanup
+  (commands in the synthesis doc).
+- Learned: rsyslog dynafile templates materialise an empty stub per
+  (host, program) pair on first touch, so dead hosts amass hollowed
+  logs; `/run` is a second read-only frontier under
+  `ProtectSystem=strict`, not just the podman store; borg's
+  repo-stamp prompt must be preempted via env because hooks run too
+  late; `Handshake timed out udpAddrs=[]` means the initiator has no
+  address to try, i.e. the peer never registered at any lighthouse.
