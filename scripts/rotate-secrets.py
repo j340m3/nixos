@@ -527,10 +527,19 @@ def _pem_blocks(bundle_text: str) -> list[str]:
     return blocks
 
 
+def _constants_path() -> Path:
+    """Location of the roster file. The fleet renamed global/constants.nix
+    to modules/global/_constants.nix; both layouts stay runnable."""
+    for p in (REPO_ROOT / "modules" / "global" / "_constants.nix",
+              REPO_ROOT / "global" / "constants.nix"):
+        if p.exists():
+            return p
+    sys.exit("host roster not found (modules/global/_constants.nix)")
+
+
 def _eval_roster() -> dict:
-    """The host roster from global/constants.nix, evaluated by nix."""
-    r = run(["nix", "eval", "--json", "-f",
-             str(REPO_ROOT / "global" / "constants.nix"), "host"])
+    """The host roster from _constants.nix, evaluated by nix."""
+    r = run(["nix", "eval", "--json", "-f", str(_constants_path()), "host"])
     if r.returncode != 0:
         sys.exit(f"nix eval of constants.nix failed: {r.stderr.strip()}")
     return json.loads(r.stdout)
@@ -661,7 +670,7 @@ def _nebula_root_rotate(args) -> int:
     transition = bool(args.transition)
     apply = bool(args.yes)
     shared_yaml = REPO_ROOT / "secrets" / "shared.yaml"
-    constants_nix = REPO_ROOT / "global" / "constants.nix"
+    constants_nix = _constants_path()
     peerpatrol_nix = REPO_ROOT / "modules" / "system" / "peerpatrol.nix"
     per_system_nix = REPO_ROOT / "modules" / "nix" / "per-system.nix"
     zurg_cfg = REPO_ROOT / "modules" / "hosts" / "zurg" / "configuration.nix"
@@ -715,9 +724,14 @@ def _nebula_root_rotate(args) -> int:
         if ipaddress.ip_address(plan_bare[h]) not in net:
             sys.exit(f"planned IP {plan_bare[h]} for {h} is outside {net}")
 
-    # Monitor flags: the hosts peerpatrol *actually* watches today are the
-    # roster entries already carrying an ip. New members start unmonitored.
-    monitored = {h for h, v in roster.items() if v.get("ip")}
+    # Monitor flags: preserve the roster's existing explicit flags (re-runs
+    # must not flip laptops/new members into peerpatrol); fall back to the
+    # ip-presence heuristic only for first-run entries without a flag.
+    # New members start unmonitored.
+    monitored = {
+        h for h, v in roster.items()
+        if v.get("monitor")
+    } or {h for h, v in roster.items() if v.get("ip") and "monitor" not in v}
 
     new_roster = {}
     for h, v in roster.items():
@@ -767,9 +781,9 @@ def _nebula_root_rotate(args) -> int:
     nix_stages = [{"path": constants_nix, "before": constants_text,
                    "after": _splice_constants(constants_text, roster_text)}]
 
-    def stage_once(path: Path, old: str, new: str):
+    def stage_once(path: Path, old: str, new: str, done: str | None = None):
         text = path.read_text()
-        if new in text:
+        if (done or new) in text:
             print(f"  {path.relative_to(REPO_ROOT)}: already unified (no edit)")
             return
         if old not in text:
@@ -777,7 +791,8 @@ def _nebula_root_rotate(args) -> int:
         nix_stages.append({"path": path, "before": text,
                            "after": text.replace(old, new, 1)})
 
-    stage_once(peerpatrol_nix, PEERPATROL_OLD, PEERPATROL_NEW)
+    stage_once(peerpatrol_nix, PEERPATROL_OLD, PEERPATROL_NEW,
+               done="h ? ip && h.monitor")
     stage_once(per_system_nix, PER_SYSTEM_OLD, PER_SYSTEM_NEW)
 
     zurg_text = zurg_cfg.read_text()
