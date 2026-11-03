@@ -87,7 +87,15 @@ in
       services.borgbackup.jobs.minetest = {
         paths = "/var/lib/minetest/.minetest";
         encryption.mode = "none";
-        environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/luanti".path}";
+        environment = {
+          BORG_RSH = "ssh -i ${config.sops.secrets."borg/luanti".path}";
+          # borg runs non-interactively: a dropped client security cache (or a
+          # recreated repo) aborts the job with "Attempting to access a
+          # previously unknown unencrypted repository!". This repo is a family
+          # LAN backup over the mesh, so accept and resume automatically.
+          BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK = "yes";
+          BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
+        };
         repo = "borg@${constants.host.woody.ip}:.";
         compression = "auto,lzma";
         startAt = "daily";

@@ -112,7 +112,15 @@ in
           "/nix/persist/minecraft/emeliebjorn"
         ];
         encryption.mode = "none";
-        environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/minecraft-bedrock".path}";
+        environment = {
+          BORG_RSH = "ssh -i ${config.sops.secrets."borg/minecraft-bedrock".path}";
+          # borg runs non-interactively: a dropped client security cache (or a
+          # recreated repo) aborts the job with "Attempting to access a
+          # previously unknown unencrypted repository!". This repo is a family
+          # LAN backup over the mesh, so accept and resume automatically.
+          BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK = "yes";
+          BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
+        };
         repo = "borg@${constants.host.woody.ip}:.";
         compression = "auto,lzma";
         startAt = "*-*-* 02:30:00";
@@ -131,10 +139,13 @@ in
 
       # the borgbackup module locks the job unit down (ProtectSystem=strict,
       # ReadWritePaths only its own borg cache/config dirs), so a preHook
-      # `podman stop --all` fails with EROFS on the storage lock and aborts
-      # the job. open the podman storage dir for the job.
-      systemd.services."borgbackup-job-minecraft-bedrock".serviceConfig.ReadWritePaths =
-        [ "/var/lib/containers" ];
+      # `podman stop --all` fails with EROFS on the storage and netavark
+      # locks and originally aborted the job. open the podman storage dir
+      # and /run/lock for the job.
+      systemd.services."borgbackup-job-minecraft-bedrock".serviceConfig.ReadWritePaths = [
+        "/var/lib/containers"
+        "/run/lock"
+      ];
 
       # Send an email whenever auto upgrade fails
       systemd.services."borgbackup-job-minecraft-bedrock".onFailure =
