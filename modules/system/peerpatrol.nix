@@ -17,13 +17,14 @@ in
       members = builtins.attrNames (builtins.readDir ../../modules/hosts);
 
       # One ping check per mesh-roster host with a verified nebula ip; hosts
-      # without one are skipped. Plus one tcp check per mesh-exposed service
-      # surface (constants.meshServices).
+      # One ping check per mesh-roster host with a verified nebula ip; hosts
+      # without one (or with monitor=false) are skipped. Plus one tcp check
+      # per mesh-exposed service surface (constants.meshServices).
       checks =
         lib.mapAttrsToList (_: h: {
           type = "ping";
           target = h.ip;
-        }) (lib.filterAttrs (_: h: h ? ip) constants.host)
+        }) (lib.filterAttrs (_: h: h ? ip && h.monitor) constants.host)
         ++ map (s: {
           type = "tcp";
           target = "${constants.host.${s.host}.ip}:${toString s.port}";

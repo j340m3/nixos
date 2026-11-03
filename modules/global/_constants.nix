@@ -1,8 +1,11 @@
 let
   # Single mesh roster: host.<name>.ip = nebula address, endpoints = public
   # udp endpoints (lighthouses only), lighthouses = the relay/DNS backbone.
-  # Certs remain the actual identity; only verified addresses go here
-  # (lenny/rex/slinky pending - their ip.nebula lives in secrets/shared.yaml).
+  # Certs remain the actual identity; every roster host has an ip.
+  # monitor = peerpatrol ping membership (false for laptops/new members).
+  # Owns the mesh IPs formerly spread over secrets/shared.yaml
+  # (hosts.<name>.ip/nebula): maintained by scripts/rotate-secrets.py
+  # nebula-root.
   host = {
     pricklepants = {
       ip = "10.0.0.1";
@@ -10,6 +13,7 @@ let
         "194.164.125.154:4242"
         "[2a00:da00:f43a:8800::1]:4242"
       ];
+      monitor = true;
     };
     buzz = {
       ip = "10.0.0.5";
@@ -17,9 +21,11 @@ let
         "194.164.54.40:4242"
         "[2a01:239:27f:fd00::1]:4242"
       ];
+      monitor = true;
     };
     woody = {
       ip = "10.0.0.3";
+      monitor = true;
     };
     mrpotatohead = {
       ip = "10.0.0.6";
@@ -27,6 +33,7 @@ let
         "85.214.10.114:4242"
         "[2a01:239:4ac:7300::1]:4242"
       ];
+      monitor = true;
     };
     jessie = {
       ip = "10.0.0.7";
@@ -34,13 +41,27 @@ let
         "217.154.211.186:4242"
         "[2a01:239:396:fd00::1]:4242"
       ];
+      monitor = true;
     };
-    # mesh members without a verified nebula address yet
     lenny = {
+      ip = "10.0.0.4";
+      monitor = false;
     };
     rex = {
+      ip = "10.0.0.2";
+      monitor = false;
     };
     slinky = {
+      ip = "10.0.0.8";
+      monitor = false;
+    };
+    bully = {
+      ip = "10.0.0.11";
+      monitor = false;
+    };
+    zurg = {
+      ip = "10.0.0.10";
+      monitor = false;
     };
   };
 

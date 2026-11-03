@@ -23,6 +23,9 @@
         inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p51
         inputs.stylix.nixosModules.stylix
         inputs.self.modules.nixos.agent-md
+        # nebula mesh member; the aspect brings its sops wiring
+        inputs.self.modules.nixos.nebula
+        inputs.self.modules.nixos.sops
       ];
 
       # Inlined from ./_hardware-configuration.nix (zero host-local glue, ADR 0014).

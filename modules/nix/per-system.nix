@@ -137,7 +137,7 @@
               enabled.systemd.services.peerpatrol.serviceConfig.ExecStart;
             assert lib.hasInfix "--chat-id-file %d/peerpatrol-chat-id-file"
               enabled.systemd.services.peerpatrol.serviceConfig.ExecStart;
-            assert 5 == lib.length (lib.filter (h: h ? ip) (lib.attrValues constants.host));
+            assert 5 == lib.length (lib.filter (h: h ? ip && h.monitor) (lib.attrValues constants.host));
             pkgs.runCommand "peerpatrol-check" { } "touch $out";
         in
         builtins.mapAttrs evalCheck native
