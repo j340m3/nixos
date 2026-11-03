@@ -257,7 +257,14 @@ in
           "/var/lib/vaultwarden"
         ];
         encryption.mode = "none";
-        environment.BORG_RSH = "ssh -i ${config.sops.secrets."borg/pricklepants".path}";
+        environment = {
+          BORG_RSH = "ssh -i ${
+            config.sops.secrets."borg/pricklepants".path
+          } -p ${toString constants.sshPort}";
+          # the loghost's endlessh owns port 22 (ssh hardening aspect); the real
+          # sshd answers on constants.sshPort - without the -p the job hangs in
+          # the tarpit forever (2026-11-03 log sweep).
+        };
         repo = "borg@${constants.host.woody.ip}:pricklepants";
         compression = "auto,lzma";
         startAt = "daily";

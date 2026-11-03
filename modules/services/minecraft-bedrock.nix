@@ -113,7 +113,9 @@ in
         ];
         encryption.mode = "none";
         environment = {
-          BORG_RSH = "ssh -i ${config.sops.secrets."borg/minecraft-bedrock".path}";
+          BORG_RSH = "ssh -i ${
+            config.sops.secrets."borg/minecraft-bedrock".path
+          } -p ${toString constants.sshPort}";
           # borg runs non-interactively: a dropped client security cache (or a
           # recreated repo) aborts the job with "Attempting to access a
           # previously unknown unencrypted repository!". This repo is a family
