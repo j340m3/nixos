@@ -1,10 +1,18 @@
-# User actions — runbook (2026-10-17)
+# User actions — runbook (2026-10-17, updated 2026-11-03)
 
 Ordered checklist. Editing secrets needs the admin age key (not on the dev
 machine). After any repo edit: `git add … && git commit && git push` — fleet
 hosts build from GitHub (comin), on a host `sudo systemctl restart comin`
 (check the exact unit: `systemctl list-units --no-pager | grep -i comin`)
 re-triggers it if you're too impatient.
+
+## 0. Nebula root rotation (new: automated by `just nebula-rotate`)
+
+A full root-CA rotation tool now exists (`scripts/rotate-secrets.py
+nebula-root`, docs in [secrets-101](secrets-101.md#rotate-the-root-ca-full-mesh-rotation)):
+it generates the new root, re-signs every host cert, unifies the mesh IPs into
+`global/constants.nix`, and fixes mrpotatohead's `10.0.0.5`-for-`10.0.0.6`
+identity clash below automatically (dry-run by default — review, then `--yes`).
 
 ## 1. mrpotatohead: re-cut nebula cert to 10.0.0.6 (blocks nothing, do first)
 

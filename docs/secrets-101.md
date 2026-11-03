@@ -60,6 +60,37 @@ Generates a new nebula keypair and signs it with the operator-supplied CA (`--ne
 
 Common args for `rotate-secrets.py`: `--age-key` (local copy of the host's current sops age keyfile), `--sops-file <path>` (override the secrets.yaml path), `--networks <cidr>`.
 
+**Rotate the root CA (full mesh rotation):**
+```bash
+just nebula-rotate           # dry-run: prints IPs, diffs, cert previews
+just nebula-rotate --yes     # apply + one atomic commit (no push)
+```
+Generates a brand-new root CA whose private key exists only in a temp dir and
+is destroyed in the same run (enlisting another host later therefore means
+re-running this rotation — by design, no long-lived CA key exists anywhere).
+It then re-signs cert+key for every host that has a
+`secrets/hosts/<h>/secrets.yaml` (10y validity, `IsCA=false`, IP from
+`global/constants.nix`, lowest free address allocated when missing), rewrites
+`nebula/ca_crt` in `secrets/shared.yaml` (old root dropped — hard cutover) and
+unifies the mesh roster: the per-host `hosts.<name>/ip/nebula` entries move out
+of `shared.yaml` into `constants.nix`, which additionally gains a `monitor`
+flag per host for peerpatrol (`peerpatrol.nix` + the
+`per-system.nix` count assert are rewritten in the same pass), and zurg joins
+the mesh (nebula + sops aspect imports). After it, rebuild every mesh host,
+lighthouses first; hosts that were offline pick their certs up on the next
+rebuild.
+
+Staged variant for fleet-wide rebuilds that cannot happen in one go:
+```bash
+just nebula-rotate --transition
+# ... rebuild everything, then prune the old root from the bundle:
+just nebula-rotate --retire-old-ca --yes
+```
+`--transition` keeps the old CA valid (nebula accepts concatenated CA certs)
+during the rollout; `--retire-old-ca` shrinks `nebula/ca_crt` back to the
+single root currently in use (the newest cert in the bundle) without
+generating anything.
+
 ## Safety rules
 - Use local copies of age keys (`--age-key`); the scripts do not fetch them over the network.
 - If a secrets file has multiple age recipients, ensure your `--age-key` file contains **all** of them (concatenated) so re-encryption preserves every recipient.

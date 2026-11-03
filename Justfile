@@ -15,13 +15,21 @@ sops-refresh:
 # The age key is read from $SOPS_AGE_KEY (set above from rbw); --age-key optional.
 # Usage: just py3 scripts/publish-host-keys.py zurg --from-ssh zurg
 py3 *args:
-    nix-shell -p python3 python3Packages.pyyaml --run "python3 {{ args }}"
+py3 *args:
+    nix-shell -p python3 python3Packages.pyyaml nebula --run "python3 {{ args }}"
 
 # WireGuard peer CRUD, keyless: $SOPS_AGE_KEY (above) is used directly.
 # Usage: just wg list | add <name> | show <name> | export <name> --out F |
 #        update <name> [--rotate-psk] | delete <name> [--dry-run]
 wg *args:
-    nix-shell -p python3 python3Packages.pyyaml --run "python3 scripts/wireguard-peers.py {{ args }}" 
+    nix-shell -p python3 python3Packages.pyyaml --run "python3 scripts/wireguard-peers.py {{ args }}"
+
+# Full nebula root CA rotation (see docs/secrets-101.md): new root, re-signs
+# every host cert, unifies the mesh roster. Dry-run by default; --yes applies
+# and commits. Usage: just nebula-rotate           (dry-run)
+#                    just nebula-rotate --yes      (apply + commit)
+nebula-rotate *args:
+    just py3 scripts/rotate-secrets.py nebula-root {{args}}
 
 # --- nixos rebuilds -------------------------------------------------------
 

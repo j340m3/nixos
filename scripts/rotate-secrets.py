@@ -26,6 +26,27 @@ Four subcommands:
     defaults to the address already on the host's cert, or the next free
     address in the mesh when the host has no cert yet.
 
+  nebula-root [--transition] [--yes]
+    Full root CA rotation (2026-11 design, see docs/secrets-101.md):
+    generates a brand-new root CA (key lives only in a temp dir and is
+    destroyed in the same run — accepted consequence: enrolling a mesh host
+    later means re-running this rotation), re-signs the cert+key of every
+    host under secrets/hosts/ (IsCA=false, 10-year validity, IP from
+    global/constants.nix — lowest free address is allocated for hosts
+    without one), and rewrites the sops files (per-host self_crt/self_key,
+    shared.yaml nebula.ca_crt — old+new bundle with --transition, new-only
+    without). Also unifies the mesh roster: lifts hosts.*.ip.nebula from
+    secrets/shared.yaml into global/constants.nix (single source of truth),
+    adds explicit per-roster-state `monitor` flags for peerpatrol,
+    re-points peerpatrol.nix + per-system.nix at them, and adds zurg to the
+    mesh (nebula+sops aspect imports). Dry-run by default; --yes applies
+    and commits as one atomic commit (no push).
+
+  nebula-root --retire-old-ca [--yes]
+    After a --transition rotation: shrinks the nebula.ca_crt bundle in
+    secrets/shared.yaml back to the single currently-used root (the newest
+    one), once every host has picked up cert signed by it. No new certs.
+
 --age-key is optional on every subcommand: if omitted the script lets sops
 read the age key from $SOPS_AGE_KEY (raw content, set by the Justfile from
 `rbw get age-key-nixos`). The script never fetches the age key over the
@@ -35,11 +56,14 @@ Requires: python3, sops 3.x, ssh-keygen, nix-shell (for age-keygen + nebula-cert
 """
 
 import argparse
+import datetime
+import difflib
 import getpass
 import ipaddress
 import json
 import os
 import re
+import shlex
 import shutil
 import sys
 import tempfile
@@ -434,6 +458,485 @@ def cmd_nebula_cert(args) -> int:
     return 0
 
 
+# --- nebula-root -----------------------------------------------------------
+
+NEBULA_CA_NAME_PREFIX = "nixos-mesh-root"
+NEBULA_CA_DURATION = "175200h"   # 20y — generous; the CA key dies right after signing
+NEBULA_CERT_DURATION = "87600h"  # 10y per host cert
+
+# Roster comment block in global/constants.nix that nebula-root owns (the
+# "pending / lives in secrets/shared.yaml" wording becomes wrong after
+# unification, so the rotation rewrites it too).
+ROSTER_COMMENT_OLD = """  # Single mesh roster: host.<name>.ip = nebula address, endpoints = public
+  # udp endpoints (lighthouses only), lighthouses = the relay/DNS backbone.
+  # Certs remain the actual identity; only verified addresses go here
+  # (lenny/rex/slinky pending - their ip.nebula lives in secrets/shared.yaml).
+"""
+ROSTER_COMMENT_NEW = """  # Single mesh roster: host.<name>.ip = nebula address, endpoints = public
+  # udp endpoints (lighthouses only), lighthouses = the relay/DNS backbone.
+  # Certs remain the actual identity; every roster host has an ip.
+  # monitor = peerpatrol ping membership (false for laptops/new members).
+  # Owns the mesh IPs formerly spread over secrets/shared.yaml
+  # (hosts.<name>.ip/nebula): maintained by scripts/rotate-secrets.py
+  # nebula-root.
+"""
+
+# peerpatrol only pings roster hosts with an ip; after unification it gets
+# the explicit monitor flag instead, so laptops and keys-only members don't
+# generate down-alert noise.
+PEERPATROL_OLD = "      }) (lib.filterAttrs (_: h: h ? ip) constants.host);"
+PEERPATROL_NEW = "      }) (lib.filterAttrs (_: h: h ? ip && h.monitor) constants.host);"
+
+PER_SYSTEM_OLD = (
+    "            assert 5 == lib.length "
+    "(lib.filter (h: h ? ip) (lib.attrValues constants.host));"
+)
+PER_SYSTEM_NEW = (
+    "            assert 5 == lib.length "
+    "(lib.filter (h: h ? ip && h.monitor) (lib.attrValues constants.host));"
+)
+
+
+def _nc(*cli_args, stdin=None, fail="nebula-cert failed"):
+    """Run nebula-cert, on PATH if available (Justfile py3 env) else via
+    nix-shell -p nebula. Aborts the script on failure."""
+    if shutil.which("nebula-cert"):
+        r = run(["nebula-cert", *cli_args], stdin=stdin)
+    else:
+        shell = "nebula-cert " + " ".join(shlex.quote(a) for a in cli_args)
+        r = run(["nix-shell", "-p", "nebula", "--run", shell], stdin=stdin)
+    if r.returncode != 0:
+        sys.exit(f"{fail}: {r.stderr.strip()}")
+    return r.stdout
+
+
+def _cert_meta(cert_text: str) -> dict:
+    """First cert of `nebula-cert print -json` output for a PEM."""
+    out = _nc("print", "-path", "-", "-json", stdin=cert_text,
+              fail="nebula-cert print failed")
+    return json.loads(out)[0]
+
+
+def _pem_blocks(bundle_text: str) -> list[str]:
+    """Split a (possibly concatenated) PEM bundle into single-PEM chunks."""
+    blocks = re.findall(
+        r"-----BEGIN [A-Z0-9 ]+-----.*?-----END [A-Z0-9 ]+-----\n?",
+        bundle_text, flags=re.DOTALL)
+    if not blocks:
+        sys.exit("no PEM blocks found in CA bundle")
+    return blocks
+
+
+def _eval_roster() -> dict:
+    """The host roster from global/constants.nix, evaluated by nix."""
+    r = run(["nix", "eval", "--json", "-f",
+             str(REPO_ROOT / "global" / "constants.nix"), "host"])
+    if r.returncode != 0:
+        sys.exit(f"nix eval of constants.nix failed: {r.stderr.strip()}")
+    return json.loads(r.stdout)
+
+
+def _roster_order(path: Path) -> list[str]:
+    """Attribute order of the host roster block as written in the file (nix
+    eval sorts keys alphabetically and would silently reorder the file)."""
+    text = path.read_text()
+    start = text.index("  host = {")
+    end = text.index("\n  };\n", start)
+    block = text[start:end]
+    order = re.findall(r"^ {4}(\w+) = \{$", block, flags=re.MULTILINE)
+    if not order:  # one-line/otherwise differently formatted block
+        order = list(_eval_roster())
+    return order
+
+
+def _render_roster(roster: dict, order: list[str], monitored: set[str]) -> str:
+    """Render the constants.nix host attrset nixfmt-style. New hosts are
+    appended in `order`; existing entries keep endpoints/ip."""
+    lines = ["  host = {"]
+    for name in order:
+        h = roster[name]
+        lines.append(f"    {name} = {{")
+        if h.get("ip"):
+            lines.append(f'      ip = "{h["ip"]}";')
+        endpoints = h.get("endpoints") or []
+        if endpoints:
+            lines.append("      endpoints = [")
+            for ep in endpoints:
+                lines.append(f'        "{ep}"')
+            lines.append("      ];")
+        lines.append(f'      monitor = {"true" if name in monitored else "false"};')
+        lines.append("    };")
+    lines.append("  };")
+    return "\n".join(lines)
+
+
+def _diff_text(before: str, after: str, label: str) -> str:
+    """Unified diff of two file texts (or '' when unchanged)."""
+    d = difflib.unified_diff(before.splitlines(), after.splitlines(),
+                             fromfile=f"a/{label}", tofile=f"b/{label}",
+                             lineterm="")
+    return "\n".join(d)
+
+
+def cmd_nebula_retire(args) -> int:
+    """Remove all but the currently-used root from the shared ca_crt bundle."""
+    shared = REPO_ROOT / "secrets" / "shared.yaml"
+    plain = sops_decrypt(shared, None)
+    data = yaml.safe_load(plain) or {}
+    raw = ((data.get("nebula") or {}).get("ca_crt"))
+    if not raw:
+        sys.exit(f"no nebula.ca_crt in {shared}")
+
+    blocks = _pem_blocks(raw)
+    metas = []
+    for b in blocks:
+        try:
+            m = _cert_meta(b)
+        except SystemExit:
+            print("warning: unparseable CA cert in bundle; treating as stale",
+                  file=sys.stderr)
+            continue
+        if not m.get("details", {}).get("isCa"):
+            print("warning: non-CA cert in ca_crt bundle; ignoring",
+                  file=sys.stderr)
+            continue
+        metas.append((b, m))
+    if not metas:
+        sys.exit("CA bundle holds no parseable CA certs")
+
+    def not_after(entry):
+        d = entry[1]["details"]
+        ts = d.get("notAfter") or d.get("not_after")  # v2 vs v1 json keys
+        return datetime.datetime.fromisoformat(ts)
+
+    # In a --transition bundle (old root kept alongside the new one), the
+    # newest cert IS the new root: it is signed later than everything else
+    # by construction.
+    keep, keep_meta = max(metas, key=not_after)
+    drop = [m for b, m in metas if b != keep]
+    if not drop:
+        print("CA bundle already holds only the root in use; nothing to retire.")
+        return 0
+
+    print("root CA rotation bundle in secrets/shared.yaml:")
+    for b, m in metas:
+        tag = "KEEP" if b == keep else "DROP"
+        print(f"  [{tag}] {m['details']['name']}  notAfter={m['details']['notAfter']} "
+              f"fp={m.get('fingerprint', '?')[:16]}")
+    if not args.yes:
+        print("\ndry-run: nothing changed. re-run with --yes to apply and commit.")
+        return 0
+
+    data["nebula"]["ca_crt"] = keep
+    recipients = read_recipients(shared)
+    enc = sops_encrypt(
+        yaml.safe_dump(data, default_flow_style=False, sort_keys=False), recipients)
+    write_atomic(shared, enc)
+    check = yaml.safe_load(sops_decrypt(shared, None)) or {}
+    kept_now = _pem_blocks(check["nebula"]["ca_crt"])
+    if kept_now != [keep]:
+        sys.exit("post-write verification failed: CA bundle mismatch")
+    print(f"retired {len(drop)} old root CA(s); bundle now holds only "
+          f"{keep_meta['details']['name']}.")
+
+    run(["git", "-C", str(REPO_ROOT), "add", "secrets/shared.yaml"])
+    r = run(["git", "-C", str(REPO_ROOT), "commit", "-m", "nebula: retire old root CA"])
+    if r.returncode != 0:
+        print(f"warning: git commit failed: {r.stderr.strip()}", file=sys.stderr)
+        return 1
+    print("committed as one atomic commit.")
+    return 0
+
+
+def _splice_constants(constants_text: str, roster_text: str) -> str:
+    """Unification rewrite of global/constants.nix: expand the roster
+    comment, then splice the rendered host attrset over the old one."""
+    txt = constants_text.replace(ROSTER_COMMENT_OLD, ROSTER_COMMENT_NEW, 1)
+    start = txt.index("  host = {")
+    end = txt.index("\n  };\n", start) + len("\n  };")
+    return txt[:start] + roster_text + txt[end:]
+
+
+def _nebula_root_rotate(args) -> int:
+    transition = bool(args.transition)
+    apply = bool(args.yes)
+    shared_yaml = REPO_ROOT / "secrets" / "shared.yaml"
+    constants_nix = REPO_ROOT / "global" / "constants.nix"
+    peerpatrol_nix = REPO_ROOT / "modules" / "system" / "peerpatrol.nix"
+    per_system_nix = REPO_ROOT / "modules" / "nix" / "per-system.nix"
+    zurg_cfg = REPO_ROOT / "modules" / "hosts" / "zurg" / "configuration.nix"
+
+    # 1. Read all existing state up front (roster via nix eval; shared.yaml
+    #    decrypted once — both IP sources before any byte is written).
+    roster = _eval_roster()
+    order = _roster_order(constants_nix)
+    constants_text = constants_nix.read_text()
+    shared_data = yaml.safe_load(sops_decrypt(shared_yaml, None)) or {}
+    shared_data.pop("sops", None)
+    hosts_secret_data = shared_data.get("hosts") or {}
+
+    # 2. Targets: every host that ships a secrets/hosts/<h>/secrets.yaml.
+    targets = sorted(p.parent.name for p in
+                     (REPO_ROOT / "secrets" / "hosts").glob("*/secrets.yaml"))
+    if not targets:
+        sys.exit("no host secrets files found under secrets/hosts/")
+    net = ipaddress.ip_network(_mesh_cidr())
+
+    # 3. IP plan: roster wins, then lift from secrets/shared.yaml, then
+    #    allocate the lowest free address. All three become the single
+    #    roster in constants.nix; shared.yaml loses hosts.*.ip/nebula.
+    used = {}
+    for h, v in roster.items():
+        if v.get("ip"):
+            used[v["ip"].split("/")[0]] = h
+    plan_bare: dict[str, str] = {}
+    moved: dict[str, str] = {}
+    allocated: dict[str, str] = {}
+    for h in targets:
+        if roster.get(h, {}).get("ip"):
+            plan_bare[h] = roster[h]["ip"]
+            continue
+        lifted = (hosts_secret_data.get(h) or {}).get("ip", {}).get("nebula")
+        if lifted:
+            plan_bare[h] = lifted.split("/")[0]
+            moved[h] = plan_bare[h]
+        else:
+            for ip in net.hosts():
+                if str(ip) not in used:
+                    plan_bare[h] = str(ip)
+                    allocated[h] = plan_bare[h]
+                    break
+            else:
+                sys.exit(f"no free mesh address left for {h}")
+        if plan_bare[h] in used and used[plan_bare[h]] != h:
+            sys.exit(f"IP {plan_bare[h]} for {h} is already taken by "
+                     f"{used[plan_bare[h]]}")
+        used[plan_bare[h]] = h
+        if ipaddress.ip_address(plan_bare[h]) not in net:
+            sys.exit(f"planned IP {plan_bare[h]} for {h} is outside {net}")
+
+    # Monitor flags: the hosts peerpatrol *actually* watches today are the
+    # roster entries already carrying an ip. New members start unmonitored.
+    monitored = {h for h, v in roster.items() if v.get("ip")}
+
+    new_roster = {}
+    for h, v in roster.items():
+        new_roster[h] = dict(v)
+        new_roster[h]["ip"] = plan_bare[h]
+    for h in targets:
+        if h not in new_roster:
+            new_roster[h] = {"ip": plan_bare[h]}
+    new_order = order + [h for h in targets if h not in order]
+    roster_text = _render_roster(new_roster, new_order, monitored)
+
+    leftovers = [k for k, v in hosts_secret_data.items()
+                 if isinstance(v, dict) and "nebula" in (v.get("ip") or {})
+                 and k not in new_roster]
+
+    # 4. Generate the new root + all host certs in a temp dir. The CA key is
+    #    destroyed with the dir in every exit path (this is what makes the
+    #    tool "rotation only" — a new host later needs a new full rotation).
+    ca_name = f"{NEBULA_CA_NAME_PREFIX}-{datetime.datetime.now().astimezone().date():%Y%m%d}"
+    tmpdir = tempfile.mkdtemp(prefix="nebula-root-")
+    try:
+        ca_crt_path = os.path.join(tmpdir, "ca.crt")
+        ca_key_path = os.path.join(tmpdir, "ca.key")
+        _nc("ca", "-name", ca_name, "-duration", NEBULA_CA_DURATION,
+            "-out-crt", ca_crt_path, "-out-key", ca_key_path,
+            fail="nebula-cert ca (root generation) failed")
+        ca_text = Path(ca_crt_path).read_text()
+
+        certs: dict[str, dict] = {}
+        for h in targets:
+            key_p = os.path.join(tmpdir, f"{h}.key")
+            crt_p = os.path.join(tmpdir, f"{h}.crt")
+            # One call generates the keypair and signs it; IsCA=false by
+            # construction. (nebula-cert 1.11.2 has no lighthouse cert flag:
+            # lighthouse-ness lives in config, not the cert.)
+            _nc("sign", "-ca-crt", ca_crt_path, "-ca-key", ca_key_path,
+                "-name", h, "-networks", f"{plan_bare[h]}/{net.prefixlen}",
+                "-duration", NEBULA_CERT_DURATION,
+                "-out-key", key_p, "-out-crt", crt_p,
+                fail=f"nebula-cert sign failed for {h}")
+            certs[h] = {"key": Path(key_p).read_text(),
+                        "cert": Path(crt_p).read_text()}
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+    # 5. Stage every rewrite (nix text edits + decrypted-sops rewrites).
+    nix_stages = [{"path": constants_nix, "before": constants_text,
+                   "after": _splice_constants(constants_text, roster_text)}]
+
+    def stage_once(path: Path, old: str, new: str):
+        text = path.read_text()
+        if new in text:
+            print(f"  {path.relative_to(REPO_ROOT)}: already unified (no edit)")
+            return
+        if old not in text:
+            sys.exit(f"expected fragment not found in {path}:\n{old}")
+        nix_stages.append({"path": path, "before": text,
+                           "after": text.replace(old, new, 1)})
+
+    stage_once(peerpatrol_nix, PEERPATROL_OLD, PEERPATROL_NEW)
+    stage_once(per_system_nix, PER_SYSTEM_OLD, PER_SYSTEM_NEW)
+
+    zurg_text = zurg_cfg.read_text()
+    if "inputs.self.modules.nixos.nebula" in zurg_text:
+        print("  modules/hosts/zurg/configuration.nix: already meshes (no edit)")
+    elif "        inputs.self.modules.nixos.agent-md\n" not in zurg_text:
+        sys.exit(f"expected agent-md import not found in {zurg_cfg}")
+    else:
+        nix_stages.append({
+            "path": zurg_cfg,
+            "before": zurg_text,
+            "after": zurg_text.replace(
+                "        inputs.self.modules.nixos.agent-md\n",
+                "        inputs.self.modules.nixos.agent-md\n"
+                "        # nebula mesh member; the aspect brings its sops wiring\n"
+                "        inputs.self.modules.nixos.nebula\n"
+                "        inputs.self.modules.nixos.sops\n",
+                1),
+        })
+
+    sops_stages = []
+    for h in targets:
+        f = REPO_ROOT / "secrets" / "hosts" / h / "secrets.yaml"
+        data = yaml.safe_load(sops_decrypt(f, None)) or {}
+        data.pop("sops", None)
+        data.setdefault("nebula", {})["self_key"] = certs[h]["key"]
+        data["nebula"]["self_crt"] = certs[h]["cert"]
+        sops_stages.append({
+            "path": f,
+            "plaintext": yaml.safe_dump(data, default_flow_style=False, sort_keys=False),
+            "recipients": read_recipients(f),
+            "desc": f"new nebula/self_key + nebula/self_crt (IP {plan_bare[h]})",
+        })
+
+    shared_neb = shared_data.setdefault("nebula", {})
+    old_ca = shared_neb.get("ca_crt", "")
+    shared_neb["ca_crt"] = (old_ca + "\n" + ca_text) if transition else ca_text
+    dropped_nebula = []
+    for hname in hosts_secret_data:
+        node = hosts_secret_data.get(hname) or {}
+        ipnode = node.get("ip") if isinstance(node, dict) else None
+        if isinstance(ipnode, dict) and "nebula" in ipnode and hname in new_roster:
+            del ipnode["nebula"]
+            if not ipnode:
+                node.pop("ip", None)
+            dropped_nebula.append(hname)
+    sops_stages.append({
+        "path": shared_yaml,
+        "plaintext": yaml.safe_dump(shared_data, default_flow_style=False, sort_keys=False),
+        "recipients": read_recipients(shared_yaml),
+        "desc": "nebula/ca_crt old+new bundle" if transition
+                else "nebula/ca_crt old root dropped (hard cutover)",
+    })
+
+    # 6. Print the full plan.
+    mode = "transition (old CA stays valid)" if transition else "hard cutover"
+    print(f"== nebula-root rotation ({mode}) ==\n")
+    print(f"new root CA  : {ca_name}  notAfter={_cert_meta(ca_text)['details']['notAfter']}")
+    print("CA key       : temp dir only, destroyed after signing (nothing stored)")
+    print(f"host certs   : {NEBULA_CERT_DURATION}, IsCA=false, no groups\n")
+    print("IP plan:")
+    for h in targets:
+        src = ("roster" if roster.get(h, {}).get("ip") else
+               "lifted from secrets/shared.yaml" if h in moved else
+               "allocated (lowest free)")
+        flag = "monitored" if h in monitored else "new member (unmonitored)"
+        print(f"  {h:16} {plan_bare[h]:16} ({src},{flag})")
+    print()
+    print("cert preview:")
+    for h in targets:
+        m = _cert_meta(certs[h]["cert"])
+        print(f"  {h:16} ip={m['details']['networks'][0]:16} "
+              f"notAfter={m['details']['notAfter']} fp={m['fingerprint'][:12]}")
+    print()
+    if leftovers:
+        print(f"note: stale hosts.*.ip/nebula left untouched in secrets/shared.yaml "
+              f"(not rotation targets, not in roster): {', '.join(leftovers)}")
+    print("\nnix edits:")
+    for st in nix_stages:
+        label = str(st["path"].relative_to(REPO_ROOT))
+        d = _diff_text(st["before"], st["after"], label)
+        if d:
+            print(f"--- {label}")
+            print(d)
+    print("\nsops edits:")
+    for st in sops_stages:
+        print(f"  {st['path'].relative_to(REPO_ROOT)}: {st['desc']}")
+
+    if not apply:
+        print("\ndry-run complete: nothing written, no CA persisted. "
+              "re-run with --yes to apply and commit.")
+        return 0
+
+    # 7. Apply: nix text first (verified by nix eval immediately), then the
+    #    sops files, each with a decrypt round-trip check.
+    for st in nix_stages:
+        st["path"].write_text(st["after"])
+        print(f"wrote {st['path'].relative_to(REPO_ROOT)}")
+
+    got = _eval_roster()
+    problems = []
+    if set(got) != set(new_roster):
+        problems.append(f"roster keys differ: {sorted(got)} vs {sorted(new_roster)}")
+    for h in sorted(new_roster):
+        want = new_roster[h]
+        have = got.get(h) or {}
+        if have.get("ip") != want.get("ip"):
+            problems.append(f"{h}: ip {have.get('ip')} != {want.get('ip')}")
+        if bool(have.get("monitor")) != (h in monitored):
+            problems.append(f"{h}: monitor flag mismatch")
+        if (have.get("endpoints") or None) != (want.get("endpoints") or None):
+            problems.append(f"{h}: endpoints changed unexpectedly")
+    if problems:
+        sys.exit("constants.nix verification failed:\n  " + "\n  ".join(problems))
+    print("constants.nix verified via nix eval (roster + monitor flags)")
+
+    for st in sops_stages:
+        enc = sops_encrypt(st["plaintext"], st["recipients"])
+        write_atomic(st["path"], enc)
+        check = yaml.safe_load(sops_decrypt(st["path"], None)) or {}
+        check.pop("sops", None)
+        if check != yaml.safe_load(st["plaintext"]):
+            sys.exit(f"post-write verification failed for {st['path']}")
+        print(f"re-encrypted {st['path'].relative_to(REPO_ROOT)} "
+              f"(round-trip OK)")
+
+    if any(st["path"] == zurg_cfg for st in nix_stages):
+        r = run(["nix", "eval", "--raw", "--no-write-lock-file",
+                 ".#nixosConfigurations.zurg.config.services.nebula.networks.mesh.ca"])
+        if r.returncode != 0 or not r.stdout.strip():
+            sys.exit(f"zurg eval verification failed: {r.stderr.strip()}")
+        print(f"zurg fleet-wiring verified ({r.stdout.strip()})")
+
+    # 8. One atomic commit, no push.
+    files = sorted({str(st["path"].relative_to(REPO_ROOT)) for st in
+                    nix_stages + sops_stages if st["path"].exists()})
+    run(["git", "-C", str(REPO_ROOT), "add", *files])
+    msg = f"nebula: rotate root CA, re-key {len(targets)} hosts"
+    r = run(["git", "-C", str(REPO_ROOT), "commit", "-m", msg])
+    if r.returncode != 0:
+        sys.exit(f"git commit failed: {r.stderr.strip()}; changes are staged")
+    print(f"committed: {msg}")
+
+    print("\nnext steps (human):")
+    print("  1. review:  git show --stat HEAD")
+    print("  2. rebuild every mesh member, lighthouses first (just rebuild <host>)")
+    print("  3. offline hosts (e.g. buzz) pick the new certs up on their next rebuild")
+    if transition:
+        print("  4. after all hosts run the new cert:")
+        print("       just py3 scripts/rotate-secrets.py nebula-root --retire-old-ca --yes")
+    return 0
+
+
+def cmd_nebula_root(args) -> int:
+    if getattr(args, "retire_old_ca", False):
+        return cmd_nebula_retire(args)
+    return _nebula_root_rotate(args)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
         description="Rotate sops age keys, identity keys, and nebula certs for a host"
@@ -471,6 +974,18 @@ def main() -> int:
                             "address in the mesh)")
     p_neb.add_argument("--sops-file", help="override sops secrets.yaml path")
 
+    p_root = sub.add_parser("nebula-root",
+                            help="rotate the nebula root CA and every host cert in one move")
+    p_root.add_argument("--transition", action="store_true",
+                        help="keep the old root in the nebula/ca_crt bundle so hosts "
+                             "can be rolled out one by one (default: hard cutover)")
+    p_root.add_argument("--retire-old-ca", action="store_true",
+                        help="shrink the ca_crt bundle back to the root in use "
+                             "(after a --transition rollout; generates no certs)")
+    p_root.add_argument("--yes", action="store_true",
+                        help="apply all changes and make one atomic commit "
+                             "(default: dry-run)")
+
     args = ap.parse_args()
 
     if args.command == "age-key":
@@ -481,6 +996,8 @@ def main() -> int:
         return cmd_password(args)
     elif args.command == "nebula-cert":
         return cmd_nebula_cert(args)
+    elif args.command == "nebula-root":
+        return cmd_nebula_root(args)
 
     ap.print_help()
     return 1
