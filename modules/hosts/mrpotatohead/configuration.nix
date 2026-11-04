@@ -22,6 +22,7 @@
         (modulesPath + "/profiles/qemu-guest.nix")
         (modulesPath + "/profiles/minimal.nix")
         (modulesPath + "/profiles/headless.nix")
+        inputs.self.modules.nixos.vps-guest
         inputs.self.modules.nixos.hardening
 
         inputs.self.modules.nixos.system-default
@@ -178,9 +179,7 @@
       nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
       system.stateVersion = "24.05";
 
-      # rolls this host back to the previous generation and reboots it when systemd
-      # reports a failed unit one settle delay after switch-to-configuration
-      upgradeHealth.enable = true;
+      # upgradeHealth.enable = true comes from inputs.self.modules.nixos.vps-guest.
 
       # ---- Advanced Configuration
       #
@@ -193,7 +192,6 @@
         }
       ];
       boot.tmp.cleanOnBoot = true;
-      zramSwap.enable = true;
 
       # --- More space
       services.beesd.filesystems = {

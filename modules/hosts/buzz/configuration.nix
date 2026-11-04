@@ -21,6 +21,7 @@ in
         inputs.self.modules.nixos.bootstrap-base
         (modulesPath + "/profiles/minimal.nix")
         (modulesPath + "/profiles/headless.nix")
+        inputs.self.modules.nixos.vps-guest
         inputs.self.modules.nixos.acme
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.donquezz
@@ -41,10 +42,6 @@ in
       nix.gc.dates = lib.mkForce "hourly";
       nix.gc.options = lib.mkForce "-d";
 
-      security.sudo.extraConfig = ''
-        # rollback results in sudo lectures after each reboot
-        Defaults lecture = never
-      '';
       networking.hostName = "buzz"; # Define your hostname.
       # Ionos uplink NIC is ens6 (not eth0), so the WireGuard NAT masquerade binds correctly.
       networking.nat.externalInterface = "ens6";
@@ -146,8 +143,6 @@ in
         path = "/nix/persist/etc/nebula/self.key";
       };
 
-      # rolls this host back to the previous generation and reboots it when systemd
-      # reports a failed unit one settle delay after switch-to-configuration
-      upgradeHealth.enable = true;
+      # upgradeHealth.enable = true comes from inputs.self.modules.nixos.vps-guest.
     };
 }

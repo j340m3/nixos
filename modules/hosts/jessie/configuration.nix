@@ -20,6 +20,7 @@
         (modulesPath + "/profiles/qemu-guest.nix")
         (modulesPath + "/profiles/minimal.nix")
         (modulesPath + "/profiles/headless.nix")
+        inputs.self.modules.nixos.vps-guest
         inputs.self.modules.nixos.hardening
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.donquezz
@@ -140,10 +141,6 @@
       boot.loader.grub.enable = true;
       boot.loader.grub.default = "saved";
       boot.loader.grub.devices = [ "/dev/vda" ];
-      security.sudo.extraConfig = ''
-        # rollback results in sudo lectures after each reboot
-        Defaults lecture = never
-      '';
       networking.hostName = "jessie"; # Define your hostname.
       zramSwap.enable = false;
       # 1-core/1.8GB host shared with the minecraft container: nix builds (remote
@@ -167,8 +164,6 @@
 
       system.stateVersion = "25.05";
 
-      # rolls this host back to the previous generation and reboots it when systemd
-      # reports a failed unit one settle delay after switch-to-configuration
-      upgradeHealth.enable = true;
+      # upgradeHealth.enable = true comes from inputs.self.modules.nixos.vps-guest.
     };
 }

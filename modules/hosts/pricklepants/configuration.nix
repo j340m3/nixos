@@ -26,6 +26,7 @@ in
         (modulesPath + "/profiles/qemu-guest.nix")
         (modulesPath + "/profiles/minimal.nix")
         (modulesPath + "/profiles/headless.nix")
+        inputs.self.modules.nixos.vps-guest
         inputs.self.modules.nixos.minetest
         inputs.self.modules.nixos.vaultwarden
         inputs.self.modules.nixos.logging
@@ -58,7 +59,6 @@ in
       ];
 
       boot.tmp.cleanOnBoot = true;
-      zramSwap.enable = true;
       nix.gc.dates = lib.mkForce "hourly";
       nix.gc.options = lib.mkForce "-d";
       boot.loader.grub.configurationLimit = 2;
@@ -270,9 +270,6 @@ in
         AmbientCapabilities = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
       };
 
-      # rolls this host back to the previous generation and reboots it when systemd
-      # reports a failed unit one settle delay after switch-to-configuration
-      upgradeHealth.enable = true;
 
       # 1 GB RAM, 10 GB disk: earlyoom as the OOM safety net, swap-inflation
       # sysctls tuned for zram, and MemoryMax ceilings on every service so one
