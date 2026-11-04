@@ -537,3 +537,17 @@ five fixed on main the same day; full ledger + user actions in
   repo-stamp prompt must be preempted via env because hooks run too
   late; `Handshake timed out udpAddrs=[]` means the initiator has no
   address to try, i.e. the peer never registered at any lighthouse.
+
+## 2026-11-04 - fleet log sweep round 3: watchdog timer fix, nebula re-key aftermath [loghost]
+Night-2 verification round. mrpotatohead is back (root-CA rotation +
+re-key from the parallel live-rebuilds session resolved the
+handshake-dead mesh: ping 10.0.0.6 OK, 0 potato timeouts on woody).
+The log-watchdog timer never actually ran: requiring the nonexistent
+sops-nix.service failed every queue attempt — the fleet renders sops
+secrets at activation time (sops-install-secrets inside
+switch-to-configuration / nixos-upgrade-start), so no boot service
+exists; fixed with ConditionPathExists (da64655). jessie's
+minecraft-bedrock borg reached the loghost on 42069, initialized its
+empty repo, streamed 774MB over 20min, exited 0 — with data/ still
+empty (10 rolled-back transactions): payload watch item for tonight.
+Push saga over: rbw unlocked, everything on origin.

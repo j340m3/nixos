@@ -56,3 +56,37 @@ user/on-host follow-up).
   of the 4 monitored hosts >48h silent — expected one listing mrpotatohead? (no:
   48h threshold vs its live log flow ⇒ watch for a *false* alert if #7's transport
   silently degrades further).
+
+## Round 3 — 2026-11-04 (morning after)
+
+- **#7 mrpotatohead nebula: RESOLVED by parallel work** — the fleet's
+  nebula root CA rotation + re-key (9bab596/2440b0b, landed while this
+  sweep was running) restored potato: ping 10.0.0.6 answers
+  (22–40ms), ssh :42069 works, and woody logged **zero** potato
+  handshake timeouts on 2026-11-04 (was 20k+/48h). Potato's endpoints
+  in `_constants.nix` are still the old Ionos values but the mesh
+  routes anyway; refresh opportunistically.
+- **Watchdog timer was broken, fixed (da64655)**: `requires =
+  "sops-nix.service"` made log-watchdog.timer fail every fire
+  ("Failed to queue unit startup job", 2026-11-04 00:07). No host has
+  a sops-nix.service: **sops secrets render at activation time**
+  (sops-install-secrets runs inside switch-to-configuration /
+  nixos-upgrade-start, per journal) — `After=` is a harmless vestige,
+  `Requires=` is fatal. Replaced with `ConditionPathExists` on the
+  token.
+- **Push blocker: resolved** — rbw agent unlocked again; da64655
+  pushed clean. Yesterday's three "failed" pushes had in fact reached
+  origin (jessie ran the `-p 42069` fix the same night).
+- **borg minecraft-bedrock: transport fixed, watch the payload** —
+  night-2 run connected on 42069, initialized the empty repo
+  (config/data created 02:31), streamed ~20min/774MB, exited **0**…
+  yet `data/` ended empty (hints.10 = 10 rolled-back transactions).
+  Suspected server-side commit rollback; next night's run tells (the
+  list/init pre-flight now succeeds, so create goes straight at a
+  populated repo). If `data/` is still empty on 2026-11-05, dig with
+  root on woody (`borg list` as the borg user) — the client's exit-0
+  makes it look healthy.
+- **jessie podman locks**: third EROFS frontier `/run/libpod/alive.lck`
+  (hooks stay tolerant, so the backup continues; containers are NOT
+  stopped during backup). Candidate fix: add `/run/libpod` to the
+  job's ReadWritePaths — parked until the payload question resolves.
