@@ -52,8 +52,6 @@
       };
 
       zramSwap = {
-        enable = true;
-        algorithm = "lz4";
         memoryPercent = 50;
       };
       # Enables DHCP on each ethernet and wireless interface.
@@ -167,12 +165,6 @@
 
       networking.hostName = "slinky"; # Define your hostname.
       networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
-
-      # Set your time zone.
-      time.timeZone = "Europe/Berlin";
-
-      # Select internationalisation properties.
-      i18n.defaultLocale = "de_DE.UTF-8";
 
       # Enable the X11 windowing system.
       services.xserver.enable = true;

@@ -640,10 +640,7 @@ in
           #      }
         ];
       };
-      zramSwap.enable = true;
-
-      # 24/7 homeserver: self-repair like the headless hosts. The
-      # graphical/interests-of-saved-work exclusion is relaxed here
+      # 24/7 homeserver: self-repair like the headless hosts. The      # graphical/interests-of-saved-work exclusion is relaxed here
       # because nobody sits at this display — it is reached via xrdp only.
       upgradeHealth.enable = true;
 
@@ -667,26 +664,11 @@ in
       # Select internationalisation properties.
       i18n.defaultLocale = "en_US.UTF-8";
 
-      i18n.extraLocaleSettings = {
-        LC_ADDRESS = "de_DE.UTF-8";
-        LC_IDENTIFICATION = "de_DE.UTF-8";
-        LC_MEASUREMENT = "de_DE.UTF-8";
-        LC_MONETARY = "de_DE.UTF-8";
-        LC_NAME = "de_DE.UTF-8";
-        LC_NUMERIC = "de_DE.UTF-8";
-        LC_PAPER = "de_DE.UTF-8";
-        LC_TELEPHONE = "de_DE.UTF-8";
-        LC_TIME = "de_DE.UTF-8";
-      };
-
       # Configure keymap in X11
       services.xserver.xkb = {
         layout = "de";
         variant = "";
       };
-
-      # Configure console keymap
-      console.keyMap = "de";
 
       # Enable CUPS to print documents.
       services.printing.enable = true;
