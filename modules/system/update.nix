@@ -13,7 +13,6 @@ in
     }:
     {
       imports = [
-        #inputs.lix-module.nixosModules.default
         inputs.comin.nixosModules.comin
       ];
 
@@ -34,12 +33,7 @@ in
         environment.systemPackages = with pkgs; [
           git
         ];
-        /*
-          _module.args.pkgsUnstable = import inputs.nixpkgs-master {
-            inherit (pkgs.stdenv.hostPlatform) system;
-            inherit (config.nixpkgs) config;
-          };
-        */
+
         services.nebula.networks.mesh.firewall.inbound =
           lib.mkIf (config.services.comin.enable && config.services.nebula.networks.mesh.enable)
             [
@@ -56,13 +50,10 @@ in
             {
               name = "origin";
               url = "https://github.com/j340m3/nixos.git";
-              # This is an access token to access our private repository
-              # auth.access_token_path = cfg.sops.secrets."gitlab/access_token".path;
               # No testing branch on this remote
               branches.testing.name = "";
             }
           ];
-          #machineId = "22823ba6c96947e78b006c51a56fd89c";
         };
         system.autoUpgrade = {
           enable = !config.useComin;
@@ -178,7 +169,6 @@ in
             fi
           '';
 
-        #systemd.services.nix-daemon.serviceConfig.Slice = "-.slice";
         # always use the daemon, even executed  with root
         environment.variables.NIX_REMOTE = "daemon";
         systemd.services.nix-daemon.serviceConfig = {
@@ -225,38 +215,6 @@ in
             minute = 60;
           in
           120 * minute;
-        /*
-          services.earlyoom = {
-            enable = true;
-            enableNotifications = true;
-            extraArgs =
-              let
-                catPatterns = patterns: builtins.concatStringsSep "|" patterns;
-                preferPatterns = [
-                  ".firefox-wrappe"
-                  "minetest"
-                  "vaultwarden"
-                  "java" # If it's written in java it's uninmportant enough it's ok to kill it
-                ];
-                avoidPatterns = [
-                  "bash"
-                  "mosh-server"
-                  "sshd"
-                  "systemd"
-                  "systemd-logind"
-                  "systemd-udevd"
-                  "tmux: client"
-                  "tmux: server"
-                  "nix"
-                  "nebula"
-                ];
-              in
-              [
-                "--prefer" "'^(${catPatterns preferPatterns})$'"
-                "--avoid" "'^(${catPatterns avoidPatterns})$'"
-              ];
-          };
-        */
 
         systemd.slices.anti-hungry.sliceConfig = {
           CPUAccounting = true;
@@ -270,13 +228,6 @@ in
 
         systemd.services.nix-daemon.serviceConfig.Slice = "anti-hungry.slice";
 
-        # Avoid freezing the system
-        /*
-          systemd.oomd.enable = true;
-          systemd.oomd.enableRootSlice = true;
-          systemd.oomd.enableSystemSlice = true;
-          systemd.oomd.enableUserSlices = true;
-        */
         zramSwap.enable = lib.mkDefault true;
 
         # BUGFIX: Too many open files

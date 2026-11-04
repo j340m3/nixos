@@ -57,15 +57,12 @@ in
         }
       ];
 
-      #swapDevices = [ { device = "/swapfile"; size = 512; } ];
       boot.tmp.cleanOnBoot = true;
       zramSwap.enable = true;
       nix.gc.dates = lib.mkForce "hourly";
       nix.gc.options = lib.mkForce "-d";
       boot.loader.grub.configurationLimit = 2;
       #system.autoUpgrade.dates = lib.mkForce "daily";
-
-      #nix.package = pkgs.nix;
 
       environment.systemPackages = with pkgs; [
         #bc
@@ -135,8 +132,6 @@ in
       system.stateVersion = "23.11";
       nix.gc = {
         automatic = true;
-        #dates = "hourly";
-        #options = "--delete-older-than 30d";
       };
 
       security.sudo.wheelNeedsPassword = true;
@@ -172,7 +167,6 @@ in
       services.logrotate.enable = true;
       services.logrotate.checkConfig = false;
 
-      # environment.systemPackages = with pkgs; [ nebula ];
       services.nebula.networks.mesh = {
         enable = true;
         isLighthouse = true;
@@ -180,9 +174,6 @@ in
         cert = config.sops.secrets."nebula/self_crt".path; # "/run/secrets/nebula/self.crt";
         key = config.sops.secrets."nebula/self_key".path; # "/run/secrets/nebula/self.key";
         ca = config.sops.secrets."nebula/ca_crt".path;
-        # cert = "/etc/nebula/pricklepants.crt"; # The name of this lighthouse is beacon.
-        # key = "/etc/nebula/pricklepants.key";
-        # ca = "/etc/nebula/ca.crt";
         # staticHostMap (other lighthouse) comes from modules/global/_constants.nix.
         staticHostMap = constants.nebula.staticMap config.networking.hostName;
         settings = {
