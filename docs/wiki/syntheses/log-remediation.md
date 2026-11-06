@@ -95,7 +95,7 @@ user/on-host follow-up).
 
 | # | Symptom | Root cause | Fix | Status |
 |---|---------|-----------|-----|--------|
-| B1 | minecraft-bedrock "0 data segments" scare | `data/` dirs are 0700 borg — non-root find/du silently counts nothing | verify with root: `sudo -u borg borg list /var/lib/borgbackup/minecraft-bedrock` | user check |
+| B1 | minecraft-bedrock "0 data segments" scare | `data/` dirs are 0700 borg — non-root find/du silently counts nothing | verify with root: `sudo -u borg env HOME=/tmp BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=yes borg list /var/lib/borgbackup/minecraft-bedrock` | **resolved 2026-11-06** — 3 archives (Nov 4/5/6 02:30); tiny hints file was normal; Nov 5/6 ~130KB runs = good dedup |
 | B2 | minetest: no backup since 2025-10-21 | woody<->pricklepants mesh edge dead -> ssh sessions die mid-run | mesh restart (M1) + module 4242 fix | blocked on M1 |
 | B3 | pricklepants repo never initialized (empty dir since Oct 16) | nightly sessions die before module auto-init completes | self-heals once ssh survives | blocked on M1 |
 | B4 | matrix repo silent since 2025-10-21 | external mtrx device stopped backing up | user decision | open |
@@ -108,3 +108,28 @@ in `/persist/rsyslog/pricklepants/`; tonight 00:00 minetest job should complete
 its list->init->create; then run B1's `borg list` for minecraft-bedrock and, if
 empty, wipe jessie's client cache (`rm -rf /root/.cache/borg`, needs root) to
 force a full re-upload.
+
+## Round 6 — 2026-11-06 (verdicts + reticulum question)
+
+- **B1 closed by user**: `borg list` as the borg user shows three archives
+  (`jessie-minecraft-bedrock-2026-11-04/05/06T02:30`) — the Nov 4 run committed
+  fine; the tiny `hints.26` was a normal fresh hints file and the ~130KB
+  follow-ups were healthy dedup. No server-side rollback ever happened.
+- **Cleanup done** (user, sudo): legacy `10.0.0.1`/`127.0.0.1` rsyslog dirs and
+  the empty lenny/rex/slinky/buzz stubs are gone.
+- **No pruning anywhere**: none of the three fleet borg jobs configures prune;
+  archives accumulate until the server's 50G quota refuses writes (loud failure
+  by design). First archive ~774MB, dailies are KB-scale → years of headroom,
+  acceptable.
+- **Decision: keep logging on nebula, not reticulum.** RNS buys no security over
+  the mesh (nebula already binds each peer's VPN IP to a signed cert — a peer
+  cannot spoof another host's log source, and the tunnel is encrypted), has no
+  syslog-equivalent shipper (hand-written Python shipper + collector = new
+  trusted code), and is the wrong throughput class for ~130MB/day streams.
+  "Different user" doesn't map either: the client forwarder must read
+  root-owned journals regardless. Where RNS *is* the right tool: an
+  **out-of-band alert channel** — the woody<->pricklepants edge died and only
+  the loghost could see it, i.e. a mesh-blind spot; an LXMF ping/alert via the
+  existing reticulum overlay (potato lxmd / pricklepants transport node) would
+  cover "host unreachable AND mesh path suspect". Candidate follow-up for the
+  watchdog, not a migration.

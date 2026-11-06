@@ -657,3 +657,18 @@ Backup check requested; findings from the Nov 4-6 runs:
   Nov 5). Real fix: `virtualisation.virtualbox.guest.dragAndDrop = false`.
 - rex is intentionally back (user powered it on Nov 5); roster marks it
   monitor=false — revisit if it ships logs steadily.
+
+## 2026-11-06 - round 6: borg verified, reticulum-logging declined
+
+User closed B1 (`borg list` as borg user: three archives Nov 4-6 — the
+"empty data/" scare was a 0700-permission artifact, dedup healthy) and
+ran the sudo cleanup (legacy IP-named rsyslog dirs + empty stubs gone).
+No borg job prunes; archives accumulate to the 50G server quota by
+design (loud failure), years of headroom at current rates.
+
+Decision recorded in [log-remediation](syntheses/log-remediation.md#round-6--2026-11-06-verdicts--reticulum-question):
+logging stays on nebula/rsyslog. RNS adds no security over cert-bound
+mesh IPs, has no syslog shipper (bespoke Python = new trusted code), and
+is the wrong throughput class for ~130MB/day. Right RNS role:
+out-of-band LXMF alert path for the watchdog (mesh-blind-spot coverage),
+parked as a candidate.
