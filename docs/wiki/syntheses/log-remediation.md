@@ -99,7 +99,7 @@ user/on-host follow-up).
 | B2 | minetest: no backup since 2025-10-21 | woody<->pricklepants mesh edge dead -> ssh sessions die mid-run | mesh restart (M1) + module 4242 fix | blocked on M1 |
 | B3 | pricklepants repo never initialized (empty dir since Oct 16) | nightly sessions die before module auto-init completes | self-heals once ssh survives | blocked on M1 |
 | B4 | matrix repo silent since 2025-10-21 | external mtrx device stopped backing up | user decision | open |
-| M1 | woody<->pricklepants handshake deadlock since Nov 3 13:39/14:01 (24k sent / 24k timeouts / 1 received; prick's tunnels to jessie fine) | both nebula instances restarted into stale learned-address/punchy state; prick's replies never reach woody | `sudo systemctl restart nebula@mesh` on woody AND pricklepants; plus nebula.nix now opens udp/4242 on all module hosts | user restart |
+| M1 | woody<->pricklepants handshake deadlock since Nov 3 13:39/14:01 (24k sent / 24k timeouts / 1 received; prick's tunnels to jessie fine) | both nebula instances restarted into stale learned-address/punchy state; prick's replies never reach woody | `sudo systemctl restart nebula@mesh` on woody AND pricklepants; plus nebula.nix now opens udp/4242 on all module hosts | **resolved 2026-11-06** (ping 0% loss, logs flowing) |
 | W1 | watchdog first real catch | timer + ConditionPathExists fix worked; flagged pricklepants at 48h | none | resolved |
 | R1 | rex ships logs again (k3s, Nov 5) but roster says expectedOff; virtualboxClientDragAndDrop restart counter 2717 | fleet changed under the sweep | roster decision + investigate the restart loop | open |
 
