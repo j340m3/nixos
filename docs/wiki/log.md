@@ -637,3 +637,23 @@ Backup check requested; findings from the Nov 4-6 runs:
 - **rex came back:** k3s desktop shipped logs again Nov 5 (messages/
   k3s.log, ~14:02, then quiet); `virtualboxClientDragAndDrop` restart
   counter at 2717. Roster still treats it as expectedOff — revisit.
+
+## 2026-11-06 - round 5: mesh recovered, rex D&D restart loop fixed [loghost]
+
+- User restarted nebula on woody + pricklepants: ping 10.0.0.1 0% loss
+  (32-44ms), received-handshake counter moving again, pricklepants logs
+  flowing (messages.log 134MB touched 08:36). Tonight 00:00 the minetest
+  job should finally list->init->create and the never-initialized
+  pricklepants repo should self-heal. minecraft-bedrock payload check:
+  `borg list` as the borg user needs HOME=/tmp (/var/empty is unwritable):
+  `sudo -u borg env HOME=/tmp BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=yes
+  borg list /var/lib/borgbackup/minecraft-bedrock`.
+- rex restart loop root-caused: `virtualboxClientDragAndDrop` is a
+  systemd USER unit from nixos virtualbox-guest.nix (mkIf
+  cfg.dragAndDrop, default true); it dies with VERR_HGCM_SERVICE_NOT_FOUND
+  because the VM host never exposes the HGCM D&D service, and the old
+  in-repo "fix" (systemd.services wantedBy mkForce []) only created a
+  bogus SYSTEM unit while the user unit kept looping (2717 restarts by
+  Nov 5). Real fix: `virtualisation.virtualbox.guest.dragAndDrop = false`.
+- rex is intentionally back (user powered it on Nov 5); roster marks it
+  monitor=false — revisit if it ships logs steadily.

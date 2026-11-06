@@ -63,10 +63,12 @@ in
 
       boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
       boot.extraModulePackages = with config.boot.kernelPackages; [ virtualboxGuestAdditions ];
-      systemd.services."virtualboxClientDragAndDrop" = {
-        wantedBy = lib.mkForce [ ]; # Disable Drag and Drop
-        #execStart=lib.mkForce [""];
-      };
+      # D&D helper is a systemd USER unit (virtualbox-guest.nix
+      # mkIf cfg.dragAndDrop); the host never exposes the HGCM service, so
+      # it dies with VERR_HGCM_SERVICE_NOT_FOUND and restart-loops forever
+      # (counter 2717 by 2026-11-05). Disabling the option is the real fix —
+      # a systemd.services override only creates a bogus SYSTEM unit.
+      virtualisation.virtualbox.guest.dragAndDrop = false;
       #boot.kernelPackages = pkgs.linuxPackages_cachyos;
 
       #swapDevices = [ { device = "/swapfile"; size = 2048; } ];
@@ -208,7 +210,6 @@ in
       system.stateVersion = "24.11"; # Did you read the comment?
 
       nix.settings.auto-optimise-store = true;
-
 
       #nixpkgs.config.packageOverrides = pkgs: {
       #  nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {
