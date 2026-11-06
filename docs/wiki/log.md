@@ -551,3 +551,89 @@ minecraft-bedrock borg reached the loghost on 42069, initialized its
 empty repo, streamed 774MB over 20min, exited 0 — with data/ still
 empty (10 rolled-back transactions): payload watch item for tonight.
 Push saga over: rbw unlocked, everything on origin.
+
+## 2026-11-04 — log analyzer stack research [loghost]
+Compiled the stack-choice vault for woody's log reporting: Loki 3.7.8 +
+Alloy 1.17.1 + Grafana, Graylog 6.1.8 + OpenSearch 3.5, OpenObserve 1.0.4,
+Elastic/OpenSearch + Dashboards, Vector + ClickHouse + Grafana, and a minimal
+custom analyzer over the rsyslog archive. Checked versions against upstream
+(Loki 3.7.9, Alloy 1.21.3, OpenObserve 1.1.2, OpenSearch 3.9 current) and
+verified every NixOS module at the pinned nixpkgs rev.
+
+Hard findings: Graylog 6.1.x supports OpenSearch ≤2.15 only (3.x starts at
+Graylog 7.2, and the docs warn 3.0+ breaks 6.1 instances), so the candidate
+pairing is unsupported. Loki retention is off by default and deletes lag ~2h;
+OpenObserve's global default retention is 3650 days; ClickHouse TTL only runs
+during merges (~4h default); Alloy's `loki.write` WAL is experimental and
+off, so its default delivery is in-memory.
+
+Recommendation: keep rsyslog as the system of record, make sender queues
+crash-durable (pure disk, bounded, TCP/RELP), and add a small analyzer over
+`/persist/rsyslog` with SQLite state + Telegram digest; Alertmanager optional
+for grouping/inhibition; Loki/Grafana as a later search pilot. Strongest
+counter-argument recorded in the synthesis: bespoke code rots and Loki is
+already one module away. Phase 0 remains disk cleanup on woody (~11 GiB free).
+
+Pages: 12 sources, 2 concepts, 1 synthesis (see index section "Log analysis /
+reporting stack choice").
+
+## 2026-11-05 — captive portal circumvention research [captive-portal]
+
+Researched client-side circumvention on Linux/NixOS: iodine DNS tunneling,
+dnsmasq/hosts tricks, VPNs/proxies, and NixOS module patterns. Compiled
+sources, concepts, and synthesis in docs/wiki/ (see index section "Captive
+portal circumvention").
+
+Added sources: iodine-dns-tunnel.md, dnsmasq.md, hosts-file-tricks.md,
+vpn-proxy-captive-portal.md, nixos-module-patterns-networking.md.
+Added concepts: captive-portal-circumvention.md, dns-tunneling-iodine.md,
+hosts-dns-tricks.md, vpn-proxy-patterns.md, nixos-captive-portal-modules.md.
+Added synthesis: captive-portal-bypass-comparison.md. Updated index.md and
+log.md. No project code modified.
+
+## 2026-11-06 - fleet log sweep round 4: backup verdicts + woody<->pricklepants mesh edge deadlock [loghost]
+
+Backup check requested; findings from the Nov 4-6 runs:
+
+- **minecraft-bedrock (jessie->woody): transport healthy, payload
+  unverified.** Repo was re-initialized Nov 4 02:31 (module's
+  list->init->create flow auto-healed the empty dir); first full run
+  streamed ~774MB/20min, exit 0; Nov 5/6 incrementals exit 0 in ~35s
+  (127KB outgoing = dedup against client cache). Server-side `data/` is
+  0700 borg so a non-root session cannot count segments — earlier "0
+  data segments" readings measured nothing. Suspicion of nightly
+  rollback remains: repo `hints.26` is 349 bytes vs minetest's real
+  13.5KB hints. Needs one root command to settle:
+  `sudo -u borg borg list /var/lib/borgbackup/minecraft-bedrock`.
+- **minetest (pricklepants->woody): last successful backup 2025-10-21.**
+  Client config is now correct (borg 1.4.5, `-p 42069`, both
+  `*_REPO_ACCESS_IS_OK` vars live in its generation) but nightly runs
+  die mid-SSH: "Connection closed by remote host", status 2, twice per
+  run (list + init attempts) — the mesh edge, not borg.
+- **pricklepants (/etc + vaultwarden): repo dir on woody has NEVER been
+  initialized** — bare empty directory since 2026-10-16 (module-created
+  dir, no config/data). Client job fails nightly -> telegram. Will
+  self-heal (module auto-init works on empty dirs, proven locally with
+  borg 1.4.5 and by jessie's Nov 4 init) once its ssh sessions survive.
+- **matrix (external mtrx client): last write 2025-10-21** — external
+  device, not config-managed; user decision.
+- **Root cause of 2+3: woody<->pricklepants nebula edge dead since the
+  2026-11-03 restart storm** (woody nebula 13:39:02, pricklepants
+  14:01:31 — re-key/live-rebuild wave). woody: 24k handshakes sent to
+  pricklepants' static endpoints / 24k timeouts / 1 received (Nov 3
+  10:24). pricklepants receives woody's packets fine and replies — the
+  replies never reach woody; its tunnels to jessie work. Both sides in
+  a ~1/s handshake storm for 3 days. pricklepants itself is UP (public
+  :42069/:443 open, vaultwarden answering 200) — only the mesh edge is
+  dead, which is also why its log shipping stopped Nov 3 13:38 (watchdog
+  caught it at 48h, first real catch!).
+- **Hardening pushed:** `modules/services/nebula.nix` now opens UDP 4242
+  on ALL module-managed hosts (was `mkIf isLighthouse`), so peers can
+  always initiate handshakes directly regardless of NAT state.
+  Manual fix still needed: `sudo systemctl restart nebula@mesh` on woody
+  AND pricklepants to clear the punchy/learned-address cache deadlock.
+- **Watchdog works end-to-end:** timer fired Nov 5 + Nov 6 00:0x,
+  telegram delivered ("pricklepants: newest log 58h old"), exit 0.
+- **rex came back:** k3s desktop shipped logs again Nov 5 (messages/
+  k3s.log, ~14:02, then quiet); `virtualboxClientDragAndDrop` restart
+  counter at 2717. Roster still treats it as expectedOff — revisit.

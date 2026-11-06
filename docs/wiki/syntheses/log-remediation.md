@@ -90,3 +90,21 @@ user/on-host follow-up).
   (hooks stay tolerant, so the backup continues; containers are NOT
   stopped during backup). Candidate fix: add `/run/libpod` to the
   job's ReadWritePaths — parked until the payload question resolves.
+
+## Round 4 — 2026-11-06 (backup audit + mesh edge)
+
+| # | Symptom | Root cause | Fix | Status |
+|---|---------|-----------|-----|--------|
+| B1 | minecraft-bedrock "0 data segments" scare | `data/` dirs are 0700 borg — non-root find/du silently counts nothing | verify with root: `sudo -u borg borg list /var/lib/borgbackup/minecraft-bedrock` | user check |
+| B2 | minetest: no backup since 2025-10-21 | woody<->pricklepants mesh edge dead -> ssh sessions die mid-run | mesh restart (M1) + module 4242 fix | blocked on M1 |
+| B3 | pricklepants repo never initialized (empty dir since Oct 16) | nightly sessions die before module auto-init completes | self-heals once ssh survives | blocked on M1 |
+| B4 | matrix repo silent since 2025-10-21 | external mtrx device stopped backing up | user decision | open |
+| M1 | woody<->pricklepants handshake deadlock since Nov 3 13:39/14:01 (24k sent / 24k timeouts / 1 received; prick's tunnels to jessie fine) | both nebula instances restarted into stale learned-address/punchy state; prick's replies never reach woody | `sudo systemctl restart nebula@mesh` on woody AND pricklepants; plus nebula.nix now opens udp/4242 on all module hosts | user restart |
+| W1 | watchdog first real catch | timer + ConditionPathExists fix worked; flagged pricklepants at 48h | none | resolved |
+| R1 | rex ships logs again (k3s, Nov 5) but roster says expectedOff; virtualboxClientDragAndDrop restart counter 2717 | fleet changed under the sweep | roster decision + investigate the restart loop | open |
+
+**Post-M1 verification:** `ping 10.0.0.1` from woody; pricklepants files reappear
+in `/persist/rsyslog/pricklepants/`; tonight 00:00 minetest job should complete
+its list->init->create; then run B1's `borg list` for minecraft-bedrock and, if
+empty, wipe jessie's client cache (`rm -rf /root/.cache/borg`, needs root) to
+force a full re-upload.
