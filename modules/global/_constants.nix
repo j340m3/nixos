@@ -158,6 +158,11 @@ let
       buzz.nix = "5adf7ddc1a927af62cbfd22d1d8a393f";
       woody.hash = "f921a6b4ccb4477fbf27124bc724c30f";
       woody.nix = "252990ad10a5c148041aeac99fa2b54f";
+      # Destination of woody's SEPARATE rnsh-borg listener (its own identity in
+      # secrets/hosts/woody/reticulum.yaml borg_identity): the ssh shim maps
+      # `woody-borg-rns` to this hash so borg jobs dial the backup bridge, not
+      # the root nix daemon (ADR: borg over reticulum).
+      woody.borg = "067d1f1ca78f19cd1c42ff9e3f19e1a9";
       mrpotatohead.hash = "cbda20fffed88a8a403766c4eec84c2f";
       mrpotatohead.nix = "9cd41760be653f33273ebf976840ab96";
       jessie.hash = "43456921b522914308923c8b0791ed56";

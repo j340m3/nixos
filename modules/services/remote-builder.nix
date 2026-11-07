@@ -12,6 +12,9 @@
         useDefaultShell = true;
         createHome = false;
         group = "remotebuild";
+        # non-root `nix-daemon --stdio` (rnsh-nix and the sshd chain) writes
+        # the store via the nixbld group, exactly like the sandbox build users
+        extraGroups = [ "nixbld" ];
         openssh.authorizedKeys.keys = [
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINl53KG7Z2l3NSGDSOX5YzmnMzIXbWfnls0J6Hmzcpbv root@pricklepants"
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJu52XPMcQve06Z6PeYgW4bLxF+zWrORq3zb2swGeL6F root@rex"
@@ -36,6 +39,10 @@
       };
 
       users.groups.remotebuild = { };
+
+      # rnsh-nix bridge runs as this user; reticulum membership lets it read
+      # the fleet identity + the minimal shared-instance config view
+      services.reticulum.identityReaders = [ "remotebuild" ];
 
       #nix.settings.trusted-users = [ "remotebuild" ];
       nix = {

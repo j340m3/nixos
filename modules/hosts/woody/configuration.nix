@@ -59,6 +59,14 @@ in
         inputs.chaotic.nixosModules.default
       ];
 
+      # borg over reticulum: RNS-own bridge listener with its OWN identity
+      # (not the root nix bridge), the borg user, identity allowlist replacing
+      # per-repo ssh keys. pricklepants is the phase-1 client only.
+      services.reticulum.rnshBorg = {
+        enable = true;
+        allowIdentities = [ constants.reticulum.identities.pricklepants.hash ];
+      };
+
       # Inlined from ./_hardware-configuration.nix (zero host-local glue, ADR 0014).
       boot.initrd.availableKernelModules = [
         "xhci_pci"
@@ -782,7 +790,7 @@ in
         elmPackages.elm-json
         elmPackages.elm-review
         elmPackages.elm-upgrade
-        mate.caja-with-extensions
+        caja-with-extensions
         rclone
         #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
         #  wget
