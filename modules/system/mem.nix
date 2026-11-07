@@ -137,6 +137,28 @@ _: {
             MemoryHigh = lib.mkDefault "150M";
             MemoryMax = lib.mkDefault "200M";
           };
+          # 2026-11-07 pricklepants pressure incident: reticulum (and the lxmf
+          # propagation node above it) were uncapped and became the biggest
+          # memory + swap-thrash contributor on the 1 GB box (lxmf peaked at
+          # 305M RSS / 241M swap, rnsd at 150M / 100M). Ceilings sized with
+          # runbook headroom so the cgroup throttles first and only kills a
+          # runaway, never a healthy steady state.
+          "reticulum".serviceConfig = {
+            MemoryHigh = lib.mkDefault "120M";
+            MemoryMax = lib.mkDefault "160M";
+          };
+          "lxmf".serviceConfig = {
+            MemoryHigh = lib.mkDefault "192M";
+            MemoryMax = lib.mkDefault "256M";
+          };
+          "rnsh-nix".serviceConfig = {
+            MemoryHigh = lib.mkDefault "64M";
+            MemoryMax = lib.mkDefault "96M";
+          };
+          "rnsh-borg".serviceConfig = {
+            MemoryHigh = lib.mkDefault "64M";
+            MemoryMax = lib.mkDefault "96M";
+          };
         };
       };
     };
