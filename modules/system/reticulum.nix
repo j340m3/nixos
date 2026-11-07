@@ -461,6 +461,8 @@ in
                 ${pkgs.coreutils}/bin/tr '_-' '/+' < ${
                   config.sops.secrets."reticulum/borg_identity".path
                 } | ${pkgs.coreutils}/bin/base64 -d > /run/reticulum/identity-borg
+                # the + Exec runs root:root; the listener reads via group perms
+                chown root:reticulum /run/reticulum/identity-borg
                 chmod 0440 /run/reticulum/identity-borg
                 ${pkgs.coreutils}/bin/ln -sfn /etc/reticulum/config /run/rnsh-borg/config
               ''
