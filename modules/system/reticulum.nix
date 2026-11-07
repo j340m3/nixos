@@ -32,7 +32,6 @@ in
         exec ${rnspython}/bin/rnsh "$@"
       '';
       stateDir = "/var/lib/reticulum";
-      shareDir = "/var/lib/reticulum-share";
       lxmfStateDir = "/var/lib/lxmd";
 
       bool = b: if b then "yes" else "no";
@@ -319,25 +318,10 @@ in
           mode = "0400";
         };
 
-        # Minimal read view of the RNS config for NON-ROOT rnsh listeners
-        # (rnsh-nix as remotebuild, rnsh-borg as borg): they must not read
-        # root's 0700 /var/lib/reticulum (which holds the fleet identity
-        # storage), but they can attach to the shared instance via its
-        # abstract unix socket. A group-readable symlink-snapshot suffices.
-        systemd.tmpfiles.settings."reticulum-share" = {
-          "/var/lib/reticulum-share" = {
-            d = {
-              user = "root";
-              group = "reticulum";
-              mode = "0750";
-            };
-          };
-          # a group-readable RNS config view for non-root rnsh listeners
-          "/var/lib/reticulum-share/config" = {
-            "L+".argument = "/etc/reticulum/config";
-          };
-        };
-
+        # Non-root rnsh listeners: each process gets its OWN writable rnsconfig
+        # dir (RNS always creates storage/ there, even as a shared-instance
+        # client) with the fleet config symlinked in; group "reticulum" grants
+        # the 0440 identity reads. /var/lib/reticulum itself stays 0700 root.
         users.groups.reticulum = { };
         users.users = lib.listToAttrs (
           map (u: lib.nameValuePair u { extraGroups = [ "reticulum" ]; })
@@ -418,15 +402,22 @@ in
             # RNS wants a writable config dir in $HOME (remotebuild's is /var/empty)
             RuntimeDirectory = "rnsh-nix";
             Environment = "HOME=/run/rnsh-nix";
+            # own writable rnsconfig: RNS creates storage/ here; the fleet
+            # config is symlinked in by the root ExecStartPre below
+            ExecStartPre = "+${
+              pkgs.writeShellScript "rnsh-nix-rnsconfig" ''
+                ${pkgs.coreutils}/bin/ln -sfn /etc/reticulum/config /run/rnsh-nix/config
+              ''
+            }";
           };
           script = ''
             expected=${constants.reticulum.identities.${host}.nix}
-            actual=$(${rnspython}/bin/rnid --config ${shareDir} -i /run/reticulum/identity -H rnsh 2>/dev/null | ${pkgs.gnugrep}/bin/grep 'rnsh destination' | ${pkgs.gnugrep}/bin/grep -oE '[0-9a-f]{32}' || true)
+            actual=$(${rnspython}/bin/rnid --config /run/rnsh-nix -i /run/reticulum/identity -H rnsh 2>/dev/null | ${pkgs.gnugrep}/bin/grep 'rnsh destination' | ${pkgs.gnugrep}/bin/grep -oE '[0-9a-f]{32}' || true)
             if [ "$actual" != "$expected" ]; then
               echo "rnsh-nix: destination hash mismatch: expected $expected, got '$actual'" >&2
               exit 1
             fi
-            exec ${rnsh}/bin/rnsh --rnsconfig ${shareDir} -l -b 900 -C -i /run/reticulum/identity \
+            exec ${rnsh}/bin/rnsh --rnsconfig /run/rnsh-nix -l -b 900 -C -i /run/reticulum/identity \
               ${allowedIdentities} \
               -- ${config.nix.package}/bin/nix-daemon --stdio
           '';
@@ -461,8 +452,9 @@ in
             Group = "borg";
             # clients read repo path "NAME" relative to the serving process CWD
             WorkingDirectory = "${cfg.rnshBorg.repoPath}";
-            # borg module owns /var/lib/borgbackup (repo tree, writable home)
-            Environment = "HOME=${config.users.users.borg.home}";
+            # borg's home is /var/empty (root-owned); RNS needs a writable HOME
+            Environment = "HOME=/run/rnsh-borg";
+            RuntimeDirectory = "rnsh-borg";
             # the bridge identity is borg-only: decode happens here as root
             ExecStartPre = "+${
               pkgs.writeShellScript "rnsh-borg-identity" ''
@@ -470,17 +462,18 @@ in
                   config.sops.secrets."reticulum/borg_identity".path
                 } | ${pkgs.coreutils}/bin/base64 -d > /run/reticulum/identity-borg
                 chmod 0440 /run/reticulum/identity-borg
+                ${pkgs.coreutils}/bin/ln -sfn /etc/reticulum/config /run/rnsh-borg/config
               ''
             }";
           };
           script = ''
             expected=${constants.reticulum.identities.${host}.borg}
-            actual=$(${rnspython}/bin/rnid --config ${shareDir} -i /run/reticulum/identity-borg -H rnsh 2>/dev/null | ${pkgs.gnugrep}/bin/grep 'rnsh destination' | ${pkgs.gnugrep}/bin/grep -oE '[0-9a-f]{32}' || true)
+            actual=$(${rnspython}/bin/rnid --config /run/rnsh-borg -i /run/reticulum/identity-borg -H rnsh 2>/dev/null | ${pkgs.gnugrep}/bin/grep 'rnsh destination' | ${pkgs.gnugrep}/bin/grep -oE '[0-9a-f]{32}' || true)
             if [ "$actual" != "$expected" ]; then
               echo "rnsh-borg: destination hash mismatch: expected $expected, got '$actual'" >&2
               exit 1
             fi
-            exec ${rnsh}/bin/rnsh --rnsconfig ${shareDir} -l -b 900 -C -i /run/reticulum/identity-borg \
+            exec ${rnsh}/bin/rnsh --rnsconfig /run/rnsh-borg -l -b 900 -C -i /run/reticulum/identity-borg \
               ${allowBorgIdentities} \
               -- ${config.services.borgbackup.package}/bin/borg serve --append-only --restrict-to-path ${cfg.rnshBorg.repoPath}
           '';
