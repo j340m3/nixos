@@ -1,7 +1,8 @@
-# Wiki index — knowledge vault
+# Wiki index
 
-Four research threads live here; each topic below is self-contained with its own
-orientation and page lists.
+- [MPTCP CVEs 2025](sources/mptcp-cves-2025.md)
+- [MPTCP defaults/check/disable](concepts/mptcp-defaults-check-disable.md)
+- [MPTCP repo assessment](syntheses/mptcp-repo-assessment.md)
 
 ## Dendritic Pattern adoption (flake-parts)
 

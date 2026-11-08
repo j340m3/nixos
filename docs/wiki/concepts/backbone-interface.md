@@ -1,5 +1,10 @@
 # Backbone interface
 
+Two overlay transports share the public lighthouses/backbone in different ways:
+
+- **Nebula** listens on **UDP** `4242` (lighthouse/relay; mesh DNS UDP/53 on lighthouse). Configured via `nebula.port = 4242`.
+- **Reticulum** listens on **TCP** `4242` (public hosts; configured via `constants.reticulum.port = 4242`). Same port number, different protocol—coexistence is fine (no `EADDRINUSE` across UDP/TCP).
+
 `BackboneInterface` is the efficient TCP interface type used for public entrypoints and high-connection-count hubs on Linux. This page records listener/client mechanics, relevant options, and known operational caveats for RNS 1.5.x.
 
 Sources: [S1](../sources/rns-1.5.7-source.md) (code), [S2](../sources/reticulum-manual.md) (manual), [S3](../sources/community-resources.md) (field reports).

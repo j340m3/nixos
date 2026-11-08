@@ -94,6 +94,10 @@
       # Disable ftrace debugging
       boot.kernel.sysctl."kernel.ftrace_enabled" = mkDefault false;
 
+      # Disable MPTCP by default (CVE-2025-71144 etc; not needed for this homelab)
+      boot.kernel.sysctl."net.mptcp.enabled" = mkDefault 0;
+      boot.kernel.sysctl."net.mptcp.mptcp_enabled" = mkDefault 0;
+
       # Loose reverse path filtering. Strict (1) is incompatible with the
       # forwarding/VPN-gateway role: asymmetric return paths get dropped as
       # martians. Loose (2) still rejects unroutable sources. `default` is set

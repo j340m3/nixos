@@ -1,4 +1,4 @@
-# Research log
+# Log
 
 ## 2026-11-12 — unify-aspects deferred queue completed [dendritic]
 
@@ -774,3 +774,5 @@ mesh IPs, has no syslog shipper (bespoke Python = new trusted code), and
 is the wrong throughput class for ~130MB/day. Right RNS role:
 out-of-band LXMF alert path for the watchdog (mesh-blind-spot coverage),
 parked as a candidate.
+
+- 2026-10-30: Created wiki structure, researched recent MPTCP CVEs (CVE-2025-71144, CVE-2025-68221, CVE-2025-71126, CVE-2025-40133), documented defaults/check/disable for MPTCP, assessed repo (no mptcp references, defaults likely off) and recommended checking kernel versions/patch levels.

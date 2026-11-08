@@ -18,10 +18,10 @@ Roles as of 2026-10-18, verified against the import graph.
 | `zurg` | laptop | graphical | ThinkPad P51. stylix, gaming, llm, fingerprint, DE. |
 | `bootstrap` | image | headless | Disko image for provisioning new hosts. |
 | `bootstrap-impermanent` | image | headless | Disko image, impermanent-root variant. |
-| `buzz` | VPS (Ionos) | headless | nextcloud, dnsdist DoT/53 (the "pihole"), wireguard, remote-builder. Currently offline — Ionos panel check pending; vaultwarden moved to pricklepants. |
-| `jessie` | server | headless | minecraft-bedrock + minecraft-java (Paper via nix-minecraft, 1G heap), radicle-seed, wireguard, remote-builder, acme, persistence. |
-| `mrpotatohead` | VPS | headless | nextcloud (nginx/php-fpm), wireguard, hardening, disko LVM/btrfs, upgrade-health auto-rollback. |
-| `pricklepants` | VPS (Ionos) | headless | vaultwarden, luanti/minetest, wireguard VPN -> UK, bridge home, nebula lighthouse with mesh DNS, remote-builder, reticulum. |
+| `buzz` | VPS (Ionos) | headless | nextcloud, dnsdist DoT/53 (the "pihole"), wireguard, remote-builder. Currently offline — Ionos panel check pending; vaultwarden moved to pricklepants. Reachable via DNS: `buzz.hosts.kauderwels.ch`. |
+| `jessie` | server | headless | minecraft-bedrock + minecraft-java (Paper via nix-minecraft, 1G heap), radicle-seed, wireguard, remote-builder, acme, persistence. Reachable via DNS: `jessie.hosts.kauderwels.ch`. |
+| `mrpotatohead` | VPS | headless | nextcloud (nginx/php-fpm), wireguard, hardening, disko LVM/btrfs, upgrade-health auto-rollback. Reachable via DNS: `mrpotatohead.hosts.kauderwels.ch`. |
+| `pricklepants` | VPS (Ionos) | headless | vaultwarden, luanti/minetest, wireguard VPN -> UK, bridge home, nebula lighthouse with mesh DNS, remote-builder, reticulum. Reachable via DNS: `pricklepants.hosts.kauderwels.ch`. |
 
 ## Logging (2026-11-02 sweep)
 
@@ -85,6 +85,7 @@ pricklepants. Also a declaratively-enrolled remote builder.
 Server. minecraft-bedrock, minecraft-java (Paper via nix-minecraft, 1G heap,
 Aikar flags, view/simulation distance reduced for the 1-core/1.8GB box),
 radicle-seed, wireguard, remote-builder, acme, persistence, nebula.
+Reachable via DNS: `jessie.hosts.kauderwels.ch`.
 
 ### mrpotatohead
 
