@@ -80,6 +80,14 @@
         "10.66.66.10/32",
         "fd42:42:42::a/128"
       ]
+    },
+    {
+      "name": "fbjannick",
+      "public_key": "P8wE6bSlcGKYuUo8kxL8PxT4K6fiYrScFwOY4rueZRQ=",
+      "allowed_ips": [
+        "10.66.66.11/32",
+        "fd42:42:42::b/128"
+      ]
     }
   ]
 }
