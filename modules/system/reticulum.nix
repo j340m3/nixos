@@ -26,6 +26,13 @@ in
           --replace-fail \
             'data_buffer = bytearray(sys.stdin.buffer.read()) if not os.isatty(sys.stdin.fileno()) else bytearray()' \
             'data_buffer = bytearray()'
+        # nix flows must tolerate slow peers (1 GB boxes under swap pressure);
+        # upstream floors the version handshake at 5 s, which flaked on
+        # pricklepants during its memory-thrash incident (2026-11-07).
+        substituteInPlace "$out/RNS/Utilities/rnsh/initiator.py" \
+          --replace-fail \
+            'vm = _pq.get(timeout=max(outlet.rtt * 20, 5))' \
+            'vm = _pq.get(timeout=max(outlet.rtt * 80, 30))'
       '';
       rnsh = pkgs.writeShellScriptBin "rnsh" ''
         export PYTHONPATH=${rnsPatched}''${PYTHONPATH:+:$PYTHONPATH}
@@ -82,12 +89,23 @@ in
         "    enabled = yes"
       ];
 
+      # Local RPC auth for the shared-instance control port. Without this, any
+      # instance that attaches to root's rnsd gets AuthenticationError as soon
+      # as Link code touches is_blackholed() (i.e. on every incoming
+      # LINKIDENTIFY) - which silently kills the rnsh version handshake and
+      # makes every non-root listener (rnsh-nix as remotebuild, rnsh-borg as
+      # borg) unconnectable ("Protocol error" on the client). The key is a
+      # stable per-host hash; /etc/reticulum/config is 0640 root:reticulum so
+      # it stays out of general users' reach.
+      rpcKey = builtins.substring 0 64 (builtins.hashString "sha256" "reticulum-rpc-${host}");
+
       configLines = [
         "[reticulum]"
         "  enable_transport = ${bool isPublic}"
         "  share_instance = yes"
         "  shared_instance_port = 37428"
         "  instance_control_port = 37429"
+        "  rpc_key = ${rpcKey}"
         "  panic_on_interface_error = no"
         "  discover_interfaces = ${bool isPublic}"
       ]
@@ -328,7 +346,12 @@ in
           (lib.unique (cfg.identityReaders ++ lib.optionals cfg.rnshBorg.enable [ "borg" ]))
         );
 
-        environment.etc."reticulum/config".text = configText;
+        environment.etc."reticulum/config" = {
+          text = configText;
+          # rpc_key in here: readable only by the listener accounts
+          mode = "0640";
+          group = "reticulum";
+        };
         environment.etc."reticulum/ssh-hosts".text = sshHosts;
         environment.etc."lxmd/config" = lib.mkIf lxmf {
           text = lxmfConfig;
