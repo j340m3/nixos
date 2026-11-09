@@ -27,7 +27,6 @@ in
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.nebula
         # home-manager module comes in via modules/_common/home-manager.nix
-        inputs.chaotic.nixosModules.default
       ];
 
       # Inlined from ./_hardware-configuration.nix (zero host-local glue, ADR 0014).
@@ -61,7 +60,6 @@ in
       boot.loader.systemd-boot.enable = true;
       boot.loader.efi.canTouchEfiVariables = true;
 
-      boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
       boot.extraModulePackages = with config.boot.kernelPackages; [ virtualboxGuestAdditions ];
       # D&D helper is a systemd USER unit (virtualbox-guest.nix
       # mkIf cfg.dragAndDrop); the host never exposes the HGCM service, so
