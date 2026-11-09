@@ -399,6 +399,12 @@ in
             Restart = "always";
             RestartSec = "3s";
           };
+          # rnsd reads its config once at start; without a trigger a config
+          # change (rpc_key, interfaces) silently leaves rnsd on the old
+          # file -> rpc authkey mismatch -> initiator-side "Protocol error"
+          restartTriggers = [
+            (pkgs.writeText "reticulum-config-restart-trigger" configText)
+          ];
         };
 
         systemd.services.rnsh-nix = {
@@ -521,6 +527,9 @@ in
             RestartSec = "3s";
             TimeoutStopSec = "10s";
           };
+          restartTriggers = [
+            (pkgs.writeText "lxmf-config-restart-trigger" lxmfConfig)
+          ];
         };
 
         networking.firewall.allowedTCPPorts = lib.mkIf isPublic [ constants.reticulum.port ];
