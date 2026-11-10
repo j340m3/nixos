@@ -67,7 +67,8 @@ _: {
         };
       };
 
-      config = lib.mkIf config.commonMem.enable {
+      config = lib.mkMerge [
+        (lib.mkIf config.commonMem.enable {
         services.earlyoom = {
           enable = config.commonMem.earlyoom.enable;
           enableNotifications = true;
@@ -155,11 +156,21 @@ _: {
             MemoryHigh = lib.mkDefault "64M";
             MemoryMax = lib.mkDefault "96M";
           };
-          "rnsh-borg".serviceConfig = {
-            MemoryHigh = lib.mkDefault "64M";
-            MemoryMax = lib.mkDefault "96M";
-          };
         };
-      };
+        })
+        # rnsh-borg ceilings exist only on the host that runs the bridge.
+        # Gated with mkIf at the systemd.services level - NOT as a key in the
+        # literal set above, and NOT via path statements: defining the
+        # "rnsh-borg" key in a literal set auto-vivifies the unit even when
+        # the value is empty, and systemd rejects the resulting
+        # ExecStart-less stub as "bad unit file setting" (pricklepants,
+        # 2026-11-08).
+        (lib.mkIf config.services.reticulum.rnshBorg.enable {
+        systemd.services."rnsh-borg".serviceConfig = {
+          MemoryHigh = lib.mkDefault "64M";
+          MemoryMax = lib.mkDefault "96M";
+        };
+        })
+      ];
     };
 }

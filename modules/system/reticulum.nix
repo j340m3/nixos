@@ -453,16 +453,31 @@ in
         };
 
         sops.secrets."reticulum/borg_identity" = lib.mkIf cfg.rnshBorg.enable {
-          key = "borg_identity";
-          sopsFile = ../../secrets/hosts/${host}/reticulum.yaml;
-          owner = "root";
-          group = "reticulum";
-          mode = "0440";
-          restartUnits = [ "rnsh-borg.service" ];
+            key = "borg_identity";
+            sopsFile = ../../secrets/hosts/${host}/reticulum.yaml;
+            owner = "root";
+            group = "reticulum";
+            mode = "0440";
+            restartUnits = [ "rnsh-borg.service" ];
         };
 
-        systemd.services.rnsh-borg = lib.mkIf cfg.rnshBorg.enable {
-          description = "rnsh bridge for borg (append-only repos)";
+        # rnsh-borg is ALWAYS defined as an attribute here, gated instead of
+        # mkIf'd away at the systemd.services level: an mkIf(false) at the
+        # service-attribute level still auto-vivifies the
+        # systemd.services.rnsh-borg name, and the merged (empty) entry then
+        # makes the unit generator emit an ExecStart-less stub that systemd
+        # rejects as "bad unit file setting". So: the attr always exists,
+        # enable becomes mkForce false where the bridge is off (the unit
+        # generator emits nothing for enable=false units), and the BODY is
+        # inside mkIf so hosts without the woody-only identity constant
+        # never evaluate it (pricklepants, 2026-11-08).
+        systemd.services = {
+          rnsh-borg = lib.mkMerge [
+            {
+              enable = lib.mkIf (!cfg.rnshBorg.enable) (lib.mkForce false);
+            }
+            (lib.mkIf cfg.rnshBorg.enable {
+            description = "rnsh bridge for borg (append-only repos)";
           after = [
             "reticulum.service"
             "reticulum-identity.service"
@@ -508,6 +523,8 @@ in
               ${allowBorgIdentities} \
               -- ${config.services.borgbackup.package}/bin/borg serve --append-only --restrict-to-path ${cfg.rnshBorg.repoPath}
           '';
+            })
+          ];
         };
 
         systemd.services.lxmf = lib.mkIf lxmf {
