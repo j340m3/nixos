@@ -304,7 +304,10 @@ in
               ;;
             -*) ;;
             *)
-              remote_command=1
+              # Bare positional without '--': NOT a nix-style remote command
+              # (nix always sends '--' before its command; borg sends args
+              # like "serve" directly). Such speakers need the bare protocol,
+              # so stop scanning without setting the marker.
               break
               ;;
           esac
