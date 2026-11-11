@@ -3,6 +3,52 @@ let
   constants = import ../global/_constants.nix;
 in
 {
+  # Option tree at file-import scope (same pattern as mesh-ports): declared
+  # for every host via the mkNixos factory so cross-aspect reach-ins
+  # (remote-builder.nix registers identityReaders) cannot break hosts that
+  # do not import the reticulum aspect (zurg, pre-2026-11-11).
+  flake.modules.nixos.reticulum-opts =
+    { lib, ... }:
+    {
+      options.services.reticulum = {
+        enable = lib.mkEnableOption "Reticulum";
+
+        # Non-root rnsh listeners need to read the identity and a minimal
+        # RNS config view; group "reticulum" grants exactly that.
+        identityReaders = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+          description = ''
+            Users added to the `reticulum` group. Members can read the decoded
+            fleet identity (/run/reticulum) and the shared-instance config
+            view (/var/lib/reticulum-share) — everything a non-root rnsh
+            listener needs. No write access anywhere.
+          '';
+        };
+
+        rnshBorg = {
+          enable = lib.mkEnableOption ''
+            a second rnsh listener (separate identity, sops key
+            `reticulum/borg_identity`) running `borg serve` as the borg user
+            instead of exposing the root nix daemon to backup traffic
+          '';
+
+          repoPath = lib.mkOption {
+            type = lib.types.path;
+            default = "/var/lib/borgbackup";
+            # mirrors the sshd accept side: clients cannot escape this tree
+            description = "Directory the borg listener is restricted to.";
+          };
+
+          allowIdentities = lib.mkOption {
+            type = lib.types.listOf (lib.types.strMatching "[0-9a-f]{32}");
+            default = [ ];
+            description = "RNS identity hashes permitted as rnsh-borg clients.";
+          };
+        };
+      };
+    };
+
   flake.modules.nixos.reticulum =
     {
       config,
@@ -26,6 +72,13 @@ in
           --replace-fail \
             'data_buffer = bytearray(sys.stdin.buffer.read()) if not os.isatty(sys.stdin.fileno()) else bytearray()' \
             'data_buffer = bytearray()'
+        # nix flows must tolerate slow peers (1 GB boxes under swap pressure);
+        # upstream floors the version handshake at 5 s, which flaked on
+        # pricklepants during its memory-thrash incident (2026-11-07).
+        substituteInPlace "$out/RNS/Utilities/rnsh/initiator.py" \
+          --replace-fail \
+            'vm = _pq.get(timeout=max(outlet.rtt * 20, 5))' \
+            'vm = _pq.get(timeout=max(outlet.rtt * 80, 30))'
       '';
       rnsh = pkgs.writeShellScriptBin "rnsh" ''
         export PYTHONPATH=${rnsPatched}''${PYTHONPATH:+:$PYTHONPATH}
@@ -82,12 +135,23 @@ in
         "    enabled = yes"
       ];
 
+      # Local RPC auth for the shared-instance control port. Without this, any
+      # instance that attaches to root's rnsd gets AuthenticationError as soon
+      # as Link code touches is_blackholed() (i.e. on every incoming
+      # LINKIDENTIFY) - which silently kills the rnsh version handshake and
+      # makes every non-root listener (rnsh-nix as remotebuild, rnsh-borg as
+      # borg) unconnectable ("Protocol error" on the client). The key is a
+      # stable per-host hash; /etc/reticulum/config is 0640 root:reticulum so
+      # it stays out of general users' reach.
+      rpcKey = builtins.substring 0 64 (builtins.hashString "sha256" "reticulum-rpc-${host}");
+
       configLines = [
         "[reticulum]"
         "  enable_transport = ${bool isPublic}"
         "  share_instance = yes"
         "  shared_instance_port = 37428"
         "  instance_control_port = 37429"
+        "  rpc_key = ${rpcKey}"
         "  panic_on_interface_error = no"
         "  discover_interfaces = ${bool isPublic}"
       ]
@@ -143,11 +207,16 @@ in
         lib.concatStringsSep "\n" (
           lib.mapAttrsToList (h: v: "${h}-rns ${v.nix}") constants.reticulum.identities
         )
+        # woody's SEPARATE ledger/listener identity: borg dialling
+        # borg@woody-borg-rns:repo hits the backup bridge, not the nix daemon.
+        + "\nwoody-borg-rns ${constants.reticulum.identities.woody.borg}"
         + "\n";
 
       allowedIdentities = lib.concatMapStringsSep " " (
         h: "-a ${constants.reticulum.identities.${h}.hash}"
       ) (lib.attrNames constants.reticulum.identities);
+
+      allowBorgIdentities = lib.concatMapStringsSep " " (h: "-a ${h}") cfg.rnshBorg.allowIdentities;
 
       sshShim = pkgs.runCommand "openssh-rns-shim" { } ''
             mkdir -p "$out/bin"
@@ -165,10 +234,14 @@ in
         hosts_file=/etc/reticulum/ssh-hosts
 
         rns_host=
+        host_pos=0
+        pos=0
         for arg in "$@"; do
+          pos=$((pos + 1))
           case "$arg" in
-            *-rns)
+            *-rns*)
               rns_host="$arg"
+              host_pos=$pos
               break
               ;;
           esac
@@ -176,8 +249,12 @@ in
 
         dest=
         if [ -n "$rns_host" ] && [ -r "$hosts_file" ]; then
-          while read -r name hash; do
-            if [ "$name" = "$rns_host" ]; then
+          # repo strings look like user@host:path — match on the host part
+          # ("borg@woody-borg-rns:pricklepants" → "woody-borg-rns").
+          name="''${rns_host%%:*}"
+          name="''${name##*@}"
+          while read -r hname hash; do
+            if [ "$hname" = "$name" ]; then
               dest="$hash"
               break
             fi
@@ -206,6 +283,33 @@ in
           exit 1
         fi
 
+        # nix prepends LocalCommand="echo started" (libstore/ssh.cc) and expects
+        # that marker back on stdout. Other speakers of this shim (borg, plain
+        # ssh) speak the bare protocol and must NOT see it: only a remote
+        # COMMAND after the host arg means "nix is talking".
+        remote_command=0
+        value_pending=0
+        for arg in "''${@:$((host_pos + 1))}"; do
+          if [ "$value_pending" = 1 ]; then
+            value_pending=0
+            continue
+          fi
+          case "$arg" in
+            --)
+              remote_command=1
+              break
+              ;;
+            -o|-i|-l|-p|-c|-m|-L|-R|-D|-S|-F|-b|-E|-O|-J|-w|-G|-I)
+              value_pending=1
+              ;;
+            -*) ;;
+            *)
+              remote_command=1
+              break
+              ;;
+          esac
+        done
+
         master=0
         session=0
         for arg in "$@"; do
@@ -214,7 +318,7 @@ in
             -S*) session=1 ;;
           esac
         done
-        if [ "$master" = 1 ] || [ "$session" = 0 ]; then
+        if [ "$master" = 1 ] || { [ "$session" = 0 ] && [ "$remote_command" = 1 ]; }; then
           printf 'started\n'
         fi
         exec "$rnsh" --rnsconfig ${stateDir} -i "$identity" "$dest"
@@ -223,10 +327,6 @@ in
       '';
     in
     {
-      options.services.reticulum = {
-        enable = lib.mkEnableOption "Reticulum";
-      };
-
       config = lib.mkIf cfg.enable {
         nixpkgs.config.allowUnfreePredicate = lib.mkDefault (
           pkg:
@@ -244,7 +344,22 @@ in
           mode = "0400";
         };
 
-        environment.etc."reticulum/config".text = configText;
+        # Non-root rnsh listeners: each process gets its OWN writable rnsconfig
+        # dir (RNS always creates storage/ there, even as a shared-instance
+        # client) with the fleet config symlinked in; group "reticulum" grants
+        # the 0440 identity reads. /var/lib/reticulum itself stays 0700 root.
+        users.groups.reticulum = { };
+        users.users = lib.listToAttrs (
+          map (u: lib.nameValuePair u { extraGroups = [ "reticulum" ]; })
+          (lib.unique (cfg.identityReaders ++ lib.optionals cfg.rnshBorg.enable [ "borg" ]))
+        );
+
+        environment.etc."reticulum/config" = {
+          text = configText;
+          # rpc_key in here: readable only by the listener accounts
+          mode = "0640";
+          group = "reticulum";
+        };
         environment.etc."reticulum/ssh-hosts".text = sshHosts;
         environment.etc."lxmd/config" = lib.mkIf lxmf {
           text = lxmfConfig;
@@ -264,13 +379,16 @@ in
             Type = "oneshot";
             RemainAfterExit = true;
             RuntimeDirectory = "reticulum";
-            RuntimeDirectoryMode = "0700";
+            RuntimeDirectoryMode = "0750";
+            # group-readable identity: non-root rnsh listeners (remotebuild,
+            # borg) authenticate for the shared instance through group perms
+            Group = "reticulum";
           };
           script = ''
             ${pkgs.coreutils}/bin/tr '_-' '/+' < ${
               config.sops.secrets."reticulum/identity".path
             } | ${pkgs.coreutils}/bin/base64 -d > /run/reticulum/identity
-            chmod 0400 /run/reticulum/identity
+            chmod 0440 /run/reticulum/identity
           '';
         };
 
@@ -289,6 +407,12 @@ in
             Restart = "always";
             RestartSec = "3s";
           };
+          # rnsd reads its config once at start; without a trigger a config
+          # change (rpc_key, interfaces) silently leaves rnsd on the old
+          # file -> rpc authkey mismatch -> initiator-side "Protocol error"
+          restartTriggers = [
+            (pkgs.writeText "reticulum-config-restart-trigger" configText)
+          ];
         };
 
         systemd.services.rnsh-nix = {
@@ -307,18 +431,108 @@ in
             Restart = "always";
             RestartSec = "3s";
             LimitNOFILE = 1024;
+            # Downgraded from root: identity is the authorized_keys equivalent,
+            # the remotebuild account is the factor between peer and daemon —
+            # byte-for-byte the same chain as the nebula ssh-ng path.
+            User = "remotebuild";
+            Group = "remotebuild";
+            # RNS wants a writable config dir in $HOME (remotebuild's is /var/empty)
+            RuntimeDirectory = "rnsh-nix";
+            Environment = "HOME=/run/rnsh-nix";
+            # own writable rnsconfig: RNS creates storage/ here; the fleet
+            # config is symlinked in by the root ExecStartPre below
+            ExecStartPre = "+${
+              pkgs.writeShellScript "rnsh-nix-rnsconfig" ''
+                ${pkgs.coreutils}/bin/ln -sfn /etc/reticulum/config /run/rnsh-nix/config
+              ''
+            }";
           };
           script = ''
             expected=${constants.reticulum.identities.${host}.nix}
-            actual=$(${rnspython}/bin/rnid -i /run/reticulum/identity -H rnsh 2>/dev/null | ${pkgs.gnugrep}/bin/grep 'rnsh destination' | ${pkgs.gnugrep}/bin/grep -oE '[0-9a-f]{32}' || true)
+            actual=$(${rnspython}/bin/rnid --config /run/rnsh-nix -i /run/reticulum/identity -H rnsh 2>/dev/null | ${pkgs.gnugrep}/bin/grep 'rnsh destination' | ${pkgs.gnugrep}/bin/grep -oE '[0-9a-f]{32}' || true)
             if [ "$actual" != "$expected" ]; then
               echo "rnsh-nix: destination hash mismatch: expected $expected, got '$actual'" >&2
               exit 1
             fi
-            exec ${rnsh}/bin/rnsh --rnsconfig ${stateDir} -l -b 900 -C -i /run/reticulum/identity \
+            exec ${rnsh}/bin/rnsh --rnsconfig /run/rnsh-nix -l -b 900 -C -i /run/reticulum/identity \
               ${allowedIdentities} \
               -- ${config.nix.package}/bin/nix-daemon --stdio
           '';
+        };
+
+        sops.secrets."reticulum/borg_identity" = lib.mkIf cfg.rnshBorg.enable {
+            key = "borg_identity";
+            sopsFile = ../../secrets/hosts/${host}/reticulum.yaml;
+            owner = "root";
+            group = "reticulum";
+            mode = "0440";
+            restartUnits = [ "rnsh-borg.service" ];
+        };
+
+        # rnsh-borg is ALWAYS defined as an attribute here, gated instead of
+        # mkIf'd away at the systemd.services level: an mkIf(false) at the
+        # service-attribute level still auto-vivifies the
+        # systemd.services.rnsh-borg name, and the merged (empty) entry then
+        # makes the unit generator emit an ExecStart-less stub that systemd
+        # rejects as "bad unit file setting". So: the attr always exists,
+        # enable becomes mkForce false where the bridge is off (the unit
+        # generator emits nothing for enable=false units), and the BODY is
+        # inside mkIf so hosts without the woody-only identity constant
+        # never evaluate it (pricklepants, 2026-11-08).
+        systemd.services = {
+          rnsh-borg = lib.mkMerge [
+            {
+              enable = lib.mkIf (!cfg.rnshBorg.enable) (lib.mkForce false);
+            }
+            (lib.mkIf cfg.rnshBorg.enable {
+            description = "rnsh bridge for borg (append-only repos)";
+          after = [
+            "reticulum.service"
+            "reticulum-identity.service"
+          ];
+          requires = [
+            "reticulum.service"
+            "reticulum-identity.service"
+          ];
+          wantedBy = [ "multi-user.target" ];
+          serviceConfig = {
+            PartOf = [ "reticulum.service" ];
+            Restart = "always";
+            RestartSec = "3s";
+            LimitNOFILE = 1024;
+            User = "borg";
+            Group = "borg";
+            # clients read repo path "NAME" relative to the serving process CWD
+            WorkingDirectory = "${cfg.rnshBorg.repoPath}";
+            # borg's home is /var/empty (root-owned); RNS needs a writable HOME
+            Environment = "HOME=/run/rnsh-borg";
+            RuntimeDirectory = "rnsh-borg";
+            # the bridge identity is borg-only: decode happens here as root
+            ExecStartPre = "+${
+              pkgs.writeShellScript "rnsh-borg-identity" ''
+                ${pkgs.coreutils}/bin/tr '_-' '/+' < ${
+                  config.sops.secrets."reticulum/borg_identity".path
+                } | ${pkgs.coreutils}/bin/base64 -d > /run/reticulum/identity-borg
+                # the + Exec runs root:root; the listener reads via group perms
+                chown root:reticulum /run/reticulum/identity-borg
+                chmod 0440 /run/reticulum/identity-borg
+                ${pkgs.coreutils}/bin/ln -sfn /etc/reticulum/config /run/rnsh-borg/config
+              ''
+            }";
+          };
+          script = ''
+            expected=${constants.reticulum.identities.${host}.borg}
+            actual=$(${rnspython}/bin/rnid --config /run/rnsh-borg -i /run/reticulum/identity-borg -H rnsh 2>/dev/null | ${pkgs.gnugrep}/bin/grep 'rnsh destination' | ${pkgs.gnugrep}/bin/grep -oE '[0-9a-f]{32}' || true)
+            if [ "$actual" != "$expected" ]; then
+              echo "rnsh-borg: destination hash mismatch: expected $expected, got '$actual'" >&2
+              exit 1
+            fi
+            exec ${rnsh}/bin/rnsh --rnsconfig /run/rnsh-borg -l -b 900 -C -i /run/reticulum/identity-borg \
+              ${allowBorgIdentities} \
+              -- ${config.services.borgbackup.package}/bin/borg serve --append-only --restrict-to-path ${cfg.rnshBorg.repoPath}
+          '';
+            })
+          ];
         };
 
         systemd.services.lxmf = lib.mkIf lxmf {
@@ -338,6 +552,9 @@ in
             RestartSec = "3s";
             TimeoutStopSec = "10s";
           };
+          restartTriggers = [
+            (pkgs.writeText "lxmf-config-restart-trigger" lxmfConfig)
+          ];
         };
 
         networking.firewall.allowedTCPPorts = lib.mkIf isPublic [ constants.reticulum.port ];

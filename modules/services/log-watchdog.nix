@@ -37,7 +37,12 @@ in
       systemd.services.log-watchdog = {
         description = "Alert when roster hosts stop shipping logs";
         after = [ "sops-nix.service" ];
-        requires = [ "sops-nix.service" ];
+        # requires dropped 2026-11-04: no host runs a sops-nix.service (secrets
+        # render through a different path), and requiring the not-found unit
+        # made the timer fail with "Failed to queue unit startup job". The
+        # ConditionPathExists below skips the run instead if the token is
+        # absent at fire time (timer runs long after boot-time rendering).
+        unitConfig.ConditionPathExists = config.sops.secrets."telegram/bot_token".path;
         serviceConfig = {
           Type = "oneshot";
           ExecStart = pkgs.writeShellScript "log-watchdog" ''

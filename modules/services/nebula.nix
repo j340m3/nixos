@@ -80,6 +80,12 @@ in
           }) config.mesh.openInbound;
 
       };
+      # open the mesh UDP port on ALL module-managed hosts, not just
+      # lighthouses: peers must be able to initiate handshakes directly even
+      # when NAT reply-state died (woody<->pricklepants handshake deadlock
+      # after the 2026-11-03 restarts: 24k sent / 24k timed out / 1 received
+      # over three days while pricklepants' replies never made it back).
+      networking.firewall.allowedUDPPorts = [ constants.nebula.port ];
 
       sops.secrets."nebula/ca_crt" = {
         restartUnits = [ "nebula@mesh.service" ];

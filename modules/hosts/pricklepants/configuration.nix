@@ -192,6 +192,10 @@ in
         sopsFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
       };
 
+      # Phase-1 RNS cutover: repo resolves through the binary-clean reticulum
+      # bridge on woody; BORG_RSH stays for a one-line rollback to nebula
+      # (the -rns shim drops -i/-p, so the key is inert on this path and the
+      # endlessh tarpit no longer applies).
       services.borgbackup.jobs.pricklepants = {
         paths = [
           "/etc"
@@ -202,11 +206,8 @@ in
           BORG_RSH = "ssh -i ${
             config.sops.secrets."borg/pricklepants".path
           } -p ${toString constants.sshPort}";
-          # the loghost's endlessh owns port 22 (ssh hardening aspect); the real
-          # sshd answers on constants.sshPort - without the -p the job hangs in
-          # the tarpit forever (2026-11-03 log sweep).
         };
-        repo = "borg@${constants.host.woody.ip}:pricklepants";
+        repo = "borg@woody-borg-rns:pricklepants";
         compression = "auto,lzma";
         startAt = "daily";
       };
