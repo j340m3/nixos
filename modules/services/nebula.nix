@@ -11,7 +11,8 @@ in
       ...
     }:
     let
-      # lighthouse status rides the roster (inline nebula hosts set their own)
+      # lighthouse status rides the roster (see the nebula-lighthouse flavor
+      # below for the hosts that used to configure nebula inline)
       isLighthouse = builtins.elem config.networking.hostName constants.lighthouses;
       # a host must never list itself as lighthouse/relay: nebula requires every
       # entry to have a static_host_map entry, and constants.nebula.staticMap
@@ -23,8 +24,7 @@ in
     in
     {
       # Mesh member => remote-build accept side (every mesh host builds for the
-      # fleet). The two lighthouses (pricklepants, buzz) define nebula inline in
-      # their host files, so they import the remote-builder aspect there.
+      # fleet). The nebula-lighthouse flavor below inherits this import.
       imports = [ inputs.self.modules.nixos.remote-builder ];
 
       environment.systemPackages = with pkgs; [
@@ -32,7 +32,9 @@ in
       ];
 
       services.nebula.networks.mesh = {
-        listen.host = "[::]";
+        # mkDefault so the nebula-lighthouse flavor can keep its verbatim
+        # v4-only listen host
+        listen.host = lib.mkDefault "[::]";
         enable = true;
         inherit isLighthouse;
         # roster in modules/global/_constants.nix: names -> mesh ip + public endpoints
@@ -78,29 +80,49 @@ in
           }) config.mesh.openInbound;
 
       };
-      # module-managed lighthouses accept WAN peerings; the two inline nebula
-      # hosts (pricklepants, buzz) don't import this module
-      networking.firewall.allowedUDPPorts = lib.mkIf isLighthouse [ constants.nebula.port ];
 
       sops.secrets."nebula/ca_crt" = {
         restartUnits = [ "nebula@mesh.service" ];
         owner = "nebula-mesh";
         group = "nebula-mesh";
-        path = "/etc/nebula/ca.crt";
+        path = "${config.mesh.nebulaSecretDir}/ca.crt";
       };
       sops.secrets."nebula/self_crt" = {
         sopsFile = ../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
         restartUnits = [ "nebula@mesh.service" ];
         owner = "nebula-mesh";
         group = "nebula-mesh";
-        path = "/etc/nebula/self.crt";
+        path = "${config.mesh.nebulaSecretDir}/self.crt";
       };
       sops.secrets."nebula/self_key" = {
         sopsFile = ../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
         restartUnits = [ "nebula@mesh.service" ];
         owner = "nebula-mesh";
         group = "nebula-mesh";
-        path = "/etc/nebula/self.key";
+        path = "${config.mesh.nebulaSecretDir}/self.key";
+      };
+    };
+
+  # Lighthouse flavor for the hosts that used to carry their nebula config
+  # inline (buzz, pricklepants): same aspect underneath, but the rendered
+  # config stays byte-for-byte what those hosts had — no lighthouse/relay
+  # lists (upstream ignores them on am_lighthouse nodes anyway), relay
+  # enabled, v4-only listen host, and the forced capability set. Per-host
+  # leftovers (punchy drift, DNS serving, mesh inbound ports, secret dir)
+  # live in the host files.
+  flake.modules.nixos.nebula-lighthouse =
+    { lib, ... }:
+    {
+      imports = [ inputs.self.modules.nixos.nebula ];
+      services.nebula.networks.mesh = {
+        isRelay = true;
+        lighthouses = lib.mkForce [ ];
+        relays = lib.mkForce [ ];
+        listen.host = "0.0.0.0";
+      };
+      systemd.services."nebula@mesh".serviceConfig = {
+        CapabilityBoundingSet = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+        AmbientCapabilities = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
       };
     };
 }

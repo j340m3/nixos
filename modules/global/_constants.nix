@@ -185,8 +185,8 @@ in
     ;
 
   # staticHostMap for nebula configs: all lighthouses except the host itself
-  # (name -> ip + endpoints). Used by modules/nebula.nix and the two inline
-  # lighthouse configs: constants.nebula.staticMap config.networking.hostName.
+  # (name -> ip + endpoints). Used by modules/services/nebula.nix:
+  # constants.nebula.staticMap config.networking.hostName.
   nebula.staticMap =
     self:
     builtins.listToAttrs (

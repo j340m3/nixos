@@ -10,9 +10,7 @@ in
 {
   flake.modules.nixos.buzz =
     {
-      config,
       lib,
-      pkgs,
       modulesPath,
       ...
     }:
@@ -31,9 +29,9 @@ in
         # fight it over ACME identity and sops secrets when buzz returns
         inputs.self.modules.nixos.wireguard
         inputs.self.modules.nixos.pihole
-        # nebula config is defined inline below (this host is a lighthouse);
-        # pull in the remote-build accept side that other mesh members get via modules/_nebula.nix
-        inputs.self.modules.nixos.remote-builder
+        # nebula via the lighthouse flavor (roster-derived am_lighthouse); it
+        # also brings the remote-build accept side
+        inputs.self.modules.nixos.nebula-lighthouse
       ];
 
       # Use the GRUB 2 boot loader.
@@ -49,52 +47,21 @@ in
 
       system.stateVersion = "25.05";
 
-      environment.systemPackages = with pkgs; [
-        nebula
-      ];
-
+      # Lighthouse flavor comes from inputs.self.modules.nixos.nebula-lighthouse
+      # (roster-derived); what stays host-local:
       services.nebula.networks.mesh = {
-        enable = true;
-        isLighthouse = true;
-        isRelay = true;
-        cert = config.sops.secrets."nebula/self_crt".path; # "/run/secrets/nebula/self.crt";
-        key = config.sops.secrets."nebula/self_key".path; # "/run/secrets/nebula/self.key";
-        ca = config.sops.secrets."nebula/ca_crt".path; # "/run/secrets/nebula/ca.crt";
-        # staticHostMap (other lighthouse) comes from modules/global/_constants.nix.
-        staticHostMap = constants.nebula.staticMap config.networking.hostName;
-        settings = {
-          lighthouse = {
-            serve_dns = false;
-            dns = {
-              host = "0.0.0.0";
-              port = 53;
-            };
-          };
-          static_map = {
-            network = "ip";
-          };
-          cipher = "aes";
-          punchy = {
-            punch = true;
-            reload = true;
-          };
+        # drift vs. the shared aspect (punchy.respond): reload makes nebula
+        # reload its certificate on change — kept verbatim, unify as follow-up
+        settings.punchy = lib.mkForce {
+          punch = true;
+          reload = true;
         };
-        firewall.outbound = [
-          {
-            cidr = constants.nebula.cidr;
-            port = "any";
-            proto = "any";
-          }
-        ];
-        # Inline nebula (lighthouse) config: consumes the shared mesh-port
-        # collector (modules/nix/mesh.nix) like the nebula aspect does, so the
-        # ssh entry contributed by modules/system/ssh.nix lands in the rules.
+        # serve DNS over the mesh for fleet members; claimed from
+        # systemd-resolved via the firewall rules below
+        lighthouse.dns.host = "0.0.0.0";
+        lighthouse.dns.port = 53;
+        # lighthouse-only mesh surfaces: DNS + the zabbix proxy agent
         firewall.inbound = [
-          {
-            cidr = constants.nebula.cidr;
-            port = "any";
-            proto = "icmp";
-          }
           {
             cidr = constants.nebula.cidr;
             port = "53";
@@ -105,21 +72,11 @@ in
             port = "10050";
             proto = "any";
           }
-          {
-            cidr = constants.nebula.cidr;
-            port = "42069";
-            proto = "tcp";
-          }
-        ] ++ map (r: {
-          cidr = constants.nebula.cidr;
-          inherit (r) port proto;
-        }) config.mesh.openInbound;
+        ];
       };
+      # cert/key material lives on the persistent btrfs root
+      mesh.nebulaSecretDir = "/nix/persist/etc/nebula";
 
-      systemd.services."nebula@mesh".serviceConfig = {
-        CapabilityBoundingSet = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-        AmbientCapabilities = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-      };
       # allow nebula to claim port 53 from systemd-resolved
       #services.resolved.extraConfig = ''
       #  DNSStubListener=no
@@ -127,27 +84,6 @@ in
       # open the systems firewall for DNS on the nebula interface and public interfaces
       networking.firewall.interfaces."nebula.mesh".allowedUDPPorts = [ 53 ];
       networking.firewall.allowedUDPPorts = [ 53 ];
-
-      sops.secrets."nebula/ca_crt" = {
-        restartUnits = [ "nebula@mesh.service" ];
-        owner = "nebula-mesh";
-        group = "nebula-mesh";
-        path = "/nix/persist/etc/nebula/ca.crt";
-      };
-      sops.secrets."nebula/self_crt" = {
-        sopsFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
-        restartUnits = [ "nebula@mesh.service" ];
-        owner = "nebula-mesh";
-        group = "nebula-mesh";
-        path = "/nix/persist/etc/nebula/self.crt";
-      };
-      sops.secrets."nebula/self_key" = {
-        sopsFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
-        restartUnits = [ "nebula@mesh.service" ];
-        owner = "nebula-mesh";
-        group = "nebula-mesh";
-        path = "/nix/persist/etc/nebula/self.key";
-      };
 
       # upgradeHealth.enable = true comes from inputs.self.modules.nixos.vps-guest.
     };

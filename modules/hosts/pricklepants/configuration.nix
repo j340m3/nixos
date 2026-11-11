@@ -33,9 +33,9 @@ in
         inputs.self.modules.nixos.acme
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.wireguard
-        # nebula config is defined inline below (this host is a lighthouse);
-        # pull in the remote-build accept side that other mesh members get via modules/_nebula.nix
-        inputs.self.modules.nixos.remote-builder
+        # nebula via the lighthouse flavor (roster-derived am_lighthouse); it
+        # also brings the remote-build accept side
+        inputs.self.modules.nixos.nebula-lighthouse
       ];
 
       # Inlined from ./_hardware-configuration.nix (zero host-local glue, ADR 0014).
@@ -73,7 +73,6 @@ in
         git
         #chkrootkit
         #nix-tree
-        nebula
       ];
 
       networking.hostName = "pricklepants";
@@ -167,80 +166,26 @@ in
       services.logrotate.enable = true;
       services.logrotate.checkConfig = false;
 
+      # Lighthouse flavor comes from inputs.self.modules.nixos.nebula-lighthouse
+      # (roster-derived); what stays host-local:
       services.nebula.networks.mesh = {
-        enable = true;
-        isLighthouse = true;
-        isRelay = true;
-        cert = config.sops.secrets."nebula/self_crt".path; # "/run/secrets/nebula/self.crt";
-        key = config.sops.secrets."nebula/self_key".path; # "/run/secrets/nebula/self.key";
-        ca = config.sops.secrets."nebula/ca_crt".path;
-        # staticHostMap (other lighthouse) comes from modules/global/_constants.nix.
-        staticHostMap = constants.nebula.staticMap config.networking.hostName;
-        settings = {
-          lighthouse = {
-            serve_dns = false;
-          };
-          static_map = {
-            network = "ip";
-          };
-          cipher = "aes";
-          punchy = {
-            punch = true;
-            reload = true;
-          };
+        # drift vs. the shared aspect (punchy.respond): reload makes nebula
+        # reload its certificate on change — kept verbatim, unify as follow-up
+        settings.punchy = lib.mkForce {
+          punch = true;
+          reload = true;
         };
-        firewall.outbound = [
-          {
-            cidr = constants.nebula.cidr;
-            port = "any";
-            proto = "any";
-          }
-        ];
-        # Inline nebula (lighthouse) config: consumes the shared mesh-port
-        # collector (modules/nix/mesh.nix) like the nebula aspect does, so the
-        # ssh entry contributed by modules/system/ssh.nix lands in the rules.
+        # the zabbix proxy agent must stay reachable over the mesh
         firewall.inbound = [
-          {
-            cidr = constants.nebula.cidr;
-            port = "42069";
-            proto = "tcp";
-          }
-          {
-            cidr = constants.nebula.cidr;
-            port = "any";
-            proto = "icmp";
-          }
           {
             cidr = constants.nebula.cidr;
             port = "10050";
             proto = "any";
           }
-        ] ++ map (r: {
-          cidr = constants.nebula.cidr;
-          inherit (r) port proto;
-        }) config.mesh.openInbound;
+        ];
       };
-
-      sops.secrets."nebula/ca_crt" = {
-        restartUnits = [ "nebula@mesh.service" ];
-        owner = "nebula-mesh";
-        group = "nebula-mesh";
-        path = "/nix/persist/etc/nebula/ca.crt";
-      };
-      sops.secrets."nebula/self_crt" = {
-        sopsFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
-        restartUnits = [ "nebula@mesh.service" ];
-        owner = "nebula-mesh";
-        group = "nebula-mesh";
-        path = "/nix/persist/etc/nebula/self.crt";
-      };
-      sops.secrets."nebula/self_key" = {
-        sopsFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
-        restartUnits = [ "nebula@mesh.service" ];
-        owner = "nebula-mesh";
-        group = "nebula-mesh";
-        path = "/nix/persist/etc/nebula/self.key";
-      };
+      # cert/key material lives on the persistent btrfs root
+      mesh.nebulaSecretDir = "/nix/persist/etc/nebula";
 
       # Key rotated 2026-10-19 after the priv was never published (backups failed
       # auth with /dev/null); rotate into woody's repos via the .pub file.
@@ -270,11 +215,6 @@ in
       systemd.services."borgbackup-job-pricklepants".onFailure =
         lib.mkIf config.systemd.services."notify-telegram@".enable
           [ "notify-telegram@%i.service" ];
-
-      systemd.services."nebula@mesh".serviceConfig = {
-        CapabilityBoundingSet = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-        AmbientCapabilities = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-      };
 
 
       # 1 GB RAM, 10 GB disk: earlyoom as the OOM safety net, swap-inflation
