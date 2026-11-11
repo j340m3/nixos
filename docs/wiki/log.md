@@ -1,4 +1,42 @@
 # Research log
+## 2026-11-11 — unify-aspects dedupe migration landed [dendritic]
+
+Task: settle and execute the copy-paste unification the user asked for ("can
+we unify to more aspects?"), scoped by grilling to low-risk/high-volume
+clusters under a strict zero-behavior-change rule. Decision: ADR-0015.
+
+Landed on `unify-aspects`, seven ordered commits, each verified by per-host
+toplevel drvPath equality (10 x86 hosts; slinky via targeted option evals at
+the aarch64 IFD wall):
+- c3aa130 dead template/superseded comment sweep (−536 lines, pre-inventory).
+- 16647fb locale/timezone/zram host re-sets covered by shared aspects.
+- 9c0b576 `vps-guest` aspect (sudo lecture + upgradeHealth).
+- 0c378cf bootstrap split into `bootstrap-core` + btrfs-root /
+  tmpfs-root layouts (`bootstrap-base` unchanged for buzz).
+- 0d26b91 `mesh.openInbound` collector option: 7 modules stop hand-wiring
+  firewall + nebula-inbound triples.
+- c612fba `nebula-lighthouse` flavor + `mesh.nebulaSecretDir`; buzz and
+  pricklepants inline ~90-line configs collapse to their true deltas.
+- c6a22db xkb `mkDefault` fill-in in the locale aspect + new `basics` aspect
+  (`boot.tmp.cleanOnBoot = mkDefault true`).
+
+Findings:
+- Verification bar: drvPath equality makes every deviation a one-line
+  explanation. Recorded deltas: collector-driven inbound rule order (allow-
+  only), system-path provenance moves, and the two user-approved
+  `cleanOnBoot` fill-ins (jessie + slinky).
+- The roster already lists jessie/mrpotatohead as lighthouses importing the
+  shared aspect, so the lighthouse flavor had to be a separate module, not a
+  `mkIf (!isLighthouse)` gate in the shared body.
+- Upstream nixpkgs nebula module opens UDP 4242 itself for
+  lighthouse/relay networks — the aspect's own allowedUDPPorts line was
+  redundant and deleted with zero drift.
+- Net −740 lines over the seven commits; deferred queue (user/credentials,
+  flake.lib helper files, small skeletons) recorded in the synthesis.
+
+Written: syntheses/unify-aspects.md; index.md (new "Unify-aspects dedupe
+migration" thread); ADR docs/adr/0015-unify-aspects-dedupe.md.
+
 
 ## 2026-10-22 — php2shell remediation implemented in-repo [php2shell]
 

@@ -186,7 +186,21 @@ pair means for this repo, and which PHP it routines on.
 - FrankenPHP nixpkgs update PR #577351 open; irrelevant while this repo runs
   nginx+php-fpm only.
 
-## Conventions
+## Unify-aspects dedupe migration (2026-11-04 → 2026-11-11)
+
+Purpose: remove the copy-paste remaining above the ADR-0014 end state —
+bootstrap split, vps-guest aspect, mesh-port collector, nebula lighthouse
+flavor, xkb/basics fill-ins — under a strict zero-behavior-change rule
+verified by per-host toplevel derivation-path equality. Decision recorded in
+[ADR-0015](../../docs/adr/0015-unify-aspects-dedupe.md).
+
+### Pages
+
+- [synthesis](syntheses/unify-aspects.md) — commit map (c3aa130…c6a22db,
+  net −740 lines), verification protocol, semantic-neutral delta ledger,
+  preserved-drift list, deferred queue (user/credentials, flake.lib helpers).
+
+### Conventions
 
 - Claims in concept/synthesis pages cite the source pages inline.
 - Source pages carry the external URLs.
