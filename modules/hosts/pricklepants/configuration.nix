@@ -203,7 +203,12 @@ in
         ];
         encryption.mode = "none";
         environment = {
-          BORG_RSH = "ssh -i ${
+          # Absolute path: the borgbackup module adds pkgs.openssh to the unit
+          # PATH (path = [ package openssh ]), which shadows the -rns shim and
+          # breaks name resolution for woody-borg-rns (2026-11-11). Pin the
+          # shim explicitly; the shim drops -i/-p, key stays inert here and
+          # keeps the one-line rollback to nebula working.
+          BORG_RSH = "/run/current-system/sw/bin/ssh -i ${
             config.sops.secrets."borg/pricklepants".path
           } -p ${toString constants.sshPort}";
         };
