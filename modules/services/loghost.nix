@@ -29,20 +29,16 @@ in
       };
       # The host firewall above is not enough: nebula has its own in-tunnel
       # firewall, and remote hosts' TCP 514 connections were silently dropped.
-      services.nebula.networks.mesh.firewall.inbound =
-        lib.mkIf config.services.nebula.networks.mesh.enable
-          [
-            {
-              cidr = constants.nebula.cidr;
-              port = 514;
-              proto = "tcp";
-            }
-            {
-              cidr = constants.nebula.cidr;
-              port = 514;
-              proto = "udp";
-            }
-          ];
+      mesh.openInbound = [
+        {
+          port = 514;
+          proto = "tcp";
+        }
+        {
+          port = 514;
+          proto = "udp";
+        }
+      ];
       services.journald.settings.Journal = {
         MaxRetentionSec = "1week";
         # imjournal is the single reader; ForwardToSyslog would also feed

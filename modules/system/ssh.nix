@@ -76,15 +76,14 @@ in
         };
 
         networking.firewall.allowedTCPPorts = [ constants.sshPort ];
-        services.nebula.networks.mesh.firewall.inbound =
-          lib.mkIf (config.services.openssh.enable && config.services.nebula.networks.mesh.enable)
-            [
-              {
-                cidr = constants.nebula.cidr;
-                port = constants.sshPort;
-                proto = "any";
-              }
-            ];
+        # openssh.enable is always true in this module, so no gate is needed;
+        # the nebula aspect renders this as an inbound mesh rule.
+        mesh.openInbound = [
+          {
+            port = constants.sshPort;
+            proto = "any";
+          }
+        ];
       };
     };
 }

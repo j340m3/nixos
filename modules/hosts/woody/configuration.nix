@@ -4,10 +4,6 @@
 # inputs/constants close over the head args. Two-file host: the hardware
 # scan result is inlined below — no host-local glue.
 { inputs, lib, ... }:
-let
-  constants = import ../../../modules/global/_constants.nix;
-in
-
 {
   flake.modules.nixos.woody =
     {
@@ -254,17 +250,15 @@ in
         8080
         10051
       ];
-      services.nebula.networks.mesh.firewall.inbound = lib.mkMerge [
-        (lib.mkIf (config.services.immich.enable && config.services.nebula.networks.mesh.enable) [
+      mesh.openInbound = lib.mkMerge [
+        (lib.mkIf config.services.immich.enable [
           {
-            cidr = constants.nebula.cidr;
             port = config.services.immich.port;
             proto = "any";
           }
         ])
-        (lib.mkIf (config.services.paperless.enable && config.services.nebula.networks.mesh.enable) [
+        (lib.mkIf config.services.paperless.enable [
           {
-            cidr = constants.nebula.cidr;
             port = config.services.paperless.port;
             proto = "any";
           }

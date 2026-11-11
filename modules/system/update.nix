@@ -1,8 +1,5 @@
 # dendritic aspect (ADR 0014): update absorbed from _common/update.nix.
 { inputs, ... }:
-let
-  constants = import ../global/_constants.nix;
-in
 {
   flake.modules.nixos.update =
     {
@@ -34,11 +31,10 @@ in
           git
         ];
 
-        services.nebula.networks.mesh.firewall.inbound =
-          lib.mkIf (config.services.comin.enable && config.services.nebula.networks.mesh.enable)
+        mesh.openInbound =
+          lib.mkIf config.services.comin.enable
             [
               {
-                cidr = constants.nebula.cidr;
                 port = "4242";
                 proto = "any";
               }

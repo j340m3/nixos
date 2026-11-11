@@ -21,6 +21,7 @@
     ${name} = inputs.nixpkgs.lib.nixosSystem {
       modules = [
         self.modules.nixos.${name}
+        self.modules.nixos.mesh-ports
         { nixpkgs.hostPlatform = lib.mkDefault system; }
       ];
     };

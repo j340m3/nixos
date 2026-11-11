@@ -1,7 +1,4 @@
 { inputs, ... }:
-let
-  constants = import ../global/_constants.nix;
-in
 {
   flake.modules.nixos.grafana =
     {
@@ -55,11 +52,10 @@ in
       networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [
         config.services.grafana.settings.server.http_port
       ];
-      services.nebula.networks.mesh.firewall.inbound =
-        lib.mkIf (config.services.grafana.enable && config.services.nebula.networks.mesh.enable)
+      mesh.openInbound =
+        lib.mkIf config.services.grafana.enable
           [
             {
-              cidr = constants.nebula.cidr;
               port = config.services.grafana.settings.server.http_port;
               proto = "any";
             }

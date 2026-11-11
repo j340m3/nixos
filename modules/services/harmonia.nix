@@ -1,7 +1,4 @@
 { inputs, ... }:
-let
-  constants = import ../global/_constants.nix;
-in
 {
   flake.modules.nixos.harmonia =
     {
@@ -65,21 +62,18 @@ in
         5000
       ];
 
-      services.nebula.networks.mesh.firewall.inbound =
-        lib.mkIf (config.services.harmonia.cache.enable && config.services.nebula.networks.mesh.enable)
+      mesh.openInbound =
+        lib.mkIf config.services.harmonia.cache.enable
           [
             {
-              cidr = constants.nebula.cidr;
               port = 5000;
               proto = "tcp";
             }
             {
-              cidr = constants.nebula.cidr;
               port = 443;
               proto = "tcp";
             }
             {
-              cidr = constants.nebula.cidr;
               port = 80;
               proto = "tcp";
             }

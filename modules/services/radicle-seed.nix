@@ -1,7 +1,4 @@
 { inputs, ... }:
-let
-  constants = import ../global/_constants.nix;
-in
 {
   flake.modules.nixos.radicle-seed =
     {
@@ -59,21 +56,18 @@ in
         80
         443
       ];
-      services.nebula.networks.mesh.firewall.inbound =
-        lib.mkIf (config.services.radicle.enable && config.services.nebula.networks.mesh.enable)
+      mesh.openInbound =
+        lib.mkIf config.services.radicle.enable
           [
             {
-              cidr = constants.nebula.cidr;
               port = config.services.radicle.node.listenPort;
               proto = "any";
             }
             {
-              cidr = constants.nebula.cidr;
               port = 80;
               proto = "any";
             }
             {
-              cidr = constants.nebula.cidr;
               port = 443;
               proto = "any";
             }

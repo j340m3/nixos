@@ -60,32 +60,22 @@ in
           }
         ];
 
-        firewall.inbound = [
-          {
-            cidr = constants.nebula.cidr;
-            proto = "icmp";
-            port = "any";
-          }
-          /*
+        firewall.inbound =
+          [
             {
               cidr = constants.nebula.cidr;
+              proto = "icmp";
               port = "any";
-              proto = "any";
             }
-          */
-        ];
-        /*
-          {
+          ]
+          # Feature modules contribute their mesh surfaces via mesh.openInbound
+          # (carrier: modules/nix/mesh.nix); order follows their definition
+          # order. Allow-rules only, so reordering vs. the old per-module
+          # inline lists is semantically neutral.
+          ++ map (r: {
             cidr = constants.nebula.cidr;
-            port = "any";
-            proto = "any";
-          }]
-          ++ lib.optional (config.useComin) ({
-            cidr = constants.nebula.cidr;
-            port = "4242";
-            proto = "any";
-          });
-        */
+            inherit (r) port proto;
+          }) config.mesh.openInbound;
 
       };
       # module-managed lighthouses accept WAN peerings; the two inline nebula

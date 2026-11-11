@@ -86,6 +86,9 @@ in
             proto = "any";
           }
         ];
+        # Inline nebula (lighthouse) config: consumes the shared mesh-port
+        # collector (modules/nix/mesh.nix) like the nebula aspect does, so the
+        # ssh entry contributed by modules/system/ssh.nix lands in the rules.
         firewall.inbound = [
           {
             cidr = constants.nebula.cidr;
@@ -107,7 +110,10 @@ in
             port = "42069";
             proto = "tcp";
           }
-        ];
+        ] ++ map (r: {
+          cidr = constants.nebula.cidr;
+          inherit (r) port proto;
+        }) config.mesh.openInbound;
       };
 
       systemd.services."nebula@mesh".serviceConfig = {
