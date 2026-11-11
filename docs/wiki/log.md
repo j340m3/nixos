@@ -1,4 +1,5 @@
 # Research log
+
 ## 2026-11-11 — unify-aspects dedupe migration landed [dendritic]
 
 Task: settle and execute the copy-paste unification the user asked for ("can
@@ -37,6 +38,42 @@ Findings:
 Written: syntheses/unify-aspects.md; index.md (new "Unify-aspects dedupe
 migration" thread); ADR docs/adr/0015-unify-aspects-dedupe.md.
 
+## 2026-11-04 — ingest | Coral USB TPU for ML log analysis research
+
+Task: research whether a Google Coral USB Accelerator (Edge TPU) can be the ML accelerator for automatic log analysis: (1) can it be used, (2) performance ceiling, (3) implementation difficulty. Research and writing only — no Nix code touched.
+
+Findings:
+- Yes, technically feasible: host-featurized logs → fully INT8-quantized TFLite model → PyCoral + libedgetpu delegate on the USB Accelerator; training off-device only. But a poor fit: Edge TPU op set is CNN-oriented (MobileNet/SSD/EfficientDet class); log analysis is text/tabular/time-series (parse → counts/TF-IDF/embeddings → SVM/LSTM/Transformer) running on host CPU; partial compilation falls back to CPU with potential order-of-magnitude slowdown.
+- Ceiling: 4 TOPS INT8 peak, ~2 W; official benchmarks 2.1–7.2 ms/inference for small vision models (MobileNet v2 2.6 ms, MobileNet v2 SSD 7.2 ms); ~4.6–4.9 ms steady-state measured for MobileNet V2 via PyCoral; ~8 MB SRAM parameter cache, batch size 1, thermal throttling possible with max runtime; multiple TPUs pipelinable via --num_segments.
+- Difficulty: moderate-to-high, likely poor value. Compiler x86-64 Debian only (no ARM64 since v2.1); quantization needs representative log dataset; NixOS has no libedgetpu/pycoral packaging (nixpkgs#188719, open since 2022-08-28); ecosystem maintenance uncertain (libraries reportedly untouched since 2022). PoC: days to ~2 weeks on Debian; robust NixOS pipeline: weeks to months — host CPU or GPU is the better fit for log analysis.
+
+Written:
+- sources/coral-usb-accelerator.md, sources/coral-edge-tpu-compiler.md, sources/coral-performance-limits.md, sources/ml-for-log-analysis.md, sources/coral-on-nixos.md
+- concepts/coral-tpu-for-log-analysis.md
+- syntheses/coral-tpu-log-analysis.md
+- index.md (new "Coral USB TPU for ML log analysis" thread)
+
+## 2026-11-03 — sops-nix key sources: fixed zurg "No key source configured for sops" [sops]
+
+Task: make `nixos-rebuild switch --flake github:j340m3/nixos` for host `zurg`
+pass evaluation again.
+
+Root cause: zurg imports the `sops` aspect (`modules/system/sops.nix`) and the
+`nebula` aspect, which unconditionally declares `sops.secrets."nebula/*"`.
+sops-nix (rev 44931708) then asserts a key source when any secret is declared;
+zurg runs no sshd and set none of `sops.age.keyFile` / `sops.gnupg.home`, so
+evaluation of `system.build.toplevel` aborted with
+"No key source configured for sops."
+
+Fix: `services.openssh.generateHostKeys = true;` in
+`modules/hosts/zurg/configuration.nix` — generates the ed25519 host key
+without running sshd; `sops.age.sshKeyPaths` defaults to that host key, which
+satisfies the assertion. Verified:
+`nix eval .#nixosConfigurations.zurg.config.system.build.toplevel` now yields a
+valid system derivation instead of the assertion error.
+
+Written: concepts/sops.md; index.md lists it under the Nix/NixOS developments
+thread.
 
 ## 2026-10-22 — php2shell remediation implemented in-repo [php2shell]
 

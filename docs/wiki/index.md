@@ -146,6 +146,7 @@ Sources:
 Concepts:
 
 - [Nix/NixOS recent developments](concepts/nixos-recent-developments.md) — releases, technical changes, governance, user considerations.
+- [sops-nix key sources](concepts/sops.md) — sops secret decryption key sources and the per-host configuration used by this repo's hosts (zurg fix: `services.openssh.generateHostKeys = true`).
 
 ## PHP php2shell exposure (CVE-2026-109618/109619)
 
@@ -186,6 +187,29 @@ pair means for this repo, and which PHP it routines on.
 - FrankenPHP nixpkgs update PR #577351 open; irrelevant while this repo runs
   nginx+php-fpm only.
 
+## Coral USB TPU for ML log analysis (2026-11-04)
+
+Purpose: assess whether a Google Coral USB Accelerator (Edge TPU) can serve as the ML accelerator for automatic log analysis, what its ceiling is, and how hard it is to realize — on this NixOS repo in particular. Research only — no Nix code modified. Bottom line: feasible, but a poor fit (Coral = quantized vision CNNs; logs = text/tabular/time-series models on the host CPU); on NixOS there is no libedgetpu/pycoral packaging (nixpkgs#188719 unresolved since 2022).
+
+### Pages
+
+- [capability & mismatch analysis](concepts/coral-tpu-for-log-analysis.md) — Edge TPU capability vs log-analysis ML shapes, feasibility verdict, effort estimate.
+- [synthesis answers](syntheses/coral-tpu-log-analysis.md) — direct answers to the three questions (can it be used / ceiling / difficulty).
+
+### Sources
+
+- [USB Accelerator specs](sources/coral-usb-accelerator.md) — coral.ai datasheet + Mouser mirror: 4 TOPS INT8, 2 TOPS/W, USB 3.0 Type-C, ~8 MB SRAM.
+- [Edge TPU compiler & model requirements](sources/coral-edge-tpu-compiler.md) — coral.ai compiler/models-intro/tflite-python: INT8 quantization, supported op list, graph partitioning at unsupported ops, PyCoral delegate inference.
+- [Performance limits](sources/coral-performance-limits.md) — official benchmark latency table (MobileNet v2 2.6 ms, SSD 7.2 ms, etc.), thermals, real-world PyCoral timings.
+- [ML for log analysis](sources/ml-for-log-analysis.md) — arXiv 2308.08736 (Wu et al. 2024), Khan et al. 2024 (PMC11330418), Red Hat Cordon 2025: parse → embed → SVM/LSTM/Transformer models on host CPU.
+- [Coral on NixOS](sources/coral-on-nixos.md) — nixpkgs#188719 (unresolved), pycoral version-matching, ecosystem maintenance risk.
+
+### Open uncertainties
+
+- No published evidence found of log-analysis models (LSTM/MLP over template counts) actually running on Edge TPU.
+- NixOS runtime integration path unresolved (nixpkgs#188719); coral apt repo/libedgetpu build status on modern kernels unverified for this repo.
+- Long-term support of the original Coral software stack is uncertain (EDGE AI wiki notes a "Coral is back"/Coralboard direction at Google I/O 2026).
+
 ## Unify-aspects dedupe migration (2026-11-04 → 2026-11-11)
 
 Purpose: remove the copy-paste remaining above the ADR-0014 end state —
@@ -200,7 +224,17 @@ verified by per-host toplevel derivation-path equality. Decision recorded in
   net −740 lines), verification protocol, semantic-neutral delta ledger,
   preserved-drift list, deferred queue (user/credentials, flake.lib helpers).
 
-### Conventions
+### Conventions established
+
+- Refactors are verified by `toplevel.drvPath` equality per host; every drv
+  delta is explained to a single option and judged semantic-neutral before
+  landing.
+- Drift is preserved verbatim via explicit overrides, never silently unified
+  by a dedupe commit.
+- IFD-bound hosts (slinky, aarch64) are verified by targeted option evals
+  instead of full toplevels.
+
+## Conventions
 
 - Claims in concept/synthesis pages cite the source pages inline.
 - Source pages carry the external URLs.
