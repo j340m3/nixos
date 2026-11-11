@@ -69,7 +69,6 @@ in
       };
       #boot.kernelPackages = pkgs.linuxPackages_cachyos;
 
-      boot.tmp.cleanOnBoot = true;
       zramSwap.enable = true;
       virtualisation.diskSize = "auto";
       #virtualisation.additionalSpace = "5G";
@@ -79,12 +78,6 @@ in
 
       # Enable networking
       networking.networkmanager.enable = true;
-
-      # Configure keymap in X11
-      services.xserver.xkb = {
-        layout = "de";
-        variant = "";
-      };
 
       # Enable sound with pipewire.
       services.pulseaudio.enable = false;

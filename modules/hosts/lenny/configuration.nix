@@ -133,7 +133,6 @@
           size = 2048;
         }
       ];
-      boot.tmp.cleanOnBoot = true;
       zramSwap.enable = true;
 
       networking.hostName = "lenny"; # Define your hostname.
@@ -147,12 +146,6 @@
       xdg.portal.extraPortals = [
         pkgs.xdg-desktop-portal-gtk
       ];
-
-      # Configure keymap in X11
-      services.xserver.xkb = {
-        layout = "de";
-        variant = "";
-      };
 
       # Enable CUPS to print documents.
       services.printing.enable = true;

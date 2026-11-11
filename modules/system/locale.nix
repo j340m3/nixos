@@ -27,5 +27,9 @@ _: {
       };
 
       console.keyMap = lib.mkDefault "de";
+
+      # xkb defaults (slinky overrides layout to "us")
+      services.xserver.xkb.layout = lib.mkDefault "de";
+      services.xserver.xkb.variant = lib.mkDefault "";
     };
 }

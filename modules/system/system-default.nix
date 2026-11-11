@@ -16,6 +16,7 @@
         sops
         rate-limiting-avoidance
         zram
+        basics
         domain
         distributed-builds
         mem

@@ -191,7 +191,6 @@
           size = 4096;
         }
       ];
-      boot.tmp.cleanOnBoot = true;
 
       # --- More space
       services.beesd.filesystems = {

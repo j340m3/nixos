@@ -58,7 +58,6 @@ in
         }
       ];
 
-      boot.tmp.cleanOnBoot = true;
       nix.gc.dates = lib.mkForce "hourly";
       nix.gc.options = lib.mkForce "-d";
       boot.loader.grub.configurationLimit = 2;

@@ -84,7 +84,6 @@
       networking.useDHCP = lib.mkDefault true;
       hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
-      boot.tmp.cleanOnBoot = true;
       # Former ./_immich.nix + ./_paperless.nix absorbed (retirement step 3B).
       # Shared firewall/inbound attrs merged; duplicate user defs folded.
 
@@ -657,12 +656,6 @@
 
       # Select internationalisation properties.
       i18n.defaultLocale = "en_US.UTF-8";
-
-      # Configure keymap in X11
-      services.xserver.xkb = {
-        layout = "de";
-        variant = "";
-      };
 
       # Enable CUPS to print documents.
       services.printing.enable = true;
