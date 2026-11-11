@@ -352,6 +352,12 @@
 
       # Enable the OpenSSH daemon.
       # services.openssh.enable = true;
+      # sops key source: secrets/shared.yaml and secrets/hosts/zurg/secrets.yaml
+      # are encrypted to this host's ssh host key (age1ssh; public half pinned in
+      # secrets/common/ssh/zurg/ssh.pub). Generate host keys without running sshd,
+      # so sops.age.sshKeyPaths (default: openssh hostKeys) is non-empty and the
+      # sops-nix "No key source configured for sops" assertion passes.
+      services.openssh.generateHostKeys = true;
 
       # Open ports in the firewall.
       # networking.firewall.allowedTCPPorts = [ ... ];
