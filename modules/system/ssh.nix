@@ -75,6 +75,17 @@ in
           openFirewall = true;
         };
 
+        # Brute-force floods on public VPS hosts must not drown the journal
+        # and the loghost pipeline (pricklepants 2026-11-12: days of
+        # rsyslogd at ~46% CPU). Journald per-unit cap for sshd only; the
+        # flood volume itself is cut host-side with firewall extraCommands
+        # (see pricklepants configuration.nix). systemd defaults are 10000
+        # msgs / 30s, far too generous for an attack firehose.
+        systemd.services.sshd.unitConfig = {
+          LogRateLimitIntervalSec = lib.mkDefault "10s";
+          LogRateLimitBurst = lib.mkDefault 100;
+        };
+
         networking.firewall.allowedTCPPorts = [ constants.sshPort ];
         # openssh.enable is always true in this module, so no gate is needed;
         # the nebula aspect renders this as an inbound mesh rule.

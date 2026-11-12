@@ -100,6 +100,20 @@ in
       networking.hostName = "pricklepants";
       # Ionos uplink NIC is ens6 (not eth0), so the WireGuard NAT masquerade binds correctly.
       networking.nat.externalInterface = "ens6";
+      # Kernel-level per-IP rate limit on public ssh (2026-11-12: wall-to-wall
+      # brute force on ens6 kept rsyslogd at ~46% CPU for days and starved the
+      # single-threaded rnsd during borg transfers). Inserted at the TOP of
+      # nixos-fw: extraCommands renders after the blanket allowedTCPPorts
+      # accept, so a plain -A drop for 42069 would never be reached. Nebula
+      # traffic arrives on the nebula iface and is untouched. Legit clients
+      # stay under 6 new connections/min per source IP; anything above is
+      # refused with capped logging (nixos-fw-log-refuse).
+      networking.firewall.extraCommands = ''
+        iptables -w -I nixos-fw 1 -i ens6 -p tcp --dport 42069 -m conntrack --ctstate NEW -m hashlimit --hashlimit-upto 6/minute --hashlimit-burst 8 --hashlimit-mode srcip --hashlimit-name sshguard -j nixos-fw-accept
+        iptables -w -I nixos-fw 2 -i ens6 -p tcp --dport 42069 -m conntrack --ctstate NEW -j nixos-fw-log-refuse
+        ip6tables -w -I nixos-fw 1 -i ens6 -p tcp --dport 42069 -m conntrack --ctstate NEW -m hashlimit --hashlimit-upto 6/minute --hashlimit-burst 8 --hashlimit-mode srcip --hashlimit-name sshguard6 -j nixos-fw-accept
+        ip6tables -w -I nixos-fw 2 -i ens6 -p tcp --dport 42069 -m conntrack --ctstate NEW -j nixos-fw-log-refuse
+      '';
       #services.fail2ban.enable = true;
       services.openssh = {
         ports = [ 42069 ];
