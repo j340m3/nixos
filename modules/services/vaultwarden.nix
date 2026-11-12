@@ -87,41 +87,42 @@
       # fail2ban-regex returned 0 hits for the shipped filter against its own log,
       # and 4 for the pattern below. that is why the override exists, and why
       # deleting it in 7777ee9 left the jail silently counting nothing.
-      # filter = "vaultwarden" so fail2ban reads filter.d/vaultwarden.conf and then
-      # filter.d/vaultwarden.local, and the .local overrides the shipped failregex.
-      # the override must keep the same name as the filter it shadows: naming it
-      # something else, or pointing filter at a dash name while the file is
-      # vaultwarden.local, leaves fail2ban looking for a file that does not exist and
-      # it skips the jail with "Found no accessible config files".
-      services.fail2ban.jails."vaultwarden".settings = {
-        enabled = true;
-        filter = "vaultwarden";
-        backend = "systemd";
-        journalmatch = "_SYSTEMD_UNIT=vaultwarden.service";
-        # 443 only: vaultwarden is behind nginx, and 8081 was never a port this
-        # host listened on. deliberately not banaction_allports, which would ban
-        # across every port including sshd: three wrong passwords here must not
-        # lock anyone out of the only way into this machine.
-        port = "443";
-        # three misses inside four hours used to earn a four hour ban, which locks
-        # out a family member who fumbles their password.
-        maxretry = 5;
-        bantime = 3600;
-        findtime = 600;
-      };
-
       # %(__prefix_line)s would normally absorb the host name and timestamp, but the
       # shipped filter uses a bare ^ instead and so never fires here. matching from
       # ^.* keeps the same intent. anchored on "IP: <HOST>." rather than <HOST>
       # alone: \S+ would otherwise swallow the trailing period and fail2ban would
       # ban "92.208.27.155." instead of the address.
-      environment.etc."fail2ban/filter.d/vaultwarden.local".text = ''
-        [INCLUDES]
-        before = common.conf
+      # the name/filter plumbing (override must keep the name of the filter it
+      # shadows, or fail2ban skips the jail) lives in
+      # modules/nix/lib/fail2ban-jail.nix.
+      imports = [
+        (inputs.self.lib.fail2banJail {
+          name = "vaultwarden";
+          settings = {
+            enabled = true;
+            filter = "vaultwarden";
+            backend = "systemd";
+            journalmatch = "_SYSTEMD_UNIT=vaultwarden.service";
+            # 443 only: vaultwarden is behind nginx, and 8081 was never a port this
+            # host listened on. deliberately not banaction_allports, which would ban
+            # across every port including sshd: three wrong passwords here must not
+            # lock anyone out of the only way into this machine.
+            port = "443";
+            # three misses inside four hours used to earn a four hour ban, which locks
+            # out a family member who fumbles their password.
+            maxretry = 5;
+            bantime = 3600;
+            findtime = 600;
+          };
+          filter = ''
+            [INCLUDES]
+            before = common.conf
 
-        [Definition]
-        failregex = ^.*Username or password is incorrect\. Try again\. IP: <HOST>\. Username:.*$
-        ignoreregex =
-      '';
+            [Definition]
+            failregex = ^.*Username or password is incorrect\. Try again\. IP: <HOST>\. Username:.*$
+            ignoreregex =
+          '';
+        })
+      ];
     };
 }

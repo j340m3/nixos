@@ -13,6 +13,31 @@
     {
       imports = [
         inputs.self.modules.nixos.postgres-backup
+        # the general form of the per-db collation check that used to live
+        # in nextcloud-setup's postStart below
+        inputs.self.lib.postgresCollation
+        (inputs.self.lib.fail2banJail {
+          name = "nextcloud";
+          settings = {
+            enabled = true;
+            filter = "nextcloud";
+            logpath = "/var/log/syslog";
+            port = "80,443";
+            banaction = "%(banaction_allports)s";
+            maxretry = 3;
+            backend = "auto";
+            protocol = "tcp";
+            bantime = 86400;
+            findtime = 43200;
+          };
+          filter = ''
+            [Definition]
+            _groupsre = (?:(?:,?\s*"\w+":(?:"[^"]+"|\w+))*)
+            failregex = ^\{%(_groupsre)s,?\s*"remoteAddr":"<HOST>"%(_groupsre)s,?\s*"message":"Login failed:
+                        ^\{%(_groupsre)s,?\s*"remoteAddr":"<HOST>"%(_groupsre)s,?\s*"message":"Trusted domain error.
+            datepattern = ,?\s*"time"\s*:\s*"%%Y-%%m-%%d[T ]%%H:%%M:%%S(%%z)?"
+          '';
+        })
       ];
 
       sops.secrets."nextcloud/secrets.json" = {
@@ -143,19 +168,6 @@
         before = [ "nextcloud-setup.service" ];
       };
 
-      # flake.lock is not committed, so a glibc bump arrives with any nixpkgs
-      # update and postgres then reports a collation version mismatch on every occ
-      # call. rebuild the indexes once per change instead of by hand.
-      systemd.services.nextcloud-setup.postStart = ''
-        psql=${config.services.postgresql.package}/bin/psql
-        current=$("$psql" -tAc "select datcollversion from pg_database where datname = 'nextcloud'" || true)
-        [ -n "$current" ] || exit 0
-        if [ "$current" != "${pkgs.glibc.version}" ]; then
-          "$psql" -d nextcloud -c 'REINDEX DATABASE nextcloud;'
-          "$psql" -d nextcloud -c 'ALTER DATABASE nextcloud REFRESH COLLATION VERSION;'
-        fi
-      '';
-
       systemd.services.nextcloud-setup.after = [
         "mnt-filen-services-nextcloud.mount"
         "mnt-filen-services-nextcloud-tmpfiles-resetup.service"
@@ -208,31 +220,10 @@
         };
       };
 
-      services.fail2ban.jails."nextcloud".settings = {
-        enabled = true;
-        filter = "nextcloud";
-        logpath = "/var/log/syslog";
-        port = "80,443";
-        banaction = "%(banaction_allports)s";
-        maxretry = 3;
-        backend = "auto";
-        protocol = "tcp";
-        bantime = 86400;
-        findtime = 43200;
-      };
-
       networking.firewall.allowedTCPPorts = [
         80
         443
       ];
-
-      environment.etc."fail2ban/filter.d/nextcloud.local".text = ''
-        [Definition]
-        _groupsre = (?:(?:,?\s*"\w+":(?:"[^"]+"|\w+))*)
-        failregex = ^\{%(_groupsre)s,?\s*"remoteAddr":"<HOST>"%(_groupsre)s,?\s*"message":"Login failed:
-                    ^\{%(_groupsre)s,?\s*"remoteAddr":"<HOST>"%(_groupsre)s,?\s*"message":"Trusted domain error.
-        datepattern = ,?\s*"time"\s*:\s*"%%Y-%%m-%%d[T ]%%H:%%M:%%S(%%z)?"
-      '';
 
       sops.secrets."filen/nextcloud.conf" = {
         format = "ini";
