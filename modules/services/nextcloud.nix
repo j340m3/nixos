@@ -199,14 +199,12 @@
           useACMEHost = domainName;
           locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
         };
-        virtualHosts."files.dabergmann.de" = {
-          forceSSL = true;
-          useACMEHost = "files.dabergmann.de";
-          locations."/.well-known/".root = "/var/lib/acme/acme-challenge/";
-          locations."/" = {
-            proxyPass = "https://nextcloud.kauderwels.ch";
-            proxyWebsockets = true;
-          };
+        virtualHosts."files.dabergmann.de" = inputs.self.lib.proxyVhost {
+          domain = "files.dabergmann.de";
+          # the cert is issued via the main vhost's HTTP-01, so reference it
+          useACMEHost = true;
+          wellKnownRoot = true;
+          proxyPass = "https://nextcloud.kauderwels.ch";
         };
       };
 

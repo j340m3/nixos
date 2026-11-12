@@ -33,13 +33,9 @@
         restartUnits = [ "grafana.service" ];
       };
       systemd.services.grafana.serviceConfig.EnvironmentFile = config.sops.secrets."grafana-env".path;
-      services.nginx.virtualHosts.${config.services.grafana.settings.server.domain} = {
-        enableACME = true;
-        forceSSL = true;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString config.services.grafana.settings.server.http_port}";
-          proxyWebsockets = true;
-        };
+      services.nginx.virtualHosts.${config.services.grafana.settings.server.domain} = inputs.self.lib.proxyVhost {
+        domain = config.services.grafana.settings.server.domain;
+        proxyPass = "http://127.0.0.1:${toString config.services.grafana.settings.server.http_port}";
       };
       # Same DNS-01 constraint as the woody vhosts (its IONOS key already
       # deploys to this host via harmonia's sops file).

@@ -112,22 +112,18 @@ in
       services.immich.machine-learning.environment.HOME = "/var/lib/immich-ml";
       systemd.services.immich-machine-learning.serviceConfig.StateDirectory = "immich-ml";
 
-      services.nginx.virtualHosts."immich.kauderwels.ch" = {
-        enableACME = true;
-        forceSSL = true;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString config.services.immich.port}";
-          proxyWebsockets = true;
-          # All headers live here: a location with any proxy_set_header of its
-          # own stops inheriting the server-level ones (nginx inheritance).
-          extraConfig = ''
-            client_max_body_size 5000M;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-          '';
-        };
+      services.nginx.virtualHosts."immich.kauderwels.ch" = inputs.self.lib.proxyVhost {
+        domain = "immich.kauderwels.ch";
+        proxyPass = "http://127.0.0.1:${toString config.services.immich.port}";
+        # All headers live here: a location with any proxy_set_header of its
+        # own stops inheriting the server-level ones (nginx inheritance).
+        extraConfig = ''
+          client_max_body_size 5000M;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        '';
       };
       security.acme.certs."immich.kauderwels.ch" = dns01 { };
 
@@ -220,19 +216,15 @@ in
         OTEL_TRACES_EXPORTER = "none";
       };
 
-      services.nginx.virtualHosts."paperless.kauderwels.ch" = {
-        enableACME = true;
-        forceSSL = true;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString config.services.paperless.port}";
-          proxyWebsockets = true;
-          extraConfig = ''
-            client_max_body_size 100M;
-            proxy_set_header Host $host;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_set_header X-Forwarded-Port "443";
-          '';
-        };
+      services.nginx.virtualHosts."paperless.kauderwels.ch" = inputs.self.lib.proxyVhost {
+        domain = "paperless.kauderwels.ch";
+        proxyPass = "http://127.0.0.1:${toString config.services.paperless.port}";
+        extraConfig = ''
+          client_max_body_size 100M;
+          proxy_set_header Host $host;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_set_header X-Forwarded-Port "443";
+        '';
       };
       security.acme.certs."paperless.kauderwels.ch" = dns01 { };
 
