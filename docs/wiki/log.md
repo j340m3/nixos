@@ -1,5 +1,32 @@
 # Research log
 
+## 2026-11-12 — unify-aspects deferred queue completed [dendritic]
+
+Continuation of the 2026-11-11 migration: deployed to `main` (merged with
+upstream rnsh-bridge work; our ADR-0015 renumbered to
+[ADR-0016](../adr/0016-unify-aspects-dedupe.md) after the merge brought
+upstream's own 0015), then the whole deferred queue executed as
+13d9318 → 63bc2db, every commit verified by per-host drvPath equality or
+documented approved deltas:
+
+- 13d9318 drift fixes: nebula punchy unified to `{punch, respond, reload}`
+  fleet-wide (security-checked against slackhq/nebula first), dual-stack
+  `listen.host` on all four roster lighthouses, woody → `de_DE`, jessie/mph
+  → `nebula-lighthouse` flavor (relay-consistent with the member roster).
+- cf2fd71/295460f/fbe08d8/f32f575: the four `flake.lib` helpers under
+  `modules/nix/lib/` — acmeDns01 (×4), proxyVhost (×6 vhosts), rcloneMount
+  (×6 mounts, option sets identical), borgClientJob (×3 jobs, anonymous
+  module pattern; pp carries upstream's `borgRsh` pin).
+- f608c93: `lib.fail2banJail` (jail + filter.d override, name-shadowing
+  invariant centralized) and `lib.postgresCollation` (generalized
+  REINDEX/REFRESH loop; mph's non-nextcloud postgres DBs gain coverage).
+- 63bc2db credentials/root-SSH: root SSH login off fleet-wide — the ssh
+  aspect's `PermitRootLogin no` had already made the pp/mph root key lists
+  inert; imp was the one live hole (explicit `PermitRootLogin no`, root
+  password kept for console/VNC rescue). imp adopts the shared donquezz
+  aspect (+3 keys); host-local jeromeb users stay (live-uid chown hazard);
+  HM wiring moved into the nixos.jeromeb aspect.
+
 ## 2026-11-11 — unify-aspects dedupe migration landed [dendritic]
 
 Task: settle and execute the copy-paste unification the user asked for ("can
@@ -36,7 +63,7 @@ Findings:
   flake.lib helper files, small skeletons) recorded in the synthesis.
 
 Written: syntheses/unify-aspects.md; index.md (new "Unify-aspects dedupe
-migration" thread); ADR docs/adr/0015-unify-aspects-dedupe.md.
+migration" thread); ADR docs/adr/0016-unify-aspects-dedupe.md.
 
 ## 2026-11-04 — ingest | Coral USB TPU for ML log analysis research
 

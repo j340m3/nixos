@@ -216,7 +216,7 @@ Purpose: remove the copy-paste remaining above the ADR-0014 end state —
 bootstrap split, vps-guest aspect, mesh-port collector, nebula lighthouse
 flavor, xkb/basics fill-ins — under a strict zero-behavior-change rule
 verified by per-host toplevel derivation-path equality. Decision recorded in
-[ADR-0015](../../docs/adr/0015-unify-aspects-dedupe.md).
+[ADR-0016](../../docs/adr/0016-unify-aspects-dedupe.md).
 
 ### Pages
 

@@ -1,6 +1,6 @@
 # Unify-aspects dedupe migration — synthesis
 
-Date: 2026-11-04 → 2026-11-11. Decisions: ADR-0015. Trigger: user question
+Date: 2026-11-04 → 2026-11-12. Decisions: ADR-0016. Trigger: user question
 "It feels like there is a lot of copy-paste code in this repo, can we unify
 to more aspects?" (settled via two grilling rounds; scope = low-risk/high-volume
 clusters + profile mop-up).
@@ -78,6 +78,12 @@ clusters + profile mop-up).
 
 ## Preserved drift (explicit overrides, follow-up candidates)
 
+Resolved 2026-11-12 (commit 13d9318, user-approved): punchy unified to
+`{ punch, respond, reload }` fleet-wide, all lighthouses listen dual-stack
+`[::]`, woody moved to `de_DE.UTF-8`, and jessie/mrpotatohead import the
+`nebula-lighthouse` flavor (relay-consistent). The list below records the
+pre-unification state.
+
 - buzz/pp `settings.punchy = mkForce { punch = true; reload = true; }` vs the
   shared aspect's `{ punch = true; respond = true; }` (different nebula
   features, not equivalent).
@@ -89,16 +95,35 @@ clusters + profile mop-up).
   do NOT import the flavor; if their mesh behavior should match buzz/pp,
   import `nebula-lighthouse` there too (behavior change, needs evaluation).
 
-## Deferred queue (out of ADR-0015 scope)
+## Deferred queue (out of ADR-0016 scope) — COMPLETED 2026-11-12
 
-1. **User/credentials consolidation** (grilling option (c)): hashed-password
-   and authorized-keys duplication across lenny/woody/zurg/bootstrap* and
-   stale key lists; audited pass with explicit key-list reconciliation.
-2. **`flake.lib` helper files** (settled shape: one file per helper under
-   `modules/nix/lib/`, each publishing via an `options.flake.lib =
-   attrsOf unspecified` carrier): `proxy-vhost.nix` (×6 vhosts, watch woody's
-   header subtleties), `rclone-mount.nix` (×6 mounts, ~80% shared keys),
-   `acme-dns01.nix` (×4 IONOS DNS-01 certs), `borg-client-job.nix` (×3).
-3. **fail2ban jail+filter skeleton** (×2) and **postgres collation fix**
-   (×2) — small, optional.
-4. Drift resolutions from the list above (each its own approved commit).
+The queue was executed as commits 13d9318 → 63bc2db on `main` (pushed
+`f608c93..63bc2db` after the rnsh-bridge rebase):
+
+1. **Drift resolutions** — 13d9318: punchy unify (verified against
+   slackhq/nebula: `respond` is connect-back to actively-handshaken peers,
+   cert-authenticated, no new inbound surface), dual-stack listen on all
+   four roster lighthouses, woody `de_DE`, jessie/mph → `nebula-lighthouse`
+   (fixes relay.relays advertising relays that had `am_relay = false`).
+2. **`flake.lib` helpers** — acme-dns01 (cf2fd71, ×4 IONOS certs), proxy-vhost
+   (295460f, ×6 vhosts), rclone-mount (fbe08d8, ×6 mounts, option SETS
+   verified identical; consumers woody/mph/rex), borg-client-job (f32f575,
+   ×3 jobs + minecraft-java ride-along untouched; pp gained the upstream
+   `borgRsh` pin param during rebase on 0f6ace1).
+3. **fail2ban jail+filter** (×2) and **postgres collation fix** (×2) —
+   f608c93: `lib.fail2banJail` (jail + filter.d override in one unit;
+   name-shadowing invariant in the helper header), `lib.postgresCollation`
+   (generalized REINDEX/REFRESH loop on `postgresql.postStart` — mph's
+   other postgres DBs gain protection the nextcloud-only special case
+   never had).
+4. **Credentials/root-SSH** — 63bc2db: root SSH login removed fleet-wide
+   (the ssh aspect's `PermitRootLogin no` already made pp/mph key entries
+   inert; imp was the one live hole — explicit `PermitRootLogin no`, root
+   password kept for console/VNC rescue only). imp adopts the shared
+   donquezz aspect (+3 keys it was missing). Host-local jeromeb users stay
+   on lenny/woody/zurg: converging would change live uids (chown hazard)
+   and drop lenny's password (lockout under mutableUsers false). The
+   home-manager wiring moved into the nixos.jeromeb aspect.
+   Known pre-existing surface, left unchanged: imp does not set
+   `services.openssh.settings.PasswordAuthentication` (defaults true there
+   since it lacks the ssh aspect).

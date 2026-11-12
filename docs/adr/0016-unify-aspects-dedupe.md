@@ -1,4 +1,4 @@
-# ADR-0015: Unify copy-paste host configuration into aspects, collectors, and flavors
+# ADR-0016: Unify copy-paste host configuration into aspects, collectors, and flavors
 
 **Date**: 2026-11-11
 **Status**: accepted
@@ -133,3 +133,11 @@ Design rules:
 drvPaths per commit; slinky verified by targeted option evals due to the
 aarch64 IFD wall). Deferred queue lives in
 `docs/wiki/syntheses/unify-aspects.md`.
+
+2026-11-12: deployed to `main` (fleet autoUpgrade source) and merged with
+upstream rnsh-bridge work; the deferred queue was then fully executed
+(drift fixes, the four `flake.lib` helpers under `modules/nix/lib/`,
+fail2ban + postgres skeletons, root-SSH policy + credentials convergence
+— details in the synthesis). The ADR was renumbered 0015 → 0016 after the
+merge brought upstream's own ADR-0015 (borg-over-reticulum-rnsh-bridge).
+Migration closed.
