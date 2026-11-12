@@ -1,4 +1,4 @@
-_: {
+{ inputs, ... }: {
   flake.modules.nixos.postgres-backup =
     {
       pkgs,
@@ -33,20 +33,17 @@ _: {
         rclone
       ];
 
-      fileSystems."/mnt/filen/services/postgres" = {
+      fileSystems."/mnt/filen/services/postgres" = inputs.self.lib.rcloneMount {
         device = "filen:services/postgres";
-        fsType = "rclone";
+        configPath = config.sops.secrets."filen/postgres.conf".path;
+        uid = config.users.users.postgres.uid;
+        gid = toString config.users.groups.postgres.gid;
         options = [
-          "nodev"
           #"_netdev"
           #"nofail"
           "noauto"
-          "allow_other"
-          "args2env"
           "x-systemd.automount"
-          "cache_dir=/var/cache/rclone"
           #"dir-cache-time=24h"
-          "vfs-cache-mode=full"
           "vfs-cache-min-free-space=2G"
           "vfs-fast-fingerprint"
           "vfs-links"
@@ -60,11 +57,6 @@ _: {
           "tpslimit-burst=32"
           "log-level=INFO"
           "log-file=/var/log/rclone/filen/postgres.log"
-          "config=${config.sops.secrets."filen/postgres.conf".path}"
-          "x-systemd.requires=network-online.target"
-          "x-systemd.after=network-online.target" # only after network came up
-          "uid=${toString config.users.users.postgres.uid}"
-          "gid=${toString config.users.groups.postgres.gid}"
           "dir-perms=0770"
         ];
       };

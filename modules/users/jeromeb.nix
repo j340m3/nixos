@@ -1,6 +1,6 @@
 # Primary user account (Jerome): account, shell, yubikey agent, the filen
 # rclone mount and its sops-injected rclone config.
-{
+{ inputs, ... }: {
   flake.modules.nixos.jeromeb = {
     pkgs,
     config,
@@ -30,24 +30,16 @@
       key = "";
     };
 
-    fileSystems."/mnt/filen/users/jeromeb" = {
+    fileSystems."/mnt/filen/users/jeromeb" = inputs.self.lib.rcloneMount {
       device = "filen:users/jerome";
-      fsType = "rclone";
+      configPath = config.sops.secrets."filen/jeromeb.conf".path;
+      uid = config.users.users.jeromeb.uid;
+      gid = toString config.users.groups.users.gid;
       options = [
-        "nodev"
         "noauto"
-        "allow_other"
-        "args2env"
         "x-systemd.automount"
-        "cache_dir=/var/cache/rclone"
-        "vfs-cache-mode=full"
         "log-level=INFO"
         "log-file=/var/log/rclone/filen/jeromeb.log"
-        "config=${config.sops.secrets."filen/jeromeb.conf".path}"
-        "x-systemd.requires=network-online.target"
-        "x-systemd.after=network-online.target" # only after network came up
-        "uid=${toString config.users.users.jeromeb.uid}"
-        "gid=${toString config.users.groups.users.gid}"
       ];
     };
   };

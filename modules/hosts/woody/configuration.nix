@@ -138,39 +138,21 @@ in
         #createHome = true;
       };
 
-      fileSystems."/mnt/nas/immich" = {
+      fileSystems."/mnt/nas/immich" = inputs.self.lib.rcloneMount {
         device = "immich:immich";
-        fsType = "rclone";
+        sftpPath = "/volume1/borgbackup/immich";
+        configPath = "/etc/rclone-mnt.conf";
+        uid = config.users.users.immich.uid;
+        gid = config.users.users.immich.group;
         options = [
-          "nodev"
           #"_netdev"
           #"nofail"
-          "noauto"
-          "allow_other"
-          "args2env"
-          "x-systemd.automount"
-          "cache_dir=/var/cache/rclone"
-          "dir-cache-time=24h"
-          "sftp-path-override=/volume1/borgbackup/immich"
-          "vfs-cache-mode=full"
-          "vfs-cache-min-free-space=10G"
-          "vfs-fast-fingerprint"
-          "config=/etc/rclone-mnt.conf"
           "vfs-write-back=1m" # write changes after one hour
-          "vfs-cache-max-age=24h" # Retain cached files for up to 24 hours
-          "vfs-read-chunk-size=32M" # Start with 32MB chunks for faster initial reads
-          "vfs-read-chunk-size-limit=1G" # Allow chunk size to grow up to 1GB for large files
-          "vfs-cache-poll-interval=30s"
           #"tpslimit=8"
           #"tpslimit-burst=16"
           #"bwlimit=1K"
           #"transfers=4"
-          "log-level=INFO" # Log to stdout for debugging
           "log-file=/var/log/rclone.log"
-          "x-systemd.requires=network-online.target"
-          "x-systemd.after=network-online.target" # only after network came up
-          "uid=${toString config.users.users.immich.uid}"
-          "gid=${config.users.users.immich.group}"
         ];
       };
 
@@ -269,37 +251,19 @@ in
         #createHome = true;
       };
 
-      fileSystems."/mnt/nas/paperless" = {
+      fileSystems."/mnt/nas/paperless" = inputs.self.lib.rcloneMount {
         device = "paperless:paperless";
-        fsType = "rclone";
+        sftpPath = "/volume1/borgbackup/paperless";
+        configPath = "/etc/rclone-mnt.conf";
+        uid = config.users.users.paperless.uid;
+        gid = config.users.users.paperless.group;
         options = [
-          "nodev"
           #"_netdev"
           #"nofail"
-          "noauto"
-          "allow_other"
-          "args2env"
-          "x-systemd.automount"
-          "cache_dir=/var/cache/rclone"
-          "dir-cache-time=24h"
-          "sftp-path-override=/volume1/borgbackup/paperless"
-          "vfs-cache-mode=full"
-          "vfs-cache-min-free-space=10G"
-          "vfs-fast-fingerprint"
           "vfs-write-back=1m" # write changes after one hour
-          "vfs-cache-max-age=24h" # Retain cached files for up to 24 hours
-          "vfs-read-chunk-size=32M"
-          "vfs-read-chunk-size-limit=1G"
-          "vfs-cache-poll-interval=30s"
           "tpslimit=16"
           "tpslimit-burst=32"
-          "log-level=INFO"
           "log-file=/var/log/rclone/paperless.log"
-          "config=/etc/rclone-mnt.conf"
-          "x-systemd.requires=network-online.target"
-          "x-systemd.after=network-online.target"
-          "uid=${toString config.users.users.paperless.uid}"
-          "gid=${config.users.users.paperless.group}"
         ];
       };
       # The ./_*.nix host-local glue (xrdp nas nofile firefox power zabbix

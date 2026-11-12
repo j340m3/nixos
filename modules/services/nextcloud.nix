@@ -254,23 +254,20 @@
       environment.variables = {
         GOGC = 20;
       };
-      fileSystems."/mnt/filen/services/nextcloud" = {
+      fileSystems."/mnt/filen/services/nextcloud" = inputs.self.lib.rcloneMount {
         device = "filen:services/nextcloud";
-        fsType = "rclone";
+        configPath = config.sops.secrets."filen/nextcloud.conf".path;
+        uid = config.users.users.nextcloud.uid;
+        gid = toString config.users.groups.nextcloud.gid;
         options = [
-          "nodev"
           "_netdev"
           "nofail"
           #"auto"
-          "allow_other"
-          "args2env"
           "syslog"
           #"x-systemd.automount"
-          "cache_dir=/var/cache/rclone"
           #"dir-cache-time=24h"
           "allow-non-empty"
           "daemon-wait=0"
-          "vfs-cache-mode=full"
           "vfs-cache-min-free-space=2G"
           "vfs-fast-fingerprint"
           "vfs-links"
@@ -284,12 +281,7 @@
           "tpslimit-burst=32"
           "log-level=WARNING"
           #"log-file=/var/log/rclone/filen/nextcloud.log"
-          "config=${config.sops.secrets."filen/nextcloud.conf".path}"
-          "x-systemd.requires=network-online.target"
-          "x-systemd.after=network-online.target" # only after network came up
           "x-systemd.onSuccess=mnt-filen-services-nextcloud-tmpfiles-resetup.service"
-          "uid=${toString config.users.users.nextcloud.uid}"
-          "gid=${toString config.users.groups.nextcloud.gid}"
           "dir-perms=0770"
         ];
       };
