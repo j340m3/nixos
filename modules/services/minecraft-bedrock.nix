@@ -11,6 +11,33 @@ in
       ...
     }:
     {
+      imports = [
+        # the repo lives on woody's borg-server (modules/services/borg-server.nix)
+        (inputs.self.lib.borgClientJob {
+          name = "minecraft-bedrock";
+          paths = [
+            "/nix/persist/minecraft/klassenserver"
+            "/nix/persist/minecraft/emeliebjorn"
+          ];
+          repo = "borg@${constants.host.woody.ip}:.";
+          secretFile = ../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
+          startAt = "*-*-* 02:30:00";
+          extra = {
+            # hooks must not abort the job: each failure previously failed the
+            # whole backup and paged the telegram bot for backups that succeeded
+            # without the stop/start choreography.
+            preHook = ''
+              ${pkgs.podman}/bin/podman stop --all 2>&1 ||
+                echo "borg preHook: podman stop failed; backing up as-is"
+            '';
+            postHook = ''
+              ${pkgs.podman}/bin/podman start --all 2>&1 ||
+                echo "borg postHook: podman start failed; containers need manual start"
+            '';
+          };
+        })
+      ];
+
       virtualisation.containers.enable = true;
       virtualisation.podman = {
         enable = true;
@@ -102,43 +129,6 @@ in
         };
       };
 
-      sops.secrets."borg/minecraft-bedrock" = {
-        sopsFile = ../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
-      };
-
-      services.borgbackup.jobs.minecraft-bedrock = {
-        paths = [
-          "/nix/persist/minecraft/klassenserver"
-          "/nix/persist/minecraft/emeliebjorn"
-        ];
-        encryption.mode = "none";
-        environment = {
-          BORG_RSH = "ssh -i ${
-            config.sops.secrets."borg/minecraft-bedrock".path
-          } -p ${toString constants.sshPort}";
-          # borg runs non-interactively: a dropped client security cache (or a
-          # recreated repo) aborts the job with "Attempting to access a
-          # previously unknown unencrypted repository!". This repo is a family
-          # LAN backup over the mesh, so accept and resume automatically.
-          BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK = "yes";
-          BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
-        };
-        repo = "borg@${constants.host.woody.ip}:.";
-        compression = "auto,lzma";
-        startAt = "*-*-* 02:30:00";
-        # hooks must not abort the job: each failure previously failed the
-        # whole backup and paged the telegram bot for backups that succeeded
-        # without the stop/start choreography.
-        preHook = ''
-          ${pkgs.podman}/bin/podman stop --all 2>&1 ||
-            echo "borg preHook: podman stop failed; backing up as-is"
-        '';
-        postHook = ''
-          ${pkgs.podman}/bin/podman start --all 2>&1 ||
-            echo "borg postHook: podman start failed; containers need manual start"
-        '';
-      };
-
       # the borgbackup module locks the job unit down (ProtectSystem=strict,
       # ReadWritePaths only its own borg cache/config dirs), so a preHook
       # `podman stop --all` fails with EROFS on the storage and netavark
@@ -148,10 +138,5 @@ in
         "/var/lib/containers"
         "/run/lock"
       ];
-
-      # Send an email whenever auto upgrade fails
-      systemd.services."borgbackup-job-minecraft-bedrock".onFailure =
-        lib.mkIf config.systemd.services."notify-telegram@".enable
-          [ "notify-telegram@%i.service" ];
     };
 }

@@ -36,6 +36,29 @@ in
         # nebula via the lighthouse flavor (roster-derived am_lighthouse); it
         # also brings the remote-build accept side
         inputs.self.modules.nixos.nebula-lighthouse
+        # Key rotated 2026-10-19 after the priv was never published (backups failed
+        # auth with /dev/null); rotate into woody's repos via the .pub file.
+        #
+        # Phase-1 RNS cutover: repo resolves through the binary-clean reticulum
+        # bridge on woody; BORG_RSH stays for a one-line rollback to nebula.
+        (inputs.self.lib.borgClientJob {
+          name = "pricklepants";
+          paths = [
+            "/etc"
+            "/var/lib/vaultwarden"
+          ];
+          repo = "borg@woody-borg-rns:pricklepants";
+          secretFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
+          tolerateRepoDrift = false;
+          # Absolute path: the borgbackup module adds pkgs.openssh to the unit
+          # PATH (path = [ package openssh ]), which shadows the -rns shim and
+          # breaks name resolution for woody-borg-rns (2026-11-11). Pin the
+          # shim explicitly; the shim drops -i/-p, key stays inert here and
+          # keeps the one-line rollback to nebula working.
+          borgRsh = "/run/current-system/sw/bin/ssh -i ${
+            config.sops.secrets."borg/pricklepants".path
+          } -p ${toString constants.sshPort}";
+        })
       ];
 
       # Inlined from ./_hardware-configuration.nix (zero host-local glue, ADR 0014).
@@ -179,42 +202,6 @@ in
       };
       # cert/key material lives on the persistent btrfs root
       mesh.nebulaSecretDir = "/nix/persist/etc/nebula";
-
-      # Key rotated 2026-10-19 after the priv was never published (backups failed
-      # auth with /dev/null); rotate into woody's repos via the .pub file.
-      sops.secrets."borg/pricklepants" = {
-        sopsFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
-      };
-
-      # Phase-1 RNS cutover: repo resolves through the binary-clean reticulum
-      # bridge on woody; BORG_RSH stays for a one-line rollback to nebula
-      # (the -rns shim drops -i/-p, so the key is inert on this path and the
-      # endlessh tarpit no longer applies).
-      services.borgbackup.jobs.pricklepants = {
-        paths = [
-          "/etc"
-          "/var/lib/vaultwarden"
-        ];
-        encryption.mode = "none";
-        environment = {
-          # Absolute path: the borgbackup module adds pkgs.openssh to the unit
-          # PATH (path = [ package openssh ]), which shadows the -rns shim and
-          # breaks name resolution for woody-borg-rns (2026-11-11). Pin the
-          # shim explicitly; the shim drops -i/-p, key stays inert here and
-          # keeps the one-line rollback to nebula working.
-          BORG_RSH = "/run/current-system/sw/bin/ssh -i ${
-            config.sops.secrets."borg/pricklepants".path
-          } -p ${toString constants.sshPort}";
-        };
-        repo = "borg@woody-borg-rns:pricklepants";
-        compression = "auto,lzma";
-        startAt = "daily";
-      };
-
-      systemd.services."borgbackup-job-pricklepants".onFailure =
-        lib.mkIf config.systemd.services."notify-telegram@".enable
-          [ "notify-telegram@%i.service" ];
-
 
       # 1 GB RAM, 10 GB disk: earlyoom as the OOM safety net, swap-inflation
       # sysctls tuned for zram, and MemoryMax ceilings on every service so one

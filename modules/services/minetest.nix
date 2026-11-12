@@ -36,6 +36,21 @@ in
       );
     in
     {
+      imports = [
+        # the repo lives on woody's borg-server (modules/services/borg-server.nix)
+        (inputs.self.lib.borgClientJob {
+          name = "minetest";
+          paths = "/var/lib/minetest/.minetest";
+          repo = "borg@${constants.host.woody.ip}:.";
+          secretFile = ../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
+          secretKey = "borg/luanti";
+          extra = {
+            preHook = "systemctl stop minetest-server";
+            postHook = "systemctl start minetest-server";
+          };
+        })
+      ];
+
       environment.systemPackages = with pkgs; [
         borgbackup
       ];
@@ -79,36 +94,6 @@ in
       '';
       networking.firewall.allowedTCPPorts = [ 30000 ];
       networking.firewall.allowedUDPPorts = [ 30000 ];
-
-      sops.secrets."borg/luanti" = {
-        sopsFile = ../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
-      };
-
-      services.borgbackup.jobs.minetest = {
-        paths = "/var/lib/minetest/.minetest";
-        encryption.mode = "none";
-        environment = {
-          BORG_RSH = "ssh -i ${config.sops.secrets."borg/luanti".path} -p ${toString constants.sshPort}";
-          # borg runs non-interactively: a dropped client security cache (or a
-          # recreated repo) aborts the job with "Attempting to access a
-          # previously unknown unencrypted repository!". This repo is a family
-          # LAN backup over the mesh, so accept and resume automatically.
-          # -p sshPort: the loghost's endlessh owns port 22; real sshd
-          # answers on constants.sshPort (2026-11-03 log sweep).
-          BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK = "yes";
-          BORG_RELOCATED_REPO_ACCESS_IS_OK = "yes";
-        };
-        repo = "borg@${constants.host.woody.ip}:.";
-        compression = "auto,lzma";
-        startAt = "daily";
-        preHook = "systemctl stop minetest-server";
-        postHook = "systemctl start minetest-server";
-      };
-
-      # Send an email whenever auto upgrade fails
-      systemd.services."borgbackup-job-minetest".onFailure =
-        lib.mkIf config.systemd.services."notify-telegram@".enable
-          [ "notify-telegram@%i.service" ];
 
     };
 }
