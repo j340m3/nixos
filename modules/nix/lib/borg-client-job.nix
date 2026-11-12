@@ -73,6 +73,14 @@ in
       # timeout keeps a dead mesh from stalling the unit forever. Repo
       # strings for the nebula fallback (IP-based) skip this entirely.
       systemd.services."borgbackup-job-${name}" = {
+        # TimeoutStartSec only governs the start-pre phase for Type=oneshot
+        # units (ExecStart itself is exempt and may run indefinitely, which
+        # is what backups need). The warm-up below can legitimately take up
+        # to 300s while the box settles, so raise the start-pre budget above
+        # systemd's 90s default - pricklepants 2026-11-12: preStart was
+        # SIGTERM-killed at 90s and the whole job failed with 'timeout'.
+        serviceConfig.TimeoutStartSec = lib.mkDefault "10min";
+
         # RNS path warm-up before borg dials the bridge: an rnsh client whose
         # RNS.Link starts while the path table has no route to the destination
         # hangs forever (it never retries once the path arrives later) - seen
