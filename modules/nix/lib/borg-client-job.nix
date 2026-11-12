@@ -37,7 +37,7 @@ in
       borgRsh ? null,
       extra ? { },
     }:
-    { config, ... }:
+    { config, pkgs, ... }:
     {
       sops.secrets.${secretKey} = {
         sopsFile = secretFile;
@@ -64,8 +64,41 @@ in
         inherit startAt;
       } // extra;
 
-      systemd.services."borgbackup-job-${name}".onFailure =
-        lib.mkIf config.systemd.services."notify-telegram@".enable
-          [ "notify-telegram@%i.service" ];
+      # RNS path warm-up before borg dials the bridge: an rnsh client whose
+      # RNS.Link starts while the path table has no route to the destination
+      # hangs forever (it never retries once the path arrives later) - seen
+      # 2026-11-12 on pricklepants (20+ min pre-start probe, manual probe
+      # linked instantly once rnpath confirmed the 2-hop route). rnpath
+      # against the shared instance requests and waits for the route; the
+      # timeout keeps a dead mesh from stalling the unit forever. Repo
+      # strings for the nebula fallback (IP-based) skip this entirely.
+      systemd.services."borgbackup-job-${name}" = {
+        # RNS path warm-up before borg dials the bridge: an rnsh client whose
+        # RNS.Link starts while the path table has no route to the destination
+        # hangs forever (it never retries once the path arrives later) - seen
+        # 2026-11-12 on pricklepants (20+ min pre-start probe, manual probe
+        # linked instantly once rnpath confirmed the 2-hop route). rnpath
+        # against the shared instance requests and waits for the route; the
+        # timeout keeps a dead mesh from stalling the unit forever. Repo
+        # strings for the nebula fallback (IP-based) skip this entirely.
+        preStart =
+          let
+            hostMatch = builtins.match "[^@]*@([^:]*):.*" repo;
+            bridgeHost = if hostMatch != null then builtins.elemAt hostMatch 0 else "";
+          in
+          lib.mkIf (lib.hasSuffix "-rns" bridgeHost) ''
+            dest=$(awk -v h="${bridgeHost}" '$1 == h { print $2; exit }' /etc/reticulum/ssh-hosts)
+            if [ -n "$dest" ]; then
+              echo "warming RNS path to $dest for ${bridgeHost}"
+              timeout 300 ${
+                pkgs.python3Packages.rns
+              }/bin/rnpath "$dest" --config /var/lib/reticulum || true
+            fi
+          '';
+
+        onFailure =
+          lib.mkIf config.systemd.services."notify-telegram@".enable
+            [ "notify-telegram@%i.service" ];
+      };
     };
 }
