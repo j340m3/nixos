@@ -12,8 +12,7 @@
       lib,
       pkgs,
       ...
-    }@args:
-    {
+    }: {
       imports = [
         inputs.disko.nixosModules.disko
         inputs.sops-nix.nixosModules.sops
@@ -133,11 +132,8 @@
         pkgs.gitMinimal
       ];
 
-      users.users.root.openssh.authorizedKeys.keys = [
-        # change this to your ssh key
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHFzPnlj9Bwq47kDwdNrapGZInlvZYqYFE/HYcdZWLzv"
-      ]
-      ++ (args.extraPublicKeys or [ ]); # this is used for unit-testing this module and can be removed if not needed
+      # Root SSH is off fleet-wide (PermitRootLogin no via the ssh aspect);
+      # root rescue on this host is the serial console.
 
       # modules/_hardening.nix minus two settings that are unsafe on this VPS.
       # forcePageTableIsolation adds pti=on, which panics the boot on a CPU that

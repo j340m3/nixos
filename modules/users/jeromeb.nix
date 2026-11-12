@@ -22,6 +22,10 @@
     services.yubikey-agent.enable = true;
     services.udev.packages = [ pkgs.libfido2 ];
 
+    # jeromeb's home, wired into the host rebuild instead of a standalone
+    # home-manager switch
+    home-manager.users.jeromeb.imports = [ inputs.self.modules.homeManager.jeromeb ];
+
     sops.secrets."filen/jeromeb.conf" = {
       format = "ini";
       sopsFile = ../../secrets/users/jeromeb/rclone.ini;

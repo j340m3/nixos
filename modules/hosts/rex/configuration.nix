@@ -53,9 +53,6 @@ in
 
       virtualisation.virtualbox.guest.enable = true;
 
-      # jeromeb's home, wired into the host rebuild instead of a standalone switch
-      home-manager.users.jeromeb.imports = [ inputs.self.modules.homeManager.jeromeb ];
-
       # Bootloader.
       boot.loader.systemd-boot.enable = true;
       boot.loader.efi.canTouchEfiVariables = true;
