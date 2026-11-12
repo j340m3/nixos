@@ -50,12 +50,6 @@ in
       # Lighthouse flavor comes from inputs.self.modules.nixos.nebula-lighthouse
       # (roster-derived); what stays host-local:
       services.nebula.networks.mesh = {
-        # drift vs. the shared aspect (punchy.respond): reload makes nebula
-        # reload its certificate on change — kept verbatim, unify as follow-up
-        settings.punchy = lib.mkForce {
-          punch = true;
-          reload = true;
-        };
         # serve DNS over the mesh for fleet members; claimed from
         # systemd-resolved via the firewall rules below
         lighthouse.dns.host = "0.0.0.0";

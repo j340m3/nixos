@@ -168,12 +168,6 @@ in
       # Lighthouse flavor comes from inputs.self.modules.nixos.nebula-lighthouse
       # (roster-derived); what stays host-local:
       services.nebula.networks.mesh = {
-        # drift vs. the shared aspect (punchy.respond): reload makes nebula
-        # reload its certificate on change — kept verbatim, unify as follow-up
-        settings.punchy = lib.mkForce {
-          punch = true;
-          reload = true;
-        };
         # the zabbix proxy agent must stay reachable over the mesh
         firewall.inbound = [
           {

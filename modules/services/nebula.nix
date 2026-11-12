@@ -12,7 +12,7 @@ in
     }:
     let
       # lighthouse status rides the roster (see the nebula-lighthouse flavor
-      # below for the hosts that used to configure nebula inline)
+      # below for the roster lighthouses)
       isLighthouse = builtins.elem config.networking.hostName constants.lighthouses;
       # a host must never list itself as lighthouse/relay: nebula requires every
       # entry to have a static_host_map entry, and constants.nebula.staticMap
@@ -32,9 +32,9 @@ in
       ];
 
       services.nebula.networks.mesh = {
-        # mkDefault so the nebula-lighthouse flavor can keep its verbatim
-        # v4-only listen host
-        listen.host = lib.mkDefault "[::]";
+        # dual-stack everywhere (2026-11-12: lighthouses moved off the
+        # verbatim 0.0.0.0 too — "the switch to IPv6 will come")
+        listen.host = "[::]";
         enable = true;
         inherit isLighthouse;
         # roster in modules/global/_constants.nix: names -> mesh ip + public endpoints
@@ -48,6 +48,8 @@ in
           punchy = {
             punch = true;
             respond = true;
+            # reload the certificate on change (sops rewrites it on rotation)
+            reload = true;
           };
         };
         cert = config.sops.secrets."nebula/self_crt".path; # "/run/secrets/nebula/self.crt";
@@ -109,13 +111,11 @@ in
       };
     };
 
-  # Lighthouse flavor for the hosts that used to carry their nebula config
-  # inline (buzz, pricklepants): same aspect underneath, but the rendered
-  # config stays byte-for-byte what those hosts had — no lighthouse/relay
-  # lists (upstream ignores them on am_lighthouse nodes anyway), relay
-  # enabled, v4-only listen host, and the forced capability set. Per-host
-  # leftovers (punchy drift, DNS serving, mesh inbound ports, secret dir)
-  # live in the host files.
+  # Lighthouse flavor for the roster lighthouses (buzz, pricklepants, jessie,
+  # mrpotatohead): same aspect underneath, but no lighthouse/relay self-lists
+  # (upstream ignores them on am_lighthouse nodes anyway), relay enabled, and
+  # the forced capability set. Per-host leftovers (DNS serving, mesh inbound
+  # ports, secret dir) live in the host files.
   flake.modules.nixos.nebula-lighthouse =
     { lib, ... }:
     {
@@ -124,7 +124,6 @@ in
         isRelay = true;
         lighthouses = lib.mkForce [ ];
         relays = lib.mkForce [ ];
-        listen.host = "0.0.0.0";
       };
       systemd.services."nebula@mesh".serviceConfig = {
         CapabilityBoundingSet = lib.mkForce "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";

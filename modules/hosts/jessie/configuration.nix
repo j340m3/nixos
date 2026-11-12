@@ -26,7 +26,9 @@
         inputs.self.modules.nixos.donquezz
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.persistence
-        inputs.self.modules.nixos.nebula
+        # roster lighthouse -> the lighthouse flavor (relay enabled, empty
+        # lighthouse/relay self-lists) instead of the plain member aspect
+        inputs.self.modules.nixos.nebula-lighthouse
         inputs.self.modules.nixos.minecraft-bedrock
         inputs.self.modules.nixos.wireguard
         inputs.self.modules.nixos.minecraft-java
