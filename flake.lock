@@ -876,11 +876,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792345825,
-        "narHash": "sha256-DhQojeuA7zbtPzCjSQaIqJC+2Ich+M3V72Kk5qnO9HA=",
+        "lastModified": 1794511119,
+        "narHash": "sha256-aqfCh7I+/Xikmf0BVPHjuA1lZMzv33D7qUfXdOz3JV8=",
         "owner": "j340m3",
         "repo": "peerpatrol",
-        "rev": "f3c6fdaab35f352b80c2545cac9614324daac4b9",
+        "rev": "035c1902d7feef2715e07c9b73aa9f34511b3bbc",
         "type": "github"
       },
       "original": {
