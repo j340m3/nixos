@@ -31,6 +31,18 @@ in
           };
           ignoreIP = [ "10.0.0.0/8" ];
         };
+        # fail2ban can silently stall (pricklepants 2026-11-07..12: daemon alive but
+        # processed zero journal entries for 5 days while a sshd flood ran; restart
+        # fixed it instantly). It never exits when stalled, so Restart=always alone
+        # cannot help - RuntimeMaxSec forces a periodic replacement. Bans survive
+        # restarts via the sqlite db.
+        systemd.services.fail2ban = {
+          serviceConfig = {
+            Restart = lib.mkDefault "always";
+            RestartSec = lib.mkDefault "10s";
+          };
+          unitConfig.RuntimeMaxSec = lib.mkDefault "12h";
+        };
         /*
           security.pam.services = {
             login.googleAuthenticator.enable = true;
