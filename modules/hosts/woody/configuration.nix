@@ -29,12 +29,7 @@ in
       # woody has no inbound port for HTTP-01, so the vhost certs below are
       # DNS-01-issued with the same IONOS key harmonia already deploys here
       # (see harmonia.nix; the key lives in its service-scoped sops file).
-      dns01 = {
-        dnsProvider = "ionos";
-        dnsResolver = "1.1.1.1:53";
-        webroot = lib.mkForce null;
-        credentialFiles.IONOS_API_KEY_FILE = config.sops.secrets."acme/ionos_api_key".path;
-      };
+      dns01 = inputs.self.lib.acmeDns01 config.sops.secrets."acme/ionos_api_key".path;
     in
     {
       imports = [
@@ -134,7 +129,7 @@ in
           '';
         };
       };
-      security.acme.certs."immich.kauderwels.ch" = dns01;
+      security.acme.certs."immich.kauderwels.ch" = dns01 { };
 
       users.users.immich = {
         uid = 989;
@@ -239,7 +234,7 @@ in
           '';
         };
       };
-      security.acme.certs."paperless.kauderwels.ch" = dns01;
+      security.acme.certs."paperless.kauderwels.ch" = dns01 { };
 
       networking.firewall.allowedTCPPorts = [
         config.services.immich.port

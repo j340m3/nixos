@@ -35,14 +35,10 @@
         sopsFile = acmeSecretFile;
       };
 
-      security.acme.certs."cache.kauderwels.ch" = lib.mkIf acmeEnabled {
-        dnsProvider = "ionos";
-        # The router's resolver serves a stale NXDOMAIN for the challenge record.
-        dnsResolver = "1.1.1.1:53";
-        webroot = lib.mkForce null;
-        credentialFiles.IONOS_API_KEY_FILE = config.sops.secrets."acme/ionos_api_key".path;
-        reloadServices = [ "harmonia.service" ];
-      };
+      security.acme.certs."cache.kauderwels.ch" = lib.mkIf acmeEnabled
+        (inputs.self.lib.acmeDns01 config.sops.secrets."acme/ionos_api_key".path {
+          reloadServices = [ "harmonia.service" ];
+        });
 
       systemd.services.harmonia.wants = lib.mkIf acmeEnabled [
         "acme-cache.kauderwels.ch.service"
