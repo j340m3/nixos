@@ -23,6 +23,7 @@
         self.modules.nixos.${name}
         self.modules.nixos.mesh-ports
         self.modules.nixos.reticulum-opts
+        self.modules.nixos.backup-opts
         { nixpkgs.hostPlatform = lib.mkDefault system; }
       ];
     };

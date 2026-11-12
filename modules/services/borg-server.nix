@@ -1,6 +1,29 @@
 {
   flake.modules.nixos.borg-server =
     { config, lib, pkgs, ... }:
+    let
+      # Generic per-host backup repos (modules/services/backup-client.nix).
+      # Gated on the host's public key being present: a host without a
+      # prepared borg keypair gets no repo entry yet (improvement session
+      # 2026-11-12).
+      backupHosts = [ "lenny" "rex" "zurg" "slinky" "buzz" ];
+      backupRepos = builtins.listToAttrs (
+        map
+          (host: {
+            name = host;
+            value = {
+              path = "/var/lib/borgbackup/${host}";
+              quota = "50G";
+              authorizedKeysAppendOnly = [
+                (builtins.readFile (../../secrets/common/ssh + "/${host}/borg:${host}.pub"))
+              ];
+            };
+          })
+          (builtins.filter
+            (host: builtins.pathExists (../../secrets/common/ssh + "/${host}/borg:${host}.pub"))
+            backupHosts)
+      );
+    in
     {
       services.borgbackup.repos = {
         matrix = {
@@ -42,7 +65,7 @@
         #   path = "/var/lib/borgbackup/vaultwarden";
         #   authorizedKeysAppendOnly = [];
         # };
-      };
+      } // backupRepos;
 
       # Client keys are append-only (they can never delete), so retention must
       # run here as root. nixpkgs' borgbackup.jobs only prunes as part of a
