@@ -87,10 +87,15 @@ in
             bridgeHost = if hostMatch != null then builtins.elemAt hostMatch 0 else "";
           in
           lib.mkIf (lib.hasSuffix "-rns" bridgeHost) ''
-            dest=$(awk -v h="${bridgeHost}" '$1 == h { print $2; exit }' /etc/reticulum/ssh-hosts)
+            dest=""
+            # bash builtins only: the job unit PATH carries borg + openssh,
+            # not coreutils/awk (pricklepants 2026-11-12: bare awk -> 127)
+            while read -r name hash; do
+              if [ "$name" = "${bridgeHost}" ]; then dest="$hash"; break; fi
+            done < /etc/reticulum/ssh-hosts
             if [ -n "$dest" ]; then
               echo "warming RNS path to $dest for ${bridgeHost}"
-              timeout 300 ${
+              ${pkgs.coreutils}/bin/timeout 300 ${
                 pkgs.python3Packages.rns
               }/bin/rnpath "$dest" --config /var/lib/reticulum || true
             fi
