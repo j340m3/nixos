@@ -216,9 +216,14 @@ in
         + "\nwoody-borg-rns ${constants.reticulum.identities.woody.borg}"
         + "\n";
 
+      # Audit F4: only hosts that actually dial the nix daemon — the
+      # remote-build/substituter client roster (buildHosts keys = the
+      # `builders` roster). The old attrNames identities allowlist granted
+      # lenny/rex/slinky/mrpotatohead a bridge they don't have on the ssh
+      # side (their keys are commented out there); self-dial is excluded.
       allowedIdentities = lib.concatMapStringsSep " " (
         h: "-a ${constants.reticulum.identities.${h}.hash}"
-      ) (lib.attrNames constants.reticulum.identities);
+      ) (lib.filter (h: h != host) (lib.attrNames constants.buildHosts));
 
       allowBorgIdentities = lib.concatMapStringsSep " " (h: "-a ${h}") cfg.rnshBorg.allowIdentities;
 
