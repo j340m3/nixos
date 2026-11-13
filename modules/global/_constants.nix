@@ -100,15 +100,51 @@ let
   # nebula.inbound rule and its nebula.mesh interface firewall opening).
   # Consumers: peerpatrol tcp checks only.
   meshServices = [
-    { host = "woody"; service = "immich"; port = 2283; }
-    { host = "woody"; service = "paperless"; port = 28981; }
-    { host = "woody"; service = "zabbix-web"; port = 443; }
-    { host = "woody"; service = "zabbix-server"; port = 10051; }
-    { host = "woody"; service = "grafana"; port = 2342; } # non-default http_port
-    { host = "woody"; service = "harmonia"; port = 5000; }
-    { host = "woody"; service = "rsyslog"; port = 514; }
-    { host = "jessie"; service = "radicle-node"; port = 8776; }
-    { host = "jessie"; service = "radicle-web"; port = 443; }
+    {
+      host = "woody";
+      service = "immich";
+      port = 2283;
+    }
+    {
+      host = "woody";
+      service = "paperless";
+      port = 28981;
+    }
+    {
+      host = "woody";
+      service = "zabbix-web";
+      port = 443;
+    }
+    {
+      host = "woody";
+      service = "zabbix-server";
+      port = 10051;
+    }
+    {
+      host = "woody";
+      service = "grafana";
+      port = 2342;
+    } # non-default http_port
+    {
+      host = "woody";
+      service = "harmonia";
+      port = 5000;
+    }
+    {
+      host = "woody";
+      service = "rsyslog";
+      port = 514;
+    }
+    {
+      host = "jessie";
+      service = "radicle-node";
+      port = 8776;
+    }
+    {
+      host = "jessie";
+      service = "radicle-web";
+      port = 443;
+    }
   ];
 
   # Reticulum fleet overlay. Public transports are the VPS lighthouses plus
@@ -208,8 +244,19 @@ in
         connect = host.${name}.ip;
         port = sshPort;
         user = "remotebuild";
-        systems = [ "x86_64-linux" ];
-        speedFactor = 1;
+        # ADR 0018: kernel jobs demand requiredSystemFeatures "big-parallel"
+        # (nixpkgs kernel build), so a builder without the feature never
+        # receives one and the job stays local — the exact situation that kept
+        # slinky's kernel on the RPi. Declare it on the machines that can
+        # afford it and advertise their binfmt aarch64 (remote-builder.nix
+        # arms emulation on every x86_64 mesh member), but never on the
+        # 1-2 GB VPSes: a kernel build there is the bug, not the fix.
+        # Opportunistic per ADR 0000: unreachable builders fall back to local.
+        systems = [
+          "x86_64-linux"
+        ]
+        ++ (if name == "pricklepants" || name == "jessie" then [ ] else [ "aarch64-linux" ]);
+        supportedFeatures = if name == "pricklepants" || name == "jessie" then [ ] else [ "big-parallel" ];
       };
     }) builders
   );

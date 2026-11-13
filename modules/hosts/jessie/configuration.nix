@@ -23,6 +23,9 @@
         inputs.self.modules.nixos.vps-guest
         inputs.self.modules.nixos.hardening
         inputs.self.modules.nixos.system-default
+        # ADR 0018: artifact-first updates (substitute woody's prebuilt
+        # closure; local-eval fallback preserved on any failure).
+        inputs.self.modules.nixos.artifact-update
         inputs.self.modules.nixos.donquezz
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.persistence
@@ -144,7 +147,14 @@
       boot.loader.grub.default = "saved";
       boot.loader.grub.devices = [ "/dev/vda" ];
       networking.hostName = "jessie"; # Define your hostname.
-      zramSwap.enable = false;
+      # zram re-enabled (ADR 0018): the disable was a leftover of the long-gone
+      # tmpfs era (/ has been btrfs @root since the incident below), and
+      # compressed-RAM swap ahead of the 4G swapfile is what a 1-core/1.8GB
+      # box wants during rebuilds.
+      zramSwap = {
+        enable = true;
+        memoryPercent = 50;
+      };
       # 1-core/1.8GB host shared with the minecraft container: nix builds (remote
       # ones arrive via the remotebuild SSH session) run at low priority and one
       # at a time, so bedrock_server wins CPU under contention.
@@ -162,6 +172,11 @@
       ];
       # autoUpgrade runs as root and bypasses nix-daemon, so nice it separately.
       systemd.services.nixos-upgrade.serviceConfig.Nice = 15;
+
+      # ADR 0018: update by substituting woody's prebuilt closure instead of
+      # evaluating the flake on this 1-core box.
+      artifactUpdate.enable = true;
+
       networking.firewall.enable = true;
 
       system.stateVersion = "25.05";

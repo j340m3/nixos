@@ -224,8 +224,6 @@
 
       system.stateVersion = "25.05";
 
-
-
       # Inlined from ./_local.nix (zero host-local glue, ADR 0014).
       nix.settings = {
         substituters = [
@@ -273,28 +271,11 @@
 
       nix.settings.max-jobs = 1;
       nix.settings.cores = 1;
-      nix.distributedBuilds = true;
-      nix.settings.builders-use-substitutes = true;
-      nix.buildMachines = [
-        {
-          hostName = "builder-local";
-          sshUser = "remotebuild";
-          sshKey = "/root/.ssh/remotebuild";
-          systems = [
-            "x86_64-linux"
-            "aarch64-linux"
-          ];
-          #system = pkgs.stdenv.hostPlatform.system;
-          speedFactor = 100;
-          protocol = "ssh-ng";
-          supportedFeatures = [
-            "nixos-test"
-            "big-parallel"
-            "kvm"
-            "benchmark"
-          ];
-          maxJobs = 20;
-        }
-      ];
+      # ADR 0018: the local "builder-local" machine entry is gone. Its ssh
+      # alias was removed with the pre-dendritic tree (commit 425c717), so it
+      # always failed and silently forced the local fallback; the fleet
+      # builders (distributed-builds aspect via system-default) are the real
+      # accelerators and slinky's kernel now reaches a cache through woody's
+      # artifact publisher, not through a machine entry.
     };
 }

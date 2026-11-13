@@ -47,6 +47,11 @@ in
         # postgresql.postStart loop here)
         inputs.self.lib.postgresCollation
         inputs.self.modules.nixos.harmonia
+        # ADR 0018: pre-builds pricklepants/jessie/slinky closures so the
+        # memory-starved hosts substitute instead of eval+build; slinky's
+        # inclusion is the kernel-caching fix (its aarch64 kernel lands in
+        # woody's store = the harmonia cache it already pulls from).
+        inputs.self.modules.nixos.artifact-publisher
         inputs.self.modules.nixos.nfs-fee
         inputs.self.modules.nixos.nebula
         inputs.self.modules.nixos.prometheus
@@ -643,6 +648,19 @@ in
       nix.settings.cores = 6;
       nix.distributedBuilds = lib.mkForce false;
       nix.settings.trusted-users = [ "jeromeb" ];
+
+      # ADR 0018: publisher for the artifact-first clients plus slinky's
+      # kernel (aarch64 under binfmt; the rest of its closure substitutes
+      # from cache.nixos.org). woody already evals the whole flake hourly for
+      # its own autoUpgrade, so the eval here adds nothing new.
+      artifactPublisher = {
+        enable = true;
+        hosts = [
+          "pricklepants"
+          "jessie"
+          "slinky"
+        ];
+      };
 
       users.groups.plugdev = { };
       # Define a user account. Don't forget to set a password with ‘passwd’.

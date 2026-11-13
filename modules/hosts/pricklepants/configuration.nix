@@ -32,6 +32,7 @@ in
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.acme
         inputs.self.modules.nixos.system-default
+        inputs.self.modules.nixos.artifact-update
         inputs.self.modules.nixos.wireguard
         # nebula via the lighthouse flavor (roster-derived am_lighthouse); it
         # also brings the remote-build accept side
@@ -86,12 +87,18 @@ in
         device = "/dev/vda1";
         fsType = "ext4";
       };
-      swapDevices = [
-        {
-          device = "/dev/vda16";
-          randomEncryption.enable = true;
-        }
-      ];
+      # Swap encryption dropped (ADR 0018): the per-boot random key already
+      # bounds the exposure to the running session, and decrypting every
+      # swap-in was a pure CPU tax on the 1-core box during exactly the thrash
+      # episodes this host is being tuned out of (2026-11-07 incident class).
+      swapDevices = [ { device = "/dev/vda16"; } ];
+
+      # ADR 0018: the 1 GB box inherited the fleet builder default (max-jobs 6,
+      # modules/services/remote-builder.nix) — six parallel local builds on
+      # 1 GB of RAM whenever its builders were unreachable. Mirror jessie's
+      # treatment: one local job at a time, daemon at idle priority.
+      nix.daemonCPUSchedPolicy = "idle";
+      nix.settings.max-jobs = lib.mkForce 1;
 
       nix.gc.dates = lib.mkForce "hourly";
       nix.gc.options = lib.mkForce "-d";
@@ -213,5 +220,10 @@ in
       # sysctls tuned for zram, and MemoryMax ceilings on every service so one
       # runaway process cannot starve the rest of the machine.
       commonMem.enable = true;
+
+      # ADR 0018: update by substituting woody's prebuilt closure instead of
+      # evaluating the flake on this box; any failure falls back to the
+      # untouched nixos-upgrade path.
+      artifactUpdate.enable = true;
     };
 }

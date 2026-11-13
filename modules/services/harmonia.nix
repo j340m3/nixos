@@ -35,10 +35,11 @@
         sopsFile = acmeSecretFile;
       };
 
-      security.acme.certs."cache.kauderwels.ch" = lib.mkIf acmeEnabled
-        (inputs.self.lib.acmeDns01 config.sops.secrets."acme/ionos_api_key".path {
+      security.acme.certs."cache.kauderwels.ch" = lib.mkIf acmeEnabled (
+        inputs.self.lib.acmeDns01 config.sops.secrets."acme/ionos_api_key".path {
           reloadServices = [ "harmonia.service" ];
-        });
+        }
+      );
 
       systemd.services.harmonia.wants = lib.mkIf acmeEnabled [
         "acme-cache.kauderwels.ch.service"
@@ -58,22 +59,20 @@
         5000
       ];
 
-      mesh.openInbound =
-        lib.mkIf config.services.harmonia.cache.enable
-          [
-            {
-              port = 5000;
-              proto = "tcp";
-            }
-            {
-              port = 443;
-              proto = "tcp";
-            }
-            {
-              port = 80;
-              proto = "tcp";
-            }
-          ];
+      mesh.openInbound = lib.mkIf config.services.harmonia.cache.enable [
+        {
+          port = 5000;
+          proto = "tcp";
+        }
+        {
+          port = 443;
+          proto = "tcp";
+        }
+        {
+          port = 80;
+          proto = "tcp";
+        }
+      ];
 
       # harmonia.socket goes zombie after every autoUpgrade config change
       # ("Unit configuration changed ... no socket file descriptors are open;
