@@ -56,7 +56,10 @@ in
             "/var/lib/${config.systemd.services.vaultwarden.serviceConfig.StateDirectory}"
             (toString config.services.vaultwarden.backupDir)
           ];
-          repo = "borg@woody-borg-rns:pricklepants";
+          # Audit F1: ":." resolves against the listener CWD = woody's
+          # rnshBorg.repoPath (/var/lib/borgbackup/pricklepants), i.e. this
+          # repo and nothing else can be named by this client.
+          repo = "borg@woody-borg-rns:.";
           secretFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
           tolerateRepoDrift = false;
           # Absolute path: the borgbackup module adds pkgs.openssh to the unit

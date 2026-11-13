@@ -62,6 +62,13 @@ in
       services.reticulum.rnshBorg = {
         enable = true;
         allowIdentities = [ constants.reticulum.identities.pricklepants.hash ];
+        # Audit F1: scope the RNS bridge to pricklepants' repo. The ssh side
+        # enforces per-repo forced commands; without this the listener's
+        # restrict-to-path is the whole /var/lib/borgbackup tree, so any
+        # allowlisted RNS client could read/append every mesh repo. The
+        # listener CWD becomes this path, so the client repo string is ":."
+        # (pricklepants/configuration.nix).
+        repoPath = "/var/lib/borgbackup/pricklepants";
       };
 
       # Inlined from ./_hardware-configuration.nix (zero host-local glue, ADR 0014).
