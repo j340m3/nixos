@@ -13,16 +13,19 @@ in
       options.services.reticulum = {
         enable = lib.mkEnableOption "Reticulum";
 
-        # Non-root rnsh listeners need to read the identity and a minimal
-        # RNS config view; group "reticulum" grants exactly that.
+        # Non-root rnsh listeners need to read the identity and rendered RNS
+        # config; group "reticulum" grants exactly that.
         identityReaders = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
           description = ''
-            Users added to the `reticulum` group. Members can read the decoded
-            fleet identity (/run/reticulum) and the shared-instance config
-            view (/var/lib/reticulum-share) — everything a non-root rnsh
-            listener needs. No write access anywhere.
+            Users added to the `reticulum` group: can read the decoded fleet
+            identity (/run/reticulum/identity) and the rendered
+            shared-instance config (/run/reticulum/config). No write access.
+            The borg listener is deliberately OUTSIDE this group (audit F3):
+            it reads its own identity (sops reticulum/borg_identity) via
+            group `rnsh-borg`, so the two listener accounts cannot read —
+            and thus impersonate — each other.
           '';
         };
 
@@ -362,10 +365,21 @@ in
         # dir (RNS always creates storage/ there, even as a shared-instance
         # client) with the fleet config symlinked in; group "reticulum" grants
         # the 0440 identity reads. /var/lib/reticulum itself stays 0700 root.
-        users.groups.reticulum = { };
+        # Group split (audit F3): group `reticulum` = fleet identity +
+        # rendered config readers (the rnsh-nix side); group `rnsh-borg` =
+        # the borg bridge identity + its config copy only. A compromised
+        # remotebuild can no longer impersonate the borg bridge, and a
+        # compromised borg cannot grab the fleet (nix-bridge) identity.
+        users.groups = {
+          reticulum = { };
+          rnsh-borg = { };
+        };
         users.users = lib.listToAttrs (
           map (u: lib.nameValuePair u { extraGroups = [ "reticulum" ]; })
-          (lib.unique (cfg.identityReaders ++ lib.optionals cfg.rnshBorg.enable [ "borg" ]))
+            cfg.identityReaders
+          ++ lib.optionals cfg.rnshBorg.enable [
+            (lib.nameValuePair "borg" { extraGroups = [ "rnsh-borg" ]; })
+          ]
         );
 
         # Static RNS config TEMPLATE (audit F2): holds the @rpcKey@
@@ -510,9 +524,12 @@ in
         sops.secrets."reticulum/borg_identity" = lib.mkIf cfg.rnshBorg.enable {
             key = "borg_identity";
             sopsFile = ../../secrets/hosts/${host}/reticulum.yaml;
+            # audit F3: 0400 root — the decode runs as root (the + ExecStartPre
+            # below); nobody else reads the plaintext, and the borg user
+            # reaches the decoded copy via group rnsh-borg only.
             owner = "root";
-            group = "reticulum";
-            mode = "0440";
+            group = "root";
+            mode = "0400";
             restartUnits = [ "rnsh-borg.service" ];
         };
 
@@ -559,10 +576,12 @@ in
               pkgs.writeShellScript "rnsh-borg-identity" ''
                 ${pkgs.coreutils}/bin/tr '_-' '/+' < ${
                   config.sops.secrets."reticulum/borg_identity".path
-                } | ${pkgs.coreutils}/bin/base64 -d > /run/reticulum/identity-borg
-                # the + Exec runs root:root; the listener reads via group perms
-                chown root:reticulum /run/reticulum/identity-borg
-                chmod 0440 /run/reticulum/identity-borg
+                } | ${pkgs.coreutils}/bin/base64 -d > /run/rnsh-borg/identity-borg
+                # audit F3: this identity is borg-only (group rnsh-borg),
+                # never group reticulum — the nix-bridge account must not be
+                # able to read (and impersonate) the borg bridge identity.
+                chown root:borg /run/rnsh-borg/identity-borg
+                chmod 0440 /run/rnsh-borg/identity-borg
                 ${pkgs.coreutils}/bin/ln -sfn /run/reticulum-borg/config /run/rnsh-borg/config
               ''
             }";
