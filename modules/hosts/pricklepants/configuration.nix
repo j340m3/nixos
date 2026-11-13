@@ -45,7 +45,13 @@ in
           name = "pricklepants";
           paths = [
             "/etc"
-            "/var/lib/vaultwarden"
+            # vaultwarden moved to the upstream module's StateDirectory in the
+            # unify-aspects refactor; the old /var/lib/vaultwarden is gone and
+            # made every borg create exit 1 (2026-11-13 'stat: No such file').
+            "/var/lib/bitwarden_rs"
+            # Plus the upstream module's daily 23:00 dumps (backup-vaultwarden
+            # timer): small, and gives a second, sqlite-consistent copy.
+            "/var/backup/vaultwarden"
           ];
           repo = "borg@woody-borg-rns:pricklepants";
           secretFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
