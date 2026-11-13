@@ -75,10 +75,14 @@ in
         # nix flows must tolerate slow peers (1 GB boxes under swap pressure);
         # upstream floors the version handshake at 5 s, which flaked on
         # pricklepants during its memory-thrash incident (2026-11-07).
+        # 2026-11-13: an 80x multiplier is toxic on slow multi-hop paths -
+        # whole-second rtt makes the version wait tens of minutes, which
+        # looked like a 50% session wedge from pricklepants to woody.
+        # Clamp: at least 30 s, at most 120 s.
         substituteInPlace "$out/RNS/Utilities/rnsh/initiator.py" \
           --replace-fail \
             'vm = _pq.get(timeout=max(outlet.rtt * 20, 5))' \
-            'vm = _pq.get(timeout=max(outlet.rtt * 80, 30))'
+            'vm = _pq.get(timeout=min(max(outlet.rtt * 20, 30), 120))'
       '';
       rnsh = pkgs.writeShellScriptBin "rnsh" ''
         export PYTHONPATH=${rnsPatched}''${PYTHONPATH:+:$PYTHONPATH}
