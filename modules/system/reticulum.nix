@@ -373,14 +373,27 @@ in
         users.groups = {
           reticulum = { };
           rnsh-borg = { };
+          rnsd = { };
         };
-        users.users = lib.listToAttrs (
-          map (u: lib.nameValuePair u { extraGroups = [ "reticulum" ]; })
-            cfg.identityReaders
-          ++ lib.optionals cfg.rnshBorg.enable [
-            (lib.nameValuePair "borg" { extraGroups = [ "rnsh-borg" ]; })
-          ]
-        );
+        users.users = lib.mkMerge [
+          (lib.listToAttrs (
+            map (u: lib.nameValuePair u { extraGroups = [ "reticulum" ]; })
+              cfg.identityReaders
+          ))
+          (lib.optionalAttrs cfg.rnshBorg.enable {
+            borg.extraGroups = [ "rnsh-borg" ];
+          })
+          {
+            # rnsd runs unprivileged (audit F6): it parses untrusted wire
+            # traffic on port 4242 (unprivileged), so it needs no
+            # capabilities. Group reticulum grants the rendered config read.
+            rnsd = {
+              isSystemUser = true;
+              group = "rnsd";
+              extraGroups = [ "reticulum" ];
+            };
+          }
+        ];
 
         # Static RNS config TEMPLATE (audit F2): holds the @rpcKey@
         # placeholder only. reticulum-identity.service substitutes the sops
@@ -413,6 +426,23 @@ in
             # group-readable identity: non-root rnsh listeners (remotebuild,
             # borg) authenticate for the shared instance through group perms
             Group = "reticulum";
+            # audit F6: root oneshot, but minimal
+            NoNewPrivileges = true;
+            ProtectSystem = "strict";
+            ReadWritePaths =
+              [ "/run/reticulum" ]
+              ++ lib.optionals cfg.rnshBorg.enable [ "/run/reticulum-borg" ];
+            PrivateTmp = true;
+            PrivateDevices = true;
+            ProtectKernelTunables = true;
+            ProtectKernelModules = true;
+            ProtectKernelLogs = true;
+            ProtectClock = true;
+            RestrictNamespaces = true;
+            RestrictRealtime = true;
+            RestrictSUIDSGID = true;
+            CapabilityBoundingSet = "";
+            SystemCallArchitectures = "native";
           };
           script = ''
             ${pkgs.coreutils}/bin/tr '_-' '/+' < ${
@@ -447,11 +477,38 @@ in
           '';
           wantedBy = [ "multi-user.target" ];
           serviceConfig = {
+            # audit F6: run the untrusted-traffic parser as a system user
+            User = "rnsd";
+            Group = "rnsd";
             StateDirectory = "reticulum";
             StateDirectoryMode = "0700";
-            ExecStartPre = "${pkgs.coreutils}/bin/ln -sfn /run/reticulum/config ${stateDir}/config";
+            # legacy /var/lib/reticulum was root-owned; fix ownership each
+            # start (runs before the config symlink is created)
+            ExecStartPre = [
+              "+${pkgs.coreutils}/bin/chown -R rnsd:rnsd ${stateDir}"
+              "${pkgs.coreutils}/bin/ln -sfn /run/reticulum/config ${stateDir}/config"
+            ];
+            ReadWritePaths = [ "${stateDir}" ];
             Restart = "always";
             RestartSec = "3s";
+            NoNewPrivileges = true;
+            ProtectSystem = "strict";
+            ProtectHome = true;
+            PrivateTmp = true;
+            PrivateDevices = true;
+            ProtectKernelTunables = true;
+            ProtectKernelModules = true;
+            ProtectKernelLogs = true;
+            ProtectControlGroups = true;
+            ProtectClock = true;
+            ProtectHostname = true;
+            RestrictNamespaces = true;
+            RestrictRealtime = true;
+            RestrictSUIDSGID = true;
+            LockPersonality = true;
+            RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
+            CapabilityBoundingSet = "";
+            SystemCallArchitectures = "native";
           };
           # rnsd reads its config once at start; without a trigger a config
           # change (rpc_key, interfaces) silently leaves rnsd on the old
@@ -485,6 +542,21 @@ in
             # RNS wants a writable config dir in $HOME (remotebuild's is /var/empty)
             RuntimeDirectory = "rnsh-nix";
             Environment = "HOME=/run/rnsh-nix";
+            # audit F6 (narrowed on purpose): no ProtectSystem/RestrictNamespaces/
+            # PrivateTmp — the served nix-daemon writes /nix, needs build
+            # namespaces and binds host /tmp for its sandbox.
+            NoNewPrivileges = true;
+            PrivateDevices = true;
+            ProtectKernelTunables = true;
+            ProtectKernelModules = true;
+            ProtectKernelLogs = true;
+            ProtectClock = true;
+            ProtectHostname = true;
+            RestrictRealtime = true;
+            RestrictSUIDSGID = true;
+            LockPersonality = true;
+            RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
+            SystemCallArchitectures = "native";
             # own writable rnsconfig: RNS creates storage/ here; the fleet
             # config is symlinked in by the root ExecStartPre below
             ExecStartPre = "+${
@@ -566,11 +638,31 @@ in
             LimitNOFILE = 1024;
             User = "borg";
             Group = "borg";
-            # clients read repo path "NAME" relative to the serving process CWD
+            # clients read repo paths against the serving process CWD
             WorkingDirectory = "${cfg.rnshBorg.repoPath}";
             # borg's home is /var/empty (root-owned); RNS needs a writable HOME
             Environment = "HOME=/run/rnsh-borg";
             RuntimeDirectory = "rnsh-borg";
+            # audit F6: borg serve only ever writes the repoPath tree
+            NoNewPrivileges = true;
+            ProtectSystem = "strict";
+            ReadWritePaths = [ "${cfg.rnshBorg.repoPath}" "/run/rnsh-borg" ];
+            ProtectHome = true;
+            PrivateTmp = true;
+            PrivateDevices = true;
+            ProtectKernelTunables = true;
+            ProtectKernelModules = true;
+            ProtectKernelLogs = true;
+            ProtectControlGroups = true;
+            ProtectClock = true;
+            ProtectHostname = true;
+            RestrictNamespaces = true;
+            RestrictRealtime = true;
+            RestrictSUIDSGID = true;
+            LockPersonality = true;
+            RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
+            CapabilityBoundingSet = "";
+            SystemCallArchitectures = "native";
             # the bridge identity is borg-only: decode happens here as root
             ExecStartPre = "+${
               pkgs.writeShellScript "rnsh-borg-identity" ''
