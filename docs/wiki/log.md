@@ -843,3 +843,27 @@ Follow-up (same day): per-host rpc_keys generated via the operator's rbw
 sops-age key and committed (77fcadd, 8 hosts, verified 64-hex each);
 toplevel evals green on all reticulum hosts (slinky via targeted option
 evals per IFD convention). Repo is ready to deploy.
+
+## 2026-11-13 — artifact-first updates for memory-starved hosts (ADR-0018) [update]
+
+Grilling session on pricklepants' rebuild memory pressure produced an
+artifact-first split: woody's new artifact-publisher aspect (hourly :25)
+builds pricklepants/jessie/slinky toplevels from github:j340m3/nixos,
+roots the latest closure per host under /var/lib/artifact-publisher/roots/
+(GC roots), regenerates manifest.json from surviving links and serves it
+over nginx on woody's nebula IP :5001 (mesh-only, both firewall layers,
+6G min-free space guard). New artifact-update client aspect (hourly :05)
+substitutes the prebuilt closure (harmonia-signature-checked) and
+switches; at-most-once per distinct path (state file, manual rebuilds
+win), OnFailure starts the untouched nixos-upgrade unit (local eval
+fallback, ADR-0000 bar), onSuccess arms the health schedule. Bundled:
+pricklepants max-jobs mkForce 1 + idle daemon + swap encryption dropped;
+jessie zram 50% re-enabled; fleet builders advertise big-parallel +
+aarch64 (buzz/mrpotatohead/woody only); slinky's dead builder-local
+entry deleted (ssh alias lost in 425c717). slinky's kernel now reaches
+harmonia via woody's store — the four root causes of "kernel caching
+never worked" are all addressed. Known limitations: no auto-reboot in
+the artifact path; slinky toplevel eval still IFD-bound on x86_64
+(publisher *builds* it). Verified: just check ok on all x86_64 hosts;
+slinky per targeted option evals. See ADR-0018 and
+syntheses/artifact-first-updates.md.

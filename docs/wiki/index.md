@@ -257,6 +257,26 @@ Purpose: assess whether a Google Coral USB Accelerator (Edge TPU) can serve as t
 - NixOS runtime integration path unresolved (nixpkgs#188719); coral apt repo/libedgetpu build status on modern kernels unverified for this repo.
 - Long-term support of the original Coral software stack is uncertain (EDGE AI wiki notes a "Coral is back"/Coralboard direction at Google I/O 2026).
 
+## Artifact-first updates (2026-11-13)
+
+Question: *"Some of my hosts have trouble rebuilding due to memory
+pressure. What can we do to alleviate this without compromising on the
+independence?"* Decision in
+[ADR-0018](../../docs/adr/0018-artifact-first-updates.md): woody
+pre-builds pricklepants/jessie/slinky closures and serves a manifest;
+those hosts substitute + switch and keep the untouched local
+eval-and-build path as the failure fallback (ADR-0000 bar). Slinky's
+kernel reaches the harmonia cache as a byproduct; fleet builders
+advertise `big-parallel` + aarch64.
+
+### Pages
+
+- [synthesis](syntheses/artifact-first-updates.md) — diagnosis
+  (pricklepants/jessie eval bill, four reasons slinky's kernel was never
+  cacheable), the publisher/client split, fallback mechanics, and the
+  watch-list (no auto-reboot in the artifact path, manifest carries no
+  trust, woody disk guard).
+
 ## Unify-aspects dedupe migration (2026-11-04 → 2026-11-11)
 
 Purpose: remove the copy-paste remaining above the ADR-0014 end state —
