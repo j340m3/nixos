@@ -12,6 +12,9 @@
         ssh
         ssh-identities
         reticulum
+        rnsh-ssh
+        rnsh-nix
+        rnsh-borg
         locale
         sops
         rate-limiting-avoidance
