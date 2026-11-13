@@ -11,6 +11,34 @@ snano path:
 sops-refresh:
     sops refresh 
 
+# Set (or rotate) a host's reticulum rpc_key (ADR-0017, audit F2): random
+# 64-hex, stored under ["rpc_key"] in that host's reticulum.yaml. Creates the
+# file if missing (sops encrypts it per .sops.yaml). For a brand-new host you
+# must ALSO add the RNS identity key afterwards:
+#   just snano secrets/hosts/<host>/reticulum.yaml   # add: identity: <base64>
+# Usage: just rpc-key woody
+rpc-key host:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    host="{{host}}"
+    f="secrets/hosts/${host}/reticulum.yaml"
+    key="$(od -An -N32 -tx1 /dev/urandom | tr -d ' \n')"
+    if ! [[ "$key" =~ ^[0-9a-f]{64}$ ]]; then
+      echo "key generation failed" >&2; exit 1
+    fi
+    if [ -f "$f" ]; then
+      # stdout = decrypted file, never print it
+      sops --set "[\"rpc_key\"] \"$key\"" "$f" >/dev/null
+      echo "[$host] rpc_key set in $f"
+    else
+      mkdir -p "$(dirname "$f")"
+      printf 'rpc_key: %s\n' "$key" > "$f"
+      sops -e -i "$f" >/dev/null
+      echo "[$host] created $f with rpc_key"
+      echo "[$host] NOTE: also add the RNS identity (key 'identity'): just snano $f"
+    fi
+    echo "Commit it: git add $f && git commit -m 'secrets: rpc_key for $host'"
+
 # python3 + pyyaml, since the shell's python3 lacks yaml.
 # The age key is read from $SOPS_AGE_KEY (set above from rbw); --age-key optional.
 # Usage: just py3 scripts/publish-host-keys.py zurg --from-ssh zurg
