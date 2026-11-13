@@ -43,15 +43,18 @@ in
         # bridge on woody; BORG_RSH stays for a one-line rollback to nebula.
         (inputs.self.lib.borgClientJob {
           name = "pricklepants";
+          # Backup paths must track the vaultwarden module, not hardcode them:
+          # the upstream module derives StateDirectory from system.stateVersion
+          # ("bitwarden_rs" below 24.11, "vaultwarden" after), so a hardcoded
+          # /var/lib/vaultwarden broke with a silent stat error on every run
+          # (2026-11-13 'stat: No such file'). serviceConfig.StateDirectory is
+          # where the module publishes the live name; backupDir is the sqlite
+          # dump dir the daily backup-vaultwarden timer fills (a second,
+          # sqlite-consistent copy).
           paths = [
             "/etc"
-            # vaultwarden moved to the upstream module's StateDirectory in the
-            # unify-aspects refactor; the old /var/lib/vaultwarden is gone and
-            # made every borg create exit 1 (2026-11-13 'stat: No such file').
-            "/var/lib/bitwarden_rs"
-            # Plus the upstream module's daily 23:00 dumps (backup-vaultwarden
-            # timer): small, and gives a second, sqlite-consistent copy.
-            "/var/backup/vaultwarden"
+            "/var/lib/${config.systemd.services.vaultwarden.serviceConfig.StateDirectory}"
+            (toString config.services.vaultwarden.backupDir)
           ];
           repo = "borg@woody-borg-rns:pricklepants";
           secretFile = ../../../secrets/hosts/${config.networking.hostName}/secrets.yaml;
