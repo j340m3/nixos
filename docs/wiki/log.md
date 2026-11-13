@@ -776,3 +776,65 @@ out-of-band LXMF alert path for the watchdog (mesh-blind-spot coverage),
 parked as a candidate.
 
 - 2026-10-30: Created wiki structure, researched recent MPTCP CVEs (CVE-2025-71144, CVE-2025-68221, CVE-2025-71126, CVE-2025-40133), documented defaults/check/disable for MPTCP, assessed repo (no mptcp references, defaults likely off) and recommended checking kernel versions/patch levels.
+
+## 2026-11-13 — rnsh security audit for borg-over-RNS [reticulum]
+
+Task: audit groundwork for "borg backup over Reticulum via rnsh" and decide
+whether the fleet should move away from the archived rnsh repos. Research and
+writing only — no Nix code touched.
+
+Findings:
+- The "archived rnsh" premise is misleading: markqvist/rnsh (acehoss fork,
+  last push 2026-04-26) is archived, but rnsh was rewritten by Mark Qvist,
+  merged into RNS ~2026-04-28, and ships inside the rns PyPI package
+  (RNS/Utilities/rnsh, console script rnsh, Reticulum License) — actively
+  developed (1.5.7→1.6.0 delta is one line). The deployed rnshPatched tracks
+  this maintained copy; no switch needed.
+- Listener semantics verified in code: with -C any client cmdline terminates
+  the session (session.py:314-318); -a authenticates via LINKIDENTIFY Ed25519
+  signature + truncated-hash key pinning (Link.py:969-980, Identity.py:787);
+  server authenticated to client by link proof (Link.py:~410-446).
+- rpc_key protects only the shared instance's local control-plane RPC
+  (attach/detach interfaces, drop paths, blackhole, topology reads), HMAC via
+  multiprocessing.connection. On Linux the channels are abstract AF_UNIX
+  sockets @rns/default(+/rpc) by default — the configured 37428/37429 ports are
+  inert unless shared_instance_type = tcp. Data plane has no auth. Without a
+  matching rpc_key an attaching process dies at the first LINKIDENTIFY
+  (Link.py:981 → is_blackholed → AuthenticationError) — matches the woody
+  module's rpcKey rationale.
+- "rsReticulum" is ratspeak/rsReticulum (mmahdavi does not exist): Rust,
+  experimental, baseline RNS 1.4.2, ships rnsh-rs but PRs closed and not on the
+  official community-impl list (only microReticulum, Reticulum-Go). Beechat
+  Reticulum-rs is a library/daemon without shell tooling. rnx is
+  client-driven arbitrary exec — unsuitable for the borg contract.
+- Zero CVEs/GHSAs for RNS/rnsh (NVD's only "Reticulum" CVE is Mozilla Hubs,
+  unrelated). Links: ephemeral X25519 per link → forward secrecy; initiator
+  anonymity; destination hash pins the server key.
+
+Action items recorded (no code changes): verify/decide AF_UNIX vs tcp shared
+instance binding on woody; keep rpc_key readers group narrow; do not widen the
+identity-readers group.
+
+Written:
+- sources/rnsh-bundled-rnsh.md, sources/rns-shared-instance-rpc.md,
+  sources/rust-reticulum-implementations.md,
+  sources/rns-advisories-and-threat-model.md
+- concepts/rnsh-listener-security.md
+- syntheses/rnsh-retirement-audit.md
+- index.md (new "rnsh security audit" thread); version note added to
+  sources/rns-1.5.7-source.md (PyPI latest now 1.6.0, flake-pinned nixpkgs
+  rns 1.5.7).
+
+## 2026-11-13 — borg-over-RNS audit fixes (ADR-0017)
+
+Following the rnsh security-audit groundwork earlier this day, the audit of
+the actual machinery (woody rnsh-nix/rnsh-borg listeners, ssh shim,
+rpc_key) produced findings F1–F6; all fixed in commits f8bcfcc (F4
+allowlist), 42f1e78 (F1 repo scoping), 393341d (F2 rpc_key via sops,
+template + rendered /run/reticulum/config), 530b98b (F3 group/identity
+isolation), fb33dd5 (F5/F6 unprivileged sandboxed rnsd + listeners).
+Eval-verified on woody/pricklepants/buzz (toplevel drv paths).
+Decision: stay on bundled rnsh 1.5.7, no rsReticulum migration; repos stay
+unencrypted until the offsite leg; BORG_RSH rollback intact.
+Deploy gate: add `["rpc_key"]` to each reticulum host's reticulum.yaml
+(8 hosts) before rebuild. See ADR-0017 and the rnsh audit thread above.

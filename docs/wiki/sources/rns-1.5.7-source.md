@@ -1,6 +1,12 @@
 # Source: RNS 1.5.7 (PyPI sdist) and RNS 1.5.5 (installed)
 
 Primary source notes for the Reticulum Network Stack code. Compiled 2026-10-19.
+**Version note (2026-11-13):** PyPI latest is now **1.6.0** (2026-11-07);
+flake-pinned nixpkgs still ships rns **1.5.7** (verified by `nix eval`). The
+1.5.7→1.6.0 delta includes destination-type filtering, network stamps, and one
+rnsh line — no rnsh security delta; details in
+[rnsh-bundled](rnsh-bundled-rnsh.md). Shared-instance/RPC facts superseded by
+the dedicated page [rns-shared-instance-rpc](rns-shared-instance-rpc.md).
 
 ## Provenance
 

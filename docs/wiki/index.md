@@ -133,6 +133,52 @@ Synthesis:
 - Live peer and directory availability was not verifiable:
   `directory.rns.recipes` returned no entries at capture time.
 
+## rnsh security audit (2026-11-13)
+
+Security-audit groundwork for "borg backup over RNS via rnsh" and the question
+of switching away from the *archived* rnsh GitHub repos. Applies to woody's
+`rnsh-nix` / `rnsh-borg` listeners and the shared instance.
+
+**Bottom line:** no switch. The deployed rnsh is a Mark-Qvist rewrite bundled
+in the `rns` package (RNS/Utilities/rnsh) — first-party and maintained; the
+archived repos are the superseded acehoss original. `-C` hard-restricts
+execution to the listener's fixed command, `-a` is cryptographic (LINKIDENTIFY
+signature + hash-pinned key), and the server is authenticated by the link
+proof. `rpc_key` protects only the shared instance's local control-plane RPC;
+on Linux the actual channels are abstract sockets `@rns/default(+/rpc)` unless
+`shared_instance_type = tcp` (configured ports inert). No CVEs for RNS/rnsh;
+RNS Links give forward secrecy and initiator anonymity by construction.
+
+- Questions/answers: [rnsh retirement audit](syntheses/rnsh-retirement-audit.md)
+- Listener + `-a`/`-C` semantics with file:line:
+  [rnsh listener security](concepts/rnsh-listener-security.md)
+- Sources: [bundled rnsh vs archived repos](sources/rnsh-bundled-rnsh.md),
+  [shared instance + rpc_key](sources/rns-shared-instance-rpc.md),
+  [Rust implementations / rsReticulum](sources/rust-reticulum-implementations.md),
+  [advisories + Link threat model](sources/rns-advisories-and-threat-model.md)
+- Open item flagged for the host: confirm/decide the AF_UNIX-vs-TCP
+  shared-instance binding (`shared_instance_type` unset on woody).
+
+### Fixes implemented (2026-11-13, ADR-0017)
+
+The adversarial audit of the borg-over-RNS machinery found six findings
+(F1–F6); all were fixed and committed, eval-verified per host:
+
+- F1 rnsh-borg scoped to pricklepants' repo only (`42f1e78`);
+- F2 rpc_key now a random per-host sops secret rendered at boot, template +
+  `/run/reticulum/config`, no secret in the store, fail-closed (`393341d`);
+- F3 group split reticulum/rnsh-borg, identities isolated per listener
+  (`530b98b`);
+- F4 rnsh-nix allowlist = actual remote builders only (`f8bcfcc`);
+- F5/F6 unprivileged sandboxed rnsd + hardened listeners
+  (`fb33dd5`).
+
+Accepted/deferred by owner: repos stay unencrypted until the NAS/offsite
+(rclone crypt) leg; rsReticulum not adopted; `BORG_RSH` nebula rollback kept.
+Decision record: [ADR-0017](../../docs/adr/0017-harden-borg-over-reticulum.md).
+Deployment gate: every reticulum host needs `["rpc_key"]` in
+`secrets/hosts/<host>/reticulum.yaml` before rebuild (fail-closed by design).
+
 ## Nix/NixOS recent developments (2024–2026)
 
 Purpose: orientation on recent Nix/NixOS changes worth considering for a user.
