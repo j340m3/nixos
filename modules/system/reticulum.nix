@@ -139,15 +139,17 @@ in
         "    enabled = yes"
       ];
 
-      # Local RPC auth for the shared-instance control port. Without this, any
-      # instance that attaches to root's rnsd gets AuthenticationError as soon
-      # as Link code touches is_blackholed() (i.e. on every incoming
-      # LINKIDENTIFY) - which silently kills the rnsh version handshake and
-      # makes every non-root listener (rnsh-nix as remotebuild, rnsh-borg as
-      # borg) unconnectable ("Protocol error" on the client). The key is a
-      # stable per-host hash; /etc/reticulum/config is 0640 root:reticulum so
-      # it stays out of general users' reach.
-      rpcKey = builtins.substring 0 64 (builtins.hashString "sha256" "reticulum-rpc-${host}");
+      # Audit F2: the local RPC auth key for the shared-instance control port
+      # is a random per-host secret in sops (reticulum/rpc_key), NOT the old
+      # hostname-derived sha256 hash — any local process could compute that
+      # from the hostname alone and gain control-plane admin over the shared
+      # rnsd (the local channels are abstract AF_UNIX sockets with no
+      # filesystem permissions, so the key is the ONLY gate). Without a key,
+      # non-root listeners die at the first LINKIDENTIFY (is_blackholed() ->
+      # AuthenticationError). /etc/reticulum/config carries an @rpcKey@
+      # placeholder; reticulum-identity.service substitutes the sops value
+      # into /run/reticulum/config at boot, so no store path ever sees the
+      # real key.
 
       configLines = [
         "[reticulum]"
@@ -155,7 +157,7 @@ in
         "  share_instance = yes"
         "  shared_instance_port = 37428"
         "  instance_control_port = 37429"
-        "  rpc_key = ${rpcKey}"
+        "  rpc_key = @rpcKey@"
         "  panic_on_interface_error = no"
         "  discover_interfaces = ${bool isPublic}"
       ]
@@ -366,11 +368,13 @@ in
           (lib.unique (cfg.identityReaders ++ lib.optionals cfg.rnshBorg.enable [ "borg" ]))
         );
 
+        # Static RNS config TEMPLATE (audit F2): holds the @rpcKey@
+        # placeholder only. reticulum-identity.service substitutes the sops
+        # value into /run/reticulum/config (root:reticulum 0440); rnsd and
+        # every listener read the rendered copy, never this file.
         environment.etc."reticulum/config" = {
           text = configText;
-          # rpc_key in here: readable only by the listener accounts
-          mode = "0640";
-          group = "reticulum";
+          mode = "0644";
         };
         environment.etc."reticulum/ssh-hosts".text = sshHosts;
         environment.etc."lxmd/config" = lib.mkIf lxmf {
@@ -381,16 +385,16 @@ in
         programs.ssh.package = lib.mkDefault sshShim;
 
         systemd.services.reticulum-identity = {
-          description = "Decode the Reticulum identity";
+          description = "Decode the Reticulum identity and render the RNS config";
           wantedBy = [ "multi-user.target" ];
           before = [
             "reticulum.service"
             "rnsh-nix.service"
-          ];
+          ] ++ lib.optionals cfg.rnshBorg.enable [ "rnsh-borg.service" ];
           serviceConfig = {
             Type = "oneshot";
             RemainAfterExit = true;
-            RuntimeDirectory = "reticulum";
+            RuntimeDirectory = [ "reticulum" ] ++ lib.optionals cfg.rnshBorg.enable [ "reticulum-borg" ];
             RuntimeDirectoryMode = "0750";
             # group-readable identity: non-root rnsh listeners (remotebuild,
             # borg) authenticate for the shared instance through group perms
@@ -401,6 +405,22 @@ in
               config.sops.secrets."reticulum/identity".path
             } | ${pkgs.coreutils}/bin/base64 -d > /run/reticulum/identity
             chmod 0440 /run/reticulum/identity
+            # Render the RNS config (audit F2): substitute the rpc_key from
+            # sops into the static /etc/reticulum/config template.
+            ${pkgs.gnused}/bin/sed "s|@rpcKey@|$(cat ${
+              config.sops.secrets."reticulum/rpc_key".path
+            })|" /etc/reticulum/config > /run/reticulum/config
+            chown root:reticulum /run/reticulum/config
+            chmod 0440 /run/reticulum/config
+          '' + lib.optionalString cfg.rnshBorg.enable ''
+            # borg's own config copy (audit F3): the borg user is not in
+            # group reticulum, so it gets this copy (same content) with
+            # rnsh-borg-only permissions.
+            chown root:borg /run/reticulum-borg
+            chmod 0750 /run/reticulum-borg
+            cp /run/reticulum/config /run/reticulum-borg/config
+            chown root:borg /run/reticulum-borg/config
+            chmod 0440 /run/reticulum-borg/config
           '';
         };
 
@@ -415,7 +435,7 @@ in
           serviceConfig = {
             StateDirectory = "reticulum";
             StateDirectoryMode = "0700";
-            ExecStartPre = "${pkgs.coreutils}/bin/ln -sfn /etc/reticulum/config ${stateDir}/config";
+            ExecStartPre = "${pkgs.coreutils}/bin/ln -sfn /run/reticulum/config ${stateDir}/config";
             Restart = "always";
             RestartSec = "3s";
           };
@@ -455,7 +475,7 @@ in
             # config is symlinked in by the root ExecStartPre below
             ExecStartPre = "+${
               pkgs.writeShellScript "rnsh-nix-rnsconfig" ''
-                ${pkgs.coreutils}/bin/ln -sfn /etc/reticulum/config /run/rnsh-nix/config
+                ${pkgs.coreutils}/bin/ln -sfn /run/reticulum/config /run/rnsh-nix/config
               ''
             }";
           };
@@ -470,6 +490,21 @@ in
               ${allowedIdentities} \
               -- ${config.nix.package}/bin/nix-daemon --stdio
           '';
+        };
+
+        # Audit F2: random per-host control-plane key. Rotation re-renders
+        # the config and restarts the daemon and its listeners.
+        sops.secrets."reticulum/rpc_key" = {
+          key = "rpc_key";
+          sopsFile = ../../secrets/hosts/${host}/reticulum.yaml;
+          owner = "root";
+          group = "root";
+          mode = "0400";
+          restartUnits = [
+            "reticulum-identity.service"
+            "reticulum.service"
+            "rnsh-nix.service"
+          ] ++ lib.optionals cfg.rnshBorg.enable [ "rnsh-borg.service" ];
         };
 
         sops.secrets."reticulum/borg_identity" = lib.mkIf cfg.rnshBorg.enable {
@@ -528,7 +563,7 @@ in
                 # the + Exec runs root:root; the listener reads via group perms
                 chown root:reticulum /run/reticulum/identity-borg
                 chmod 0440 /run/reticulum/identity-borg
-                ${pkgs.coreutils}/bin/ln -sfn /etc/reticulum/config /run/rnsh-borg/config
+                ${pkgs.coreutils}/bin/ln -sfn /run/reticulum-borg/config /run/rnsh-borg/config
               ''
             }";
           };
