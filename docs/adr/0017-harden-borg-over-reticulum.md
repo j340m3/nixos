@@ -77,10 +77,11 @@ Fix F1–F6 as ordered small commits, each verified by eval before landing:
    `/run/reticulum-borg/` when rnshBorg is on). All consumers symlink the
    rendered copy; nothing secret-bearing enters the store. Fail-closed: a
    missing sops key leaves the literal placeholder in the rendered config and
-   RNS refuses to start. Keys are generated per host by the owner
-   (`scripts` in the handoff, not in the repo): one random 64-hex value via
-   `sops --set '["rpc_key"] "<hex>"' secrets/hosts/<host>/reticulum.yaml` for
-   the 8 hosts with reticulum enabled (zurg/bully have reticulum disabled).
+   RNS refuses to start. Keys were generated per host via the operator's
+   rbw sops-age key (`SOPS_AGE_KEY=$(rbw get age-key-nixos)`) with
+   `sops --set '["rpc_key"] "<64-hex>"' secrets/hosts/<host>/reticulum.yaml`
+   for the 8 hosts with reticulum enabled (zurg/bully have reticulum
+   disabled), and committed in `77fcadd`.
 4. **530b98b (F3)** — group split: `reticulum` (fleet identity + rendered
    config readers, the rnsh-nix side) vs `rnsh-borg` (borg bridge identity +
    its config copy only). The borg identity secret is 0400 root:root, decoded

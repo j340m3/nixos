@@ -838,3 +838,8 @@ Decision: stay on bundled rnsh 1.5.7, no rsReticulum migration; repos stay
 unencrypted until the offsite leg; BORG_RSH rollback intact.
 Deploy gate: add `["rpc_key"]` to each reticulum host's reticulum.yaml
 (8 hosts) before rebuild. See ADR-0017 and the rnsh audit thread above.
+
+Follow-up (same day): per-host rpc_keys generated via the operator's rbw
+sops-age key and committed (77fcadd, 8 hosts, verified 64-hex each);
+toplevel evals green on all reticulum hosts (slinky via targeted option
+evals per IFD convention). Repo is ready to deploy.
