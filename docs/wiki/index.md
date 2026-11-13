@@ -298,8 +298,10 @@ verified by per-host toplevel derivation-path equality. Decision recorded in
   landing.
 - Drift is preserved verbatim via explicit overrides, never silently unified
   by a dedupe commit.
-- IFD-bound hosts (slinky, aarch64) are verified by targeted option evals
-  instead of full toplevels.
+- slinky (aarch64) used to be IFD-bound (oom-hardware `dtbs-filtered`) and
+  was verified by targeted option evals only; since ADR-0019 (nixos-uconsole
+  migration) it evaluates fully on x86_64 and is skipped by `just check`
+  merely for the system mismatch.
 
 ## Conventions
 

@@ -34,16 +34,20 @@
     };
     nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
-    nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
-    nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
-    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
-    oom-hardware = {
-      url = "github:j340m3/oom-hardware";
+    nixos-raspberrypi = {
+      url = "github:nvmd/nixos-raspberrypi/v1.20260317.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nixos-uconsole = {
+      url = "github:nixos-uconsole/nixos-uconsole/v1.1.1";
       inputs = {
-        nixos-hardware.follows = "nixos-hardware";
+        nixos-raspberrypi.follows = "nixos-raspberrypi";
         nixpkgs.follows = "nixpkgs";
       };
     };
+    nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
+    nixpkgs.url = "git+https://github.com/NixOS/nixpkgs?shallow=1&ref=nixos-unstable";
+    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
     opencode-dev.url = "github:anomalyco/opencode/88c6c7abc7f320b6aabed2634ac0b2d6e6ecea67";
     peerpatrol = {
       url = "github:j340m3/peerpatrol";

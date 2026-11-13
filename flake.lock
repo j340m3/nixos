@@ -30,6 +30,22 @@
         "type": "github"
       }
     },
+    "argononed": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1729566243,
+        "narHash": "sha256-DPNI0Dpk5aym3Baf5UbEe5GENDrSmmXVdriRSWE+rgk=",
+        "owner": "nvmd",
+        "repo": "argononed",
+        "rev": "16dbee54d49b66d5654d228d1061246b440ef7cf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nvmd",
+        "repo": "argononed",
+        "type": "github"
+      }
+    },
     "base16": {
       "inputs": {
         "fromYaml": "fromYaml"
@@ -270,7 +286,6 @@
       }
     },
     "flake-compat_5": {
-      "flake": false,
       "locked": {
         "lastModified": 1767039857,
         "narHash": "sha256-vNpUSpF5Nuw8xvDLj2KCwwksIbjua2LZCqhV1LNRDns=",
@@ -286,6 +301,22 @@
       }
     },
     "flake-compat_6": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767039857,
+        "narHash": "sha256-vNpUSpF5Nuw8xvDLj2KCwwksIbjua2LZCqhV1LNRDns=",
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "rev": "5edf11c44bc78a0d334f6334cdaf7d60d732daab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
+    "flake-compat_7": {
       "flake": false,
       "locked": {
         "lastModified": 1767039857,
@@ -596,9 +627,83 @@
         "type": "github"
       }
     },
+    "nixos-images": {
+      "inputs": {
+        "nixos-stable": [
+          "nixos-raspberrypi",
+          "nixpkgs"
+        ],
+        "nixos-unstable": [
+          "nixos-raspberrypi",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1747747741,
+        "narHash": "sha256-LUOH27unNWbGTvZFitHonraNx0JF/55h30r9WxqrznM=",
+        "owner": "nvmd",
+        "repo": "nixos-images",
+        "rev": "cbbd6db325775096680b65e2a32fb6187c09bbb4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nvmd",
+        "ref": "sdimage-installer",
+        "repo": "nixos-images",
+        "type": "github"
+      }
+    },
+    "nixos-raspberrypi": {
+      "inputs": {
+        "argononed": "argononed",
+        "flake-compat": "flake-compat_5",
+        "nixos-images": "nixos-images",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1773704510,
+        "narHash": "sha256-Kq0WPitNekYzouyd8ROlZb63cpSg/+Ep2XxkV0YlABU=",
+        "owner": "nvmd",
+        "repo": "nixos-raspberrypi",
+        "rev": "b5c77d506bed55250a4642ce6c8b395dd29ef06b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nvmd",
+        "ref": "v1.20260317.0",
+        "repo": "nixos-raspberrypi",
+        "type": "github"
+      }
+    },
+    "nixos-uconsole": {
+      "inputs": {
+        "nixos-raspberrypi": [
+          "nixos-raspberrypi"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1781521323,
+        "narHash": "sha256-mAyM5iXo1CS96WxRapj/fGCBsiZdyH3zZo1925GEWj8=",
+        "owner": "nixos-uconsole",
+        "repo": "nixos-uconsole",
+        "rev": "18a837c2bf7e823bcfe86d6bf98b15270e3d84c3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos-uconsole",
+        "ref": "v1.1.1",
+        "repo": "nixos-uconsole",
+        "type": "github"
+      }
+    },
     "nixos-wsl": {
       "inputs": {
-        "flake-compat": "flake-compat_5",
+        "flake-compat": "flake-compat_6",
         "nixpkgs": "nixpkgs_7"
       },
       "locked": {
@@ -827,29 +932,6 @@
         "type": "github"
       }
     },
-    "oom-hardware": {
-      "inputs": {
-        "nixos-hardware": [
-          "nixos-hardware"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1756829768,
-        "narHash": "sha256-Mt4GEpe+cHq1PzlR0wUCf/DVPlYezNEOjGhpVdjG7RU=",
-        "owner": "j340m3",
-        "repo": "oom-hardware",
-        "rev": "c65c261b87c23b8ceac3d5f13b28a31d1b1c4bcf",
-        "type": "github"
-      },
-      "original": {
-        "owner": "j340m3",
-        "repo": "oom-hardware",
-        "type": "github"
-      }
-    },
     "opencode-dev": {
       "inputs": {
         "nixpkgs": "nixpkgs_9"
@@ -908,7 +990,7 @@
     },
     "pre-commit-hooks": {
       "inputs": {
-        "flake-compat": "flake-compat_6",
+        "flake-compat": "flake-compat_7",
         "nixpkgs": [
           "nixpkgs"
         ]
@@ -941,10 +1023,11 @@
         "nix-minecraft": "nix-minecraft",
         "nixos-facter-modules": "nixos-facter-modules",
         "nixos-hardware": "nixos-hardware",
+        "nixos-raspberrypi": "nixos-raspberrypi",
+        "nixos-uconsole": "nixos-uconsole",
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs_8",
         "nixpkgs-master": "nixpkgs-master",
-        "oom-hardware": "oom-hardware",
         "opencode-dev": "opencode-dev",
         "peerpatrol": "peerpatrol",
         "pre-commit-hooks": "pre-commit-hooks",

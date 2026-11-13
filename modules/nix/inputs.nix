@@ -40,10 +40,22 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    oom-hardware = {
-      url = "github:j340m3/oom-hardware";
+    # Raspberry Pi support for slinky (uConsole CM4). Pinned to the same
+    # nixos-raspberrypi rev nixos-uconsole v1.1.1 is built against. Kernel and
+    # firmware come from the vendor tree via nvmd's overlays, built on the
+    # fleet's nixpkgs (follows).
+    nixos-raspberrypi = {
+      url = "github:nvmd/nixos-raspberrypi/v1.20260317.0";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.nixos-hardware.follows = "nixos-hardware";
+    };
+
+    # uConsole hardware support (kernel patches, config.txt, sleep/4G
+    # modules). nixpkgs follows the fleet pin so slinky's toplevel matches
+    # the rest of the fleet; the kernel reaches harmonia via ADR-0018.
+    nixos-uconsole = {
+      url = "github:nixos-uconsole/nixos-uconsole/v1.1.1";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixos-raspberrypi.follows = "nixos-raspberrypi";
     };
 
     comin = {

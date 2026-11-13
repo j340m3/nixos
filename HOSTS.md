@@ -13,7 +13,7 @@ Roles as of 2026-10-18, verified against the import graph.
 | `lenny` | laptop | graphical | XFCE. Users: jeromeb, lilly. Old ThinkPad X230. |
 | `rex` | VM (on laptop) | graphical | Work laptop VM. XFCE, k3s, nebula, rclone, home-manager. |
 | `sid` | WSL | graphical | NixOS-WSL on Windows. NVIDIA, editor. |
-| `slinky` | uConsole (aarch64) | graphical | Raspberry Pi 4 / oom-hardware uConsole, nebula, wifi. |
+| `slinky` | uConsole (aarch64) | graphical | Raspberry Pi 4 / nixos-uconsole + nixos-raspberrypi, vendor kernel, nebula, wifi. |
 | `woody` | server | graphical | Homeserver: prometheus/grafana/fritz-exporter, zabbix web+agent, immich, paperless, harmonia binary cache, borg-server, loghost, NFS-fee, mosquitto. KDE via xrdp (no display manager). |
 | `zurg` | laptop | graphical | ThinkPad P51. stylix, gaming, llm, fingerprint, DE. |
 | `bootstrap` | image | headless | Disko image for provisioning new hosts. |
@@ -52,8 +52,13 @@ NixOS on WSL. `wsl.enable`, `wsl.defaultUser = "nixos"`, NVIDIA, editor.
 
 ### slinky
 
-uConsole (Raspberry Pi 4, aarch64). Uses oom-hardware uConsole modules and a
-locally built rpi4 kernel. Nebula, wifi.
+uConsole (Raspberry Pi 4, aarch64). Built on the community
+[nixos-uconsole](https://github.com/nixos-uconsole/nixos-uconsole) modules on
+top of [nvmd/nixos-raspberrypi](https://github.com/nvmd/nixos-raspberrypi)
+(both inputs follow the fleet nixpkgs pin; vendor kernel 6.12 with the
+uconsole patch set). Generational `boot.loader.raspberry-pi` kernel boot.
+Kernel cacheable via the ADR-0018 artifact publisher on woody. Nebula, wifi.
+See [ADR-0019](./docs/adr/0019-slinky-nixos-uconsole.md).
 
 ### woody
 
