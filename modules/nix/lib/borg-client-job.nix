@@ -38,6 +38,10 @@ in
       extra ? { },
     }:
     { config, pkgs, ... }:
+    let
+      hostMatch = builtins.match "[^@]*@([^:]*):.*" repo;
+      bridgeHost = if hostMatch != null then builtins.elemAt hostMatch 0 else "";
+    in
     {
       sops.secrets.${secretKey} = {
         sopsFile = secretFile;
@@ -81,19 +85,7 @@ in
         # SIGTERM-killed at 90s and the whole job failed with 'timeout'.
         serviceConfig.TimeoutStartSec = lib.mkDefault "10min";
 
-        # RNS path warm-up before borg dials the bridge: an rnsh client whose
-        # RNS.Link starts while the path table has no route to the destination
-        # hangs forever (it never retries once the path arrives later) - seen
-        # 2026-11-12 on pricklepants (20+ min pre-start probe, manual probe
-        # linked instantly once rnpath confirmed the 2-hop route). rnpath
-        # against the shared instance requests and waits for the route; the
-        # timeout keeps a dead mesh from stalling the unit forever. Repo
-        # strings for the nebula fallback (IP-based) skip this entirely.
         preStart =
-          let
-            hostMatch = builtins.match "[^@]*@([^:]*):.*" repo;
-            bridgeHost = if hostMatch != null then builtins.elemAt hostMatch 0 else "";
-          in
           lib.mkIf (lib.hasSuffix "-rns" bridgeHost) ''
             dest=""
             # bash builtins only: the job unit PATH carries borg + openssh,
@@ -112,6 +104,21 @@ in
         onFailure =
           lib.mkIf config.systemd.services."notify-telegram@".enable
             [ "notify-telegram@%i.service" ];
+      }
+      # RNS bridge sessions flake: roughly half of rnsh sessions complete,
+      # half wedge in the version-reply exchange (client authenticated on
+      # the listener but borg serve never spawns; client eventually dies
+      # with 'Protocol error' after its rtt-scaled timeout - pricklepants
+      # 2026-11-13, sessions 10:51/11:04/11:08 vs the 11:00 probe that
+      # worked). Restarting the whole job is safe: borg resumes
+      # interrupted archives from its checkpoint markers, so a retry
+      # continues rather than duplicates. Cap the restarts so a genuinely
+      # broken repo fails after ~15 min instead of retrying forever.
+      // lib.optionalAttrs (lib.hasSuffix "-rns" bridgeHost) {
+        serviceConfig.Restart = lib.mkDefault "on-failure";
+        serviceConfig.RestartSec = lib.mkDefault "5min";
+        unitConfig.StartLimitIntervalSec = lib.mkDefault "30min";
+        unitConfig.StartLimitBurst = lib.mkDefault 3;
       };
     };
 }
