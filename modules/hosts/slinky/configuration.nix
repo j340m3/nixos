@@ -226,16 +226,17 @@
 
       # Inlined from ./_local.nix (zero host-local glue, ADR 0014).
       nix.settings = {
+        # The community uConsole cache cache-nix.project2.xyz is gone (DNS
+        # dead, 2026-11-13); it never carried the oom-hardware kernel this
+        # host builds, so there is nothing to re-point at. slinky's kernel
+        # reaches woody's harmonia cache via the ADR-0018 artifact publisher.
         substituters = [
-          "https://cache-nix.project2.xyz/uconsole"
           "https://cache.chaotic.cx"
         ];
         trusted-substituters = [
-          "https://cache-nix.project2.xyz/uconsole"
           "https://cache.chaotic.cx"
         ];
         trusted-public-keys = [
-          "uconsole:vvqOLjqEwTJBUqv1xdndD1YHcdlMc/AnfAz4V9Hdxyk="
           "chaotic.cachix.org-1:Zf7C6GVRqJjU8B/ihd+psPVKp3/7Or/FSvOP3/9aB8Y="
         ];
 
