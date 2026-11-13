@@ -240,7 +240,10 @@ in
             RestrictNamespaces = true;
             RestrictRealtime = true;
             RestrictSUIDSGID = true;
-            CapabilityBoundingSet = "";
+            # chown root:borg on the borg config copy needs CAP_CHOWN; a real
+            # group change with an empty bounding set fails with EPERM and
+            # took down woody's nixos-upgrade (2026-11-13).
+            CapabilityBoundingSet = [ "CAP_CHOWN" ];
             SystemCallArchitectures = "native";
           };
           script = ''
