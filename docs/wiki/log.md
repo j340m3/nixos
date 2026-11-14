@@ -862,8 +862,12 @@ jessie zram 50% re-enabled; fleet builders advertise big-parallel +
 aarch64 (buzz/mrpotatohead/woody only); slinky's dead builder-local
 entry deleted (ssh alias lost in 425c717). slinky's kernel now reaches
 harmonia via woody's store — the four root causes of "kernel caching
-never worked" are all addressed. Known limitations: no auto-reboot in
-the artifact path; slinky toplevel eval still IFD-bound on x86_64
-(publisher *builds* it). Verified: just check ok on all x86_64 hosts;
-slinky per targeted option evals. See ADR-0018 and
+never worked" are all addressed. Follow-up (2026-11-14): the artifact
+path now reboots for staged kernels — artifact-update-reboot checks every
+15 min, reboots only inside the reused rebootWindow (22:00–08:00) and only
+for kernels staged during the current uptime (artifact-update-boot-state
+baseline in tmpfs /run keeps deliberate boots into a previous entry
+unoverridden). Remaining limitation: slinky toplevel eval still IFD-bound
+on x86_64 (publisher *builds* it). Verified: just check ok on all x86_64
+hosts; slinky per targeted option evals. See ADR-0018 and
 syntheses/artifact-first-updates.md.

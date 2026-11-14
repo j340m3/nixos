@@ -125,10 +125,15 @@ ADR-0018, just with capped parallelism.
   7d GC; the space guard protects woody's own upgrade headroom.
 
 ### Negative
-- No auto-reboot in the artifact path: `switch-to-configuration switch`
-  activates services but a kernel bump only takes effect at the next manual
-  reboot. The autoUpgrade fallback (rebootWindow 22:00–08:00) only runs on
-  artifact failure. Watch this on VPSes.
+- ~~No auto-reboot in the artifact path~~ (resolved by follow-up, 2026-11-14):
+  `artifact-update-reboot` now reboots when booted kernel/initrd differ from
+  the current system's — but only inside the rebootWindow reused from
+  `system.autoUpgrade` (22:00–08:00) and only for changes staged *during the
+  current uptime*: `artifact-update-boot-state` records the boot-time
+  baseline in tmpfs `/run`, so a deliberate reboot into a previous boot
+  entry (newer generation left current) is never overridden, and a missing
+  baseline means a conservative skip. Gated by `artifactUpdate.autoReboot`
+  (default on) and the fleet-wide `allowReboot`.
 - Two clock-adjacent new timers (:05/:25) join the :15/:15/:45 fleet cron
   chorus; failures report via the existing Telegram template.
 - The client trusts the manifest's *path* (not its content): a mesh peer

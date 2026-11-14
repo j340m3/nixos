@@ -61,9 +61,12 @@ autoUpgrade), the memory-starved hosts only *download and switch*.
 
 ## Known limitations (watch these)
 
-- No auto-reboot in the artifact path: a kernel bump on a client activates
-  services but waits for the next manual reboot; autoUpgrade's
-  rebootWindow only runs on fallback.
+- ~~No auto-reboot in the artifact path~~ (resolved 2026-11-14): a client
+  now reboots for a staged kernel via `artifact-update-reboot` — only inside
+  the reused `system.autoUpgrade.rebootWindow` (22:00–08:00), and only for
+  kernels staged during the current uptime (`artifact-update-boot-state`
+  writes the baseline into tmpfs `/run`, so a deliberate boot into a
+  previous boot entry is never overridden; missing baseline = skip).
 - slinky's toplevel *eval* still hits the pre-existing IFD wall
   (`dtbs-filtered`), which is why `just check` keeps skipping it — the
   publisher *builds* it, which is where that cost belongs.

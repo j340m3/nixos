@@ -274,8 +274,8 @@ advertise `big-parallel` + aarch64.
 - [synthesis](syntheses/artifact-first-updates.md) — diagnosis
   (pricklepants/jessie eval bill, four reasons slinky's kernel was never
   cacheable), the publisher/client split, fallback mechanics, and the
-  watch-list (no auto-reboot in the artifact path, manifest carries no
-  trust, woody disk guard).
+  watch-list (windowed+uptime-aware auto-reboot follow-up, manifest
+  carries no trust, woody disk guard).
 
 ## Unify-aspects dedupe migration (2026-11-04 → 2026-11-11)
 
