@@ -123,13 +123,18 @@ in
                 }";
               };
               script = ''
+                # The identity lives in THIS unit's runtime dir (decoded by the
+                # + ExecStartPre above, 0440 root:borg). Keep the -i paths here
+                # in sync with that decode path - a stale
+                # /run/reticulum/identity-borg here made the rnid gate see an
+                # empty hash and crash-loop every 3 s (woody, 2026-11-14).
                 expected=${constants.reticulum.identities.${host}.borg}
-                actual=$(${rnspython}/bin/rnid --config /run/rnsh-borg -i /run/reticulum/identity-borg -H rnsh 2>/dev/null | ${pkgs.gnugrep}/bin/grep 'rnsh destination' | ${pkgs.gnugrep}/bin/grep -oE '[0-9a-f]{32}' || true)
+                actual=$(${rnspython}/bin/rnid --config /run/rnsh-borg -i /run/rnsh-borg/identity-borg -H rnsh 2>/dev/null | ${pkgs.gnugrep}/bin/grep 'rnsh destination' | ${pkgs.gnugrep}/bin/grep -oE '[0-9a-f]{32}' || true)
                 if [ "$actual" != "$expected" ]; then
                   echo "rnsh-borg: destination hash mismatch: expected $expected, got '$actual'" >&2
                   exit 1
                 fi
-                exec ${rnsh}/bin/rnsh --rnsconfig /run/rnsh-borg -l -b 900 -C -i /run/reticulum/identity-borg \
+                exec ${rnsh}/bin/rnsh --rnsconfig /run/rnsh-borg -l -b 900 -C -i /run/rnsh-borg/identity-borg \
                   ${allowBorgIdentities} \
                   -- ${config.services.borgbackup.package}/bin/borg serve --append-only --restrict-to-path ${cfg.rnshBorg.repoPath}
               '';
