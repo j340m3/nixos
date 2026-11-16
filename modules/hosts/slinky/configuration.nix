@@ -273,15 +273,6 @@
         # (cache-nix.project2.xyz) is dead (2026-11-13) and the upstream
         # nixos-clockworkpi-uconsole.cachix.org cache only serves systems
         # built on nixos-uconsole's own nixpkgs-25.11 pin, not this host.
-        substituters = [
-          "https://cache.chaotic.cx"
-        ];
-        trusted-substituters = [
-          "https://cache.chaotic.cx"
-        ];
-        trusted-public-keys = [
-          "chaotic.cachix.org-1:Zf7C6GVRqJjU8B/ihd+psPVKp3/7Or/FSvOP3/9aB8Y="
-        ];
 
         experimental-features = [
           "nix-command"

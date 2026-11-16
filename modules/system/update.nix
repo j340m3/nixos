@@ -98,12 +98,10 @@
               "https://cache.nixos.org"
               "https://cache.kauderwels.ch:5000"
               "https://nix-community.cachix.org"
-              "https://cache.chaotic.cx"
             ];
             trusted-public-keys = [
               "cache.kauderwels.ch:0fswEglSoELjSBSMOuvnLAXMstePxzeTmOTYziR7z+Y="
               "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-              "chaotic.cachix.org-1:Zf7C6GVRqJjU8B/ihd+psPVKp3/7Or/FSvOP3/9aB8Y="
             ];
             experimental-features = [
               "nix-command"
