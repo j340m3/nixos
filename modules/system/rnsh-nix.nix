@@ -74,7 +74,7 @@ in
             RestrictRealtime = true;
             RestrictSUIDSGID = true;
             LockPersonality = true;
-            RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
+            RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" "AF_NETLINK" ];
             SystemCallArchitectures = "native";
             # own writable rnsconfig: RNS creates storage/ here; the fleet
             # config is symlinked in by the root ExecStartPre below

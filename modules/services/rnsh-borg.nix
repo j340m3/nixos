@@ -104,7 +104,7 @@ in
                 RestrictRealtime = true;
                 RestrictSUIDSGID = true;
                 LockPersonality = true;
-                RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" ];
+                RestrictAddressFamilies = [ "AF_UNIX" "AF_INET" "AF_INET6" "AF_NETLINK" ];
                 CapabilityBoundingSet = "";
                 SystemCallArchitectures = "native";
                 # the bridge identity is borg-only: decode happens here as root
