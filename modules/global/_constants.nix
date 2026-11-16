@@ -86,8 +86,6 @@ let
   # only; absence means not attempted, unreachable falls back to local
   # builds.
   builders = [
-    "pricklepants"
-    "buzz"
     "mrpotatohead"
     "jessie"
     "woody"
@@ -154,8 +152,7 @@ let
     port = 4242;
     publicHosts = lighthouses;
     vpsHosts = [
-      "pricklepants"
-      "buzz"
+      "jessie"
       "mrpotatohead"
     ];
     externalPeers = [
