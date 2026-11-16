@@ -31,6 +31,17 @@
           --replace-fail \
             'vm = _pq.get(timeout=max(outlet.rtt * 20, 5))' \
             'vm = _pq.get(timeout=min(max(outlet.rtt * 20, 30), 120))'
+        # 2026-11-16: rnsh listeners must never become the shared instance.
+        # If rnsd is momentarily down, a listener used to bind the
+        # @rns/default socket itself, then rnsd came back and attached to
+        # the listener as a client - the mutual crash loop between
+        # reticulum.service and rnsh-borg/rnsh-nix on woody (68 restarts)
+        # lived on exactly this race. require_shared_instance makes a
+        # listener abort instead of owning the socket.
+        substituteInPlace "$out/RNS/Utilities/rnsh/listener.py" \
+          --replace-fail \
+            '_reticulum = RNS.Reticulum(configdir=rnsconfigdir, loglevel=targetloglevel)' \
+            '_reticulum = RNS.Reticulum(configdir=rnsconfigdir, loglevel=targetloglevel, require_shared_instance=True)'
       '';
       rnsh = pkgs.writeShellScriptBin "rnsh" ''
         export PYTHONPATH=${rnsPatched}''${PYTHONPATH:+:$PYTHONPATH}
