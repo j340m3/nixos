@@ -6,7 +6,6 @@
       with inputs.self.modules.nixos;
       [ donquezz ]
       ++ [
-        php84-patch # remove when nixos-unstable#php84 >= 8.4.27 (php2shell)
         update
         upgrade-health
         ssh
