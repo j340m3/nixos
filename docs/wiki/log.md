@@ -908,3 +908,25 @@ unoverridden). Remaining limitation: slinky toplevel eval still IFD-bound
 on x86_64 (publisher *builds* it). Verified: just check ok on all x86_64
 hosts; slinky per targeted option evals. See ADR-0018 and
 syntheses/artifact-first-updates.md.
+
+## 2026-11-17 — round 7 loose ends: zurg enrolls the update + logging aspects [logging] [update]
+
+The three parked items from the round-7 zurg sweep closed the same day.
+The "telegram secrets missing in zurg's sopsFile" parking reason was
+stale: secrets/shared.yaml (the sops aspect's defaultSopsFile, hence
+already zurg's) holds telegram/{group_id,bot_token} and is encrypted to
+zurg's host key — confirmed by nix eval (config.sops.secrets lists them).
+zurg now imports the update aspect (nix.gc, space-guard, notify-telegram@,
+channel cleanup, fleet nix settings/substituters) and the inlined
+autoUpgrade block was deleted — the last _update.nix remnant. Second: the
+logging aspect needed no receiver work — woody already takes TCP/UDP 514
+on nebula.mesh (firewall + mesh.openInbound); zurg imports it too →
+volatile 64M journal (fleet standard, user-approved; the multi-month
+local history is deliberately dropped, woody is durable from now on) and
+rsyslog TCP forwarding to 10.0.0.3. Third: legacy /etc/nixos (jeromeb-
+owned, no sudo) — update.nix flags neutralized to --no-write-lock-file
+with a deprecation comment, SSH_AUTH_SOCK braced; a manual rebuild there
+can no longer resurrect Z1/Z3 (the flake stays pinned to its Oct-13
+inputs.self.outPath snapshot). Verified: nixfmt/statix clean, zurg
+toplevel evals, sops secrets + rsyslogd.enable + journald Storage=
+volatile confirmed by targeted evals.

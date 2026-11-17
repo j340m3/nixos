@@ -140,11 +140,11 @@ force a full re-upload.
 
 ## Round 7 — 2026-11-17 (zurg local-journal sweep)
 
-Evidence source: **zurg's local journal** (user request: "fix the errors in my logfiles" — zurg is the working machine). First sweep of a host's local journal rather than woody's rsyslog volume. Fixes in commit 78e986c (zurg configuration.nix + the fleet-wide SSH_AUTH_SOCK value).
+Evidence source: **zurg's local journal** (user request: "fix the errors in my logfiles" — zurg is the working machine). First sweep of a host's local journal rather than woody's rsyslog volume. Fixes in commit 19a10c9 (zurg configuration.nix + the fleet-wide SSH_AUTH_SOCK value; rebased from 78e986c during push).
 
 | # | Symptom | Root cause | Fix | Status |
 |---|---------|-----------|-----|--------|
-| Z1 | `nixos-upgrade` failed hourly since ≥ 2026-11-11 (4× today: 11:51/13:02/13:46/14:49): `cannot write modified lock file of flake 'github:j340m3/nixos'` | zurg's inlined autoUpgrade block (former `_update.nix`) still had `--update-input nixpkgs --commit-lock-file`; the shared `modules/system/update.nix` aspect fixed exactly this for the other hosts (`--no-write-lock-file`), zurg never got it (zurg imports only agent-md/nebula/sops, not `update`) | flags aligned with update.nix | **deployed** (needs switch) |
+| Z1 | `nixos-upgrade` failed hourly since ≥ 2026-11-11 (4× today: 11:51/13:02/13:46/14:49): `cannot write modified lock file of flake 'github:j340m3/nixos'` | zurg's inlined autoUpgrade block (former `_update.nix`) still had `--update-input nixpkgs --commit-lock-file`; the shared `modules/system/update.nix` aspect fixed exactly this for the other hosts (`--no-write-lock-file`), zurg never got it (zurg imports only agent-md/nebula/sops, not `update`) | flags aligned with update.nix | **deployed + verified** (manual `nixos-upgrade` run 15:50: `Finished NixOS Upgrade`, exit 0) |
 | Z2 | udevd `Failed to resolve group 'plugdev'` on every udev event, ~640 lines/48h | `programs.flashprog` ships `50-flashprog.rules` referencing `plugdev`; woody declared the group (line 640), zurg never did | `users.groups.plugdev = { }` + jeromeb membership | **deployed** |
 | Z3 | pam_env warnings in every gdm/systemd-user session: `Expandable variables must be wrapped in {} <$XDG_RUNTIME_DIR/rbw/ssh-agent-socket> - ignoring` — and the consequence: SSH_AUTH_SOCK was **never set** in those sessions | `/etc/pam/environment` (from `environment.sessionVariables`) held the unbraced `$XDG_RUNTIME_DIR` form, which pam_env rejects | braced `\${XDG_RUNTIME_DIR}/rbw/ssh-agent-socket` in zurg + woody configs and `home.sessionVariables` (jeromeb.nix). nixfmt gotcha: `''${...}''` indented-string escapes get flattened to interpolation by nixfmt — use `"\${...}"` | **deployed** |
 | Z4 | systemd-logind flood: **1,065,281** `Failed to execute suspend operation: Permission denied` lines on 2026-11-12 (10:00–13:52, ~100/s), 240k on 2026-10-25 (06:51); +1.07M journal bloat | GNOME auto-suspend is ON (`sleep-inactive-*-type='suspend'`, 900s) while zurg deliberately masks sleep/suspend targets; logind cannot start the masked target and (with gsd-power re-calling) loops tightly | dconf profile defaults: `sleep-inactive-{ac,battery}-type = "nothing"` | **deployed** |
@@ -156,16 +156,50 @@ Benign/known: kernel SGX-disabled, Bluetooth hci0 -16, `--update-input`
 deprecation warning, mdadm MAILADDR + gdm.rename eval warnings (pre-existing).
 
 **Notes / follow-ups**
-- zurg does not import the `update` aspect: no `nix.gc`, no
-  `notify-telegram@`, no upgrade space-guard, no comin option — only the
-  inlined autoUpgrade block. Importing the aspect needs
-  `telegram/group_id`/`telegram/bot_token` in zurg's sopsFile first. Parked.
-- zurg log shipping to woody is still the parked TODO in
-  `modules/services/logging.nix` (watchdog coverage gap: Z1 failed hourly
-  for days with no page on zurg itself).
-- Stale legacy tree: `/etc/nixos/{configuration.nix,flake.nix}` (Oct 13)
-  still carries the same broken flags/SSH_AUTH_SOCK; inert while rebuilds
-  come from `github:j340m3/nixos`, but a manual `nixos-rebuild` in
-  `/etc/nixos` would resurrect Z1–Z3.
 - Deploy: rebuild zurg (switch picks up all four fixes; the dconf power
   change applies at next gdm login).
+- Post-deploy verification (2026-11-17, switch to
+  pvq6nhlpqc61csfdh5x911iykg22igzl): plugdev resolves with jeromeb as
+  member, `/etc/pam/environment` carries the braced SSH_AUTH_SOCK, gsettings
+  shows `'nothing'`, zero plugdev errors after `udevadm trigger`, no failed
+  units. The 15:48 hourly fire that still failed raced the switch from the
+  old unit — harmless, state cleared. A manual `nixos-upgrade` run at 15:50
+  succeeded end-to-end.
+
+## Round 7 addendum — loose ends closed (2026-11-17, same-day follow-up)
+
+The three parked items were revisited; their parking reasons turned out
+stale or trivially resolvable:
+
+- **update aspect**: `secrets/shared.yaml` — the sops aspect's
+  `defaultSopsFile`, i.e. already zurg's sopsFile — carries
+  `telegram/group_id`/`telegram/bot_token` and is encrypted to zurg's host
+  key (fingerprint age1wudmk6…; confirmed in the sops-install-secrets log).
+  The "needs telegram secrets first" note was wrong. zurg now imports the
+  update aspect; the inlined autoUpgrade block is deleted (the last
+  `_update.nix` remnant, completing the ADR 0014 absorption). Inline
+  duplicates dropped from zurg's config: `nix.settings.experimental-features`,
+  `nix.daemonCPUSchedPolicy`/`IOSchedClass` (aspect provides both). Side
+  effect: zurg gains the main substituters/trusted keys, `nix.gc`, the
+  space-guard, `notify-telegram@` on upgrade failure, channel cleanup,
+  min-free/max-free, zram, anti-hungry slice. Its old `--print-build-logs`
+  flag is gone — the aspect's flags are fleet standard.
+- **log shipping**: woody's loghost aspect already accepts TCP/UDP 514 on
+  `nebula.mesh` (host firewall + `mesh.openInbound`); the forwarder targets
+  `constants.host.woody.ip` (10.0.0.3) and zurg is a mesh member
+  (10.0.0.10). zurg now imports the logging aspect: journald goes RAM-only
+  (volatile, 64M) and `/var/log/journal` is wiped at switch — fleet
+  standard, explicitly user-approved; the multi-month local history is
+  deliberately dropped, woody is the sole durable copy from then on.
+  Remaining gap: only sid (WSL), not a mesh member.
+- **legacy /etc/nixos** (standalone flake, Oct 13): files are jeromeb-owned,
+  no sudo needed. `update.nix` flags neutralized to
+  `["--print-build-logs" "--no-write-lock-file"]` with a deprecation
+  comment (it still imports that file, so a manual rebuild there would
+  otherwise resurrect Z1); `configuration.nix` SSH_AUTH_SOCK braced (Z3).
+  The flake stays pinned to its `inputs.self.outPath` snapshot — dead end
+  by design; rebuilds must come from `github:j340m3/nixos`.
+
+Verified: nixfmt/statix clean; zurg toplevel evals; `nix eval` confirms
+`system.autoUpgrade.flags`, `sops.secrets` contains the telegram pair,
+`services.rsyslogd.enable = true`, `journald Storage = "volatile"`.
