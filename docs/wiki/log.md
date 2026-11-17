@@ -1,5 +1,42 @@
 # Log
 
+## 2026-11-17 — fleet log sweep round 7: zurg local journal [loghost]
+
+User request: "fix the errors in my logfiles" — resolved as a sweep of
+**zurg's local journal** (the working machine), not woody's rsyslog volume.
+rbw agent had to be unlocked first (ssh auth path for the fleet; the session
+started with woody access, then the user redirected to local logs).
+
+Findings and fixes (full ledger in
+[log-remediation Round 7](syntheses/log-remediation.md); commit 78e986c):
+
+- **Z1 nixos-upgrade failing hourly** (`cannot write modified lock file`):
+  zurg's inlined autoUpgrade block kept the broken
+  `--update-input nixpkgs --commit-lock-file` flags that the shared
+  `modules/system/update.nix` aspect had already dropped (`--no-write-lock-file`)
+  — zurg imports only agent-md/nebula/sops, so it missed that fix. Aligned.
+- **Z2 plugdev udev noise**: `programs.flashprog`'s rules reference group
+  `plugdev`; woody already declares it, zurg didn't → declared + jeromeb
+  member.
+- **Z3 pam_env silently dropping SSH_AUTH_SOCK**: `/etc/pam/environment`
+  rejects unbraced `$XDG_RUNTIME_DIR` ("Expandable variables must be wrapped
+  in {}") → braced form in zurg, woody, and `modules/home/jeromeb.nix`.
+  nixfmt gotcha recorded: `''${...}''` indented-string escapes are flattened
+  to interpolation by nixfmt; `"\${...}"` survives.
+- **Z4 logind suspend flood (1.07M lines on 11-12, 240k on 10-25)**: GNOME
+  auto-suspend (`sleep-inactive-*-type='suspend'`) calls logind Suspend
+  against a deliberately masked suspend.target, ~100/s retry loop. dconf
+  profile now sets `sleep-inactive-{ac,battery}-type = nothing`.
+- Watch items: one-off Nov 12 root-device boot timeout (~27 min), nix SIGBUS
+  coredump 2026-10-25, benign dbus duplicate-name noise.
+- Gaps noted: zurg imports no `update` aspect (no nix.gc/notify-telegram/
+  space guard; importing needs telegram sops secrets in zurg's sopsFile);
+  zurg log shipping to woody still the parked TODO in
+  `modules/services/logging.nix`; stale `/etc/nixos` legacy tree carries the
+  same bugs (inert unless someone rebuilds from it).
+
+Deploy: rebuild zurg; dconf power change applies at next gdm login.
+
 ## 2026-11-12 — unify-aspects deferred queue completed [dendritic]
 
 Continuation of the 2026-11-11 migration: deployed to `main` (merged with

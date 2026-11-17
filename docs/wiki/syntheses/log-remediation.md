@@ -111,6 +111,10 @@ force a full re-upload.
 
 ## Round 6 — 2026-11-06 (verdicts + reticulum question)
 
+| # | Symptom | Root cause | Fix | Status |
+|---|---------|-----------|-----|--------|
+
+
 - **B1 closed by user**: `borg list` as the borg user shows three archives
   (`jessie-minecraft-bedrock-2026-11-04/05/06T02:30`) — the Nov 4 run committed
   fine; the tiny `hints.26` was a normal fresh hints file and the ~130KB
@@ -133,3 +137,35 @@ force a full re-upload.
   existing reticulum overlay (potato lxmd / pricklepants transport node) would
   cover "host unreachable AND mesh path suspect". Candidate follow-up for the
   watchdog, not a migration.
+
+## Round 7 — 2026-11-17 (zurg local-journal sweep)
+
+Evidence source: **zurg's local journal** (user request: "fix the errors in my logfiles" — zurg is the working machine). First sweep of a host's local journal rather than woody's rsyslog volume. Fixes in commit 78e986c (zurg configuration.nix + the fleet-wide SSH_AUTH_SOCK value).
+
+| # | Symptom | Root cause | Fix | Status |
+|---|---------|-----------|-----|--------|
+| Z1 | `nixos-upgrade` failed hourly since ≥ 2026-11-11 (4× today: 11:51/13:02/13:46/14:49): `cannot write modified lock file of flake 'github:j340m3/nixos'` | zurg's inlined autoUpgrade block (former `_update.nix`) still had `--update-input nixpkgs --commit-lock-file`; the shared `modules/system/update.nix` aspect fixed exactly this for the other hosts (`--no-write-lock-file`), zurg never got it (zurg imports only agent-md/nebula/sops, not `update`) | flags aligned with update.nix | **deployed** (needs switch) |
+| Z2 | udevd `Failed to resolve group 'plugdev'` on every udev event, ~640 lines/48h | `programs.flashprog` ships `50-flashprog.rules` referencing `plugdev`; woody declared the group (line 640), zurg never did | `users.groups.plugdev = { }` + jeromeb membership | **deployed** |
+| Z3 | pam_env warnings in every gdm/systemd-user session: `Expandable variables must be wrapped in {} <$XDG_RUNTIME_DIR/rbw/ssh-agent-socket> - ignoring` — and the consequence: SSH_AUTH_SOCK was **never set** in those sessions | `/etc/pam/environment` (from `environment.sessionVariables`) held the unbraced `$XDG_RUNTIME_DIR` form, which pam_env rejects | braced `\${XDG_RUNTIME_DIR}/rbw/ssh-agent-socket` in zurg + woody configs and `home.sessionVariables` (jeromeb.nix). nixfmt gotcha: `''${...}''` indented-string escapes get flattened to interpolation by nixfmt — use `"\${...}"` | **deployed** |
+| Z4 | systemd-logind flood: **1,065,281** `Failed to execute suspend operation: Permission denied` lines on 2026-11-12 (10:00–13:52, ~100/s), 240k on 2026-10-25 (06:51); +1.07M journal bloat | GNOME auto-suspend is ON (`sleep-inactive-*-type='suspend'`, 900s) while zurg deliberately masks sleep/suspend targets; logind cannot start the masked target and (with gsd-power re-calling) loops tightly | dconf profile defaults: `sleep-inactive-{ac,battery}-type = "nothing"` | **deployed** |
+| Z5 | `Nov 12 09:32:35 Timed out waiting for device /dev/disk/by-label/root` (one boot took ~27 min) | one-off nvme/btrfs label wait; three boots that day (reboot storm of the day) | none — watch item | **open, one-off** |
+| Z6 | systemd-coredump: `nix` SIGBUS 2026-10-25 06:51:42 (same minute as the Z4 flood) | one-off; nix 2.34.9 | none — watch item | **open, one-off** |
+| Z7 | dbus-broker-launch "Ignoring duplicate name" (org.gnome.keyring, IBus, portal…, ~130 lines/7d) | duplicate dbus service files across keyring/portal packages — standard GNOME-on-NixOS noise | none | **benign** |
+
+Benign/known: kernel SGX-disabled, Bluetooth hci0 -16, `--update-input`
+deprecation warning, mdadm MAILADDR + gdm.rename eval warnings (pre-existing).
+
+**Notes / follow-ups**
+- zurg does not import the `update` aspect: no `nix.gc`, no
+  `notify-telegram@`, no upgrade space-guard, no comin option — only the
+  inlined autoUpgrade block. Importing the aspect needs
+  `telegram/group_id`/`telegram/bot_token` in zurg's sopsFile first. Parked.
+- zurg log shipping to woody is still the parked TODO in
+  `modules/services/logging.nix` (watchdog coverage gap: Z1 failed hourly
+  for days with no page on zurg itself).
+- Stale legacy tree: `/etc/nixos/{configuration.nix,flake.nix}` (Oct 13)
+  still carries the same broken flags/SSH_AUTH_SOCK; inert while rebuilds
+  come from `github:j340m3/nixos`, but a manual `nixos-rebuild` in
+  `/etc/nixos` would resurrect Z1–Z3.
+- Deploy: rebuild zurg (switch picks up all four fixes; the dconf power
+  change applies at next gdm login).
