@@ -26,6 +26,12 @@
         # nebula mesh member; the aspect brings its sops wiring
         inputs.self.modules.nixos.nebula
         inputs.self.modules.nixos.sops
+        # Fleet update machinery (autoUpgrade, GC, space-guard, notify-
+        # telegram); the telegram sops secrets live in secrets/shared.yaml,
+        # which zurg's host key already decrypts.
+        inputs.self.modules.nixos.update
+        # RAM-only journal + TCP rsyslog forwarding to woody (loghost).
+        inputs.self.modules.nixos.logging
       ];
 
       # Inlined from ./_hardware-configuration.nix (zero host-local glue, ADR 0014).
@@ -146,10 +152,6 @@
       services.xserver.xkb.layout = "de";
       # services.xserver.xkb.options = "eurosign:e,caps:escape";
 
-      nix.settings.experimental-features = [
-        "nix-command"
-        "flakes"
-      ];
       # GNOME 50 clipboard regression is in GTK's content-type matching, not
       # fixable from here. Use kitty (terminal.nix) as the default instead.
       environment.variables.TERMINAL = "kitty";
@@ -285,8 +287,6 @@
       programs.steam = {
         enable = true;
       };
-      nix.daemonCPUSchedPolicy = "idle";
-      nix.daemonIOSchedClass = "idle";
       #environment.systemPackages = [ (pkgs.writeShellScriptBin "reboot-kexec" (builtins.readFile ./reboot-kexec.sh)) ];
       programs.steam.gamescopeSession.enable = true;
       programs.gamemode.enable = true;
@@ -329,25 +329,8 @@
         };
       };
 
-      # Former ./_update.nix. Flags must match modules/system/update.nix: the
-      # github: flake is read-only, so --update-input/--commit-lock-file make
-      # nixos-upgrade fail every hour with "cannot write modified lock file".
-      system.autoUpgrade = {
-        enable = true;
-        flake = "github:j340m3/nixos";
-        flags = [
-          "--print-build-logs"
-          "--no-write-lock-file"
-        ];
-        allowReboot = true;
-        dates = lib.mkDefault "*-*-* 0/1:45:00";
-        randomizedDelaySec = lib.mkDefault "25min";
-        #dates = lib.mkDefault "hourly";
-        rebootWindow = {
-          lower = lib.mkDefault "22:00";
-          upper = "08:00";
-        };
-      };
+      # Former ./_update.nix: absorbed by the update aspect (ADR 0014). Its
+      # telegram sops secrets decrypt with zurg's host key via shared.yaml.
 
       boot.kernelPackages = pkgs.linuxPackages_zen;
 

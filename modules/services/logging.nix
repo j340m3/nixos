@@ -2,9 +2,9 @@
 let
   constants = import ../global/_constants.nix;
 in
-# TODO (2026-11-02 log sweep): sid (WSL) and zurg import neither nebula nor
-# this module; they cannot reach the loghost while they are not mesh members.
-# Enroll them here + add roster entries when they are updated.
+# TODO (2026-11-02 log sweep): sid (WSL) is not a mesh member and cannot
+# reach the loghost; add it here when it is enrolled. zurg was enrolled
+# 2026-11-17 (imports nebula + this module).
 {
   flake.modules.nixos.logging =
     {
