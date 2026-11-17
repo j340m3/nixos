@@ -690,7 +690,9 @@ in
       };
       #users.users.eve.isNormalUser = true;
       environment.sessionVariables = {
-        SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/rbw/ssh-agent-socket";
+        # Braced ${XDG_RUNTIME_DIR}: pam_env (/etc/pam/environment) rejects the
+        # unbraced $VAR form and silently ignores the variable.
+        SSH_AUTH_SOCK = "\${XDG_RUNTIME_DIR}/rbw/ssh-agent-socket";
       };
       # Allow unfree packages
       nixpkgs.config.allowUnfree = true;

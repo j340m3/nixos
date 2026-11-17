@@ -29,46 +29,61 @@
       ];
 
       # Inlined from ./_hardware-configuration.nix (zero host-local glue, ADR 0014).
-      boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usbhid" "usb_storage" "sd_mod" "rtsx_pci_sdmmc" "e1000e" "iwlwifi" ];
+      boot.initrd.availableKernelModules = [
+        "xhci_pci"
+        "nvme"
+        "usbhid"
+        "usb_storage"
+        "sd_mod"
+        "rtsx_pci_sdmmc"
+        "e1000e"
+        "iwlwifi"
+      ];
       boot.initrd.kernelModules = [ "dm-snapshot" ];
       boot.kernelModules = [ "kvm-intel" ];
 
-      fileSystems."/" =
-        { device = "/dev/disk/by-label/root";
-          fsType = "btrfs";
-          options = [ "subvol=@" "compress=lzo" ];
-        };
+      fileSystems."/" = {
+        device = "/dev/disk/by-label/root";
+        fsType = "btrfs";
+        options = [
+          "subvol=@"
+          "compress=lzo"
+        ];
+      };
 
-      fileSystems."/home" =
-        { device = "/dev/disk/by-label/root";
-          fsType = "btrfs";
-          options = [ "subvol=@home" "compress=lzo" ];
-        };
+      fileSystems."/home" = {
+        device = "/dev/disk/by-label/root";
+        fsType = "btrfs";
+        options = [
+          "subvol=@home"
+          "compress=lzo"
+        ];
+      };
 
-      fileSystems."/boot" =
-        { device = "/dev/disk/by-label/boot0";
-          fsType = "vfat";
-          options = ["nofail"];
-        };
+      fileSystems."/boot" = {
+        device = "/dev/disk/by-label/boot0";
+        fsType = "vfat";
+        options = [ "nofail" ];
+      };
 
-      fileSystems."/boot-fallback" =
-        { device = "/dev/disk/by-label/boot1";
-          fsType = "vfat";
-          options = ["nofail"];
-        };
+      fileSystems."/boot-fallback" = {
+        device = "/dev/disk/by-label/boot1";
+        fsType = "vfat";
+        options = [ "nofail" ];
+      };
 
-      fileSystems."/nix" =
-        { device = "/dev/disk/by-label/root";
-          fsType = "btrfs";
-          options = [ "compress=lzo" ];
-        };
+      fileSystems."/nix" = {
+        device = "/dev/disk/by-label/root";
+        fsType = "btrfs";
+        options = [ "compress=lzo" ];
+      };
 
       boot.initrd.luks.devices."cryptroot".device = "/dev/md0";
 
-      swapDevices =
-        [ { device = "/dev/disk/by-uuid/7f1ec5a0-192f-4ded-80f1-586f3d42ff5c"; }
-          { device = "/dev/disk/by-uuid/14b413cd-0b3e-48d2-8d60-5965795c8e4d"; }
-        ];
+      swapDevices = [
+        { device = "/dev/disk/by-uuid/7f1ec5a0-192f-4ded-80f1-586f3d42ff5c"; }
+        { device = "/dev/disk/by-uuid/14b413cd-0b3e-48d2-8d60-5965795c8e4d"; }
+      ];
 
       # Enables DHCP on each ethernet and wireless interface.
       networking.useDHCP = lib.mkDefault true;
@@ -144,6 +159,14 @@
             exec = "kitty";
             "exec-arg" = "";
           };
+          # suspend.target is masked on this host; with GNOME's automatic
+          # suspend gsd-power keeps calling logind Suspend and logind spams
+          # "Failed to execute suspend operation: Permission denied" in a
+          # tight loop (1.07M journal lines on 2026-11-12 alone).
+          settings."org/gnome/settings-daemon/plugins/power" = {
+            sleep-inactive-ac-type = "nothing";
+            sleep-inactive-battery-type = "nothing";
+          };
         }
       ];
       # Enable CUPS to print documents.
@@ -160,12 +183,16 @@
       # Enable touchpad support (enabled default in most desktopManager).
       # services.libinput.enable = true;
       users.mutableUsers = false;
+      # 50-flashprog.rules (programs.flashprog) references this group; without
+      # it udevd logs "Failed to resolve group 'plugdev'" on every udev event.
+      users.groups.plugdev = { };
       users.users.jeromeb = {
         isNormalUser = true;
         extraGroups = [
           "wheel"
           "networkmanager"
           "vboxusers"
+          "plugdev"
         ];
         hashedPassword = "$6$uT1lJkmEB26nRxwe$30NmQk6/m9P8HvK/xglPmmXyoY3HKqxoTONUpRUXX51ja2XiWGKHqKnSPWKlkF/mMWTPFHj/h0/WzxyXNAfTd/";
         packages = with pkgs; [
@@ -233,7 +260,9 @@
       ];
 
       environment.sessionVariables = {
-        SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/rbw/ssh-agent-socket";
+        # Braced ${XDG_RUNTIME_DIR}: pam_env (/etc/pam/environment) rejects the
+        # unbraced $VAR form and silently ignores the variable.
+        SSH_AUTH_SOCK = "\${XDG_RUNTIME_DIR}/rbw/ssh-agent-socket";
       };
 
       # The ./_*.nix host-local glue (gaming fingerprint fonts de llm update)
@@ -300,19 +329,15 @@
         };
       };
 
-      # Former ./_update.nix.
+      # Former ./_update.nix. Flags must match modules/system/update.nix: the
+      # github: flake is read-only, so --update-input/--commit-lock-file make
+      # nixos-upgrade fail every hour with "cannot write modified lock file".
       system.autoUpgrade = {
         enable = true;
-        #flake = "/etc/nixos";
         flake = "github:j340m3/nixos";
-        #flake = inputs.self.outPath;
         flags = [
-          "--update-input"
-          "nixpkgs"
           "--print-build-logs"
-          "--commit-lock-file"
-          #  "--upgrade-all"
-          #  "--no-write-lock-file"
+          "--no-write-lock-file"
         ];
         allowReboot = true;
         dates = lib.mkDefault "*-*-* 0/1:45:00";

@@ -53,7 +53,9 @@ _: {
       };
 
       home.sessionVariables = {
-        SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/rbw/ssh-agent-socket";
+        # Braced ${XDG_RUNTIME_DIR}: pam_env rejects the unbraced $VAR form and
+        # silently ignores the variable.
+        SSH_AUTH_SOCK = "\${XDG_RUNTIME_DIR}/rbw/ssh-agent-socket";
       };
 
       nixpkgs.config.allowUnfreePredicate =
