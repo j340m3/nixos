@@ -312,6 +312,26 @@ in
       };
       services.gvfs.enable = true;
 
+        # Borg repos live on the NAS (improvement session 2026-11-12): one
+        # rclone mount for the repo tree; borg's transactional repo format
+        # tolerates a dropped mount mid-job (the job aborts and the alert
+        # fires — the repo stays consistent). Prerequisite after provisioning:
+        # /volume1/borgbackup/repos must exist on bergmannnas.
+        fileSystems."/mnt/nas/borgbackup" = inputs.self.lib.rcloneMount {
+          device = "immich:immich";
+          sftpPath = "/volume1/borgbackup/repos";
+          configPath = "/etc/rclone-mnt.conf";
+          uid = config.users.users.borg.uid;
+          gid = toString config.users.groups.borg.gid;
+          options = [
+            # borg writes segments and fsyncs; 30s write-back keeps the NAS
+            # lag bounded without stalling each segment upload.
+            "vfs-write-back=30s"
+            "transfers=4"
+            "log-file=/var/log/rclone.log"
+          ];
+        };
+
       environment.etc."rclone-mnt.conf" = {
         text = ''
           [immich]
