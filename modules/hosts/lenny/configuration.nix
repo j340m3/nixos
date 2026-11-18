@@ -22,6 +22,7 @@
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.nebula
+        inputs.self.modules.nixos.node-exporter
         inputs.self.modules.nixos.wifi
         inputs.chaotic.nixosModules.default
       ];

@@ -48,6 +48,7 @@
         inputs.self.modules.nixos.vscodium
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.nebula
+        inputs.self.modules.nixos.node-exporter
         inputs.self.modules.nixos.wifi
 
         # WHY: some modules use the deprecated

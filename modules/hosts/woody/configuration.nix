@@ -54,6 +54,7 @@ in
         inputs.self.modules.nixos.artifact-publisher
         inputs.self.modules.nixos.nfs-fee
         inputs.self.modules.nixos.nebula
+        inputs.self.modules.nixos.node-exporter
         inputs.self.modules.nixos.prometheus
         inputs.self.modules.nixos.grafana
         inputs.self.modules.nixos.fritz-exporter

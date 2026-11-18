@@ -32,6 +32,7 @@ in
         # nebula via the lighthouse flavor (roster-derived am_lighthouse); it
         # also brings the remote-build accept side
         inputs.self.modules.nixos.nebula-lighthouse
+        inputs.self.modules.nixos.node-exporter
       ];
 
       # Use the GRUB 2 boot loader.

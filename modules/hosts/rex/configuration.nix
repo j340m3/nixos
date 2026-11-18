@@ -26,6 +26,7 @@ in
         inputs.self.modules.nixos.system-default
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.nebula
+        inputs.self.modules.nixos.node-exporter
         # home-manager module comes in via modules/_common/home-manager.nix
       ];
 

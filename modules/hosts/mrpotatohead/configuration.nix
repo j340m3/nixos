@@ -29,6 +29,7 @@
         # roster lighthouse -> the lighthouse flavor (relay enabled, empty
         # lighthouse/relay self-lists) instead of the plain member aspect
         inputs.self.modules.nixos.nebula-lighthouse
+        inputs.self.modules.nixos.node-exporter
         inputs.self.modules.nixos.logging
         inputs.self.modules.nixos.nextcloud
         inputs.self.modules.nixos.wireguard

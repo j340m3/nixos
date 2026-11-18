@@ -38,6 +38,7 @@
         inputs.self.modules.nixos.agent-md
         # nebula mesh member; the aspect brings its sops wiring
         inputs.self.modules.nixos.nebula
+        inputs.self.modules.nixos.node-exporter
         inputs.self.modules.nixos.sops
         # Fleet update machinery (autoUpgrade, GC, space-guard, notify-
         # telegram); the telegram sops secrets live in secrets/shared.yaml,

@@ -37,6 +37,7 @@ in
         # nebula via the lighthouse flavor (roster-derived am_lighthouse); it
         # also brings the remote-build accept side
         inputs.self.modules.nixos.nebula-lighthouse
+        inputs.self.modules.nixos.node-exporter
         # Key rotated 2026-10-19 after the priv was never published (backups failed
         # auth with /dev/null); rotate into woody's repos via the .pub file.
         #
