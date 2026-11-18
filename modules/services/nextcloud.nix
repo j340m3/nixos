@@ -256,20 +256,22 @@
           #"auto"
           "syslog"
           #"x-systemd.automount"
-          #"dir-cache-time=24h"
+          "dir-cache-time=1h"
           "allow-non-empty"
           "daemon-wait=0"
           "vfs-cache-min-free-space=2G"
           "vfs-fast-fingerprint"
           "vfs-links"
-          "transfers=1"
-          "vfs-write-back=1h" # write changes after one hour
+          "buffer_size=8M"
+          "transfers=8"
+          "vfs-write-back=30s" # write changes after one hour
           "vfs-cache-max-age=24h" # Retain cached files for up to 24 hours
-          "vfs-read-chunk-size=32M" # Start with 32MB chunks for faster initial reads
-          "vfs-read-chunk-size-limit=1G" # Allow chunk size to grow up to 1GB for large files
+          "attr-timeout=30s"
+          #"vfs-read-chunk-size=32M" # Start with 32MB chunks for faster initial reads
+          #"vfs-read-chunk-size-limit=1G" # Allow chunk size to grow up to 1GB for large files
           #"vfs-cache-poll-interval=30s"
-          "tpslimit=16"
-          "tpslimit-burst=32"
+          #"tpslimit=16"
+          #"tpslimit-burst=32"
           "log-level=WARNING"
           #"log-file=/var/log/rclone/filen/nextcloud.log"
           "x-systemd.onSuccess=mnt-filen-services-nextcloud-tmpfiles-resetup.service"
