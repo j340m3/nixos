@@ -7,8 +7,38 @@ _: {
       pkgs,
       inputs,
       lib,
+      osConfig ? { },
       ...
     }:
+    let
+      # Storage-tier kit (improvement session 2026-11-12): small hosts get the
+      # CLI-only kit, medium adds messaging, large the full desktop kit. The
+      # tier is a host fact (osConfig.storage.tier, roster in
+      # modules/global/_constants.nix). Standalone homeConfigurations have no
+      # osConfig and keep the full kit. donquezz is deliberately package-free
+      # (unprivileged admin alias) and does not import this aspect.
+      tier = osConfig.storage.tier or "large";
+      cli = with pkgs; [
+        btop
+        git
+        vulnix
+        sops
+        nh
+        nix-du
+        pinentry-curses
+        wezterm
+      ];
+      messaging = with pkgs; [
+        signal-desktop
+        telegram-desktop
+      ];
+      desktop = with pkgs; [
+        spotify
+        element-desktop
+        radicle-desktop
+        radicle-node
+      ];
+    in
     {
       imports = [
         inputs.stylix.homeModules.stylix
@@ -30,23 +60,10 @@ _: {
       #stylix.homeManagerIntegration.followSystem = false;
       programs.home-manager.enable = true;
 
-      home.packages = with pkgs; [
-        btop
-        git
-        vulnix
-        wezterm
-        spotify
-        signal-desktop
-        telegram-desktop
-        element-desktop
-        radicle-desktop
-        radicle-node
-        sops
-        #bitwarden-desktop
-        nh
-        nix-du
-        pinentry-curses
-      ];
+      home.packages =
+        cli
+        ++ lib.optionals (tier == "medium" || tier == "large") messaging
+        ++ lib.optionals (tier == "large") desktop;
 
       programs.rbw = {
         enable = true;

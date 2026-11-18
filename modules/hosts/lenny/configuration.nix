@@ -51,6 +51,10 @@
         fsType = "ext4";
       };
 
+      # SMART health monitoring (improvement session 2026-11-12): physical
+      # mini-PC, ext4 root. Journal only (loghost collects it).
+      services.smartd.enable = true;
+
       # Enables DHCP on each ethernet and wireless interface.
       networking.useDHCP = lib.mkDefault true;
       hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;

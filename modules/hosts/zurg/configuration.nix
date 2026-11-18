@@ -98,6 +98,15 @@
         options = [ "compress=lzo" ];
       };
 
+      # Monthly btrfs scrub (improvement session 2026-11-12): the only host
+      # with a btrfs root big enough that silent bit rot would matter. Runtime
+      # change, approved: autoScrub scrubs every btrfs filesystem by default
+      # (root/@, @home, /nix) on the stock monthly calendar.
+      services.btrfs.autoScrub.enable = true;
+
+      # SMART health monitoring: physical disks, 24/7 host.
+      services.smartd.enable = true;
+
       boot.initrd.luks.devices."cryptroot".device = "/dev/md0";
 
       swapDevices = [

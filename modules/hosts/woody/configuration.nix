@@ -91,6 +91,12 @@ in
         fsType = "ext4";
       };
 
+      # SMART health monitoring (improvement session 2026-11-12): this is a
+      # physical thinclient running 24/7 — the disk is the single point of
+      # failure for every backup repo. smartd logs to the journal (collected
+      # by the loghost); there is no mail transport on purpose.
+      services.smartd.enable = true;
+
       fileSystems."/boot" = {
         device = "/dev/disk/by-uuid/D4AD-702D";
         fsType = "vfat";

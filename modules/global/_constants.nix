@@ -201,6 +201,27 @@ let
 in
 {
   nebula.cidr = "10.0.0.0/24";
+
+  # Host storage tiers (improvement session 2026-11-12), consumed by the
+  # factory-wired storage-opts carrier (modules/nix/storage.nix). Sizes at
+  # decision time: buzz ~10G VPS, pricklepants ~10G VPS, jessie 60G,
+  # rex 50G, slinky 128G, woody 200G. The bootstrap hosts are throwaway;
+  # sid is WSL on a Windows-side disk (tierless = no app-kit decision).
+  # small = CLI-only kit, medium = + messaging, large = full desktop kit.
+  storageTier = {
+    buzz = "small";
+    pricklepants = "small";
+    bootstrap = "small";
+    bootstrap-impermanent = "small";
+    jessie = "medium";
+    mrpotatohead = "medium";
+    rex = "medium";
+    slinky = "medium";
+    woody = "large";
+    lenny = "large";
+    zurg = "large";
+    sid = "tierless";
+  };
   # The mesh udp listen/peer port (suffix of every endpoint above).
   nebula.port = 4242;
 
