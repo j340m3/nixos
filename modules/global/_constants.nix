@@ -45,15 +45,15 @@ let
     };
     lenny = {
       ip = "10.0.0.4";
-      monitor = false;
+      monitor = true;
     };
     rex = {
       ip = "10.0.0.2";
-      monitor = false;
+      monitor = true;
     };
     slinky = {
       ip = "10.0.0.8";
-      monitor = false;
+      monitor = true;
     };
     bully = {
       ip = "10.0.0.11";
@@ -61,7 +61,7 @@ let
     };
     zurg = {
       ip = "10.0.0.10";
-      monitor = false;
+      monitor = true;
     };
   };
 
@@ -92,9 +92,9 @@ let
   ];
 
   # TCP services reachable through the mesh: one check per distinct service
-  # surface, not per sibling port of the same backend (zabbix's nginx 80/8080
-  # are dropped; 443 stands in). A port listed here must already be admitted
-  # by both gatekeeping layers for the mesh cidr (the service's
+  # surface, not per sibling port of the same backend (an nginx front end's
+  # 80/8080 are dropped; 443 stands in). A port listed here must already be
+  # admitted by both gatekeeping layers for the mesh cidr (the service's
   # nebula.inbound rule and its nebula.mesh interface firewall opening).
   # Consumers: peerpatrol tcp checks only.
   meshServices = [
@@ -107,16 +107,6 @@ let
       host = "woody";
       service = "paperless";
       port = 28981;
-    }
-    {
-      host = "woody";
-      service = "zabbix-web";
-      port = 443;
-    }
-    {
-      host = "woody";
-      service = "zabbix-server";
-      port = 10051;
     }
     {
       host = "woody";

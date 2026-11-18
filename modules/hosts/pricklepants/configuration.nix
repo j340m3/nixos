@@ -203,18 +203,7 @@ in
       services.logrotate.checkConfig = false;
 
       # Lighthouse flavor comes from inputs.self.modules.nixos.nebula-lighthouse
-      # (roster-derived); what stays host-local:
-      services.nebula.networks.mesh = {
-        # the zabbix proxy agent must stay reachable over the mesh
-        firewall.inbound = [
-          {
-            cidr = constants.nebula.cidr;
-            port = "10050";
-            proto = "any";
-          }
-        ];
-      };
-      # cert/key material lives on the persistent btrfs root
+      # (roster-derived). Host-local: cert/key material on the persistent root.
       mesh.nebulaSecretDir = "/nix/persist/etc/nebula";
 
       # 1 GB RAM, 10 GB disk: earlyoom as the OOM safety net, swap-inflation

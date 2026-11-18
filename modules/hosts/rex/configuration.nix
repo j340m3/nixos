@@ -103,7 +103,6 @@ in
         powerline-symbols
         nebula
         exfat
-        zabbix.agent
         #exfatprogs
 
       ];

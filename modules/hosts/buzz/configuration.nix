@@ -55,17 +55,12 @@ in
         # systemd-resolved via the firewall rules below
         lighthouse.dns.host = "0.0.0.0";
         lighthouse.dns.port = 53;
-        # lighthouse-only mesh surfaces: DNS + the zabbix proxy agent
+        # lighthouse-only mesh surface: DNS
         firewall.inbound = [
           {
             cidr = constants.nebula.cidr;
             port = "53";
             proto = "udp";
-          }
-          {
-            cidr = constants.nebula.cidr;
-            port = "10050";
-            proto = "any";
           }
         ];
       };

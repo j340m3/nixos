@@ -237,13 +237,6 @@ in
       networking.firewall.interfaces."nebula.mesh".allowedTCPPorts = [
         config.services.immich.port
         config.services.paperless.port
-      ]
-      # Former ./_zabbix.nix:
-      ++ [
-        80
-        443
-        8080
-        10051
       ];
       mesh.openInbound = lib.mkMerge [
         (lib.mkIf config.services.immich.enable [
@@ -282,7 +275,7 @@ in
           "log-file=/var/log/rclone/paperless.log"
         ];
       };
-      # The ./_*.nix host-local glue (xrdp nas nofile firefox power zabbix
+      # The ./_*.nix host-local glue (xrdp nas nofile firefox power
       # home-assistant) absorbed here and in the firewall folds above.
       services.xrdp.enable = true;
       #services.xrdp.defaultWindowManager = "mate-session";
@@ -508,42 +501,15 @@ in
       #   };
       # };
 
+      # Zabbix web/agent removed (improvement session 2026-11-12): fleet
+      # monitoring is prometheus + node_exporter (modules/services/prometheus.nix),
+      # liveness is peerpatrol. See the mesh firewall fold below.
+
       # Former ./_zabbix.nix.
       #services.zabbixServer ={
       #  enable = true;
       #  package = pkgs.zabbix74.server;
       #};
-
-      services.zabbixWeb = {
-        enable = true;
-        #    server.port = 8080;
-        frontend = "nginx";
-        package = pkgs.zabbix74.web;
-        nginx.virtualHost = {
-          #hostName = "woody";
-          #adminAddr = "webmaster@localhost";
-          listen = [
-            {
-              addr = "0.0.0.0";
-              port = 80;
-              ssl = false;
-            }
-          ];
-        };
-      };
-
-      services.zabbixAgent = {
-        enable = true;
-        server = "localhost";
-        package = pkgs.zabbix74.agent;
-        #    settings = {
-        #      Plugins.MQTT.Session.iot = {
-        #        User = "root";
-        #        Password = "<redacted, see sops mosquitto-password>";
-        #        Topic = "#";
-        #      };
-        #    };
-      };
 
       # Former ./_home-assistant.nix.
       sops.secrets."mosquitto-password" = {
