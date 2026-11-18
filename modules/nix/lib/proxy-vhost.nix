@@ -18,6 +18,22 @@
 {
   inputs, lib, ...
 }:
+let
+  # Application-wise hardening (improvement session 2026-11-12): every vhost
+  # this helper builds inherits the headers at server level, so a new vhost
+  # is hardened by construction. nginx inheritance quirk: a location that
+  # sets its own add_header drops these — override deliberately there, not
+  # by adding a duplicate header. HSTS stays scoped to the vhost's hostname
+  # (no includeSubDomains) so this vhost's policy cannot force an unrelated
+  # sibling subdomain into HTTPS.
+  securityHeaders = ''
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+    add_header Strict-Transport-Security "max-age=31536000" always;
+  '';
+in
 {
   flake.lib.proxyVhost =
     {
@@ -32,6 +48,7 @@
       (lib.recursiveUpdate
         {
           forceSSL = true;
+          extraConfig = securityHeaders;
           locations."/" = {
             inherit proxyPass;
             proxyWebsockets = websockets;

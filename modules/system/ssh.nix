@@ -98,6 +98,24 @@ in
           LogRateLimitBurst = lib.mkDefault 100;
         };
 
+        # Curated hardening travels with the ssh aspect: the public surface
+        # ships its own sysctls, no per-host hardening aspect (improvement
+        # session 2026-11-12). Every host that exposes ssh inherits this.
+        # mkDefault so a deliberate host carve-out still wins. kptr_restrict
+        # is mkOverride 900 because nixpkgs already defines it as mkDefault 1
+        # (two mkDefaults with different values would conflict); 900 beats
+        # that default while normal-priority and mkForce host defs win.
+        boot.kernel.sysctl = {
+          "kernel.kptr_restrict" = lib.mkOverride 900 2;
+          "kernel.dmesg_restrict" = lib.mkDefault 1;
+          "kernel.unprivileged_bpf_disabled" = lib.mkDefault 1;
+          "net.core.bpf_jit_harden" = lib.mkDefault 2;
+          "fs.protected_hardlinks" = lib.mkDefault 1;
+          "fs.protected_symlinks" = lib.mkDefault 1;
+          "fs.protected_fifos" = lib.mkDefault 2;
+          "fs.protected_regular" = lib.mkDefault 2;
+        };
+
         networking.firewall.allowedTCPPorts = [ constants.sshPort ];
         # openssh.enable is always true in this module, so no gate is needed;
         # the nebula aspect renders this as an inbound mesh rule.
