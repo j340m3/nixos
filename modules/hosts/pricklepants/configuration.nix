@@ -38,6 +38,7 @@ in
         # also brings the remote-build accept side
         inputs.self.modules.nixos.nebula-lighthouse
         inputs.self.modules.nixos.node-exporter
+        inputs.self.modules.nixos.run0-admin
         # Key rotated 2026-10-19 after the priv was never published (backups failed
         # auth with /dev/null); rotate into woody's repos via the .pub file.
         #

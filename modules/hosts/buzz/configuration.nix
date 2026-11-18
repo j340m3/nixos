@@ -33,6 +33,7 @@ in
         # also brings the remote-build accept side
         inputs.self.modules.nixos.nebula-lighthouse
         inputs.self.modules.nixos.node-exporter
+        inputs.self.modules.nixos.run0-admin
       ];
 
       # Use the GRUB 2 boot loader.
