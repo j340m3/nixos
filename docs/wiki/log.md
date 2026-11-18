@@ -930,3 +930,19 @@ can no longer resurrect Z1/Z3 (the flake stays pinned to its Oct-13
 inputs.self.outPath snapshot). Verified: nixfmt/statix clean, zurg
 toplevel evals, sops secrets + rsyslogd.enable + journald Storage=
 volatile confirmed by targeted evals.
+
+## 2026-11-18 — round 7 loose ends deployed + verified; mdmonitor alerts [logging] [monitoring]
+
+Generation 157 (built 11-17 16:26) is live and verified the next morning:
+update aspect timers/space-guard/notify-telegram present, sops activation
+success, syslog.service — NOT "rsyslogd": the nixpkgs module's unit name —
+active with an established TCP session 10.0.0.10 → 10.0.0.3:514, journal
+RAM-only in /run/log/journal (that naming detail cost a false alarm; noted
+in the synthesis). The tmpfiles "R /var/log/journal" rule raced journald at
+switch time, leaving the stale 1.9G persistent journal for one activation;
+gone at the next boot. New finding while verifying: mdmonitor.service
+failed at every boot because mdadmConf had only HOMEHOST (mdadm: "No mail
+address or alert command - not monitoring") — md0 (RAID1, 2× NVMe) was
+unmonitored and this was the source of the old MAILADDR eval warning. Fixed
+with PROGRAM → generated mdadm-alert script posting to the telegram group
+(same sops secrets as notify-telegram@); deploys with the next rebuild.

@@ -203,3 +203,36 @@ stale or trivially resolvable:
 Verified: nixfmt/statix clean; zurg toplevel evals; `nix eval` confirms
 `system.autoUpgrade.flags`, `sops.secrets` contains the telegram pair,
 `services.rsyslogd.enable = true`, `journald Storage = "volatile"`.
+
+### Deployed + verified (2026-11-18)
+
+Generation 157 (built 2026-11-17 16:26) is the loose-ends build; live checks
+the next morning:
+
+- **update aspect**: `nixos-upgrade.timer`, `nix-gc.timer`,
+  `notify-telegram@.service` and the space-guard ExecStartPre all present;
+  sops-nix activation `Result=success` (telegram secrets decrypted into
+  `/run/secrets.d/`).
+- **logging aspect**: nixpkgs' `services.rsyslogd` module names the daemon
+  **`syslog.service`** (not `rsyslogd`) and passes its config as a store
+  path — there is no `/etc/rsyslog.conf`. `syslog.service` is active with an
+  established TCP connection 10.0.0.10 → 10.0.0.3:514; journald is genuinely
+  RAM-only (`File path: /run/log/journal/...`, ~10M). Don't grep for
+  "rsyslogd" when verifying this again.
+- **gotcha**: the `R /var/log/journal` tmpfiles rule raced journald during
+  the switch, so the stale 1.9G persistent journal survived that activation.
+  It is deleted at the next boot (tmpfiles runs before journald) or manually
+  with `sudo rm -rf /var/log/journal`.
+
+### mdmonitor failure (found during the 11-18 verification)
+
+`mdmonitor.service` failed at every boot: zurg's `boot.swraid.mdadmConf` only
+had `HOMEHOST`, so mdadm exits with "No mail address or alert command - not
+monitoring" and md0 (RAID1, two NVMe) went unmonitored — this was the source
+of the long-standing mdadm MAILADDR eval warning. No MTA on the host, so the
+alert target is the fleet telegram path: `PROGRAM` now points at a generated
+`mdadm-alert` script that posts hostname + mdadm event to the telegram group
+(same sops secrets as `notify-telegram@`). Deploys with the next rebuild.
+Broader note: any other host whose mdadmConf lacks MAILADDR/PROGRAM has the
+same failing unit.
+

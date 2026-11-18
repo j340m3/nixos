@@ -14,6 +14,19 @@
       lib,
       ...
     }:
+    let
+      # mdmonitor aborts ("No mail address or alert command") without an
+      # alert target. No MTA on this host — push to the fleet telegram group
+      # instead. mdadm invokes PROGRAM with the event text as arguments.
+      mdadmAlert = pkgs.writeShellScript "mdadm-alert" ''
+        GROUP_ID=$(cat ${config.sops.secrets."telegram/group_id".path})
+        BOT_TOKEN=$(cat ${config.sops.secrets."telegram/bot_token".path})
+        MESSAGE="$(cat /proc/sys/kernel/hostname): mdadm: $*"
+        ${pkgs.curl}/bin/curl -sf --data-urlencode "chat_id=$GROUP_ID" \
+          --data-urlencode "text=$MESSAGE" \
+          "https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
+      '';
+    in
     {
       imports = [
         # Inlined from ./_hardware-configuration.nix.
@@ -124,6 +137,7 @@
       boot.swraid.enable = true;
       boot.swraid.mdadmConf = ''
         HOMEHOST zurg
+        PROGRAM ${mdadmAlert}
       '';
 
       # Set your time zone.
