@@ -59,7 +59,7 @@ the [Dendritic Pattern](https://github.com/mightyiam/dendritic) with
    write-flake/check-flake-file loop, flake.lock non-invasiveness, Dendrix
    property list.
 
-Glossary quick-link: repo-root [GLOSSARY.md](../../../GLOSSARY.md) defines
+Glossary quick-link: repo-root [GLOSSARY.md](../../GLOSSARY.md) defines
 Image, Installed footprint, Update independence (repo vocabulary, not wiki
 vocabulary).
 

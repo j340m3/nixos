@@ -49,6 +49,7 @@ just build <host>          # build without activating
 just check                 # evaluate every native host (no build); catches broken imports/options
 just fmt                   # format all tracked .nix files (nixfmt)
 just fmt-check             # report formatting diffs without writing
+just docs-check            # check relative Markdown links
 ```
 
 `just check` is the fast eval gate; the flake also exposes per-host eval

@@ -3,7 +3,7 @@
 Question that opened the grilling session: *"Some of my hosts have trouble
 rebuilding due to memory pressure. What can we do to alleviate this without
 compromising on the independence?"* Answer recorded in
-[ADR-0018](../../docs/adr/0018-artifact-first-updates.md).
+[ADR-0018](../../adr/0018-artifact-first-updates.md).
 
 ## The diagnosis
 

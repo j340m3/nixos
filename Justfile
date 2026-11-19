@@ -111,3 +111,7 @@ fmt:
 # Report formatting differences without writing (exit 1 if any).
 fmt-check:
     nix run .#formatter.x86_64-linux -- --check $(git ls-files '*.nix')
+
+# Check relative Markdown links (pending wiki pages are allowlisted).
+docs-check:
+    python3 scripts/docs-check.py

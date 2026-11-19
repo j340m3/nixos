@@ -368,7 +368,7 @@ Unchanged flake-parts dance; nothing dendritic removes it:
   system).
 - **`mkNixos` helper / `nixpkgs.hostPlatform = mkDefault system`:** the
   generated outputs function is a plain flake-parts `mkFlake`, so the host
-  factory trio from [host-definition](concepts/host-definition.md) migrates
+  factory trio from [host-definition](../concepts/host-definition.md) migrates
   unchanged (declare `flake.nixosConfigurations.<host> = nixosSystem { … }` in
   a top-level module; dendritic adds no special host machinery). Nothing
   flake-file-side rewrites `nixpkgs.hostPlatform` or `system` handling.
