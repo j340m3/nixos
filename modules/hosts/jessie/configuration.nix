@@ -66,14 +66,13 @@
         "net.ifnames=0"
       ];
 
-      # My Initrd config, enable ZSTD compression and use systemd-based stage 1 boot
+      # My Initrd config, enable ZSTD compression (stage 1 is systemd-only now)
       boot.initrd = {
         compressor = "zstd";
         compressorArgs = [
           "-19"
           "-T0"
         ];
-        systemd.enable = true;
       };
 
       # / used to be a 4G tmpfs. that tmpfs filled up completely (4.0G used, 0

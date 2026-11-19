@@ -127,10 +127,12 @@
               "files.dabergmann.de"
             ];
           };
+          # nixpkgs 26.11 removed adminuser/adminpassFile; an existing install
+          # keeps its admin in the DB. Fresh install: create it manually with
+          # `nextcloud-occ user:add <name>` + `nextcloud-occ group:adduser admin
+          # <name>` (password is in sops key `nextcloud-admin-pass`).
           config = {
             dbtype = "pgsql";
-            adminuser = "admin";
-            adminpassFile = config.sops.secrets."nextcloud-admin-pass".path;
           };
           # Suggested by Nextcloud's health check.
           phpOptions."opcache.interned_strings_buffer" = "16";

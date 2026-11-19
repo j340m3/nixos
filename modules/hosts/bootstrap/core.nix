@@ -26,14 +26,13 @@
         # Generate names based on orders (e.g. eth0)
         "net.ifnames=0"
       ];
-      # My Initrd config, enable ZSTD compression and use systemd-based stage 1 boot
+      # My Initrd config, enable ZSTD compression (stage 1 is systemd-only now)
       boot.initrd = {
         compressor = "zstd";
         compressorArgs = [
           "-19"
           "-T0"
         ];
-        systemd.enable = true;
       };
       # Install Grub
       boot.loader.grub = {
@@ -80,12 +79,6 @@
       # incompatibilities on major upgrades
       system.stateVersion = lib.mkDefault "25.05";
       # Kernel modules required by QEMU (KVM) virtual machine
-      boot.initrd.postDeviceCommands = lib.mkIf (!config.boot.initrd.systemd.enable) ''
-        # Set the system time from the hardware clock to work around a
-        # bug in qemu-kvm > 1.5.2 (where the VM clock is initialised
-        # to the *boot time* of the host).
-        hwclock -s
-      '';
       boot.initrd.availableKernelModules = [
         "virtio_net"
         "virtio_pci"

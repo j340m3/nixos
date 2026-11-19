@@ -81,6 +81,10 @@ fresh `…remotebuild.pub` into the allowlist slot marked `root@mrpotatohead` in
 
 ## 6. Loose ends (say the word and I'll take one of them)
 
+- **Note (not a task):** nixpkgs 26.11 removed Nextcloud's declarative
+  `adminuser`/`adminpassFile`. An existing install keeps its admin in the DB;
+  a fresh install needs `nextcloud-occ user:add <name>` + `nextcloud-occ
+  group:adduser admin <name>` (password in sops `nextcloud-admin-pass`).
 - Rotate the admin password (initial hash still in git history).
 - Endpoints in `modules/global/_constants.nix` are leased (DHCP/DHCPv6) — re-check
   `ip a` on the VPSs if peering ever acts up; roster comment says so too.

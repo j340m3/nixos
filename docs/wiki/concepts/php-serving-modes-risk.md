@@ -12,7 +12,8 @@ Sources: [S1](../sources/php2shell-advisory.md) (advisory facts, IoCs, nixpkgs s
 > **Status update 2026-11-19.** The analysis below is pinned to
 > `55bfb4d...`. Woody's `zabbix74.web` has since been retired (commit
 > 1114a5a), leaving mrpotatohead's nextcloud as the only PHP service in the
-> repo. The root pin has not yet been bumped past the 2026-10-21 fix.
+> repo. The root pin was bumped to `04906337b...` (2026-11-17) on
+> 2026-11-19, which resolves the pool to php 8.4.27.
 
 ## Serving mode → exploitability
 
