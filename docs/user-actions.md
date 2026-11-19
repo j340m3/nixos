@@ -1,4 +1,4 @@
-# User actions — runbook (2026-10-17, updated 2026-11-03)
+# User actions — runbook (2026-10-17, updated 2026-11-19)
 
 Ordered checklist. Editing secrets needs the admin age key (not on the dev
 machine). After any repo edit: `git add … && git commit && git push` — fleet
@@ -11,37 +11,22 @@ re-triggers it if you're too impatient.
 A full root-CA rotation tool now exists (`scripts/rotate-secrets.py
 nebula-root`, docs in [secrets-101](secrets-101.md#rotate-the-root-ca-full-mesh-rotation)):
 it generates the new root, re-signs every host cert, unifies the mesh IPs into
-`global/constants.nix`, and fixes mrpotatohead's `10.0.0.5`-for-`10.0.0.6`
+`modules/global/_constants.nix`, and fixes mrpotatohead's `10.0.0.5`-for-`10.0.0.6`
 identity clash below automatically (dry-run by default — review, then `--yes`).
 
-## 1. mrpotatohead: re-cut nebula cert to 10.0.0.6 (blocks nothing, do first)
+## 1. mrpotatohead: verify on-host nebula cert is 10.0.0.6 (roster already unified)
 
-It currently runs mesh IP `10.0.0.5` (= buzz's address). Until fixed, mesh
-routing to buzz and to mrpotatohead is ambiguous.
+The `just nebula-rotate` pass moved the roster IPs into
+`modules/global/_constants.nix` (mrpotatohead = 10.0.0.6). The remaining check
+is on the host after its next rebuild:
 
-1. Regenerate the cert (CA key lives on your side; the repo helper can do it —
-   discover its args first):
-   ```bash
-   python3 scripts/rotate-secrets.py nebula-cert --help
-   # then regenerate the mrpotatohead host cert with address 10.0.0.6
-   ```
-   Manual equivalent (on machine with ca.crt + ca.key):
-   ```bash
-   nebula-cert sign -ca-crt ca.crt -ca-key ca.key \
-     -name mrpotatohead -ip 10.0.0.6/24
-   ```
-2. Put the new cert into the host secrets (replaces the old base64 blob):
-   ```bash
-   sops secrets/hosts/mrpotatohead/secrets.yaml   # swap nebula/self_crt
-   # while you're in sops: if secrets/shared.yaml has a
-   # hosts.mrpotatohead.ip.nebula entry, change it to 10.0.0.6 too:
-   sops secrets/shared.yaml
-   ```
-3. Push and let mrpotatohead rebuild, then verify on the host:
-   ```bash
-   ssh mrpotatohead  # (or however you reach it)
-   nebula-cert print -in /etc/nebula/self.crt   # must show 10.0.0.6
-   ```
+```bash
+ssh mrpotatohead  # (or however you reach it)
+nebula-cert print -in /etc/nebula/self.crt   # must show 10.0.0.6
+```
+
+If it still prints `10.0.0.5`, re-sign with the helper (CA key on your side):
+`python3 scripts/rotate-secrets.py nebula-cert --help`.
 
 ## 2. WireGuard on mrpotatohead (config already in repo, verify after rebuild)
 
@@ -78,22 +63,24 @@ sudo head -1 /run/secrets/wifi/phone/ssid    # MUST read PHONE_SSID=…
 ```
 
 If it's a bare value, profiles break silently — tell me and I'll restructure
-`modules/wifi.nix`.
+`modules/services/wifi.nix`.
 
-## 5. mrpotatohead remotebuild pubkey (paste slot already waiting)
+## 5. mrpotatohead remotebuild pubkey (wrong key in sops)
 
-```bash
-sops -d secrets/hosts/mrpotatohead/secrets.yaml | yq -r '.remotebuild.pub'
-# paste the ssh-ed25519 line into modules/remote-builder.nix authorizedKeys
-# (commented slot marked "root@mrpotatohead")
-```
+`sops -d secrets/hosts/mrpotatohead/secrets.yaml` has
+`remotebuild.pub = …CqX buzz` — the **buzz** remotebuild key (zurg uses the same
+one). It is not mrpotatohead's own key, so the SSH-builder allowlist cannot be
+completed by copying it. The mrpotatohead SSH host key
+(`secrets/common/ssh/mrpotatohead/ssh.pub`) is a different key and is not a
+substitute.
+
+Fix: generate a fresh mrpotatohead remotebuild keypair
+(`scripts/rotate-secrets.py identity mrpotatohead remotebuild`), then paste the
+fresh `…remotebuild.pub` into the allowlist slot marked `root@mrpotatohead` in
+`modules/services/remote-builder.nix`.
 
 ## 6. Loose ends (say the word and I'll take one of them)
 
-- **buzz: nebula 4242 blocked by its own firewall** — only UDP 53 is open,
-  so fleet members can't actually dial buzz's endpoint. Fix is repo-side
-  (`allowedUDPPorts = [ 53 4242 ]` in buzz) — I can commit it.
 - Rotate the admin password (initial hash still in git history).
-- totp keys in rex/woody/pricklepants yamls are unconsumed — sops-clean them.
 - Endpoints in `modules/global/_constants.nix` are leased (DHCP/DHCPv6) — re-check
   `ip a` on the VPSs if peering ever acts up; roster comment says so too.

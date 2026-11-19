@@ -212,15 +212,16 @@ pair means for this repo, and which PHP it routines on.
 - Serving-mode risk (mod_php vs php-fpm/php-cgi/etc.) and the attack-path →
   config-lever mapping (memory_limit, session.upload_progress, fatal_error_backtraces)
   in [php-serving-modes-risk](concepts/php-serving-modes-risk.md).
-- Repo exposure (nix-verified 2026-10-22): two PHP services only —
-  **mrpotatohead runs nextcloud35 and woody runs zabbix74.web, both
-  interpreters php 8.4.26 = the last vulnerable release** — because the root
-  nixpkgs pin is `nixos-unstable` @ `55bfb4d7437bd4e09ab7cba58a43bd68eb310044`
-  (locked 2026-10-14 05:35 UTC). nixpkgs-side fix = PR #576853 merged into
-  master 2026-10-21 (commit `c53532a...`, bumps to 8.3.36/8.4.27/8.5.12 and
-  marks php86 8.6.0RC3 insecure); php82 has no master module — 26.05 manual
-  backport pending. Updating the flake inputs after the tips carry the fix
-  then rebuilding mrpotatohead/woody restarts the affected php-fpm units.
+- Repo exposure (re-checked 2026-11-19): one PHP service remains —
+  **mrpotatohead runs nextcloud35 on the php 8.4.26 interpreter = the last
+  vulnerable release**. Woody's zabbix74.web was retired in commit 1114a5a
+  (2026-11-12). Cause: the root nixpkgs pin is `nixos-unstable` @
+  `55bfb4d7437bd4e09ab7cba58a43bd68eb310044` (locked 2026-10-14 05:35 UTC).
+  nixpkgs-side fix = PR #576853 merged into master 2026-10-21 (commit
+  `c53532a...`, bumps to 8.3.36/8.4.27/8.5.12 and marks php86 8.6.0RC3
+  insecure); php82 has no master module — 26.05 manual backport pending.
+  Bumping the flake inputs past the fix and rebuilding mrpotatohead restarts
+  the affected php-fpm unit.
 - Log horizon for attack review: 2026-10-17 (pre-disclosure in-the-wild attempt),
   full IoC list in the advisory page.
 

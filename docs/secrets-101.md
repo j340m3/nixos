@@ -7,7 +7,7 @@ This repo uses [sops-nix](https://github.com/Mic92/sops-nix) with [age](https://
 - **Age keys**: Each host has its own sops age key (stored on the host as `sops.age.keyFile`). Public keys/recipients are tracked in `secrets/.sops.yaml` (or per-host rules) so that only authorized hosts/keys can decrypt.
 - **Secrets layout**: Host-specific secrets live under `secrets/hosts/<host>/secrets.yaml` (encrypted). Shared/common assets (like published SSH pubkeys) live under `secrets/common/`.
 - **Never commit private keys**: Private SSH keys, age private keys, or decrypted secrets must never be committed. Only public keys/metadata may be committed.
-- **Recipiensts preserved**: When rotating/re-encrypting with the helper scripts, existing age recipients are preserved. If a file has multiple recipients, you must provide **all** of them (e.g. concatenate age identities) via `--age-key` or ensure `$SOPS_AGE_KEY` contains them.
+- **Recipients preserved**: When rotating/re-encrypting with the helper scripts, existing age recipients are preserved. If a file has multiple recipients, you must provide **all** of them (e.g. concatenate age identities) via `--age-key` or ensure `$SOPS_AGE_KEY` contains them.
 
 ## Workflow helpers
 
@@ -16,7 +16,7 @@ The Justfile sets `SOPS_AGE_KEY` from `rbw get age-key-nixos` and `AGE_PUBLIC_KE
 ### Publish host SSH identity
 
 `scripts/publish-host-keys.py` bootstraps a host's declarative SSH identity:
-- Writes the host's ed25519 SSH pub to `secrets/common/ssh/<host>/<label>.pub` (committed, consumed by `modules/common/ssh-identities.nix`).
+- Writes the host's ed25519 SSH pub to `secrets/common/ssh/<host>/<label>.pub` (committed, consumed by `modules/system/ssh-identities.nix`).
 - Stores the matching priv as `<label>.key` in the host's `secrets/hosts/<host>/secrets.yaml` (encrypted). Default label is `ssh`.
 
 Usage examples (via Justfile):
@@ -70,7 +70,7 @@ is destroyed in the same run (enlisting another host later therefore means
 re-running this rotation — by design, no long-lived CA key exists anywhere).
 It then re-signs cert+key for every host that has a
 `secrets/hosts/<h>/secrets.yaml` (10y validity, `IsCA=false`, IP from
-`global/constants.nix`, lowest free address allocated when missing), rewrites
+`modules/global/_constants.nix`, lowest free address allocated when missing), rewrites
 `nebula/ca_crt` in `secrets/shared.yaml` (old root dropped — hard cutover) and
 unifies the mesh roster: the per-host `hosts.<name>/ip/nebula` entries move out
 of `shared.yaml` into `constants.nix`, which additionally gains a `monitor`

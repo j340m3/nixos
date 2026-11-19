@@ -2,7 +2,7 @@
 
 Rolling-release-style NixOS + home-manager configurations, organized as a
 single Nix flake. Each host is one folder; shared behavior lives in
-`modules/`, per-user config in `users/` and `home/`.
+`modules/`, per-user config in `modules/users/` and `modules/home/`.
 
 ## Quick start
 
@@ -28,10 +28,10 @@ the host map.
 | `flake.nix` | Inputs; the dendritic preset auto-imports `modules/` (see ADR 0014). |
 | `modules/hosts/` | Host folders (each folder = one `nixosConfiguration`). |
 | `modules/nix/` | flake-parts plumbing: `nixosConfigurations`, `homeConfigurations`, packages/checks/devShells, input manifest. |
-| `modules/` | Feature modules (services, hardening, networking, ...). Plain (pre-conversion) NixOS modules carry a `_` prefix: they are parked out of the auto-imported flake-parts tree while keeping relative imports intact. |
-| `desktop-environments/` | Reusable DE profiles (xfce, kde, mate, ...). |
-| `users/` | System user definitions. |
-| `home/` | home-manager configuration for `jeromeb`. |
+| `modules/` | Feature modules (services, hardening, networking, ...), all auto-imported by `import-tree`. A `_` prefix excludes a file from auto-import; today only the `_constants.nix` data file uses it. |
+| `modules/desktop/` | Reusable DE profiles (xfce, kde). |
+| `modules/users/` | System user definitions. |
+| `modules/home/` | home-manager configuration for `jeromeb`. |
 | `modules/global/_constants.nix` | Cross-host constants (domain, nebula CIDR, build hosts). |
 | `secrets/` | sops-encrypted secrets + committed public keys. |
 | `scripts/` | Host/service key + secret helper scripts. |
@@ -64,11 +64,24 @@ Secrets, host identity keys, and rotation are documented in
 
 ## Adding a host
 
-1. Create `modules/hosts/<name>/` with a
-   `_default.nix` (and a `_hardware-configuration.nix`).
-2. Import shared modules you need (`../../../modules/_common`, DE profile, ...).
+1. Create `modules/hosts/<name>/configuration.nix` (plus the host's
+   `flake-parts.nix`, and any `facter.json`/disk config the host needs).
+2. Import the aspects you need (`inputs.self.modules.nixos.<aspect>`, DE
+   profile, `inputs.nixos-hardware.nixosModules.<board>`, ...).
 3. Set `networking.hostName` and `system.stateVersion`.
-4. Declare the host: `modules/hosts/<name>/flake-parts.nix` with
+4. Declare the host in `configuration.nix`:
+
+   ```nix
+   { inputs, ... }:
+   {
+     flake.modules.nixos."<name>" = { modulesPath, ... }: {
+       imports = [ inputs.self.modules.nixos.system-default /* ... */ ];
+       # host config
+     };
+   }
+   ```
+
+   `flake-parts.nix` only wires the configuration:
 
    ```nix
    { self, ... }:
@@ -76,10 +89,6 @@ Secrets, host identity keys, and rotation are documented in
      flake.nixosConfigurations."<name>" = self.lib.mkNixos "x86_64-linux" "<name>";
    }
    ```
-
-   Afterwards convert the folder to the dendritic layout: rename the module
-   to `default.nix`, define `flake.modules.nixos.<name> = { imports = [ ... ]; }`
-   and drop the relative imports of parked modules as they get converted.
 
 5. Add the host to [HOSTS.md](./HOSTS.md).
 

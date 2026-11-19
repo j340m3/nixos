@@ -57,13 +57,14 @@ merging into `flake.modules.nixos.syncthing`).
   ```
   plus `modules/dendritic.nix` wiring `inputs.den.flakeModules.dendritic` and
   `den.schema.user.classes = [ "homeManager" ]`.
-- **this repo (current)**: `modules/hosts/<name>/flake-parts.nix` one-liner →
+- **this repo (pre-migration snapshot)**: `modules/hosts/<name>/flake-parts.nix` one-liner →
   `self.lib.mkNixos "<name>"` (modules/flake/lib.nix), which passes
   `specialArgs = { inputs; constants = import global/constants.nix; }` and
   imports the host **directory** `modules/hosts/${host}` as a plain NixOS
-  module tree. Very close to the dendritic trio already; the pattern move is:
-  host modules become `flake.modules.nixos.<name>` values (keyed by aspect
-  name, not path), and specialArgs go away.
+  module tree. **Current wiring (2026-11-19):** the host's
+  `configuration.nix` defines `flake.modules.nixos.<name>` directly, there is
+  no `specialArgs`, and `constants` is a module. The pattern move described
+  below is what happened.
 
 ## Trade-offs
 

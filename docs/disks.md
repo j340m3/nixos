@@ -1,15 +1,16 @@
 # Disks
 
-Disk/USB serials, UUIDs, and labels live in each host's `hardware-configuration.nix`
-(or `disk-config.nix` for disko hosts). This page summarizes the *layout* so a
-reinstall or rescue is easier. Always treat those source files as authoritative.
+Disk/USB serials, UUIDs, and labels live in each host's `configuration.nix`
+(hardware scan inlined) or `facter.json` for facter/disko hosts. This page
+summarizes the *layout* so a reinstall or rescue is easier. Always treat those
+source files as authoritative.
 
 ## Graphical
 
 ### lenny (ThinkPad X230)
 
 - `/` ext4, `/boot` ext4 (separate partition).
-- `swapDevices = []`; swap comes from `/swapfile` (2 GiB, defined in `default.nix`) plus zram.
+- `swapDevices = []`; swap comes from `/swapfile` (2 GiB, declared in `configuration.nix`) plus zram.
 - BIOS/legacy GRUB on `/dev/sda` (`useOSProber = true`).
 
 ### rex (work laptop VM)
@@ -26,7 +27,9 @@ reinstall or rescue is easier. Always treat those source files as authoritative.
 
 - `/` ext4, `/boot/firmware` vfat.
 - No swap devices; zram. extlinux bootloader.
-- Note: aarch64 — cannot be evaluated/built from an x86_64 host.
+- Note: aarch64 — evaluates on the x86_64 dev machine since ADR-0019;
+  `just check` still skips it because the system differs (native build needs
+  an aarch64/binfmt builder).
 
 ### woody (homeserver)
 
@@ -50,12 +53,12 @@ reinstall or rescue is easier. Always treat those source files as authoritative.
   vfat) + rest btrfs root (`compress=lzo`).
 - `swapDevices` = `/swapfile` (1 GiB); zram; `services.btrfs.autoScrub`; beesd.
 - Built as `packages.x86_64-linux.image[-impermanent]` (disko QEMU VM).
-- `bootstrap-impermanent` additionally uses `modules/persistence.nix`
+- `bootstrap-impermanent` additionally uses `modules/services/persistence.nix`
   (impermanent root).
 
 ### buzz (VPS, Ionos)
 
-- No `hardware-configuration.nix`; GRUB config in `default.nix`. VPS root disk.
+- No `hardware-configuration.nix`; GRUB config in `configuration.nix`. VPS root disk.
 
 ### jessie
 
@@ -67,7 +70,8 @@ reinstall or rescue is easier. Always treat those source files as authoritative.
 
 - Disko: GPT on `/dev/vda`, 1 MiB EF02 + 500 MiB ESP (`/boot`, vfat) + LVM PV.
 - LVM VG `pool` → LV `root`, btrfs (`compress-force=zstd`, `nosuid`, `nodev`) at `/`.
-- Defined in `disk-config.nix`.
+- Defined inline in `configuration.nix` (disko + `facter.json`); there is no
+  separate `disk-config.nix`.
 
 ### pricklepants (VPS, Ionos)
 

@@ -137,5 +137,7 @@ realized everywhere. Supersessions of the wording above:
 - slinky flags: eval-green to the IFD build wall (aarch64 kernel), but
   hardware verification on the actual uConsole is still pending —
   treat slinky as adopted-pending-live-verify.
+  *Status update: ADR-0019 (2026-11-17) removed the IFD wall; toplevel now
+  evaluates on x86_64. Only on-host hardware verification remains.*
 - Green bar between waves: full `just check` (10 ok + slinky skip,
   aarch64) before every commit.

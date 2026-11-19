@@ -9,6 +9,11 @@ Nextcloud module option facts in [S2](../sources/nixpkgs-nextcloud-module.md).
 
 Sources: [S1](../sources/php2shell-advisory.md) (advisory facts, IoCs, nixpkgs status), [S2](../sources/nixpkgs-nextcloud-module.md) (services.nextcloud option shape).
 
+> **Status update 2026-11-19.** The analysis below is pinned to
+> `55bfb4d...`. Woody's `zabbix74.web` has since been retired (commit
+> 1114a5a), leaving mrpotatohead's nextcloud as the only PHP service in the
+> repo. The root pin has not yet been bumped past the 2026-10-21 fix.
+
 ## Serving mode → exploitability
 
 From the advisories as tabulated in [S1](../sources/php2shell-advisory.md):

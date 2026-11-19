@@ -7,34 +7,40 @@ The folder name is the host name. This file is the human-readable map.
 
 | Host | Class | Role | Notes |
 |---|---|---|---|
-
-Roles as of 2026-10-18, verified against the import graph.
-
 | `lenny` | laptop | graphical | XFCE. Users: jeromeb, lilly. Old ThinkPad X230. |
 | `rex` | VM (on laptop) | graphical | Work laptop VM. XFCE, k3s, nebula, rclone, home-manager. |
 | `sid` | WSL | graphical | NixOS-WSL on Windows. NVIDIA, editor. |
 | `slinky` | uConsole (aarch64) | graphical | Raspberry Pi 4 / nixos-uconsole + nixos-raspberrypi, vendor kernel, nebula, wifi. |
-| `woody` | server | graphical | Homeserver: prometheus/grafana/fritz-exporter, zabbix web+agent, immich, paperless, harmonia binary cache, borg-server, loghost, NFS-fee, mosquitto. KDE via xrdp (no display manager). |
-| `zurg` | laptop | graphical | ThinkPad P51. stylix, gaming, llm, fingerprint, DE. |
+| `woody` | server | graphical | Homeserver: prometheus/grafana/fritz-exporter, immich, paperless, harmonia binary cache + artifact publisher, borg-server, loghost, NFS-fee, mosquitto. KDE via xrdp (no display manager). |
+| `zurg` | laptop | graphical | ThinkPad P51. Intentionally minimal aspect set (no `system-default`): agent-md, nebula, node-exporter, run0-admin, sops, update, logging, stylix + the P51 nixos-hardware profile. |
 | `bootstrap` | image | headless | Disko image for provisioning new hosts. |
 | `bootstrap-impermanent` | image | headless | Disko image, impermanent-root variant. |
-| `buzz` | VPS (Ionos) | headless | nextcloud, dnsdist DoT/53 (the "pihole"), wireguard, remote-builder. Currently offline — Ionos panel check pending; vaultwarden moved to pricklepants. Reachable via DNS: `buzz.hosts.kauderwels.ch`. |
+| `buzz` | VPS (Ionos) | headless | dnsdist DoT/53 (the "pihole"), wireguard, nebula lighthouse, remote-builder. Currently offline — Ionos panel check pending; vaultwarden moved to pricklepants, nextcloud to mrpotatohead. Reachable via DNS: `buzz.hosts.kauderwels.ch`. |
 | `jessie` | server | headless | minecraft-bedrock + minecraft-java (Paper via nix-minecraft, 1G heap), radicle-seed, wireguard, remote-builder, acme, persistence. Reachable via DNS: `jessie.hosts.kauderwels.ch`. |
 | `mrpotatohead` | VPS | headless | nextcloud (nginx/php-fpm), wireguard, hardening, disko LVM/btrfs, upgrade-health auto-rollback. Reachable via DNS: `mrpotatohead.hosts.kauderwels.ch`. |
 | `pricklepants` | VPS (Ionos) | headless | vaultwarden, luanti/minetest, wireguard VPN -> UK, bridge home, nebula lighthouse with mesh DNS, remote-builder, reticulum. Reachable via DNS: `pricklepants.hosts.kauderwels.ch`. |
 
-## Logging (2026-11-02 sweep)
+Roles as of 2026-11-19, verified against the import graph. `zurg` deliberately
+does not import `system-default`; its host module lists every aspect it uses.
+
+## Logging (updated 2026-11-19)
 
 `services/logging` (ex `modules/_logging.nix`) forwards every mesh host's
 journald over nebula to woody rsyslog (TCP 10.0.0.3:514); woody archives
 per host under `/persist/rsyslog/<host>/`, `services/log-watchdog` alerts
 when a monitored host goes silent >48h.
 
-- forwarding today: woody (own journal), jessie, mrpotatohead, pricklepants.
-- valid but idle until updated (watchdog `expectedOff`): lenny, rex, slinky,
-  buzz.
-- NOT covered: sid (WSL) and zurg — no nebula/logging import yet; enroll
-  when updated (TODO in `modules/services/logging.nix`).
+- forwarding today: woody (own journal locally), jessie, mrpotatohead,
+  pricklepants, zurg (enrolled 2026-11-17).
+- imported but idle until updated (watchdog `expectedOff`): lenny, rex,
+  slinky, buzz.
+- NOT covered: sid (WSL) and the bootstrap images.
+
+Zurg is deliberately outside `system-default`: it imports `agent-md`,
+`nebula`, `node-exporter`, `run0-admin`, `sops`, `update`, `logging`,
+`stylix` and the P51 nixos-hardware profile — and nothing else (zram, ssh,
+locale, domain, peerpatrol, distributed-builds, DE and home-manager are
+intentionally absent).
 
 ## Graphical
 
@@ -62,9 +68,10 @@ See [ADR-0019](./docs/adr/0019-slinky-nixos-uconsole.md).
 
 ### woody
 
-Homeserver. prometheus/grafana/fritz-exporter, zabbix web + agent, immich,
-paperless, harmonia binary cache, borg-server, loghost, NFS-fee, mosquitto.
-KDE reachable via xrdp (no local display manager).
+Homeserver. prometheus/grafana/fritz-exporter, immich, paperless, harmonia
+binary cache + artifact publisher, borg-server, loghost, NFS-fee, mosquitto.
+KDE reachable via xrdp (no local display manager). Zabbix was retired
+2026-11-12.
 
 ### zurg
 
@@ -80,10 +87,11 @@ Disko-based images used to provision hosts. `bootstrap` is a normal root;
 
 ### buzz
 
-VPS on Ionos. nextcloud, dnsdist-based public DoT resolver ("pihole" role),
-wireguard, remote-builder. Offline at the moment (Ionos panel check pending;
-nebula identity repair in flight). vaultwarden used to run here — now on
-pricklepants. Also a declaratively-enrolled remote builder.
+VPS on Ionos. dnsdist-based public DoT resolver ("pihole" role), wireguard,
+nebula lighthouse, remote-builder. Offline at the moment (Ionos panel check
+pending; nebula identity repair in flight). vaultwarden used to run here — now
+on pricklepants; nextcloud moved to mrpotatohead. Also a declaratively-enrolled
+remote builder.
 
 ### jessie
 

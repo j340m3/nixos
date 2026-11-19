@@ -72,7 +72,7 @@ The class-typed `flake.modules` option solves this natively (all definitions
 under one name merge); with hand-rolled options this is the `deferredModule`
 case. The example repo stores per-host contributions as separate files in the
 host's dir. This replaces central constant files (this repo's
-`global/constants.nix` roster use-case).
+`modules/global/_constants.nix` roster use-case).
 
 ## Constants aspect (`generic` class)
 Define options + set values, import once high up so all modules in the tree
