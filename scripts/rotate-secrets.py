@@ -125,8 +125,12 @@ def ssh_keygen_pub(priv_path: str) -> str:
     return r.stdout.strip()
 
 
-def _label_key(label: str) -> str:
-    return f"{label}.key"
+def _identity_entry(data: dict, label: str) -> dict:
+    """Return the ``{key, pub}`` mapping for an identity label."""
+    entry = data.setdefault(label, {})
+    if not isinstance(entry, dict):
+        sys.exit(f"identity entry {label!r} is not a mapping")
+    return entry
 
 
 def _set_nested(data: dict, key: str, value: str) -> None:
@@ -277,8 +281,6 @@ def cmd_identity(args) -> int:
     if not recipients:
         sys.exit(f"no age recipients found in {sops_file}")
 
-    key_name = _label_key(label)
-
     with tempfile.NamedTemporaryFile("w", delete=False, suffix=".key") as nk:
         priv_path = nk.name
 
@@ -289,18 +291,20 @@ def cmd_identity(args) -> int:
 
         plain = sops_decrypt(sops_file, age_key_path)
         data = yaml.safe_load(plain) or {}
-        data.setdefault(label, {})[key_name] = priv_text
+        entry = _identity_entry(data, label)
+        entry["key"] = priv_text
+        entry["pub"] = pub
         new_plain = yaml.safe_dump(data, default_flow_style=False, sort_keys=False)
         enc = sops_encrypt(new_plain, recipients)
         write_atomic(sops_file, enc)
-        print(f"re-encrypted {sops_file} with {key_name}")
+        print(f"re-encrypted {sops_file} with {label}.key + {label}.pub")
 
         verify = sops_decrypt(sops_file, age_key_path)
         vdata = yaml.safe_load(verify) or {}
-        stored = ((vdata.get(label) or {}).get(key_name))
-        if stored != priv_text:
-            sys.exit(f"post-rotation verification failed: {key_name} mismatch")
-        print(f"post-rotation verification: {key_name} round-trip OK")
+        stored = _identity_entry(vdata, label)
+        if stored.get("key") != priv_text or stored.get("pub") != pub:
+            sys.exit(f"post-rotation verification failed: {label} mismatch")
+        print(f"post-rotation verification: {label} key/pub round-trip OK")
 
         pub_dir = pub_out / host
         pub_dir.mkdir(parents=True, exist_ok=True)

@@ -65,21 +65,7 @@ sudo head -1 /run/secrets/wifi/phone/ssid    # MUST read PHONE_SSID=…
 If it's a bare value, profiles break silently — tell me and I'll restructure
 `modules/services/wifi.nix`.
 
-## 5. mrpotatohead remotebuild pubkey (wrong key in sops)
-
-`sops -d secrets/hosts/mrpotatohead/secrets.yaml` has
-`remotebuild.pub = …CqX buzz` — the **buzz** remotebuild key (zurg uses the same
-one). It is not mrpotatohead's own key, so the SSH-builder allowlist cannot be
-completed by copying it. The mrpotatohead SSH host key
-(`secrets/common/ssh/mrpotatohead/ssh.pub`) is a different key and is not a
-substitute.
-
-Fix: generate a fresh mrpotatohead remotebuild keypair
-(`scripts/rotate-secrets.py identity mrpotatohead remotebuild`), then paste the
-fresh `…remotebuild.pub` into the allowlist slot marked `root@mrpotatohead` in
-`modules/services/remote-builder.nix`.
-
-## 6. Loose ends (say the word and I'll take one of them)
+## 5. Loose ends (say the word and I'll take one of them)
 
 - **Note (not a task):** nixpkgs 26.11 removed Nextcloud's declarative
   `adminuser`/`adminpassFile`. An existing install keeps its admin in the DB;

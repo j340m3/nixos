@@ -24,9 +24,7 @@
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILNdRpz4JYAfntx0frTB78EBZRjWqalvacM63b/7Twu7 root@slinky"
           # root@lenny (not published yet; publish first, then paste):
           #"ssh-ed25519 <PASTE root@lenny>"
-          # root@mrpotatohead (pub is sops-encrypted; paste after decrypting):
-          #   sops -d secrets/hosts/mrpotatohead/secrets.yaml | yq -r '.remotebuild.pub'
-          #"ssh-ed25519 <PASTE root@mrpotatohead>"
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHNqFUaCpRl8sddHJ8nrWIlMsQAevYXuIxidWn1stTAu mrpotatohead"
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICm8t9ZMCyIiA4JS6ltkLHqM0fIS+59Pn5mQiAU9mLqX jeromeb@rex"
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAoJ35SKgb4qpIy2VI5FZ5qamLh4AMjwFzXWjjJ6TiUK jeromeb@rex"
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM9Jw/TU36ewfgGuKunMD7Jdd1QfX+lDhjFS6XbK513t jeromeb@rex"

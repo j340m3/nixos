@@ -49,7 +49,7 @@ just py3 scripts/rotate-secrets.py age-key pricklepants --age-key <current age k
 just py3 scripts/rotate-secrets.py identity zurg ssh --age-key <host age key>
 ```
 1. Generates a new SSH keypair.
-2. Replaces `<label>.key` in the host's sops file (preserving all existing age recipients).
+2. Replaces `<label>.key` and `<label>.pub` in the host's sops file (preserving all existing age recipients).
 3. Writes the pub to `secrets/common/ssh/<host>/<label>.pub`.
 
 **Rotate the host's nebula cert:**
